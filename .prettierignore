@@ -1,0 +1,5 @@
+node_modules
+client/.next
+server/dist
+server/db/migrations
+bun.lock
