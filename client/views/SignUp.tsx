@@ -167,7 +167,7 @@ function SignUpForm() {
   }
 
   return (
-    <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-7 shadow-[0_20px_60px_-20px_rgba(159,32,99,0.18)]">
+    <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-7 shadow-[0_20px_60px_-20px_rgba(101,45,144,0.18)]">
       <form onSubmit={handleSubmit} className="space-y-3.5">
         <FloatingField
           label="Full Name"
@@ -318,7 +318,7 @@ function SignUpForm() {
           type="submit"
           disabled={loading || !canSubmit}
           whileTap={{ scale: 0.98 }}
-          className="relative w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white py-3.5 rounded-xl text-sm font-semibold transition-colors mt-2 shadow-[0_10px_30px_-10px_rgba(159,32,99,0.7)] overflow-hidden"
+          className="relative w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white py-3.5 rounded-xl text-sm font-semibold transition-colors mt-2 shadow-[0_10px_30px_-10px_rgba(101,45,144,0.7)] overflow-hidden"
         >
           {loading && (
             <span
@@ -340,14 +340,12 @@ function SignUpForm() {
 export default function SignUpPage() {
   return (
     <AuthLayout
-      badge="Free · No credit card"
       heading={
         <>
-          Join <span className="text-gradient-magenta">SMEEP</span> today
+          Join <span className="text-gradient-brand">AI Amplify</span> today
         </>
       }
       subheading="Empower your business with AI — it only takes a minute."
-      topRightPrompt={{ text: 'Already a member?', ctaLabel: 'Log in', ctaHref: '/login' }}
       altPrompt={{ text: 'Already have an account?', ctaLabel: 'Log in', ctaHref: '/login' }}
     >
       <Suspense

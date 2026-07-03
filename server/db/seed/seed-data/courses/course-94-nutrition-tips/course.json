@@ -1,7 +1,7 @@
 {
     "schema_version": "1.0",
-    "exported_at": "2026-05-19T05:51:24+00:00",
-    "source_site": "https://smeep.potential.org",
+    "exported_at": "2026-07-02T08:24:19+00:00",
+    "source_site": "https://aiamplify.potential.org",
     "course": {
         "course_id": 94,
         "title": "Nutrition Tips",
@@ -24,8 +24,8 @@
             "content": "",
             "course_unit_number": "",
             "course_time": "",
-            "course_unit_link": "https://smeep.potential.org/module-1/nutrition-tips-pretest/",
-            "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/03/Nutritiontips.png",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/nutrition-tips-pretest/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Nutritiontips.png",
             "featured_image_url": null
         },
         "modules": [
@@ -599,7 +599,7 @@
         "images": [
             {
                 "role": "card_image",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/03/Nutritiontips.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Nutritiontips.png",
                 "zip_path": "wp-content/uploads/2020/03/Nutritiontips.png",
                 "level": "card"
             }

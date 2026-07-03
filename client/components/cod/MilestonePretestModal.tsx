@@ -75,7 +75,7 @@ export function MilestonePretestModal({ milestoneId, milestoneTitle, pathId, onC
             type="button"
             onClick={onComplete}
             className="w-full py-3 rounded-xl text-sm font-bold text-white"
-            style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
           >
             Start Learning →
           </button>
@@ -104,8 +104,8 @@ export function MilestonePretestModal({ milestoneId, milestoneTitle, pathId, onC
               onClick={() => selectAnswer(i)}
               className="w-full text-left px-4 py-3 rounded-xl border-2 text-sm transition-colors"
               style={answers[currentQ] === i
-                ? { background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)', color: '#fff', borderColor: 'transparent' }
-                : { borderColor: '#9f2063', color: '#1A0A12', background: '#fff' }}
+                ? { background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)', color: '#fff', borderColor: 'transparent' }
+                : { borderColor: 'var(--color-brand-primary)', color: '#1A0A12', background: '#fff' }}
             >
               {opt}
             </button>
@@ -126,7 +126,7 @@ export function MilestonePretestModal({ milestoneId, milestoneTitle, pathId, onC
               onClick={submit}
               disabled={!allAnswered || loading}
               className="px-5 py-2 rounded-xl text-sm font-bold text-white disabled:opacity-40"
-              style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+              style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
             >
               {loading ? 'Submitting...' : 'Submit Answers'}
             </button>
@@ -136,7 +136,7 @@ export function MilestonePretestModal({ milestoneId, milestoneTitle, pathId, onC
               onClick={() => setCurrentQ((q) => q + 1)}
               disabled={answers[currentQ] === undefined}
               className="px-5 py-2 rounded-xl text-sm font-bold text-white disabled:opacity-40"
-              style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+              style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
             >
               Next
             </button>

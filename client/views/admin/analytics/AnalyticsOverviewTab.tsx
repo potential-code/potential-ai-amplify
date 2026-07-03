@@ -167,15 +167,15 @@ export function AnalyticsOverviewTab({ range }: Props) {
                 <AreaChart data={userGrowth} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="grUsersAn" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#9f2063" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="#9f2063" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#652d90" stopOpacity={0.45} />
+                      <stop offset="100%" stopColor="#652d90" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke="#f7e8f0" vertical={false} />
+                  <CartesianGrid stroke="#F1ECFA" vertical={false} />
                   <XAxis dataKey="label" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
                   <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #f7e8f0', fontSize: 12 }} />
-                  <Area type="monotone" dataKey="count" name="New users" stroke="#9f2063" strokeWidth={2.5} fill="url(#grUsersAn)" />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #F1ECFA', fontSize: 12 }} />
+                  <Area type="monotone" dataKey="count" name="New users" stroke="#652d90" strokeWidth={2.5} fill="url(#grUsersAn)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -193,7 +193,7 @@ export function AnalyticsOverviewTab({ range }: Props) {
             <div className="h-72">
               <ResponsiveContainer>
                 <BarChart data={completion} layout="vertical" margin={{ top: 0, right: 16, left: 8, bottom: 0 }}>
-                  <CartesianGrid stroke="#f7e8f0" horizontal={false} />
+                  <CartesianGrid stroke="#F1ECFA" horizontal={false} />
                   <XAxis
                     type="number"
                     stroke="#6B7280"
@@ -212,10 +212,10 @@ export function AnalyticsOverviewTab({ range }: Props) {
                     width={100}
                   />
                   <Tooltip
-                    contentStyle={{ borderRadius: 12, border: '1px solid #f7e8f0', fontSize: 12 }}
+                    contentStyle={{ borderRadius: 12, border: '1px solid #F1ECFA', fontSize: 12 }}
                     formatter={(v: number) => `${v}%`}
                   />
-                  <Bar dataKey="completionRate" name="Completion" fill="#9f2063" radius={[0, 8, 8, 0]} />
+                  <Bar dataKey="completionRate" name="Completion" fill="#652d90" radius={[0, 8, 8, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

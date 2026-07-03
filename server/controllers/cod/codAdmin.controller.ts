@@ -11,7 +11,7 @@ export async function listCodLearners(req: Request, res: Response, next: NextFun
       status: codUserPaths.status,
       createdAt: codUserPaths.createdAt,
       updatedAt: codUserPaths.updatedAt,
-    }).from(codUserPaths).where(eq(codUserPaths.platformId, 'smeep'))
+    }).from(codUserPaths).where(eq(codUserPaths.platformId, 'ai-amplify'))
 
     res.json({ success: true, data: paths })
   } catch (e) { next(e) }
@@ -22,7 +22,7 @@ export async function resetCodLearner(req: Request<{ userId: string }>, res: Res
     // CASCADE on cod_user_paths deletes all refs, assessments, progress, and quiz results
     await db.delete(codUserPaths).where(and(
       eq(codUserPaths.userId, req.params.userId),
-      eq(codUserPaths.platformId, 'smeep'),
+      eq(codUserPaths.platformId, 'ai-amplify'),
     ))
     res.json({ success: true })
   } catch (e) { next(e) }

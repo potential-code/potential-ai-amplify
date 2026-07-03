@@ -14,7 +14,7 @@ const FRONTEND_URL = process.env["FRONTEND_URL"] ?? "http://localhost:3000";
 // ---------------------------------------------------------------------------
 
 /**
- * Generates a random invite code string in the format "SMEEP-XXXXXXXX"
+ * Generates a random invite code string in the format "AMPLIFY-XXXXXXXX"
  * where X is an uppercase alphanumeric character.
  *
  * Uses 6 bytes of cryptographic randomness → 48 bits of entropy,
@@ -28,7 +28,7 @@ function generateCode(): string {
     // Modulo bias is negligible: 256 / 36 ≈ 7.1, so bias per character is <1%.
     suffix += chars[byte % chars.length];
   }
-  return `SMEEP-${suffix}`;
+  return `AMPLIFY-${suffix}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -293,7 +293,7 @@ export async function approveMentorApplication(id: string): Promise<void> {
 
   await sendMail({
     to: mentor.email,
-    subject: "Your SMEEP Mentor Application Has Been Approved",
+    subject: "Your AI Amplify Mentor Application Has Been Approved",
     template: "mentor-approval",
     context: {
       mentorName: mentor.name,

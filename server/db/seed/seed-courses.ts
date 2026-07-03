@@ -34,10 +34,10 @@ export async function seedCourses(): Promise<void> {
   }
 
   const data = cardsJson as { cpt: { items: CourseCard[] } };
-  const published = data.cpt.items.filter((c) => c.status === "publish");
+  const withCourseId = data.cpt.items.filter((c) => c.meta.course_id?.trim());
 
   let seeded = 0;
-  for (const card of published) {
+  for (const card of withCourseId) {
     const imageUrl = card.meta.course_image_url;
     let cover: string | null = null;
     if (imageUrl) {
@@ -48,7 +48,7 @@ export async function seedCourses(): Promise<void> {
     await db.insert(courses).values({
       title: card.title,
       cover,
-      status: "published",
+      status: card.status === "publish" ? "published" : "draft",
       difficulty: "Beginner",
     });
 

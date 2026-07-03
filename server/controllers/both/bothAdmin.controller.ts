@@ -16,7 +16,7 @@ export async function listLearners(req: Request, res: Response, next: NextFuncti
       internalBlockCount: bothUserPaths.internalBlockCount,
       createdAt: bothUserPaths.createdAt,
       updatedAt: bothUserPaths.updatedAt,
-    }).from(bothUserPaths).where(eq(bothUserPaths.platformId, 'smeep'))
+    }).from(bothUserPaths).where(eq(bothUserPaths.platformId, 'ai-amplify'))
 
     res.json({ success: true, data: paths })
   } catch (e) { next(e) }
@@ -33,7 +33,7 @@ export async function resetLearner(req: Request<{ userId: string }>, res: Respon
   try {
     await db.delete(bothUserPaths).where(and(
       eq(bothUserPaths.userId, req.params.userId),
-      eq(bothUserPaths.platformId, 'smeep'),
+      eq(bothUserPaths.platformId, 'ai-amplify'),
     ))
     res.json({ success: true })
   } catch (e) { next(e) }

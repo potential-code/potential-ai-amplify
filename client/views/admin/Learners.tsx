@@ -49,7 +49,7 @@ interface PendingConfirm {
 // ---------------------------------------------------------------------------
 
 function dicebearAvatar(fullName: string): string {
-  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}&backgroundColor=9f2063&fontSize=42&radius=50`
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}&backgroundColor=652d90&fontSize=42&radius=50`
 }
 
 function formatRelativeDate(iso: string | null): string {

@@ -17,7 +17,7 @@ export function JourneySection() {
         <div className="text-center max-w-3xl mx-auto mb-14">
           <SectionHeader
             badge={JOURNEY.badge}
-            heading="Your AI-powered"
+            heading="Your AI Amplify"
             highlight="Journey"
             subtext={JOURNEY.subtext}
           />

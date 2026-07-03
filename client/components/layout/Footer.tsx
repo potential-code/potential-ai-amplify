@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { Facebook, Linkedin, Mail, ArrowUpRight, Send, Check } from 'lucide-react'
 import { FOOTER_LINKS } from '@/lib/constants/navigation'
-import { FOOTER, NEWSLETTER, REDESIGN_ASSETS } from '@/lib/constants/content'
+import { FOOTER, NEWSLETTER } from '@/lib/constants/content'
+import { Logo } from '@/components/shared/Logo'
 
-const SHARE_URL = 'https://smeep.potential.org'
+const SHARE_URL = 'https://potential.com'
 const SHARE_TEXT =
-  'Increase your sales and reduce your costs by registering in the SME empowerment program from potential.com'
-const LI_SUMMARY = 'Evolve your business to the new post-COVID-19 world'
+  'Grow your business with free AI training, mentors, and tools — join AI Amplify from Potential.com'
+const LI_SUMMARY = 'Put AI to work in your business, free with AI Amplify'
 
 const SHARE_LINKS = [
   {
@@ -66,7 +67,7 @@ export function Footer() {
           <div>
             <h3 className="text-2xl sm:text-3xl font-bold leading-tight">
               {NEWSLETTER.heading}{' '}
-              <span className="text-gradient-magenta">— stay sharp.</span>
+              <span className="text-gradient-brand">— stay sharp.</span>
             </h3>
             <p className="text-white/60 text-sm mt-3 max-w-md leading-relaxed">{NEWSLETTER.body}</p>
           </div>
@@ -108,11 +109,11 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-4">
             <a href="/" className="inline-block mb-5">
-              <img src={REDESIGN_ASSETS.logo.src} alt={REDESIGN_ASSETS.logo.alt} className="h-11 brightness-0 invert" />
+              <Logo tone="inverted" size="lg" />
             </a>
             <p className="text-white/60 text-sm leading-relaxed max-w-xs">
-              The SME Empowerment Program — free AI training, mentors, and community for SMEs and
-              startups worldwide.
+              AI Amplify — free AI training, mentors, and community for SMEs, startups, and job
+              seekers worldwide.
             </p>
 
             {/* Share */}

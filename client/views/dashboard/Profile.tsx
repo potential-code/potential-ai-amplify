@@ -63,7 +63,7 @@ function formatTimezone(tz: string) {
 }
 
 function avatarUrl(name: string) {
-  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=9f2063&fontSize=42&radius=50`
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=652d90&fontSize=42&radius=50`
 }
 
 export default function ProfilePage() {
@@ -656,7 +656,7 @@ export default function ProfilePage() {
           outline: none;
           background: white;
           border-color: var(--color-brand-primary);
-          box-shadow: 0 0 0 3px rgba(159, 32, 99, 0.15);
+          box-shadow: 0 0 0 3px rgba(101, 45, 144, 0.15);
         }
         .profile-readonly {
           width: 100%;

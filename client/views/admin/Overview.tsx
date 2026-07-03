@@ -43,10 +43,9 @@ import { getUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 // Brand palette constants for Recharts (CSS vars are not readable by SVG)
-const PRIMARY = '#9f2063'
+const PRIMARY = '#652d90'
 const VIOLET = '#4c1d6e'
-const ACCENT = '#e83e94'
-const SURFACE_2 = '#f7e8f0'
+const SURFACE_2 = '#F1ECFA'
 const TEXT_MUTED = '#6B7280'
 
 const QUICK_ACTIONS = [
@@ -146,7 +145,7 @@ export default function AdminOverview() {
           </div>
           <h1 className="text-xl sm:text-2xl font-black leading-tight">
             Welcome{' '}
-            <span className="text-gradient-magenta">
+            <span className="text-gradient-brand">
               {user?.fullName ?? 'Admin'}
             </span>
           </h1>
@@ -368,7 +367,7 @@ export default function AdminOverview() {
                 <defs>
                   <linearGradient id="grEngagement" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stopColor={PRIMARY} />
-                    <stop offset="100%" stopColor={ACCENT} />
+                    <stop offset="100%" stopColor={VIOLET} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke={SURFACE_2} horizontal={false} />

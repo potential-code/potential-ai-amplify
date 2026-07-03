@@ -100,7 +100,7 @@ function CopyButton({ text }: CopyButtonProps) {
       className={cn(
         'absolute top-2 right-2 p-1 rounded-md transition-all duration-150',
         'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
-        'bg-white/80 hover:bg-white text-[#9f2063] border border-[#9f2063]/20 shadow-sm',
+        'bg-white/80 hover:bg-white text-brand-primary border border-brand-primary/20 shadow-sm',
       )}
     >
       {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -312,7 +312,7 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
       <div className="flex flex-col h-full bg-[#FDF5F9] items-center justify-center gap-3">
         <div
           className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin"
-          style={{ borderColor: '#9f2063', borderTopColor: 'transparent' }}
+          style={{ borderColor: 'var(--color-brand-primary)', borderTopColor: 'transparent' }}
           aria-label="Loading mentor…"
         />
         <p className="text-sm text-[#6B7280]">Loading mentor…</p>
@@ -363,7 +363,7 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
         {/* ---------------------------------------------------------------- */}
         <header
           className="flex items-center gap-3 px-5 py-4 shrink-0"
-          style={{ background: '#9f2063' }}
+          style={{ background: 'var(--color-brand-primary)' }}
         >
           <div className="relative shrink-0">
             <Image
@@ -407,7 +407,7 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
                 <div className="flex items-end gap-2 max-w-[75%]">
                   <div
                     className="rounded-2xl rounded-br-sm px-4 py-3 text-sm text-white leading-relaxed"
-                    style={{ background: '#9f2063' }}
+                    style={{ background: 'var(--color-brand-primary)' }}
                   >
                     {message.text}
                   </div>
@@ -416,7 +416,7 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
                     style={{ background: '#f7e8f0' }}
                     aria-hidden="true"
                   >
-                    <User className="w-4 h-4" style={{ color: '#9f2063' }} />
+                    <User className="w-4 h-4" style={{ color: 'var(--color-brand-primary)' }} />
                   </div>
                 </div>
                 <span className="text-[10px] text-[#6B7280] pr-10">
@@ -441,7 +441,7 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
                     className="group relative max-w-[78%] rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed border"
                     style={{
                       background: '#ffffff',
-                      borderColor: 'rgba(159,32,99,0.3)',
+                      borderColor: 'rgba(101, 45, 144,0.3)',
                       color: '#1A0A12',
                     }}
                   >
@@ -458,7 +458,7 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
                                   href={href}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  style={{ color: '#9f2063' }}
+                                  style={{ color: 'var(--color-brand-primary)' }}
                                   className="underline underline-offset-2"
                                 >
                                   {children}
@@ -473,7 +473,7 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
                               blockquote: ({ children }) => (
                                 <blockquote
                                   className="pl-3 my-2 italic"
-                                  style={{ borderLeft: '3px solid #9f2063', color: '#6B7280' }}
+                                  style={{ borderLeft: '3px solid var(--color-brand-primary)', color: '#6B7280' }}
                                 >
                                   {children}
                                 </blockquote>
@@ -524,11 +524,11 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
                 key={i}
                 onClick={() => sendMessage(prompt)}
                 disabled={isStreaming}
-                className="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors duration-150 hover:bg-[#9f2063] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors duration-150 hover:bg-brand-primary hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: '#ffffff',
-                  color: '#9f2063',
-                  borderColor: '#9f2063',
+                  color: 'var(--color-brand-primary)',
+                  borderColor: 'var(--color-brand-primary)',
                 }}
               >
                 {prompt}
@@ -562,14 +562,14 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
                 'min-h-[44px] max-h-[200px]',
               )}
               style={{
-                borderColor: 'rgba(159,32,99,0.3)',
+                borderColor: 'rgba(101, 45, 144,0.3)',
                 // @ts-ignore — focus ring via CSS variable not supported via inline style
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#9f2063'
+                e.currentTarget.style.borderColor = 'var(--color-brand-primary)'
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(159,32,99,0.3)'
+                e.currentTarget.style.borderColor = 'rgba(101, 45, 144,0.3)'
               }}
             />
             <button
@@ -582,7 +582,7 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
                 'disabled:opacity-40 disabled:cursor-not-allowed',
                 'hover:not-disabled:scale-105 active:scale-95',
               )}
-              style={{ background: '#9f2063' }}
+              style={{ background: 'var(--color-brand-primary)' }}
             >
               {/* Simple send arrow */}
               <svg

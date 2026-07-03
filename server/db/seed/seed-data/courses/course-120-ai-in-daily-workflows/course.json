@@ -1,0 +1,816 @@
+{
+    "schema_version": "1.0",
+    "exported_at": "2026-07-02T08:24:17+00:00",
+    "source_site": "https://aiamplify.potential.org",
+    "course": {
+        "course_id": 120,
+        "title": "AI in Daily Workflows",
+        "description": "",
+        "unit_count": 7,
+        "author_id": 3669,
+        "course_post_id": 4459,
+        "settings": {
+            "completion_wall": "all_visible",
+            "use_certificate": "use_certs",
+            "user_access": "default_show",
+            "unit_advancement": "manual",
+            "prerequisites": [],
+            "payments_type": "free",
+            "payments_price": "0.00"
+        },
+        "card": {
+            "card_post_id": 4555,
+            "title": "AI in Daily Workflows",
+            "content": "",
+            "course_unit_number": "",
+            "course_time": "",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/ai-integration-in-everyday-tasks/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-4.png",
+            "featured_image_url": null
+        },
+        "modules": [
+            {
+                "module_id": 120,
+                "title": "AI in Daily Workflows",
+                "description": "<p><span class=\"TextRun SCXW202596266 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW202596266 BCX8\">AI in Daily Workflows</span></span></p>",
+                "order": 1,
+                "number": 1,
+                "units": [
+                    {
+                        "unit_id": 4460,
+                        "title": "AI Integration in Everyday Tasks",
+                        "slug": "ai-integration-in-everyday-tasks",
+                        "order": 10,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "TcSW3vHxiyM",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/AI-Integration-in-Everyday-Tasks.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Today, we delve into the seamless integration of AI into your daily tasks. </h5>\r\n<h5>Embracing AI technologies can enhance your efficiency and decision-making like never before. </h5>\r\n<h5>Whether it's automating routine emails, setting smart reminders, or using voice assistants for quick searches, AI's integration transforms the mundane into the extraordinary. </h5>\r\n<h5>Remember, the key is identifying tasks where AI can lend a helping hand. </h5>\r\n<h5>By recognizing AI-friendly opportunities in your workflow, you'll be well on your way to a more streamlined and productive routine. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/TSjgE_3fFsY?si=wzotRtLOH0nDVWaU\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 985,
+                            "title": "AI Integration in Everyday Tasks",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW18603258 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW18603258 BCX8\">AI Integration in Everyday Tasks</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How often do you currently utilize AI-integrated tools or applications in your daily tasks or work processes?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Regularly",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Occasionally",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Rarely",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not at all ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2385,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4461,
+                        "title": "Enhancing Efficiency Through AI",
+                        "slug": "enhancing-efficiency-through-ai",
+                        "order": 20,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "WX8E9wWgLl4",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Enhancing-Efficiency-Through-AI.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Discover how AI becomes your efficiency ally. </h5>\r\n<h5>By leveraging predictive algorithms and machine learning, AI fine-tunes your processes for optimal outcomes. </h5>\r\n<h5>Think about automating data analysis, scheduling, or even recommending the best route for your commute. The possibilities are boundless. </h5>\r\n<h5>Embrace AI's power to eliminate repetitive tasks, allowing you to focus on what truly matters. </h5>\r\n<h5>\r\nEfficiency isn't just a goal; it's a reality you can achieve with the strategic use of AI. \r\n</h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/v6OB80Vt1Dk?si=sAMtURLnQfMX-kwH\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 986,
+                            "title": "Enhancing Efficiency through AI",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW125983396 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW125983396 BCX8\">Enhancing Efficiency through AI</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": " In your opinion, what are the main barriers to adopting AI-driven solutions to enhance efficiency in your work? (Select up to three) ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Lack of awareness about available AI tools  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Concerns about job displacement  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Difficulty in integrating AI with existing systems  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Limited understanding of how AI can be applied in my field ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 5,
+                                            "text": "None of the above ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2386,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4462,
+                        "title": "AI in Decision-Making Processes",
+                        "slug": "ai-in-decision-making-processes",
+                        "order": 30,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "eqHTX-UN9cg",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/AI-in-Decision-Making-Processes.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Dive into the world of AI's impact on decision-making. </h5>\r\n<h5>Predictive analytics and data-driven insights empower you to make informed choices across various domains. </h5>\r\n<h5>From financial forecasting to medical diagnoses, AI helps navigate complex scenarios by analyzing patterns and probabilities. </h5>\r\n<h5>This new dimension in decision-making enables you to chart more successful and well-informed paths. </h5>\r\n<h5>\r\nPrepare to harness AI's guidance and enhance your decision-making prowess. \r\n</h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/rJxALhMMctQ?si=y73O8GJeOAc9A9V-\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 987,
+                            "title": "AI in Decision-Making Processes",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW6524759 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW6524759 BCX8\">AI in Decision-Making Processes</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How confident are you in the accuracy and reliability of AI-generated insights when making critical decisions in your domain?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very confident  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat confident",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not very confident  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not confident at all ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2387,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4463,
+                        "title": "AI-Driven Optimization Techniques",
+                        "slug": "ai-driven-optimization-techniques",
+                        "order": 40,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "O-Qw90HFG_Q",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/AI-Driven-Optimization-Techniques.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Optimization takes center stage with AI at your side.  </h5>\r\n<h5>Algorithms and simulations enable AI to identify the most efficient routes, allocation strategies, and resource utilization.  </h5>\r\n<h5>Imagine automating inventory management or route planning, ensuring optimal outcomes.  </h5>\r\n<h5>By understanding how AI-driven optimization works, you'll unlock the door to cost savings, improved performance, and resource utilization like never before. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/qV76VwCG1Cs?si=B8TZzgusGTZPqStL\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 988,
+                            "title": "AI-Driven Optimization Techniques",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW196787832 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW196787832 BCX8\">AI-Driven Optimization Techniques</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "What are your primary considerations when evaluating AI-driven optimization solutions for resource allocation or performance improvement? (Select up to three) ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Cost-effectiveness  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Ease of implementation  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Demonstrated track record of success  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Compatibility with existing systems  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 5,
+                                            "text": "None of the above ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2388,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4464,
+                        "title": "AI and Personal Productivity",
+                        "slug": "ai-and-personal-productivity",
+                        "order": 50,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "cwPd4_Joq7Y",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/AI-and-Personal-Productivity.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Personal productivity meets AI's innovation. </h5>\r\n<h5>Seamlessly blending into your routine, AI aids in time management, task organization, and skill enhancement. </h5>\r\n<h5>Imagine AI-driven language learning or personalized content curation. </h5>\r\n<h5>By making AI your productivity partner, you'll reclaim valuable time and amplify your capabilities. </h5>\r\n<h5>Transform your routine into a powerhouse of accomplishment with AI by your side. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/fxXNbh4CRdg?si=ngC5wOTERcEMbewd\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 989,
+                            "title": "AI and Personal Productivity",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW265998426 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW265998426 BCX8\">AI and Personal Productivity</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How has the use of AI tools affected your personal productivity and work-life balance?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Significantly improved  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat improved ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "No significant change  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Worsened",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2389,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4465,
+                        "title": "Practical Examples and Use Cases",
+                        "slug": "practical-examples-and-use-cases",
+                        "order": 60,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "KXd54Lbn23E",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Practical-Examples-and-Use-Cases.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>In this culminating unit, practicality takes center stage. </h5>\r\n<h5>Explore real-world examples where AI-driven solutions shine. </h5>\r\n<h5>From healthcare diagnostics to supply chain optimization, witness how AI tackles complex challenges. </h5>\r\n<h5>Envision a future where AI is a steadfast companion, revolutionizing industries and enriching lives. </h5>\r\n<h5>Your journey through this micro-course is just the beginning. </h5>\r\n<h5>Prepare to venture into a world where AI's potential knows no bounds. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/P2zdHfVj78Y?si=QVH_9vQLnpf8V4HJ\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 990,
+                            "title": "Practical Examples and Use Cases",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW170088187 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW170088187 BCX8\">Practical Examples and Use Cases</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "open",
+                                    "text": "After reviewing the practical examples and use cases, which AI application do you find most promising for your field or industry?\nPlease explain your choice. ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "small_textarea",
+                                    "question_id": 2390,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4466,
+                        "title": "Post-Test",
+                        "slug": "post-test-4",
+                        "order": 70,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": null,
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "",
+                            "course-unit-read-more": "",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 991,
+                            "title": "Post-Test",
+                            "description": "<p>Post-Test</p>",
+                            "type": "quiz_block",
+                            "pass_mark": 80,
+                            "attempts_allowed": 2,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How can AI integration enhance everyday tasks and workflows? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "By making tasks more complicated",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "By replacing human workers with robots",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "By streamlining processes and automating routine actions",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "By adding unnecessary complexity to tasks",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2391,
+                                    "order": 0
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "How can AI contribute to enhancing efficiency in work processes? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "By creating more paperwork",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "By slowing down decision-making",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "By automating repetitive tasks and providing data-driven insights",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "By increasing manual workloads",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2392,
+                                    "order": 1
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "How does AI contribute to more informed decision-making?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "By randomly selecting options",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "By using magic to predict outcomes",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "By analyzing patterns and providing data-driven insights",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "By making decisions without any input from humans",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2393,
+                                    "order": 2
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What is the role of AI-driven optimization techniques?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "To make processes slower and less efficient",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "To complicate resource allocation",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "To identify the most efficient ways of allocating resources and achieving better performance",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "To introduce unnecessary complexities in operations",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2394,
+                                    "order": 3
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "How can AI tools enhance personal productivity? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "By making tasks more time-consuming",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "By generating irrelevant information",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "By aiding in time management, task organization, and skill enhancement",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "By increasing distractions and reducing focus",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2395,
+                                    "order": 4
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "Reflect on the practical examples and use cases covered in this unit. How does AI technology contribute to real-world problem-solving? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "By creating more problems",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "By complicating existing challenges",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "By providing innovative solutions and addressing complex issues",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "By adding unnecessary confusion to situations",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2396,
+                                    "order": 5
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "assets": {
+        "images": [
+            {
+                "role": "card_image",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-4.png",
+                "zip_path": "wp-content/uploads/2025/02/AI-4.png",
+                "level": "card"
+            }
+        ]
+    }
+}

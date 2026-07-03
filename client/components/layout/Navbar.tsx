@@ -5,6 +5,7 @@ import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-
 import { ChevronDown, Menu } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { NAV_LINKS } from '@/lib/constants/navigation'
+import { Logo } from '@/components/shared/Logo'
 import { cn } from '@/lib/utils'
 
 export function Navbar() {
@@ -40,7 +41,7 @@ export function Navbar() {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         scrolled
-          ? 'bg-white/85 backdrop-blur-xl shadow-[0_4px_30px_-10px_rgba(159,32,99,0.15)] border-b border-brand-surface-2'
+          ? 'bg-white/85 backdrop-blur-xl shadow-[0_4px_30px_-10px_rgba(101,45,144,0.15)] border-b border-brand-surface-2'
           : 'bg-transparent',
       )}
       initial={{ y: -80, opacity: 0 }}
@@ -50,14 +51,10 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={cn('flex items-center justify-between transition-all', scrolled ? 'h-16' : 'h-20')}>
           <a href="/" className="flex items-center group">
-            <img
-              src="/images/SMEEP-logo.png"
-              alt="SMEEP"
-              className={cn(
-                'transition-all duration-300 group-hover:scale-105',
-                scrolled ? 'h-9' : 'h-11',
-                !scrolled && 'brightness-0 invert',
-              )}
+            <Logo
+              tone={scrolled ? 'default' : 'inverted'}
+              size={scrolled ? 'sm' : 'md'}
+              className="transition-all duration-300 group-hover:scale-105"
             />
           </a>
 
@@ -101,7 +98,7 @@ export function Navbar() {
                           transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                           className="absolute left-1/2 -translate-x-1/2 top-full pt-3 w-72"
                         >
-                          <div className="rounded-2xl bg-white border border-brand-surface-2 shadow-[0_20px_50px_-15px_rgba(159,32,99,0.25)] overflow-hidden p-2">
+                          <div className="rounded-2xl bg-white border border-brand-surface-2 shadow-[0_20px_50px_-15px_rgba(101,45,144,0.25)] overflow-hidden p-2">
                             {link.children.map((child) => (
                               <a
                                 key={child.href}
@@ -157,7 +154,7 @@ export function Navbar() {
             </a>
             <a
               href="/sign-up"
-              className="inline-flex items-center bg-brand-primary hover:bg-brand-primary-dark text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-[0_8px_24px_-8px_rgba(159,32,99,0.6)] hover:shadow-[0_10px_30px_-8px_rgba(159,32,99,0.8)]"
+              className="inline-flex items-center bg-brand-primary hover:bg-brand-primary-dark text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-[0_8px_24px_-8px_rgba(101,45,144,0.6)] hover:shadow-[0_10px_30px_-8px_rgba(101,45,144,0.8)]"
             >
               Sign Up
             </a>

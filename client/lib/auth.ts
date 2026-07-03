@@ -100,7 +100,7 @@ export function getProfile(): Profile {
     company: '',
     role: user.role,
     joinedAt: Date.now(),
-    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.fullName)}&backgroundColor=9f2063&fontSize=42&radius=50`,
+    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.fullName)}&backgroundColor=652d90&fontSize=42&radius=50`,
   }
 }
 

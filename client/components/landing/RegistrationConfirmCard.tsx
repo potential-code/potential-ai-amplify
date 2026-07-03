@@ -61,7 +61,7 @@ interface RowProps {
 function DataRow({ label, value, field, disabled, onEdit }: RowProps) {
   return (
     <div className="flex items-center gap-3 px-4 py-3">
-      <span className="text-xs font-semibold uppercase tracking-wider w-24 flex-shrink-0 text-[#9f2063]/80">
+      <span className="text-xs font-semibold uppercase tracking-wider w-24 flex-shrink-0 text-[#652d90]/80">
         {label}
       </span>
       <span className="flex-1 text-sm font-medium truncate text-white/90">{value}</span>
@@ -69,8 +69,8 @@ function DataRow({ label, value, field, disabled, onEdit }: RowProps) {
         type="button"
         disabled={disabled}
         onClick={() => onEdit(field)}
-        className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-[#9f2063]/60 hover:text-[#9f2063] hover:bg-white/5"
-        style={{ background: "rgba(159,32,99,0.20)" }}
+        className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-[#652d90]/60 hover:text-[#652d90] hover:bg-white/5"
+        style={{ background: "rgba(101,45,144,0.20)" }}
         aria-label={`Edit ${label}`}
       >
         <Pencil className="w-3.5 h-3.5" />
@@ -131,7 +131,7 @@ export function RegistrationConfirmCard({
       {/* ------------------------------------------------------------------ */}
       <div
         className="flex items-center gap-2 px-4 py-3"
-        style={{ background: "linear-gradient(120deg,#9f2063,#7a1a4c)" }}
+        style={{ background: "linear-gradient(120deg,#652d90,#4a2168)" }}
       >
         <Sparkles className="w-4 h-4 text-white/80 flex-shrink-0" />
         <span className="text-sm font-semibold text-white tracking-wide">
@@ -146,9 +146,9 @@ export function RegistrationConfirmCard({
         <div className="flex items-center gap-3 px-4 py-4">
           <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-white/10">
             {completedAction?.type === "edit" ? (
-              <Pencil className="w-4 h-4 text-[#9f2063]" strokeWidth={2.5} />
+              <Pencil className="w-4 h-4 text-[#652d90]" strokeWidth={2.5} />
             ) : (
-              <Check className="w-4 h-4 text-[#9f2063]" strokeWidth={2.5} />
+              <Check className="w-4 h-4 text-[#652d90]" strokeWidth={2.5} />
             )}
           </div>
           <span className="text-sm font-medium text-white/90">
@@ -225,7 +225,7 @@ export function RegistrationConfirmCard({
               disabled={isDisabled}
               onClick={handleConfirm}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: "linear-gradient(120deg,#9f2063,#7a1a4c)" }}
+              style={{ background: "linear-gradient(120deg,#652d90,#4a2168)" }}
             >
               {showSpinner ? (
                 <>

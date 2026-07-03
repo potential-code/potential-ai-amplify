@@ -47,18 +47,25 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* Brand custom colors — magenta on deep eggplant */
-  --color-brand-primary: #9f2063;
-  --color-brand-primary-dark: #7a1a4c;
-  --color-brand-primary-light: #c42b7a;
-  --color-brand-accent: #e83e94;
-  --color-brand-violet: #4c1d6e;
-  --color-brand-dark: #0D0008;
+  /* Brand custom colors — AI Amplify purple on deep eggplant */
+  --color-brand-primary: #652d90;
+  --color-brand-primary-dark: #4a2168;
+  --color-brand-primary-light: #b966e7;
+  --color-brand-accent: #9e77ff;
+  --color-brand-violet: #4c2a80;
+  --color-brand-dark: #0d0614;
   --color-brand-deep: #1a0418;
-  --color-brand-surface: #FDF5F9;
-  --color-brand-surface-2: #f7e8f0;
+  --color-brand-surface: #F9F9FF;
+  --color-brand-surface-2: #F1ECFA;
   --color-brand-text-primary: #1A0A12;
   --color-brand-text-muted: #6B7280;
+
+  /* Pastel accent tokens — "sticky note" tool-card treatment (ChatbotSection capability cards) */
+  --color-pastel-peach: #fde292;
+  --color-pastel-pink: #ffdbe1;
+  --color-pastel-magenta: #ffc5fa;
+  --color-pastel-mint: #c8ffe9;
+  --color-pastel-lavender: #e4a7f6;
 }
 
 :root {
@@ -68,7 +75,7 @@
   --card-foreground: oklch(0.13 0.028 261);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.13 0.028 261);
-  --primary: oklch(0.47 0.18 350);
+  --primary: oklch(0.42 0.16 307);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.96 0.005 350);
   --secondary-foreground: oklch(0.13 0.028 350);
@@ -79,8 +86,8 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.91 0.007 350);
   --input: oklch(0.91 0.007 350);
-  --ring: oklch(0.47 0.18 350);
-  --chart-1: oklch(0.47 0.18 350);
+  --ring: oklch(0.42 0.16 307);
+  --chart-1: oklch(0.42 0.16 307);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
@@ -88,12 +95,12 @@
   --radius: 0.5rem;
   --sidebar: oklch(0.97 0.005 247);
   --sidebar-foreground: oklch(0.13 0.028 261);
-  --sidebar-primary: oklch(0.47 0.18 350);
+  --sidebar-primary: oklch(0.42 0.16 307);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.96 0.005 350);
   --sidebar-accent-foreground: oklch(0.13 0.028 350);
   --sidebar-border: oklch(0.91 0.007 350);
-  --sidebar-ring: oklch(0.47 0.18 350);
+  --sidebar-ring: oklch(0.42 0.16 307);
   --font-noto-sans: 'Noto Sans', system-ui, sans-serif;
 }
 
@@ -104,7 +111,7 @@
   --card-foreground: oklch(1 0 0);
   --popover: oklch(0.15 0.028 261);
   --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.57 0.18 350);
+  --primary: oklch(0.52 0.16 307);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.23 0.02 350);
   --secondary-foreground: oklch(1 0 0);
@@ -115,7 +122,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.57 0.18 350);
+  --ring: oklch(0.52 0.16 307);
 }
 
 @layer base {
@@ -134,7 +141,7 @@
   /* Neat, unobtrusive scrollbars across the platform */
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(159, 32, 99, 0.35) transparent;
+    scrollbar-color: rgba(101, 45, 144, 0.35) transparent;
   }
   *::-webkit-scrollbar {
     width: 10px;
@@ -144,13 +151,13 @@
     background: transparent;
   }
   *::-webkit-scrollbar-thumb {
-    background-color: rgba(159, 32, 99, 0.3);
+    background-color: rgba(101, 45, 144, 0.3);
     border-radius: 9999px;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(159, 32, 99, 0.55);
+    background-color: rgba(101, 45, 144, 0.55);
   }
   *::-webkit-scrollbar-corner {
     background: transparent;
@@ -176,7 +183,7 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239f2063'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23652d90'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.65rem center;
     background-size: 1.05rem 1.05rem;
@@ -187,7 +194,7 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239f2063'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23652d90'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.65rem center;
     background-size: 1.05rem 1.05rem;
@@ -209,48 +216,51 @@
     text-wrap: balance;
   }
   .bg-mesh-dark {
-    background-color: #0D0008;
+    background-color: #0d0614;
     background-image:
-      radial-gradient(at 12% 18%, rgba(159,32,99,0.45) 0, transparent 45%),
-      radial-gradient(at 86% 12%, rgba(76,29,110,0.55) 0, transparent 50%),
-      radial-gradient(at 70% 92%, rgba(232,62,148,0.25) 0, transparent 50%),
-      radial-gradient(at 8% 88%, rgba(159,32,99,0.30) 0, transparent 50%);
+      radial-gradient(at 12% 18%, rgba(101,45,144,0.45) 0, transparent 45%),
+      radial-gradient(at 86% 12%, rgba(76,42,128,0.55) 0, transparent 50%),
+      radial-gradient(at 70% 92%, rgba(158,119,255,0.25) 0, transparent 50%),
+      radial-gradient(at 8% 88%, rgba(101,45,144,0.30) 0, transparent 50%);
   }
   .bg-mesh-soft {
-    background-color: #FDF5F9;
+    background-color: #F9F9FF;
     background-image:
-      radial-gradient(at 5% 0%, rgba(159,32,99,0.10) 0, transparent 45%),
-      radial-gradient(at 95% 100%, rgba(76,29,110,0.08) 0, transparent 50%);
+      radial-gradient(at 5% 0%, rgba(101,45,144,0.10) 0, transparent 45%),
+      radial-gradient(at 95% 100%, rgba(76,42,128,0.08) 0, transparent 50%);
+  }
+  .bg-gradient-banner {
+    background: linear-gradient(270deg, #9e77ff, #652d90);
   }
   .bg-noise {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
   }
-  .glow-magenta {
+  .glow-brand {
     box-shadow:
-      0 0 0 1px rgba(159,32,99,0.18),
-      0 10px 30px -10px rgba(159,32,99,0.45),
-      0 0 60px -20px rgba(232,62,148,0.55);
+      0 0 0 1px rgba(101,45,144,0.18),
+      0 10px 30px -10px rgba(101,45,144,0.45),
+      0 0 60px -20px rgba(158,119,255,0.55);
   }
-  .ring-magenta-soft {
-    box-shadow: 0 0 0 6px rgba(159,32,99,0.10);
+  .ring-brand-soft {
+    box-shadow: 0 0 0 6px rgba(101,45,144,0.10);
   }
-  .text-gradient-magenta {
-    background: linear-gradient(120deg, #e83e94 0%, #9f2063 50%, #c42b7a 100%);
+  .text-gradient-brand {
+    background: linear-gradient(90deg, #652d90 0%, #b966e7 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
   }
-  .border-gradient-magenta {
+  .border-gradient-brand {
     position: relative;
   }
-  .border-gradient-magenta::before {
+  .border-gradient-brand::before {
     content: "";
     position: absolute;
     inset: 0;
     padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(135deg, rgba(232,62,148,0.6), rgba(76,29,110,0.0) 60%, rgba(159,32,99,0.5));
+    background: linear-gradient(135deg, rgba(158,119,255,0.6), rgba(76,42,128,0.0) 60%, rgba(101,45,144,0.5));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -270,8 +280,8 @@
   to { stroke-dashoffset: 0; }
 }
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(232,62,148,0.55); }
-  50% { box-shadow: 0 0 0 18px rgba(232,62,148,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(158,119,255,0.55); }
+  50% { box-shadow: 0 0 0 18px rgba(158,119,255,0); }
 }
 @keyframes float-slow {
   0%, 100% { transform: translateY(0) }
@@ -291,14 +301,16 @@
   }
 }
 
-/* ─── SMEEP-branded CopilotKit theming (AI Business Assistant full-page chat) ── */
+/* ─── AI Amplify-branded CopilotKit theming (AI Business Assistant full-page chat) ──
+   Class names below (.smeep-copilot etc.) are also consumed by 8 out-of-scope
+   dashboard/learning components — keep the selectors, only retint values. */
 .smeep-copilot {
-  --copilot-kit-primary-color: #9f2063;
+  --copilot-kit-primary-color: #652d90;
   --copilot-kit-contrast-color: #ffffff;
   --copilot-kit-background-color: #ffffff;
-  --copilot-kit-secondary-color: #fdf2f8;
-  --copilot-kit-secondary-contrast-color: #9f2063;
-  --copilot-kit-separator-color: #f3e6ee;
+  --copilot-kit-secondary-color: #f6effb;
+  --copilot-kit-secondary-contrast-color: #652d90;
+  --copilot-kit-separator-color: #ece2f5;
   --copilot-kit-muted-color: #6b5b73;
 }
 /* Hide CopilotKit's stock header — we render our own branded header above it */
@@ -306,7 +318,7 @@
   display: none !important;
 }
 .smeep-copilot .copilotKitMessages {
-  background: #fdf5f9 !important;
+  background: #f9f9ff !important;
 }
 
 /* ─── Smeep Assistant (CopilotKit v2 embed) ─────────────────────────────────
@@ -344,7 +356,7 @@
     margin-bottom: 0 !important;
   }
   .smeep-bot-bubble code {
-    background: rgba(159, 32, 99, 0.07);
+    background: rgba(101, 45, 144, 0.07);
     border-radius: 4px;
     padding: 1px 4px;
     font-family: var(--font-mono), monospace;

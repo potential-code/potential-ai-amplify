@@ -14,7 +14,7 @@ function getAiBaseUrl(): string {
 function mintServiceToken(userId: string): string {
   const secret = process.env['COPILOT_SERVICE_JWT_SECRET']
   if (!secret) throw new AppError('AI backend is not configured', 503, 'AI_NOT_CONFIGURED')
-  return jwt.sign({ platformId: 'smeep', userId }, secret, { algorithm: 'HS256', expiresIn: 300 })
+  return jwt.sign({ platformId: 'ai-amplify', userId }, secret, { algorithm: 'HS256', expiresIn: 300 })
 }
 
 /**

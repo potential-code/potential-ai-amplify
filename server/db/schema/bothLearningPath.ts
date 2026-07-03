@@ -41,7 +41,7 @@ type BothDiscoveryProfile = { goals: string; topics: string[]; experienceLevel: 
 export const bothUserPaths = pgTable('both_user_paths', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  platformId: text('platform_id').notNull().default('smeep'),
+  platformId: text('platform_id').notNull().default('ai-amplify'),
   discoveryProfile: jsonb('discovery_profile').$type<BothDiscoveryProfile>(),
   milestones: jsonb('milestones').notNull().$type<BothMilestone[]>().default(sql`'[]'::jsonb`),
   status: bothPathStatusEnum('status').notNull().default('building'),

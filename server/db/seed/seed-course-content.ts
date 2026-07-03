@@ -159,12 +159,12 @@ export async function seedCourseContent(): Promise<void> {
     throw new Error(`Courses directory not found at ${COURSES_DIR}`);
   }
 
-  // Build WP course_id → title map (published only) from cpt-cards.json
+  // Build WP course_id → title map (any status with a valid course_id) from cpt-cards.json
   const cardsPath = path.resolve(SCRIPT_DIR, "seed-data/cpt-cards.json");
   const cards: CardsJson = JSON.parse(fs.readFileSync(cardsPath, "utf-8"));
   const wpIdToTitle = new Map<number, string>();
   for (const card of cards.cpt.items) {
-    if (card.status === "publish") {
+    if (card.meta.course_id?.trim()) {
       wpIdToTitle.set(parseInt(card.meta.course_id, 10), card.title);
     }
   }

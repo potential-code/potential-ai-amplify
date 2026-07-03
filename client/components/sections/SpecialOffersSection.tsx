@@ -99,7 +99,7 @@ export function SpecialOffersSection() {
         <div className="text-center max-w-3xl mx-auto mb-12">
           <SectionHeader
             badge={SPECIAL_OFFERS.badge}
-            heading="Special SME"
+            heading="Special AI Amplify"
             highlight="Offers"
             subtext={SPECIAL_OFFERS.subtext}
           />

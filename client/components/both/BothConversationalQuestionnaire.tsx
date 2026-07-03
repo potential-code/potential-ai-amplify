@@ -132,12 +132,12 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
         style={{ background: 'linear-gradient(120deg, #1A0A12 0%, #2d0f20 100%)' }}
       >
         <img
-          src="/images/redesign/smeep-avatar-96.png"
-          alt="Sana"
+          src="/images/redesign/anna-avatar-96.png"
+          alt="Anna"
           className="w-8 h-8 rounded-full object-cover object-top"
         />
         <div>
-          <p className="text-sm font-semibold text-white leading-tight">Sana — Learning Path Advisor</p>
+          <p className="text-sm font-semibold text-white leading-tight">Anna — Learning Path Advisor</p>
           <p className="text-[10px] text-white/60 leading-tight">Building your personalised Both learning path</p>
         </div>
       </div>
@@ -161,13 +161,13 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
           <div className="absolute inset-0 z-10 flex flex-col bg-white overflow-y-auto">
             {/* Hero */}
             <div className="flex-1 flex flex-col items-center justify-center px-5 pt-6 pb-2">
-              {/* Sana avatar */}
+              {/* Anna avatar */}
               <img
-                src="/images/redesign/smeep-avatar-96.png"
-                alt="Sana"
+                src="/images/redesign/anna-avatar-96.png"
+                alt="Anna"
                 className="w-24 h-24 rounded-full object-cover object-top mb-4 flex-shrink-0"
                 style={{
-                  boxShadow: '0 0 0 4px white, 0 0 0 6px #e8b4d0, 0 0 32px 8px rgba(159,32,99,0.25)',
+                  boxShadow: '0 0 0 4px white, 0 0 0 6px #e8b4d0, 0 0 32px 8px rgba(101, 45, 144,0.25)',
                 }}
               />
 
@@ -186,7 +186,7 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
                     <div className="flex flex-col items-center gap-1">
                       <div
                         className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+                        style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
                       >
                         {step.num}
                       </div>
@@ -207,9 +207,9 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
                     className="flex flex-row items-center gap-2 px-3 py-2 overflow-hidden relative"
                     style={{
                       borderRadius: '999px',
-                      background: 'linear-gradient(120deg, rgba(159,32,99,0.10) 0%, rgba(122,26,76,0.28) 100%)',
-                      border: '1.5px solid rgba(159,32,99,0.25)',
-                      boxShadow: '0 2px 10px rgba(159,32,99,0.07)',
+                      background: 'linear-gradient(120deg, rgba(101, 45, 144,0.10) 0%, rgba(74,33,104,0.28) 100%)',
+                      border: '1.5px solid rgba(101, 45, 144,0.25)',
+                      boxShadow: '0 2px 10px rgba(101, 45, 144,0.07)',
                     }}
                   >
                     {/* faded ghost icon in background */}
@@ -217,14 +217,14 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
                       className="absolute -bottom-2 -right-3 opacity-[0.07]"
                       size={44}
                       strokeWidth={1.5}
-                      style={{ color: '#9f2063' }}
+                      style={{ color: 'var(--color-brand-primary)' }}
                     />
                     {/* foreground icon */}
                     <div
                       className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
                       style={{ background: 'rgba(255,255,255,0.30)' }}
                     >
-                      <Icon size={13} strokeWidth={2} style={{ color: '#9f2063' }} />
+                      <Icon size={13} strokeWidth={2} style={{ color: 'var(--color-brand-primary)' }} />
                     </div>
                     <span className="text-[11px] font-semibold relative z-10 whitespace-nowrap" style={{ color: '#3d1a2b' }}>
                       {label}
@@ -234,7 +234,7 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
               </div>
 
               {/* Topic chips */}
-              <p className="text-sm font-semibold mb-3 text-center" style={{ color: 'rgba(159,32,99,0.75)' }}>
+              <p className="text-sm font-semibold mb-3 text-center" style={{ color: 'rgba(101, 45, 144,0.75)' }}>
                 Start with a topic — or type below:
               </p>
               <div className="flex flex-wrap gap-2 w-full justify-center">
@@ -281,7 +281,7 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
                   className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0 self-end transition-opacity disabled:opacity-30"
                   style={
                     inputValue.trim()
-                      ? { background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }
+                      ? { background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }
                       : { background: '#f7e8f0' }
                   }
                 >

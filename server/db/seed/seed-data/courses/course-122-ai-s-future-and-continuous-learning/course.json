@@ -1,0 +1,828 @@
+{
+    "schema_version": "1.0",
+    "exported_at": "2026-07-02T08:24:18+00:00",
+    "source_site": "https://aiamplify.potential.org",
+    "course": {
+        "course_id": 122,
+        "title": "AI's Future and Continuous Learning",
+        "description": "",
+        "unit_count": 7,
+        "author_id": 3669,
+        "course_post_id": 4475,
+        "settings": {
+            "completion_wall": "all_visible",
+            "use_certificate": "use_certs",
+            "user_access": "default_show",
+            "unit_advancement": "manual",
+            "prerequisites": [],
+            "payments_type": "free",
+            "payments_price": "0.00"
+        },
+        "card": {
+            "card_post_id": 4560,
+            "title": "AI's Future and Continuous Learning",
+            "content": "",
+            "course_unit_number": "",
+            "course_time": "",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/the-evolving-landscape-of-ai/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-6.png",
+            "featured_image_url": null
+        },
+        "modules": [
+            {
+                "module_id": 122,
+                "title": "AI's Future and Continuous Learning",
+                "description": "<p><span class=\"TextRun SCXW217430962 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW217430962 BCX8\">AI&apos;s Future and Continuous Learning</span></span><span class=\"EOP SCXW217430962 BCX8\" data-ccp-props=\"{&quot;201341983&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:259}\"> </span></p>",
+                "order": 1,
+                "number": 1,
+                "units": [
+                    {
+                        "unit_id": 4476,
+                        "title": "The Evolving Landscape of AI",
+                        "slug": "the-evolving-landscape-of-ai",
+                        "order": 10,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "5YLPCN_JZbQ",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/THE-EVOLVING-LANDSCAPE-OF-AI.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Delve into AI's dynamic evolution, where technological boundaries continually expand.</h5>\r\n<h5>Understand the driving forces behind AI's growth, reshaping industries and experiences. </h5>\r\n<h5>Explore concrete examples of AI's transformative impact in sectors like healthcare, finance, and transportation. </h5>\r\n<h5>By grasping the power of AI innovation, you'll be poised to identify how AI intersects with various fields and engage with its shifting landscape. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/dv9q7Ema40k?si=eCO9K8Uxyg9WwrEV\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 999,
+                            "title": "The Evolving Landscape of AI",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW200489549 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW200489549 BCX8\">The Evolving Landscape of AI</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How familiar are you with the current applications of AI in various industries? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very familiar, I actively use AI in my work.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat familiar, I've heard about AI's applications.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not very familiar, I know a little about AI in industries.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not familiar at all, I'm just beginning to learn about AI. ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2409,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4477,
+                        "title": "Latest Advances in AI Technologies",
+                        "slug": "latest-advances-in-ai-technologies",
+                        "order": 20,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "G6Xgi-6UK3Q",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Latest-Advances-in-AI-Technologies.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Embark on a journey into the latest frontiers of AI innovation, delving into recent breakthroughs that fuel progress. </h5>\r\n<h5>Examine self-learning algorithms and advanced natural language processing and envision how AI integrates with emerging technologies like smart cities and personalized healthcare. </h5>\r\n<h5>Discuss the potential benefits and challenges of AI-driven automation in daily life. </h5>\r\n<h5>Through these advancements, you'll gain a deeper understanding of AI's potential and its real-world impact. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/woDnVg72qeI?si=NM3aYT12q5a25CCp\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 1000,
+                            "title": "Latest Advances in AI Technologies",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW167829625 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW167829625 BCX8\">Latest Advances in AI Technologies</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Are you concerned about the ethical implications of integrating AI with emerging technologies like IoT and blockchain?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very concerned, ethical considerations are important to me.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat concerned, I've thought about it but not deeply. ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not very concerned, I haven't considered the ethical aspect much.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not concerned at all, I don't see ethical concerns as significant. ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2410,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4478,
+                        "title": "Embracing Continuous Learning in AI",
+                        "slug": "embracing-continuous-learning-in-ai",
+                        "order": 30,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "hrjp8B27iz8",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Embracing-Continuous-Learning-in-AI.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n<h5>Immerse yourself in the culture of continuous learning, a cornerstone of AI's advancement. </h5>\r\n<h5>Recognize the imperative of staying current in this rapidly evolving field and learn strategies to maintain up-to-date skills and knowledge. </h5>\r\n<h5>Reflect on a personal strategy you would adopt to ensure ongoing learning and growth in AI. </h5>\r\n<h5>By navigating AI's ocean of knowledge, you'll be well-prepared to ride the waves of innovation. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/yHSL3mGM-4A?si=ckek4pu59Lubmpt7\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 1001,
+                            "title": "Embracing Continuous Learning in AI",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW236207719 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW236207719 BCX8\">Embracing Continuous Learning in AI</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How often do you engage in continuous learning to stay updated on AI advancements?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Regularly, I actively seek out learning opportunities.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Occasionally, I learn when there's a significant update.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Rarely, I don't often invest time in continuous learning.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Never, I rely on existing knowledge without updates. ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2411,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4479,
+                        "title": "Resources for Staying Up-to-Date with AI",
+                        "slug": "resources-for-staying-up-to-date-with-ai",
+                        "order": 40,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "MILvwSe5vTg",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Resources-for-Staying-Up-to-Date-with-AI.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n<h5>Navigate the wealth of resources designed to keep you at the forefront of AI's progress.</h5>\r\n<h5>Discover reputable sources for news, research, and community engagement, fostering your continuous growth. </h5>\r\n<h5>Explore the concept of online AI communities and discuss their significance for staying informed. </h5>\r\n<h5>Imagine you are a beginner in AI and outline the steps you would take to build a personalized resource toolkit for learning. </h5>\r\n<h5>Through these resources, you'll stay well-informed and equipped for the fast-paced world of AI. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/_4Fg55Vz2eI?si=brZYfb4hjoTPfX3q\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 1002,
+                            "title": "Resources for Staying Up-to-Date with AI",
+                            "description": "<p><span class=\"NormalTextRun SCXW25910212 BCX8\">Resources for Staying </span><span class=\"NormalTextRun ContextualSpellingAndGrammarErrorV2Themed SCXW25910212 BCX8\">Up-to-Date</span><span class=\"NormalTextRun SCXW25910212 BCX8\"> with AI</span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": " Which of the following sources do you rely on most for staying informed about AI developments? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Reputable news websites and journals  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Social media and online communities  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Attending conferences and workshops  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "I don't actively seek out AI updates. ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2412,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4480,
+                        "title": "Ethical Considerations in AI's Future",
+                        "slug": "ethical-considerations-in-ais-future",
+                        "order": 50,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "OW8FOTrES9k",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Ethical-Considerations-in-AIs-Future.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Uncover the ethical terrain within AI's evolution, where responsible development takes center stage.</h5>\r\n<h5>Probe into the potential biases and transparency challenges lurking within algorithms. </h5>\r\n<h5>Discuss how AI developers can ensure fairness and transparency in their algorithms, providing specific approaches. </h5>\r\n<h5>Reflect on the responsibility of AI users to mitigate ethical concerns and contribute to AI's ethical development. </h5>\r\n<h5>By navigating these considerations, you'll shape a future where innovation aligns with societal values. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/KKYfxyKNPCc?si=TuMEqSyc5Z-PruqF\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 1003,
+                            "title": "Ethical Considerations in AI&apos;s Future",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW30718266 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW30718266 BCX8\">Ethical Considerations in AI&apos;s Future</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Do you believe that AI developers should prioritize ethical considerations over technical advancement?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Yes, ethics should be a higher priority than technical progress.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat, ethics are important but shouldn't hinder progress.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "No, technical advancement should be the primary focus.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "I'm unsure about the balance between ethics and technical advancement. ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2413,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4481,
+                        "title": "AI's Societal Impact and Future Opportunities",
+                        "slug": "ais-societal-impact-and-future-opportunities",
+                        "order": 60,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "BsMKkJbwim4",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/AIs-Societal-Impact-and-Future-Opportunities.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Explore AI's profound societal influence and the opportunities it ushers in for the future.</h5>\r\n<h5>Discuss in what ways AI can contribute positively to addressing global challenges such as climate change or healthcare. </h5>\r\n<h5>Analyze the potential job market shifts due to AI advancements and strategize how individuals can adapt to these changes. </h5>\r\n<h5>Imagine a future where AI plays a central role in society, envisioning how this future might look and the challenges/opportunities it presents. </h5>\r\n<h5>Embrace AI's potential to amplify human potential and stride confidently into a future rich with possibilities. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/DpT3R08q50c?si=1SFsBk0oqKtYJLef\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 1004,
+                            "title": "AI&apos;s Societal Impact and Future Opportunities",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW30178336 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW30178336 BCX8\">AI&apos;s Societal Impact and Future Opportunities</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How confident are you in your ability to adapt to potential job market shifts due to AI advancements?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very confident, I actively seek ways to upskill and adapt.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat confident, I'm open to learning new skills if needed.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not very confident, I'm unsure about how to adapt.  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not confident at all, I'm concerned about job market changes. ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2414,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4482,
+                        "title": "Post-Test",
+                        "slug": "post-test-6",
+                        "order": 70,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": null,
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "",
+                            "course-unit-read-more": "",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 1005,
+                            "title": "Post-Test",
+                            "description": "<p>Post-Test</p>",
+                            "type": "quiz_block",
+                            "pass_mark": 80,
+                            "attempts_allowed": 2,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "What are the driving forces behind AI's growth and evolution? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Industry regulations",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Cultural trends",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Technological advancements",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Historical events",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2415,
+                                    "order": 0
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "Which of the following is an example of a recent breakthrough in AI technology? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Traditional programming languages",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Landline telephones",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Self-learning algorithms",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Pen and paper calculations",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2416,
+                                    "order": 1
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "Why is continuous learning important in the field of AI? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "To impress colleagues",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "To win awards",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "To stay current in a rapidly evolving field",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "To avoid boredom",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2417,
+                                    "order": 2
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What is the significance of engaging in online AI communities?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "To promote a personal brand",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "To showcase programming skills",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "To collaborate and stay informed",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "To increase online followers",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2418,
+                                    "order": 3
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "How can AI developers ensure fairness and transparency in their algorithms?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "By keeping their algorithms secret",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "By using complex mathematical equations",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "By ignoring ethical concerns",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "By employing specific strategies and approaches",
+                                            "is_correct": true
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"4\";}",
+                                    "question_id": 2419,
+                                    "order": 4
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "In what ways can AI contribute positively to addressing global challenges?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "By creating more social media platforms",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "By increasing political divisions",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "By enhancing healthcare and tackling climate change",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "By encouraging isolation",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2420,
+                                    "order": 5
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "assets": {
+        "images": [
+            {
+                "role": "card_image",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-6.png",
+                "zip_path": "wp-content/uploads/2025/02/AI-6.png",
+                "level": "card"
+            }
+        ]
+    }
+}

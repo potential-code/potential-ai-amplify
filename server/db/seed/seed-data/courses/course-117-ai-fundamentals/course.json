@@ -1,0 +1,808 @@
+{
+    "schema_version": "1.0",
+    "exported_at": "2026-07-02T08:24:17+00:00",
+    "source_site": "https://aiamplify.potential.org",
+    "course": {
+        "course_id": 117,
+        "title": "AI Fundamentals",
+        "description": "AI Fundamentals Course",
+        "unit_count": 7,
+        "author_id": 3385,
+        "course_post_id": 4435,
+        "settings": {
+            "completion_wall": "all_visible",
+            "use_certificate": "use_certs",
+            "user_access": "default_show",
+            "unit_advancement": "manual",
+            "prerequisites": [],
+            "payments_type": "free",
+            "payments_price": "0.00"
+        },
+        "card": {
+            "card_post_id": 4533,
+            "title": "AI Fundamentals",
+            "content": "",
+            "course_unit_number": "",
+            "course_time": "",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/introduction-to-ai/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-1-1-1.png",
+            "featured_image_url": null
+        },
+        "modules": [
+            {
+                "module_id": 117,
+                "title": "AI Fundamentals",
+                "description": "<p>AI Fundamentals</p>",
+                "order": 1,
+                "number": 1,
+                "units": [
+                    {
+                        "unit_id": 4436,
+                        "title": "Introduction to AI",
+                        "slug": "introduction-to-ai",
+                        "order": 10,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "iw0vs4F3-Tg",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Introduction-to-AI.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>\r\n  AI, or Artificial Intelligence, is the science of building machines that think and act like humans.\r\n</h5>\r\n\r\n<h5>\r\n  Unlike traditional software that needs explicit instructions for every scenario, AI systems learn from data and experiences, adapting over time.\r\n</h5>\r\n\r\n<h5>\r\n  From AI language models like ChatGPT to sophisticated medical diagnosis tools, it's reshaping our world.\r\n</h5>\r\n\r\n<h5>\r\n  Harness its potential, and see the blend of human intelligence with technology.\r\n</h5>\r\n",
+                            "course-unit-read-more": "  <div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/uMzUB89uSxU\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 964,
+                            "title": "Introduction to AI",
+                            "description": "<p align=\"left\"><span style=\"color: #000000\"><span style=\"font-family: Calibri, serif\"><span style=\"font-size: small\">Introduction to AI</span></span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How familiar are you with the concept of artificial intelligence (AI)?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Good",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Neutral",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Bad",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2349,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4437,
+                        "title": "Types of AI: Machine Learning",
+                        "slug": "types-of-ai-machine-learning",
+                        "order": 20,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "URLQK1Y_GY4",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Types-of-AI-Machine-Learning.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Machine Learning (ML) is where computers learn from data without being explicitly programmed. </h5>\r\n<h5>There are three primary types:</h5>\r\n<h5>1- supervised (where the system is trained with labeled data, like tagged photos) </h5>\r\n<h5>2- unsupervised (where the system learns patterns from unlabelled data, like identifying customer segments),  </h5>\r\n<h5>3- reinforcement learning (where the system learns by receiving feedback, like a video game AI).  </h5>\r\n<h5>ML models train on datasets and then test their predictions on unseen data.  </h5>",
+                            "course-unit-read-more": " <div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/HcqpanDadyQ?si=eHcFFahg2_tNYcDb\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 965,
+                            "title": "Types of AI: Machine Learning",
+                            "description": "<p><span class=\"TextRun SCXW164867075 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"none\"><span class=\"NormalTextRun SCXW164867075 BCX8\">Types of AI: Machine Learning</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Have you ever used an application or service that you believe uses machine learning? (Examples: personalized recommendations on e-commerce sites, email spam filters, etc.)",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Yes",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "No",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Unsure",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2350,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4438,
+                        "title": "Types of AI: Deep Learning",
+                        "slug": "types-of-ai-deep-learning",
+                        "order": 30,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "G17Swd_R_Oc",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Types-of-AI-Deep-Learning.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Deep Learning, a subset of ML, uses neural networks with many layers (resembling the human brain) to analyze various data aspects.  </h5>\r\n<h5>While a traditional neural network might recognize an object's shape in a photo, a convolutional neural network (CNN) can identify textures, colors, and other features.  </h5>\r\n<h5>Apps like Replika utilize deep learning for intricate conversations, and platforms like Facebook employ it for facial recognition.  </h5>\r\n<h5>Witness the depth of AI, where machines come eerily close to human-like perception. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/6M5VXKLf4D4?si=1G1eCdKzv030lMF_\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 966,
+                            "title": "Types of AI: Deep Learning",
+                            "description": "<p><span class=\"TextRun SCXW75138168 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"none\"><span class=\"NormalTextRun SCXW75138168 BCX8\">Types of AI: Deep Learning</span></span><span class=\"EOP SCXW75138168 BCX8\" data-ccp-props=\"{\"201341983\":0,\"335559740\":259}\"> </span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Do you feel that AI will replace all human work in 20 years?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Yes",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "No",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Unsure",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2351,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4439,
+                        "title": "Types of AI: Natural Language Processing",
+                        "slug": "types-of-ai-natural-language-processing",
+                        "order": 40,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "fHGHYTlE8jk",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Types-of-AI-Natural-Language-Processing.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Natural Language Processing (NLP) bridges the gap between human language and computer understanding.  </h5>\r\n<h5>Key techniques include tokenization (breaking text into words or phrases) and embeddings (converting words into vectors).  </h5> \r\n<h5>Companies employ sentiment analysis, a part of NLP, to gauge customer feedback on social media. Tools like Google Translate assist travelers in understanding foreign languages in real-time, and Grammarly aids in content refinement.  </h5>\r\n<h5>The era where machines truly \"get\" us isn't far.</h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/CMrHM8a3hqw?si=radDuVIx64pOK3KT\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 967,
+                            "title": "Types of AI: Natural Language Processing",
+                            "description": "<p><span class=\"TextRun SCXW57335366 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"none\"><span class=\"NormalTextRun SCXW57335366 BCX8\">Types of AI: Natural Language Processing</span></span><span class=\"EOP SCXW57335366 BCX8\" data-ccp-props=\"{\"201341983\":0,\"335559740\":259}\"> </span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How often are you using ChatGPT?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Daily",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Weekly",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not using it ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2352,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4440,
+                        "title": "Types of AI: Generative AI",
+                        "slug": "types-of-ai-generative-ai",
+                        "order": 50,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "S3M8rKgy5Dk",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Types-of-AI-Generative-AI.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Generative AI is all about nurturing AI's inner artist, enabling it to craft fresh content spanning text, images, and music.  \r\n</h5>\r\n<h5>Think of it as AI's creative genius at work. </h5>\r\n<h5>Generative AI achieves this through techniques like Generative adversarial networks (GANs) and Variational Autoencoders (VAEs), where it learns patterns and gives birth to entirely new concepts. </h5>\r\n<h5>Its applications are far-reaching, from sparking creativity in art and generating diverse content to aiding in drug discovery and enhancing data for machine learning. </h5>\r\n<h5>Brace yourself to unlock the imaginative side of AI. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/pWNAtUwnBS8?si=NqMvaS6u4FIQ7xhp\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 968,
+                            "title": "Types of AI: Generative AI",
+                            "description": "<p>Types of AI: Generative AI</p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How familiar are you with Generative AI and its potential applications? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very Familiar - I have a deep understanding and have used Generative AI in practical projects.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat Familiar - I've heard of Generative AI but haven't used it extensively.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not Familiar - I'm aware of AI but not specifically Generative AI.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "No Knowledge - This is my first exposure to the concept.",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2353,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4441,
+                        "title": "AI Case Studies and Practical Usage",
+                        "slug": "ai-case-studies-and-practical-usage",
+                        "order": 60,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "ItPAsSLdns8",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/AI-Case-Studies-and-Practical-Usage.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Prominent companies have harnessed AI to their advantage.  </h5>\r\n<h5>Google uses AI for more accurate search results, while Tesla's self-driving cars rely heavily on AI for navigation.  </h5>\r\n<h5>But as AI integration deepens, ethical concerns arise, like biases in AI algorithms.  </h5>\r\n<h5>Staying updated on 'AI in the News' can offer insights into its rapidly evolving landscape.  </h5>\r\n<h5>As we embark on this AI journey, balancing its capabilities with ethical considerations becomes paramount. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/dVsiusLQy5Q?si=2yav8w-R-WZb4mme\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 969,
+                            "title": "AI Case Studies and Practical Usage",
+                            "description": "<p><span class=\"TextRun SCXW262865333 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"none\"><span class=\"NormalTextRun SCXW262865333 BCX8\">AI Case Studies and Practical Usage</span></span><span class=\"EOP SCXW262865333 BCX8\" data-ccp-props=\"{\"201341983\":0,\"335559740\":259}\"> </span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Are you concerned about potential biases in AI algorithms affecting decisions in areas like job hiring, loan approvals, or law enforcement? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very Concerned",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat Concerned",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not Concerned",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Unsure",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2354,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4442,
+                        "title": "Post-Test",
+                        "slug": "post-test",
+                        "order": 70,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": null,
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "",
+                            "course-unit-read-more": "",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 970,
+                            "title": "Post-Test",
+                            "description": "<p>Post-Test</p>",
+                            "type": "quiz_block",
+                            "pass_mark": 80,
+                            "attempts_allowed": 2,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Which of the following best describes the fundamental difference between traditional software and AI systems? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Traditional software learns from data, while AI does not.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "AI systems adapt over time by learning from data, while traditional software requires explicit instructions.",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "AI systems and traditional software are essentially the same.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Traditional software can mimic human behavior, while AI cannot.",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"2\";}",
+                                    "question_id": 2355,
+                                    "order": 0
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What type of machine learning involves a system learning by receiving feedback, similar to how one might train in a video game? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Supervised Learning",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Unsupervised Learning",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Neural Network Learning",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Reinforcement Learning",
+                                            "is_correct": true
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"4\";}",
+                                    "question_id": 2356,
+                                    "order": 1
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": " What sets a convolutional neural network (CNN) apart from a traditional neural network in terms of its functionality? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "CNN can recognize only the object's shape.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "CNN can identify intricate features like textures and colors.",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "CNN is not suitable for image data.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "CNN does not resemble the human brain in its architecture.",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"2\";}",
+                                    "question_id": 2357,
+                                    "order": 2
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "Which technique in NLP involves breaking down text into words or phrases? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Vectorization",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Sentiment Analysis",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Tokenization",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Embeddings",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2358,
+                                    "order": 3
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "Which sector uses AI for fraud detection? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Healthcare",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Entertainment",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Finance",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Agriculture",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2359,
+                                    "order": 4
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What concern arises as AI integration in various sectors deepens? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "The lack of algorithms",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "The decrease in data storage capacities",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Biases in AI algorithms",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "The rapid decrease in AI adoption rate",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2360,
+                                    "order": 5
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "assets": {
+        "images": [
+            {
+                "role": "card_image",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-1-1-1.png",
+                "zip_path": "wp-content/uploads/2025/02/AI-1-1-1.png",
+                "level": "card"
+            }
+        ]
+    }
+}

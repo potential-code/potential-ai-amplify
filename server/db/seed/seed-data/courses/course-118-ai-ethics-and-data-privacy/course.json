@@ -1,0 +1,863 @@
+{
+    "schema_version": "1.0",
+    "exported_at": "2026-07-02T08:24:17+00:00",
+    "source_site": "https://aiamplify.potential.org",
+    "course": {
+        "course_id": 118,
+        "title": "AI Ethics and Data Privacy",
+        "description": "",
+        "unit_count": 7,
+        "author_id": 3669,
+        "course_post_id": 4443,
+        "settings": {
+            "completion_wall": "all_visible",
+            "use_certificate": "use_certs",
+            "user_access": "default_show",
+            "unit_advancement": "manual",
+            "prerequisites": [],
+            "payments_type": "free",
+            "payments_price": "0.00"
+        },
+        "card": {
+            "card_post_id": 4539,
+            "title": "Understanding AI Ethics",
+            "content": "",
+            "course_unit_number": "",
+            "course_time": "",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/understanding-ai-ethics/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-2.png",
+            "featured_image_url": null
+        },
+        "modules": [
+            {
+                "module_id": 118,
+                "title": "AI Ethics and Data Privacy",
+                "description": "<p><span class=\"TextRun SCXW226258915 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"none\"><span class=\"NormalTextRun SCXW226258915 BCX8\">AI Ethics and Data Privacy</span></span><span class=\"EOP SCXW226258915 BCX8\" data-ccp-props=\"{&quot;134233117&quot;:false,&quot;134233118&quot;:false,&quot;201341983&quot;:0,&quot;335551550&quot;:1,&quot;335551620&quot;:1,&quot;335559685&quot;:0,&quot;335559737&quot;:0,&quot;335559738&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:259}\"> </span></p>",
+                "order": 1,
+                "number": 1,
+                "units": [
+                    {
+                        "unit_id": 4444,
+                        "title": "Understanding AI Ethics",
+                        "slug": "understanding-ai-ethics",
+                        "order": 10,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "s7bZDmly5Q8",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Understanding-AI-Ethics-1.mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Artificial Intelligence is transforming our world, bringing both opportunities and challenges.</h5>\r\n<h5>Among the primary ethical dilemmas of AI are privacy infringements, potential job displacements, and enhanced surveillance. </h5>\r\n<h5>As AI continues to evolve, ensuring that its development and deployment respect human rights and promote societal well-being becomes paramount. </h5>\r\n<h5>Remember, the key to harnessing AI's potential lies in ethical use. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/xoue4-ohk1Y?si=bc9SPVaBD9BINVR9\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 971,
+                            "title": "Understanding AI Ethics",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW197447883 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW197447883 BCX8\">Understanding AI Ethics</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Which of the following ethical concerns about AI have you personally experienced or are most concerned about? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Privacy infringements",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Job displacements due to automation",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Enhanced surveillance through AI",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "None of the above",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 5,
+                                            "text": "Other",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2361,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4445,
+                        "title": "Addressing Bias in AI",
+                        "slug": "addressing-bias-in-ai",
+                        "order": 20,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "YZWkULJ1uzw",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Addressing-Bias-in-AI.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>AI systems are often viewed as objective, but they're only as unbiased as the data they learn from. </h5>\r\n<h5>Algorithmic bias, evident when a facial recognition system misidentifies certain ethnicities, can have harmful repercussions. </h5>\r\n<h5>It's essential to use diverse training data, regularly test the AI system for fairness, and actively correct biases. </h5>\r\n<h5>With vigilance and understanding, we can work towards equitable AI systems. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/x2mRoFNm22g?si=-4n07n0tVU495ZLY\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 972,
+                            "title": "Addressing Bias in AI",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW7916418 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW7916418 BCX8\">Addressing Bias in AI</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Have you encountered a situation where you believed an AI system was biased? If so, in which context? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Online advertisements targeting ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Job recruitment or resume screening ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Facial recognition systems ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Predictive text or virtual assistants ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 5,
+                                            "text": "I haven't encountered such a situation ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 6,
+                                            "text": "Other",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2362,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4446,
+                        "title": "AI and Data Privacy Basics",
+                        "slug": "ai-and-data-privacy-basics",
+                        "order": 30,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "LUzS1b5gyjM",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/AI-and-Data-Privacy-Basics.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Data privacy is central in our digital age. </h5>\r\n<h5>AI, especially when mishandled, can compromise data privacy by inadvertently revealing personal information or patterns. </h5>\r\n<h5>A misconfigured AI system might, for instance, make personal data public or a predictive system might infer sensitive information.</h5>\r\n<h5>Always be cautious about the permissions an AI application requests and prioritize systems with robust data protection policies. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/VqFqWIqOB1g?si=FNdXA0DvCR91SKlv\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 973,
+                            "title": "AI and Data Privacy Basics",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW263889339 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW263889339 BCX8\">AI and Data Privacy Basics</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Which of the following best describes your stance on AI applications accessing your data? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "I'm comfortable as long as it improves user experience ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "I avoid any AI application that requests personal data ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "I only trust certain known brands or platforms ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "I'm unsure about how AI applications use my data ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 5,
+                                            "text": "Other",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2363,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4447,
+                        "title": "Ensuring Data Confidentiality",
+                        "slug": "ensuring-data-confidentiality",
+                        "order": 40,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "yP1ihvfQs4Y",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Ensuring-Data-Confidentiality.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>In our data-driven world, confidentiality is key. </h5>\r\n<h5>Ensuring data confidentiality in AI means safeguarding information, adhering to the principle of data minimization, and only using what's necessary. </h5>\r\n<h5>Techniques such as data encryption and differential privacy protect users' information. </h5>\r\n<h5>Remember, it's not just about collecting data but ensuring it remains confidential. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/Bgt5GoaMQpw?si=7Q0UOmp5xy5L2DN9\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 974,
+                            "title": "Ensuring Data Confidentiality",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW54202572 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW54202572 BCX8\">Ensuring Data Confidentiality</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": " How often do you utilize tools or practices to ensure the confidentiality of your data when interacting with AI systems? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Always",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Often",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Rarely",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Never, I'm unaware of such tools or practices ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 5,
+                                            "text": "Other",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2364,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4448,
+                        "title": "Ethical Decision Making in AI",
+                        "slug": "ethical-decision-making-in-ai",
+                        "order": 50,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "X_w9dwOqNOI",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Ethical-Decision-Making-in-AI.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Imagine an AI system recommending medical treatments. </h5>\r\n<h5>If the system is biased, a patient might get inappropriate advice. </h5>\r\n<h5>Ensuring ethical decisions in AI requires transparent processes, accountability mechanisms, and robust audits. </h5>\r\n<h5>Systems must be designed keeping ethical considerations at the forefront, regularly questioning AI decisions, especially in critical sectors. </h5>\r\n<h5>Ethical AI is more than a goal; it's a necessity. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/2E7l1hdjHsg?si=7fx5EsoAXY_Sh7ur\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 975,
+                            "title": "Ethical Decision Making in AI",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW72564341 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW72564341 BCX8\">Ethical Decision Making in AI</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "In which industry or sector are you most concerned about AI making unethical decisions? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Healthcare (e.g., medical diagnoses) ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Finance (e.g., loan approvals) ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Criminal justice (e.g., predictive policing) ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Entertainment (e.g., content recommendations) ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 5,
+                                            "text": "Other",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2365,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4449,
+                        "title": "AI's Impact on Society and Responsible AI Practices",
+                        "slug": "ais-impact-on-society-and-responsible-ai-practices",
+                        "order": 60,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "f1MDQ_jYnfA",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/AIs-Impact-on-Society-and-Responsible-AI-Practices.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>From groundbreaking medical diagnostics to potential misuses like deepfakes, AI's societal impact is significant.</h5>\r\n<h5>Responsible AI is the principle of developing systems that are fair, accountable, transparent, and beneficial.</h5>\r\n<h5>This means continuously weighing AI's benefits against risks, staying updated, and advocating for ethical practices. </h5>\r\n<h5>As AI evolves, our commitment to responsible practices will define our future. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/RzkD_rTEBYs?si=ZklC-l4L-9KiWa38\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 976,
+                            "title": "AI's Impact on Society and Responsible AI Practices",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW144530845 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW144530845 BCX8\">AI&apos;s Impact on Society and Responsible AI Practices</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Which potential societal impact of AI are you most eager to see realized, and which concerns you the most?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Eager: Medical advancements / Concerned: Misinformation spread ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Eager: Transportation improvements / Concerned: Job loss due to automation ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Eager: Enhanced education tools / Concerned: Data privacy breaches ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Eager: Personalized entertainment / Concerned: Enhanced surveillance ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 5,
+                                            "text": "Other",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2366,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4450,
+                        "title": "Post-Test",
+                        "slug": "post-test-2",
+                        "order": 70,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": null,
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "",
+                            "course-unit-read-more": "",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 977,
+                            "title": "Post-Test",
+                            "description": "<p>Post-Test</p>",
+                            "type": "quiz_block",
+                            "pass_mark": 80,
+                            "attempts_allowed": 2,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Which of the following is NOT a primary ethical concern related to AI as mentioned in the unit?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Privacy infringements",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Enhanced consumer experiences",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Job displacements",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Enhanced surveillance",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"2\";}",
+                                    "question_id": 2367,
+                                    "order": 0
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What action is NOT recommended to address bias in AI as per the unit?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Use diverse training data",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Avoid testing AI for fairness",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Actively correct biases",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Regularly audit AI systems",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"2\";}",
+                                    "question_id": 2372,
+                                    "order": 1
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "Which precaution should you take with AI applications according to the unit?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Always grant all permissions an AI app requests",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Avoid using AI apps entirely",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Be cautious about the permissions an AI application requests",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Prioritize systems without data protection policies",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2368,
+                                    "order": 2
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What technique is mentioned in the unit that helps in ensuring data confidentiality in AI?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Data compression",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Data sharing",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Data visualization",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Data encryption",
+                                            "is_correct": true
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"4\";}",
+                                    "question_id": 2369,
+                                    "order": 3
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "As per the unit, what is essential to ensure ethical decisions in AI?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Avoiding all forms of audits",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Focusing solely on profit margins",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Transparent processes and accountability",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Keeping AI decision-making secretive",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2370,
+                                    "order": 4
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What is one negative societal impact of AI mentioned in the unit?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Improved medical diagnostics",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Enhanced user interfaces",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Faster transportation",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Potential misuses like deepfakes",
+                                            "is_correct": true
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"4\";}",
+                                    "question_id": 2371,
+                                    "order": 5
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "assets": {
+        "images": [
+            {
+                "role": "card_image",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-2.png",
+                "zip_path": "wp-content/uploads/2025/02/AI-2.png",
+                "level": "card"
+            }
+        ]
+    }
+}

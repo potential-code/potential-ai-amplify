@@ -1,7 +1,7 @@
 {
     "schema_version": "1.0",
-    "exported_at": "2026-05-19T05:51:23+00:00",
-    "source_site": "https://smeep.potential.org",
+    "exported_at": "2026-07-02T08:24:17+00:00",
+    "source_site": "https://aiamplify.potential.org",
     "course": {
         "course_id": 91,
         "title": "24 Minute MBA",
@@ -24,8 +24,8 @@
             "content": "",
             "course_unit_number": "",
             "course_time": "",
-            "course_unit_link": "https://smeep.potential.org/module-1/24-minute-mba-pretest/",
-            "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/03/Untitled-1.jpg",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/24-minute-mba-pretest/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Untitled-1.jpg",
             "featured_image_url": null
         },
         "modules": [
@@ -1922,7 +1922,7 @@
         "images": [
             {
                 "role": "card_image",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/03/Untitled-1.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Untitled-1.jpg",
                 "zip_path": "wp-content/uploads/2020/03/Untitled-1.jpg",
                 "level": "card"
             }

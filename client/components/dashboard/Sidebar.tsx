@@ -67,7 +67,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   const fullName = user?.fullName ?? 'User'
   const email = user?.email ?? ''
-  const avatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}&backgroundColor=9f2063&fontSize=42&radius=50`
+  const avatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}&backgroundColor=652d90&fontSize=42&radius=50`
 
   return (
     <div className="flex h-full flex-col bg-brand-deep text-white">
@@ -112,7 +112,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               {active && (
                 <motion.span
                   layoutId="dashboard-nav-active"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-brand-primary to-brand-primary-dark shadow-[0_8px_24px_-10px_rgba(159,32,99,0.7)]"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-brand-primary to-brand-primary-dark shadow-[0_8px_24px_-10px_rgba(101,45,144,0.7)]"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
@@ -165,9 +165,9 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         {/* Log out */}
         <button
           onClick={handleLogout}
-          className="group w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 hover:text-white hover:bg-rose-500/15 transition-colors"
+          className="group w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 hover:text-white hover:bg-destructive/15 transition-colors"
         >
-          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-white/[0.04] group-hover:bg-rose-500/20">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-white/[0.04] group-hover:bg-destructive/20">
             <LogOut className="w-4 h-4" />
           </span>
           Log out

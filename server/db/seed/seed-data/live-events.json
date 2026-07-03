@@ -1,0 +1,51 @@
+{
+    "schema_version": "1.0",
+    "exported_at": "2026-07-02T08:24:00+00:00",
+    "source_site": "https://aiamplify.potential.org",
+    "cpt": {
+        "slug": "event_cards",
+        "label": "Live Events",
+        "description": "Live webinars, workshops, and events shown on the user dashboard under \"Live Sessions\".",
+        "items": [
+            {
+                "post_id": 4564,
+                "title": "AI Amplify: 10x Your Productivity",
+                "slug": "ai-amplify-10x-your-productivity",
+                "status": "publish",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "event_track": "",
+                    "event_category": "",
+                    "linkedinurl": "",
+                    "overview_txt": " ",
+                    "fulldate": "2023-10-24",
+                    "time": "04:00 PM ",
+                    "recording_link": "https://www.youtube.com/watch?v=6kTOHFyqKfc&feature=youtu.be"
+                }
+            },
+            {
+                "post_id": 4562,
+                "title": "AI Amplify Program: Your Roadmap to AI Success",
+                "slug": "ai-amplify-program-your-roadmap-to-ai-success",
+                "status": "publish",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "event_track": "",
+                    "event_category": "",
+                    "linkedinurl": "",
+                    "overview_txt": " ",
+                    "fulldate": "2023-10-10",
+                    "time": "04:00 PM ",
+                    "recording_link": "https://www.youtube.com/watch?v=v7DPCND-gIw&ab_channel=Potential"
+                }
+            }
+        ]
+    },
+    "assets": {
+        "images": []
+    }
+}

@@ -15,12 +15,12 @@ export const NAV_LINKS: NavLink[] = [
     children: [
       { label: 'Live Events', href: '#events', description: 'Webinars & replays' },
       { label: 'AI Mentors', href: '#ai-mentors', description: 'On-demand AI guidance' },
-      { label: 'AI Chatbot', href: '#ai-assistant', description: 'Ask SMEEP anything' },
+      { label: 'AI Chatbot', href: '#ai-assistant', description: 'Ask Anna anything' },
       { label: 'Human Mentors', href: '#mentors', description: 'Real expert mentors' },
       { label: 'Offers', href: '#offers', description: 'Perks & partner deals' },
     ],
   },
-  { label: 'Community', href: '#community' },
+  { label: 'Testimonials', href: '#testimonials' },
 ]
 
 export const FOOTER_LINKS = {

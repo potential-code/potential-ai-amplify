@@ -9,7 +9,7 @@ export const learningPathStatusEnum = pgEnum('learning_path_status', ['active', 
 // learningThemes — Graph A output
 export const learningThemes = pgTable('learning_themes', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  platformId: text('platform_id').notNull().default('smeep'),
+  platformId: text('platform_id').notNull().default('ai-amplify'),
   title: text('title').notNull(),
   description: text('description'),
   order: integer('order').notNull().default(0),
@@ -30,7 +30,7 @@ export const learningThemeBlocks = pgTable('learning_theme_blocks', {
 // learningQuestions — Graph A questionnaire
 export const learningQuestions = pgTable('learning_questions', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  platformId: text('platform_id').notNull().default('smeep'),
+  platformId: text('platform_id').notNull().default('ai-amplify'),
   prompt: text('prompt').notNull(),
   type: learningQuestionTypeEnum('type').notNull(),
   options: text('options').array(),
@@ -59,7 +59,7 @@ type Milestone = {
 export const userLearningPath = pgTable('user_learning_path', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  platformId: text('platform_id').notNull().default('smeep'),
+  platformId: text('platform_id').notNull().default('ai-amplify'),
   status: learningPathStatusEnum('status').notNull().default('active'),
   basedOnSetupVersion: integer('based_on_setup_version').notNull().default(1),
   generatedAt: timestamp('generated_at').notNull().default(sql`now()`),

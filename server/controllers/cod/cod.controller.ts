@@ -68,7 +68,7 @@ export async function deleteCodPath(req: Request, res: Response, next: NextFunct
   try {
     await db.delete(codUserPaths).where(and(
       eq(codUserPaths.userId, req.user!.userId),
-      eq(codUserPaths.platformId, 'smeep'),
+      eq(codUserPaths.platformId, 'ai-amplify'),
     ))
     res.status(200).json({ success: true })
   } catch (e) { next(e) }

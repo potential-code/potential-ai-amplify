@@ -39,7 +39,7 @@ export function PageHeader({
           {highlight && (
             <>
               {' '}
-              <span className="text-gradient-magenta">{highlight}</span>
+              <span className="text-gradient-brand">{highlight}</span>
             </>
           )}
         </motion.h1>

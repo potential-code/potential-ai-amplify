@@ -574,7 +574,7 @@ export async function sendOtp(email: string): Promise<void> {
   // Email the plaintext code. Subject/template never echo the code anywhere else.
   await sendMail({
     to: email,
-    subject: "Your SMEEP verification code",
+    subject: "Your AI Amplify verification code",
     template: "otp-code",
     context: { code },
   });

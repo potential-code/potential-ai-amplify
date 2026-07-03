@@ -29,7 +29,7 @@ interface ExpertCardItem {
 // ── Email override table ──────────────────────────────────────────────────────
 
 const EMAIL_OVERRIDES: Record<string, string> = {
-  "ghinwa.abi.zeid": "ghinwa.abizeid@smeep.potential.org",
+  "ghinwa.abi.zeid": "ghinwa.abizeid@aiamplify.potential.org",
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ function emailFromSlug(slug: string): string {
   if (EMAIL_OVERRIDES[localPart]) {
     return EMAIL_OVERRIDES[localPart];
   }
-  return `${localPart}@smeep.potential.org`;
+  return `${localPart}@aiamplify.potential.org`;
 }
 
 function normalizeLinkedin(raw: string): string | null {

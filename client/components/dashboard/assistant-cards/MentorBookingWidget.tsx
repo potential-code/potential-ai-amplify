@@ -373,7 +373,7 @@ export function MentorBookingWidget({ mentorName, respond, onRegisterCancel, onD
         .find((p) => p.type === 'timeZoneName')?.value ?? ''
     : ''
   const diceBearUrl = mentor
-    ? `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(mentor.fullName)}&backgroundColor=9f2063&fontSize=42&radius=50`
+    ? `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(mentor.fullName)}&backgroundColor=652d90&fontSize=42&radius=50`
     : ''
   const avatarSrc = mentor?.avatarUrl ?? diceBearUrl
 
@@ -397,7 +397,7 @@ export function MentorBookingWidget({ mentorName, respond, onRegisterCancel, onD
               <div className="space-y-2 max-h-64 overflow-y-auto pr-0.5">
                 {allMentors.map((m) => {
                   const avatarSrc = m.avatarUrl ??
-                    `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(m.fullName)}&backgroundColor=9f2063&fontSize=42&radius=50`
+                    `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(m.fullName)}&backgroundColor=652d90&fontSize=42&radius=50`
                   return (
                     <button
                       key={m.id}

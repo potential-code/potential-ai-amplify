@@ -1,12 +1,108 @@
 {
     "schema_version": "1.0",
-    "exported_at": "2026-05-19T05:45:51+00:00",
-    "source_site": "https://smeep.potential.org",
+    "exported_at": "2026-07-02T08:23:42+00:00",
+    "source_site": "https://aiamplify.potential.org",
     "cpt": {
         "slug": "cards",
         "label": "Course Cards",
         "description": "Sidebar/dashboard tiles linking to WP Courseware courses.",
         "items": [
+            {
+                "post_id": 4560,
+                "title": "AI's Future and Continuous Learning",
+                "slug": "ais-future-and-continuous-learning",
+                "status": "publish",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/the-evolving-landscape-of-ai/",
+                    "course_id": "122",
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-6.png"
+                }
+            },
+            {
+                "post_id": 4558,
+                "title": "Prompt Engineering and AI Troubleshooting",
+                "slug": "prompt-engineering-and-ai-troubleshooting",
+                "status": "publish",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/introduction-to-prompt-engineering/",
+                    "course_id": "121",
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-5.png"
+                }
+            },
+            {
+                "post_id": 4555,
+                "title": "AI in Daily Workflows",
+                "slug": "ai-in-daily-workflows",
+                "status": "publish",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/ai-integration-in-everyday-tasks/",
+                    "course_id": "120",
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-4.png"
+                }
+            },
+            {
+                "post_id": 4552,
+                "title": "Generative AI, LLMS & Diffusion Models",
+                "slug": "generative-ai-llms-diffusion-models",
+                "status": "publish",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/introduction-to-generative-ai/",
+                    "course_id": "119",
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-3-1.png"
+                }
+            },
+            {
+                "post_id": 4539,
+                "title": "Understanding AI Ethics",
+                "slug": "understanding-ai-ethics",
+                "status": "publish",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/understanding-ai-ethics/",
+                    "course_id": "118",
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-2.png"
+                }
+            },
+            {
+                "post_id": 4533,
+                "title": "AI Fundamentals",
+                "slug": "ai-fundemantals",
+                "status": "publish",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/introduction-to-ai/",
+                    "course_id": "117",
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-1-1-1.png"
+                }
+            },
             {
                 "post_id": 4015,
                 "title": "AI for Growth: The Practical SME Guide",
@@ -18,9 +114,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/the-ai-opportunity-for-smes/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/the-ai-opportunity-for-smes/",
                     "course_id": "116",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2024/12/SMEEP-course-card.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2024/12/SMEEP-course-card.png"
                 }
             },
             {
@@ -34,9 +130,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/identifying-your-keywords-and-useful-information/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/identifying-your-keywords-and-useful-information/",
                     "course_id": "115",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2021/04/futurejobs.jpeg"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/04/futurejobs.jpeg"
                 }
             },
             {
@@ -50,9 +146,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/items-needed/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/items-needed/",
                     "course_id": "112",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/06/Web-presence-card.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/06/Web-presence-card.png"
                 }
             },
             {
@@ -82,9 +178,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/overview-about-the-program/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/overview-about-the-program/",
                     "course_id": "110",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/06/SMEEP.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/06/SMEEP.png"
                 }
             },
             {
@@ -98,9 +194,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/fitness-business-prettest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/fitness-business-prettest/",
                     "course_id": "93",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/03/Fitness-for-business-personel.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Fitness-for-business-personel.png"
                 }
             },
             {
@@ -114,9 +210,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/nutrition-tips-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/nutrition-tips-pretest/",
                     "course_id": "94",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/03/Nutritiontips.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Nutritiontips.png"
                 }
             },
             {
@@ -130,9 +226,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/problem-solving-pre-test/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/problem-solving-pre-test/",
                     "course_id": "95",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/03/Problem-Solving.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Problem-Solving.png"
                 }
             },
             {
@@ -146,9 +242,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/optimizing-nutrition-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/optimizing-nutrition-pretest/",
                     "course_id": "96",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/03/Optimizing-Nutrition.jpg"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Optimizing-Nutrition.jpg"
                 }
             },
             {
@@ -162,9 +258,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/internet-research-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/internet-research-pretest/",
                     "course_id": "97",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/03/Internet-Research.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Internet-Research.png"
                 }
             },
             {
@@ -178,9 +274,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/productivity-online-tools-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/productivity-online-tools-pretest/",
                     "course_id": "98",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/03/Online-productivity-tools.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Online-productivity-tools.png"
                 }
             },
             {
@@ -194,9 +290,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/24-minute-mba-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/24-minute-mba-pretest/",
                     "course_id": "91",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2020/03/Untitled-1.jpg"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/03/Untitled-1.jpg"
                 }
             },
             {
@@ -210,9 +306,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/effective-communication-skills-pretest-2/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/effective-communication-skills-pretest-2/",
                     "course_id": "88",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/communication.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/communication.png"
                 }
             },
             {
@@ -226,9 +322,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/human-resource-management-key-activities/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/human-resource-management-key-activities/",
                     "course_id": "89",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/hr.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/hr.png"
                 }
             },
             {
@@ -242,9 +338,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/24-minute-accounting-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/24-minute-accounting-pretest/",
                     "course_id": "15",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/accounting.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/accounting.png"
                 }
             },
             {
@@ -258,9 +354,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/marketing-plan/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/marketing-plan/",
                     "course_id": "16",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/marketing.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/marketing.png"
                 }
             },
             {
@@ -274,9 +370,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/business-etiquette-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/business-etiquette-pretest/",
                     "course_id": "17",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/business-etic.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/business-etic.png"
                 }
             },
             {
@@ -290,9 +386,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/define-your-customer-segments/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/define-your-customer-segments/",
                     "course_id": "18",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/ar.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/ar.png"
                 }
             },
             {
@@ -306,9 +402,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/call-center-essentials-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/call-center-essentials-pretest/",
                     "course_id": "20",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/call-center.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/call-center.png"
                 }
             },
             {
@@ -322,9 +418,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/24-minute-cio-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/24-minute-cio-pretest/",
                     "course_id": "21",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/cio.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/cio.png"
                 }
             },
             {
@@ -338,9 +434,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/creative-thinking-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/creative-thinking-pretest/",
                     "course_id": "22",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/creative-thinking.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/creative-thinking.png"
                 }
             },
             {
@@ -354,9 +450,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/critical-thinking-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/critical-thinking-pretest/",
                     "course_id": "23",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/criticat-thinking.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/criticat-thinking.png"
                 }
             },
             {
@@ -370,9 +466,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/corporate-social-responsibility-csr-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/corporate-social-responsibility-csr-pretest/",
                     "course_id": "24",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/csr.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/csr.png"
                 }
             },
             {
@@ -386,9 +482,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/uncovering-customer-needs-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/uncovering-customer-needs-pretest/",
                     "course_id": "25",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/Customer-needs.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/Customer-needs.png"
                 }
             },
             {
@@ -402,9 +498,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/customer-service-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/customer-service-pretest/",
                     "course_id": "26",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/customer-service.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/customer-service.png"
                 }
             },
             {
@@ -418,9 +514,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/cv-writing-pre-test/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/cv-writing-pre-test/",
                     "course_id": "27",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/cv.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/cv.png"
                 }
             },
             {
@@ -434,9 +530,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/effective-customer-meetings-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/effective-customer-meetings-pretest/",
                     "course_id": "28",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/cutomer-meetings-1.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/cutomer-meetings-1.png"
                 }
             },
             {
@@ -450,9 +546,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/expand-business-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/expand-business-pretest/",
                     "course_id": "29",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/expand.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/expand.png"
                 }
             },
             {
@@ -466,9 +562,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/financial-literacy-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/financial-literacy-pretest/",
                     "course_id": "31",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/financial-literacy.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/financial-literacy.png"
                 }
             },
             {
@@ -482,9 +578,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/innovation-design-thinking-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/innovation-design-thinking-pretest/",
                     "course_id": "32",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/innovation.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/innovation.png"
                 }
             },
             {
@@ -498,9 +594,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/interview-skills-pre-test/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/interview-skills-pre-test/",
                     "course_id": "33",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/interview.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/interview.png"
                 }
             },
             {
@@ -514,9 +610,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/freelancing-gig-economy-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/freelancing-gig-economy-pretest/",
                     "course_id": "34",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/gig.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/gig.png"
                 }
             },
             {
@@ -530,9 +626,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/leadership-essentials/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/leadership-essentials/",
                     "course_id": "35",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/Leadership-Essentials.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/Leadership-Essentials.png"
                 }
             },
             {
@@ -546,9 +642,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/managing-cash-flow-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/managing-cash-flow-pretest/",
                     "course_id": "36",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/cash-flow.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/cash-flow.png"
                 }
             },
             {
@@ -562,9 +658,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/negotiation-skills-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/negotiation-skills-pretest/",
                     "course_id": "37",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/negotiation.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/negotiation.png"
                 }
             },
             {
@@ -578,9 +674,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/online-safety-pre-test/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/online-safety-pre-test/",
                     "course_id": "38",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/internet.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/internet.png"
                 }
             },
             {
@@ -594,9 +690,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/planning-time-management-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/planning-time-management-pretest/",
                     "course_id": "39",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/time.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/time.png"
                 }
             },
             {
@@ -610,9 +706,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/project-management-essentials-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/project-management-essentials-pretest/",
                     "course_id": "40",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/project-management.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/project-management.png"
                 }
             },
             {
@@ -626,9 +722,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/podcast-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/podcast-pretest/",
                     "course_id": "41",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/podcast.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/podcast.png"
                 }
             },
             {
@@ -642,9 +738,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/productivity-skills-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/productivity-skills-pretest/",
                     "course_id": "42",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/online-productivity.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/online-productivity.png"
                 }
             },
             {
@@ -658,9 +754,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/24-minute-sales/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/24-minute-sales/",
                     "course_id": "43",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/sales.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/sales.png"
                 }
             },
             {
@@ -674,9 +770,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/social-media-f/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/social-media-f/",
                     "course_id": "44",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/social-media.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/social-media.png"
                 }
             },
             {
@@ -690,9 +786,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/starting-a-blog-online-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/starting-a-blog-online-pretest/",
                     "course_id": "45",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/start-blog.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/start-blog.png"
                 }
             },
             {
@@ -706,9 +802,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/startup-business-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/startup-business-pretest/",
                     "course_id": "46",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/startup.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/startup.png"
                 }
             },
             {
@@ -722,9 +818,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/supervision-skills-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/supervision-skills-pretest/",
                     "course_id": "47",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/supervision.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/supervision.png"
                 }
             },
             {
@@ -738,9 +834,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/swot-analysis-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/swot-analysis-pretest/",
                     "course_id": "48",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/swot.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/swot.png"
                 }
             },
             {
@@ -754,9 +850,9 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/teamwork-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/teamwork-pretest/",
                     "course_id": "49",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/teamwork.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/teamwork.png"
                 }
             },
             {
@@ -770,9 +866,793 @@
                 "meta": {
                     "course_unit_number": "",
                     "course_time": "",
-                    "course_unit_link": "https://smeep.potential.org/module-1/presentation-skills-pretest/",
+                    "course_unit_link": "https://aiamplify.potential.org/module-1/presentation-skills-pretest/",
                     "course_id": "50",
-                    "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/presentation.png"
+                    "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/presentation.png"
+                }
+            },
+            {
+                "post_id": 3743,
+                "title": "Grow your Agricultural (Agri) Business",
+                "slug": "grow-your-agricultural-agri-business",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "104",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3744,
+                "title": "Grow your Hospitality Business",
+                "slug": "grow-your-hospitality-business",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "105",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3740,
+                "title": "Grow your Manufacturing Business",
+                "slug": "grow-your-manufacturing-business",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "100",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3741,
+                "title": "Grow your Retail Business",
+                "slug": "grow-your-retail-business",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "102",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3742,
+                "title": "Grow your Social Business",
+                "slug": "grow-your-social-business",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "103",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3745,
+                "title": "Launch your Business",
+                "slug": "launch-your-business",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "107",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3747,
+                "title": "Lærende hverdag",
+                "slug": "lrende-hverdag",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "109",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3752,
+                "title": "SME- Women Entrepreneurship Program",
+                "slug": "sme-women-entrepreneurship-program",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "114",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3746,
+                "title": "Women Entrepreneurship",
+                "slug": "women-entrepreneurship",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "108",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3698,
+                "title": "آدآب (إتيكيت) العمل التجاري",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "56",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3694,
+                "title": "أدوات لتحسين الانتاجية عبر الانترنت",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "52",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3727,
+                "title": "أساسيات القيادة",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "86",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3701,
+                "title": "أسُس مركز الاتصالات",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "59",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3699,
+                "title": "إدارة المشاريع",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "57",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3702,
+                "title": "إكتشف احتياجات عملائك",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "60",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3697,
+                "title": "اجتماعات العمل الفعّالة",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "55",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3693,
+                "title": "الإنتاجية",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "51",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3703,
+                "title": "البحث عبر الإنترنت",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "61",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3704,
+                "title": "البدء بمدونة إلكترونية",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "62",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3728,
+                "title": "التحليل الرباعي",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "87",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3705,
+                "title": "التخطيط وإدارة الوقت",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "63",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3700,
+                "title": "التدفق المالي",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "58",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3707,
+                "title": "التفكير الإبداعي",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "66",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3706,
+                "title": "التّفكير النّقدي",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "64",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3696,
+                "title": "التمويل والاستثمار",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "54",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3708,
+                "title": "العمل الجماعي",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "67",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3751,
+                "title": "القائمة المطلوبة للتواجد على الانترنت",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "113",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3709,
+                "title": "المبادئ المالية",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "68",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3710,
+                "title": "المسؤولية الاجتماعية للشركات",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "69",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3695,
+                "title": "برنامج 24 دقيقة لاساسيات المحاسبة",
+                "slug": "24",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "53",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3715,
+                "title": "برنامج 24 دقيقة لكبار مسؤولي المعلومات",
+                "slug": "24",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "74",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3713,
+                "title": "برنامج الأربع والعشرون دقيقة للتسويق",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "72",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3711,
+                "title": "برنامج الأربع وعشرون دقيقة لإدارة الأعمال",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "70",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3712,
+                "title": "برنامج الأربع وعشرون دقيقة لإدارةُ الموارد البشريَّة",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "71",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3714,
+                "title": "برنامج الأربع وعشرون دقيقة للمبيعات",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "73",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3732,
+                "title": "برنامج التدريب الزراعي",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "92",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3749,
+                "title": "تطوير عملك",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "111",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3716,
+                "title": "توسع المؤسسة التجارية",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "75",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3717,
+                "title": "حل المشاكل",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "76",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3718,
+                "title": "خدمة العملاء",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "77",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3726,
+                "title": "عملية الابتكار",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "85",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3719,
+                "title": "كتابة السيرة الذاتية",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "78",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3720,
+                "title": "مهارات الإشراف",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "79",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3721,
+                "title": "مهارات التفاوض",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "80",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3722,
+                "title": "مهارات التقديم",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "81",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3723,
+                "title": "مهارات التواصل",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "82",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3724,
+                "title": "مهارات مقابلة العمل",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "83",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3739,
+                "title": "نصائح عذائية لشهر رمضان",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "99",
+                    "course_image_url": ""
+                }
+            },
+            {
+                "post_id": 3725,
+                "title": "وسائل التواصل الاجتماعي",
+                "slug": "",
+                "status": "draft",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": null,
+                "meta": {
+                    "course_unit_number": "",
+                    "course_time": "",
+                    "course_unit_link": "",
+                    "course_id": "84",
+                    "course_image_url": ""
                 }
             }
         ]

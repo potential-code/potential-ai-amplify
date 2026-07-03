@@ -57,15 +57,15 @@ export function ChatEmptyState({ onSend }: Props) {
         {/* Avatar */}
         <div className="ring-4 ring-brand-primary/15 rounded-full mt-1">
           <img
-            src="/images/redesign/smeep-avatar-200.png"
-            alt="Sana"
+            src="/images/redesign/anna-avatar-200.png"
+            alt="Anna"
             className="w-[68px] h-[68px] rounded-full object-cover object-top border-2 border-white"
           />
         </div>
 
         {/* Name + tagline */}
         <div className="flex flex-col items-center gap-0.5 text-center">
-          <p className="font-bold text-[15px] text-brand-text-primary leading-tight">Sana</p>
+          <p className="font-bold text-[15px] text-brand-text-primary leading-tight">Anna</p>
           <p className="text-[11px] text-brand-text-muted max-w-[260px] leading-[1.4]">
             I help you grow your business — find resources, create documents, and discover AI tools.
           </p>
@@ -137,7 +137,7 @@ export function ChatEmptyState({ onSend }: Props) {
 
       {/* Full-width input bar */}
       <div className="flex-shrink-0 px-3 pb-3 pt-2">
-        <div className="flex items-end gap-2 px-3 py-2 bg-[#fdf5f9] border border-[#f7e8f0] rounded-2xl" style={{ boxShadow: '0 0 0 1px rgba(159, 32, 99, 0.12), 0 0 20px rgba(26, 10, 18, 0.18), 0 0 6px rgba(26, 10, 18, 0.10)' }}>
+        <div className="flex items-end gap-2 px-3 py-2 bg-[#fdf5f9] border border-[#f7e8f0] rounded-2xl" style={{ boxShadow: '0 0 0 1px rgba(101, 45, 144, 0.12), 0 0 20px rgba(26, 10, 18, 0.18), 0 0 6px rgba(26, 10, 18, 0.10)' }}>
           <textarea
             ref={textareaRef}
             value={inputValue}
@@ -156,7 +156,7 @@ export function ChatEmptyState({ onSend }: Props) {
             className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0 self-end transition-opacity disabled:opacity-30"
             style={
               inputValue.trim()
-                ? { background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }
+                ? { background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }
                 : { background: '#f7e8f0' }
             }
           >

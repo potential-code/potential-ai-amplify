@@ -8,9 +8,9 @@ import * as authService from "../services/auth.service";
  *
  * Mints a short-lived service JWT for the AI backend (potential-ai). The AI
  * service trusts tokens signed with the shared COPILOT_SERVICE_JWT_SECRET and
- * scopes conversations by the platformId/userId claims. Requiring smeep auth
- * here is what gates the assistant (chat, voice STT/TTS) to logged-in users —
- * the shared secret never reaches the browser.
+ * scopes conversations by the platformId/userId claims. Requiring ai-amplify
+ * auth here is what gates the assistant (chat, voice STT/TTS) to logged-in
+ * users — the shared secret never reaches the browser.
  */
 export async function copilotToken(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -23,7 +23,7 @@ export async function copilotToken(req: Request, res: Response, next: NextFuncti
       return;
     }
     const expiresInSeconds = 60 * 60; // 1 hour; the client refreshes before expiry
-    const token = jwt.sign({ platformId: "smeep", userId: req.user!.userId }, secret, {
+    const token = jwt.sign({ platformId: "ai-amplify", userId: req.user!.userId }, secret, {
       algorithm: "HS256",
       expiresIn: expiresInSeconds,
     });
@@ -59,7 +59,7 @@ export async function guestCopilotToken(
       return;
     }
     const expiresInSeconds = 30 * 60; // 30 minutes
-    const token = jwt.sign({ platformId: "smeep" }, secret, {
+    const token = jwt.sign({ platformId: "ai-amplify" }, secret, {
       algorithm: "HS256",
       expiresIn: expiresInSeconds,
     });

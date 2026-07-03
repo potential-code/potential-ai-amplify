@@ -81,12 +81,12 @@ export type ActivityItem = {
 }
 
 export const ACTIVITY_FEED: ActivityItem[] = [
-  { id: 'a1', user: 'Aisha Khan', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Aisha%20Khan&backgroundColor=9f2063', action: 'completed', target: 'AI for Growth · Module 3', at: '4 minutes ago', type: 'complete' },
+  { id: 'a1', user: 'Aisha Khan', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Aisha%20Khan&backgroundColor=652d90', action: 'completed', target: 'AI for Growth · Module 3', at: '4 minutes ago', type: 'complete' },
   { id: 'a2', user: 'Omar Faruq', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Omar%20Faruq&backgroundColor=4c1d6e', action: 'enrolled in', target: 'Pricing Strategy Bootcamp', at: '12 minutes ago', type: 'enroll' },
   { id: 'a3', user: 'Lina Marwan', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Lina%20Marwan&backgroundColor=e83e94', action: 'booked a session with', target: 'Celine Chami', at: '38 minutes ago', type: 'mentor' },
   { id: 'a4', user: 'Diego Santos', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Diego%20Santos&backgroundColor=c42b7a', action: 'earned certificate', target: 'Cash Flow Fundamentals', at: '1 hour ago', type: 'certificate' },
-  { id: 'a5', user: 'Priya Nair', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Priya%20Nair&backgroundColor=7a1a4c', action: 'signed up', target: 'New account', at: '2 hours ago', type: 'signup' },
-  { id: 'a6', user: 'Marco Rossi', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Marco%20Rossi&backgroundColor=9f2063', action: 'completed', target: 'Digital Marketing Essentials', at: '3 hours ago', type: 'complete' },
+  { id: 'a5', user: 'Priya Nair', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Priya%20Nair&backgroundColor=4a2168', action: 'signed up', target: 'New account', at: '2 hours ago', type: 'signup' },
+  { id: 'a6', user: 'Marco Rossi', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Marco%20Rossi&backgroundColor=652d90', action: 'completed', target: 'Digital Marketing Essentials', at: '3 hours ago', type: 'complete' },
   { id: 'a7', user: 'Yuki Tanaka', avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Yuki%20Tanaka&backgroundColor=4c1d6e', action: 'enrolled in', target: 'AI for Growth', at: '4 hours ago', type: 'enroll' },
 ]
 

@@ -1,7 +1,7 @@
 {
     "schema_version": "1.0",
-    "exported_at": "2026-05-19T06:38:59+00:00",
-    "source_site": "https://smeep.potential.org",
+    "exported_at": "2026-07-02T08:24:04+00:00",
+    "source_site": "https://aiamplify.potential.org",
     "cpt": {
         "slug": "expert_cards",
         "label": "Human Mentors",
@@ -14,7 +14,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/06/Shahrazad-Shehab-card-1.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/06/Shahrazad-Shehab-card-1.png",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "PR, Social Media",
@@ -31,7 +31,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/05/Sawsan-Abbasy-300x300-1.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/05/Sawsan-Abbasy-300x300-1.png",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Strategy, Sales",
@@ -48,7 +48,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/03/Umair.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/Umair.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Insurance, Financials",
@@ -65,7 +65,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/03/ghenwa.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/ghenwa.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Legal, Partnerships, Company Setup",
@@ -82,7 +82,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/03/monika.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/monika.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Leadership, Sales, Branding, featured",
@@ -99,7 +99,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/03/ziadbanna.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/ziadbanna.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Project Management, leadership, Accounting, featured",
@@ -116,7 +116,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/03/Albert-card.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/Albert-card.png",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "ACCOUNTING, Auditing, Tax",
@@ -133,7 +133,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/08/Nika-Sturm.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/08/Nika-Sturm.png",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Strategy",
@@ -150,7 +150,7 @@
                 "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/08/Sirine-Fadoul.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/08/Sirine-Fadoul.png",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "PR, Strategy, Marketing",
@@ -167,7 +167,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/08/Ahmed-Alsuleimani.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/08/Ahmed-Alsuleimani.png",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Leadership, Strategy",
@@ -184,7 +184,7 @@
                 "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/07/Hazem-card.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Hazem-card.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Sales, Leadership, Strategy",
@@ -201,7 +201,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/07/Celine-card.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Celine-card.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Social Media, Marketing, Communication, featured",
@@ -218,7 +218,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/07/Samer-card.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Samer-card.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Product Development, Strategy, Business Development",
@@ -235,7 +235,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/07/Kirsten-card.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Kirsten-card.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Design Thinking, Business Transformation, Strategy",
@@ -252,7 +252,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/07/Tony-card.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Tony-card.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Strategy, Leadership, Sales",
@@ -269,7 +269,7 @@
                 "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/07/Sam-card.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Sam-card.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "Sales, Leadership, Team Building",
@@ -286,7 +286,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/07/Alla-card.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Alla-card.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": " Sales, Marketing, PR, featured",
@@ -303,7 +303,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/06/Ivan-Kraemer-smeep-card.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/06/Ivan-Kraemer-smeep-card.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "ICT, Sales, Team Building, featured",
@@ -320,7 +320,7 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/06/Mita-Smeep-card.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/06/Mita-Smeep-card.jpg",
                 "meta": {
                     "expert_track": "",
                     "expert_category": "PR, Social Media, Commmunications, featured",
@@ -336,133 +336,133 @@
         "images": [
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/06/Shahrazad-Shehab-card-1.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/06/Shahrazad-Shehab-card-1.png",
                 "zip_path": "wp-content/uploads/2021/06/Shahrazad-Shehab-card-1.png",
                 "level": "card_item",
                 "post_id": 3785
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/05/Sawsan-Abbasy-300x300-1.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/05/Sawsan-Abbasy-300x300-1.png",
                 "zip_path": "wp-content/uploads/2021/05/Sawsan-Abbasy-300x300-1.png",
                 "level": "card_item",
                 "post_id": 3651
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/03/Umair.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/Umair.jpg",
                 "zip_path": "wp-content/uploads/2021/03/Umair.jpg",
                 "level": "card_item",
                 "post_id": 3469
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/03/ghenwa.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/ghenwa.jpg",
                 "zip_path": "wp-content/uploads/2021/03/ghenwa.jpg",
                 "level": "card_item",
                 "post_id": 3467
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/03/monika.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/monika.jpg",
                 "zip_path": "wp-content/uploads/2021/03/monika.jpg",
                 "level": "card_item",
                 "post_id": 3465
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/03/ziadbanna.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/ziadbanna.jpg",
                 "zip_path": "wp-content/uploads/2021/03/ziadbanna.jpg",
                 "level": "card_item",
                 "post_id": 3462
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/03/Albert-card.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/Albert-card.png",
                 "zip_path": "wp-content/uploads/2021/03/Albert-card.png",
                 "level": "card_item",
                 "post_id": 3456
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/08/Nika-Sturm.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/08/Nika-Sturm.png",
                 "zip_path": "wp-content/uploads/2020/08/Nika-Sturm.png",
                 "level": "card_item",
                 "post_id": 3361
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/08/Sirine-Fadoul.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/08/Sirine-Fadoul.png",
                 "zip_path": "wp-content/uploads/2020/08/Sirine-Fadoul.png",
                 "level": "card_item",
                 "post_id": 3358
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/08/Ahmed-Alsuleimani.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/08/Ahmed-Alsuleimani.png",
                 "zip_path": "wp-content/uploads/2020/08/Ahmed-Alsuleimani.png",
                 "level": "card_item",
                 "post_id": 3350
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/07/Hazem-card.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Hazem-card.jpg",
                 "zip_path": "wp-content/uploads/2020/07/Hazem-card.jpg",
                 "level": "card_item",
                 "post_id": 3223
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/07/Celine-card.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Celine-card.jpg",
                 "zip_path": "wp-content/uploads/2020/07/Celine-card.jpg",
                 "level": "card_item",
                 "post_id": 3222
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/07/Samer-card.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Samer-card.jpg",
                 "zip_path": "wp-content/uploads/2020/07/Samer-card.jpg",
                 "level": "card_item",
                 "post_id": 3206
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/07/Kirsten-card.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Kirsten-card.jpg",
                 "zip_path": "wp-content/uploads/2020/07/Kirsten-card.jpg",
                 "level": "card_item",
                 "post_id": 3205
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/07/Tony-card.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Tony-card.jpg",
                 "zip_path": "wp-content/uploads/2020/07/Tony-card.jpg",
                 "level": "card_item",
                 "post_id": 3204
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/07/Sam-card.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Sam-card.jpg",
                 "zip_path": "wp-content/uploads/2020/07/Sam-card.jpg",
                 "level": "card_item",
                 "post_id": 3202
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/07/Alla-card.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/07/Alla-card.jpg",
                 "zip_path": "wp-content/uploads/2020/07/Alla-card.jpg",
                 "level": "card_item",
                 "post_id": 3195
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/06/Ivan-Kraemer-smeep-card.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/06/Ivan-Kraemer-smeep-card.jpg",
                 "zip_path": "wp-content/uploads/2020/06/Ivan-Kraemer-smeep-card.jpg",
                 "level": "card_item",
                 "post_id": 3150
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/06/Mita-Smeep-card.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/06/Mita-Smeep-card.jpg",
                 "zip_path": "wp-content/uploads/2020/06/Mita-Smeep-card.jpg",
                 "level": "card_item",
                 "post_id": 3149

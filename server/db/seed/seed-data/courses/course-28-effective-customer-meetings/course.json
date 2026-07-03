@@ -1,7 +1,7 @@
 {
     "schema_version": "1.0",
-    "exported_at": "2026-05-19T05:51:23+00:00",
-    "source_site": "https://smeep.potential.org",
+    "exported_at": "2026-07-02T08:24:18+00:00",
+    "source_site": "https://aiamplify.potential.org",
     "course": {
         "course_id": 28,
         "title": "Effective Customer Meetings",
@@ -24,8 +24,8 @@
             "content": "",
             "course_unit_number": "",
             "course_time": "",
-            "course_unit_link": "https://smeep.potential.org/module-1/effective-customer-meetings-pretest/",
-            "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/cutomer-meetings-1.png",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/effective-customer-meetings-pretest/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/cutomer-meetings-1.png",
             "featured_image_url": null
         },
         "modules": [
@@ -772,7 +772,7 @@
                             "action_plan": "",
                             "templates_title": "",
                             "atq_btn": "",
-                            "course-unit-atq-link": "https://smeep.potential.org/wp-content/themes/blankslate/tcpdf/examples/at_10.php",
+                            "course-unit-atq-link": "https://aiamplify.potential.org/wp-content/themes/blankslate/tcpdf/examples/at_10.php",
                             "course-unit-atq-one": "",
                             "course-unit-atq-two": "",
                             "atqq_3": "",
@@ -925,7 +925,7 @@
         "images": [
             {
                 "role": "card_image",
-                "url": "https://smeep.potential.org/wp-content/uploads/2018/10/cutomer-meetings-1.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/cutomer-meetings-1.png",
                 "zip_path": "wp-content/uploads/2018/10/cutomer-meetings-1.png",
                 "level": "card"
             }

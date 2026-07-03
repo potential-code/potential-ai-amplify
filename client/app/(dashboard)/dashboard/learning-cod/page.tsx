@@ -82,7 +82,7 @@ function CodPageInner() {
             type="button"
             onClick={loadPath}
             className="mt-4 rounded-xl px-4 py-2 text-sm font-semibold text-white"
-            style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
           >
             Retry
           </button>
@@ -111,7 +111,7 @@ function CodPageInner() {
               type="button"
               onClick={() => setPath(null)}
               className="mt-4 rounded-xl px-4 py-2 text-sm font-semibold text-white"
-              style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+              style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
             >
               Retry
             </button>
@@ -127,12 +127,12 @@ function CodPageInner() {
             style={{ background: 'linear-gradient(120deg, #1A0A12 0%, #2d0f20 100%)' }}
           >
             <img
-              src="/images/redesign/smeep-avatar-96.png"
-              alt="Sana"
+              src="/images/redesign/anna-avatar-96.png"
+              alt="Anna"
               className="w-8 h-8 rounded-full object-cover object-top"
             />
             <div>
-              <p className="text-sm font-semibold text-white leading-tight">Sana — Learning Path Advisor</p>
+              <p className="text-sm font-semibold text-white leading-tight">Anna — Learning Path Advisor</p>
               <p className="text-[10px] text-white/60 leading-tight">Building your personalised COD learning path</p>
             </div>
           </div>

@@ -160,7 +160,7 @@ export default function DashboardOverview() {
         <div className="relative flex items-center gap-4">
           <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 shadow-lg flex-shrink-0">
             <img
-              src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.fullName ?? '')}&backgroundColor=9f2063&fontSize=42&radius=50`}
+              src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.fullName ?? '')}&backgroundColor=652d90&fontSize=42&radius=50`}
               alt={user?.fullName ?? 'User'}
               className="w-full h-full object-cover"
             />
@@ -168,7 +168,7 @@ export default function DashboardOverview() {
           <div className="flex-1 min-w-0">
             <p className="text-base sm:text-lg font-black leading-snug">
               Welcome back, {firstName}.{' '}
-              <span className="text-gradient-magenta">Let's grow today.</span>
+              <span className="text-gradient-brand">Let's grow today.</span>
             </p>
             <p className="text-xs text-white/60 mt-0.5 truncate">{progressText}</p>
           </div>
@@ -683,7 +683,7 @@ export default function DashboardOverview() {
                         <img src={m.avatarUrl} alt={m.fullName} className="w-full h-full object-cover" />
                       ) : (
                         <img
-                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(m.fullName)}&backgroundColor=9f2063&fontSize=42&radius=50`}
+                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(m.fullName)}&backgroundColor=652d90&fontSize=42&radius=50`}
                           alt={m.fullName}
                           className="w-full h-full object-cover"
                         />

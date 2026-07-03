@@ -4,9 +4,9 @@ import { motion } from 'framer-motion'
 import { HEATMAP_DAYS, HEATMAP_HOURS, HEATMAP_DATA } from '@/lib/adminData'
 
 function colorFor(value: number) {
-  // 0..100 → magenta intensity
+  // 0..100 → brand-purple intensity
   const alpha = 0.08 + (value / 100) * 0.85
-  return `rgba(159, 32, 99, ${alpha.toFixed(3)})`
+  return `rgba(101, 45, 144, ${alpha.toFixed(3)})`
 }
 
 export function Heatmap() {

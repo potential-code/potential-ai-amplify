@@ -2,147 +2,98 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Play, Layers } from 'lucide-react'
-import { COURSES } from '@/lib/constants'
+import { Play } from 'lucide-react'
+import { JOURNEY_COURSES } from '@/lib/constants'
 import { SectionHeader } from '@/components/shared/SectionHeader'
+import { cn } from '@/lib/utils'
 
 export function CoursesSection() {
-  const [activeCategory, setActiveCategory] = useState(0)
-  const [openModule, setOpenModule] = useState<number | null>(0)
-
-  const category = COURSES.categories[activeCategory]
-  const totalUnits = category.modules.reduce((s, m) => s + m.units.length, 0)
+  const [active, setActive] = useState(0)
+  const course = JOURNEY_COURSES.courses[active]
 
   return (
     <section id="courses" className="relative py-28 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <SectionHeader
-            badge={COURSES.badge}
-            heading="The Entrepreneur's"
-            highlight="Journey"
-          />
-        </div>
+        <SectionHeader
+          badge={JOURNEY_COURSES.badge}
+          heading="The Entrepreneur's"
+          highlight="Journey"
+          subtext={JOURNEY_COURSES.subtext}
+        />
 
-        {/* Pill scroller */}
-        <div className="relative mb-10">
-          <div className="flex flex-wrap gap-2 justify-center">
-            {COURSES.categories.map((cat, i) => (
-              <button
-                key={cat.name}
-                onClick={() => {
-                  setActiveCategory(i)
-                  setOpenModule(0)
-                }}
-                className={`relative px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                  activeCategory === i
-                    ? 'text-white'
-                    : 'text-brand-text-muted hover:text-brand-primary'
-                }`}
-              >
-                {activeCategory === i && (
+        {/* Journey stepper */}
+        <div className="relative mt-16 max-w-4xl mx-auto">
+          <div className="absolute top-6 left-[12.5%] right-[12.5%] h-0.5 bg-brand-surface-2 hidden sm:block" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-2 relative">
+            {JOURNEY_COURSES.courses.map((c, i) => {
+              const isActive = active === i
+              return (
+                <button
+                  key={c.title}
+                  onClick={() => setActive(i)}
+                  className="relative flex flex-col items-center gap-3 group"
+                >
                   <motion.span
-                    layoutId="course-pill"
-                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    className="absolute inset-0 rounded-full bg-gradient-to-r from-brand-primary to-brand-primary-dark shadow-lg"
-                  />
-                )}
-                <span className="relative z-10">{cat.name}</span>
-              </button>
-            ))}
+                    animate={{ scale: isActive ? 1.15 : 1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    className={cn(
+                      'relative z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-colors duration-300',
+                      isActive
+                        ? 'bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/30'
+                        : 'bg-white text-brand-primary border-brand-surface-2 group-hover:border-brand-primary/40',
+                    )}
+                  >
+                    {i + 1}
+                  </motion.span>
+                  <span
+                    className={cn(
+                      'text-xs sm:text-[13px] font-semibold text-center leading-snug max-w-[9rem] transition-colors duration-300',
+                      isActive ? 'text-brand-primary' : 'text-brand-text-muted group-hover:text-brand-text-primary',
+                    )}
+                  >
+                    {c.title}
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
+        {/* Selected course detail */}
+        <div className="max-w-4xl mx-auto mt-12">
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeCategory}
+              key={active}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.35 }}
+              className="rounded-3xl border border-brand-surface-2 bg-mesh-soft p-6 sm:p-10"
             >
-              {/* Stats bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-6 px-1">
-                <div className="flex items-center gap-3 text-brand-text-muted text-sm">
-                  <Layers className="w-4 h-4 text-brand-primary" />
-                  <span>
-                    <span className="font-bold text-brand-text-primary">{category.modules.length}</span> module
-                    {category.modules.length > 1 ? 's' : ''}
-                  </span>
-                  <span className="text-brand-surface-2">•</span>
-                  <span>
-                    <span className="font-bold text-brand-text-primary">{totalUnits}</span> units
-                  </span>
-                </div>
+              <div className="flex items-center justify-between gap-4 mb-6">
+                <h3 className="text-xl sm:text-2xl font-bold text-brand-text-primary leading-tight">
+                  {course.title}
+                </h3>
+                <span className="flex-shrink-0 text-xs font-semibold text-brand-primary bg-brand-primary/10 rounded-full px-3 py-1.5">
+                  {course.units.length} units
+                </span>
               </div>
 
-              <div className="space-y-3">
-                {category.modules.map((mod, mi) => {
-                  const open = openModule === mi
-                  return (
-                    <div
-                      key={mod.title}
-                      className={`rounded-2xl border bg-white transition-all ${
-                        open
-                          ? 'border-brand-primary/30 shadow-lg shadow-brand-primary/5'
-                          : 'border-brand-surface-2 hover:border-brand-primary/20'
-                      }`}
-                    >
-                      <button
-                        onClick={() => setOpenModule(open ? null : mi)}
-                        className="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-5 text-left"
-                      >
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-brand-primary font-bold text-sm">
-                              {String(mi + 1).padStart(2, '0')}
-                            </span>
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-bold text-brand-text-primary leading-tight truncate">
-                              {mod.title}
-                            </p>
-                            <p className="text-xs text-brand-text-muted mt-0.5">
-                              {mod.units.length} units
-                            </p>
-                          </div>
-                        </div>
-                        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                          <ChevronDown className="w-5 h-5 text-brand-text-muted flex-shrink-0" />
-                        </motion.div>
-                      </button>
-                      <AnimatePresence>
-                        {open && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-                            className="overflow-hidden"
-                          >
-                            <ul className="px-5 sm:px-6 pb-5 grid sm:grid-cols-2 gap-x-6">
-                              {mod.units.map((unit, ui) => (
-                                <motion.li
-                                  key={unit}
-                                  initial={{ opacity: 0, x: -10 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: 0.04 * ui }}
-                                  className="flex items-start gap-3 py-2 text-sm text-brand-text-muted border-t border-brand-surface-2/60 first:border-t-0 sm:[&:nth-child(2)]:border-t-0"
-                                >
-                                  <div className="w-6 h-6 rounded-full bg-brand-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <Play className="w-2.5 h-2.5 text-brand-primary fill-brand-primary" />
-                                  </div>
-                                  <span className="leading-snug">{unit}</span>
-                                </motion.li>
-                              ))}
-                            </ul>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {course.units.map((unit, ui) => (
+                  <motion.div
+                    key={unit}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.04 * ui }}
+                    className="flex items-center gap-3 rounded-xl bg-white border border-brand-surface-2 px-4 py-3"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-brand-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Play className="w-2.5 h-2.5 text-brand-primary fill-brand-primary" />
                     </div>
-                  )
-                })}
+                    <span className="text-sm text-brand-text-primary leading-snug">{unit}</span>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
           </AnimatePresence>

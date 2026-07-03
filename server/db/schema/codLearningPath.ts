@@ -37,7 +37,7 @@ type CodDiscoveryProfile = { goals: string; topics: string[]; experienceLevel: s
 export const codUserPaths = pgTable('cod_user_paths', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  platformId: text('platform_id').notNull().default('smeep'),
+  platformId: text('platform_id').notNull().default('ai-amplify'),
   discoveryProfile: jsonb('discovery_profile').$type<CodDiscoveryProfile>(),
   milestones: jsonb('milestones').notNull().$type<CodMilestone[]>().default(sql`'[]'::jsonb`),
   status: codPathStatusEnum('status').notNull().default('building'),

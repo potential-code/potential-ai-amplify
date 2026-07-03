@@ -67,7 +67,7 @@ export function CountryPickerCard({ respond, status }: CountryPickerCardProps) {
       {/* Header */}
       <div
         className="flex items-center gap-2 px-4 py-3"
-        style={{ background: 'linear-gradient(120deg,#9f2063,#7a1a4c)' }}
+        style={{ background: 'linear-gradient(120deg,#652d90,#4a2168)' }}
       >
         <Sparkles className="w-4 h-4 text-white/80 flex-shrink-0" />
         <span className="text-sm font-semibold text-white tracking-wide">
@@ -79,7 +79,7 @@ export function CountryPickerCard({ respond, status }: CountryPickerCardProps) {
       {status === 'complete' ? (
         <div className="flex items-center gap-3 px-4 py-3">
           <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-white/10">
-            <Check className="w-3.5 h-3.5 text-[#9f2063]" strokeWidth={2.5} />
+            <Check className="w-3.5 h-3.5 text-[#652d90]" strokeWidth={2.5} />
           </div>
           <span className="text-sm font-medium text-white/90">
             {lastSelectedRef.current?.name ?? 'Country selected'}
@@ -101,13 +101,13 @@ export function CountryPickerCard({ respond, status }: CountryPickerCardProps) {
             />
             {showSpinner && (
               <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#9f2063]" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#652d90]" />
               </div>
             )}
           </div>
 
           {/* Country list */}
-          <div className="max-h-48 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(159,32,99,0.3) transparent' }}>
+          <div className="max-h-48 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(101,45,144,0.3) transparent' }}>
             {filtered.length === 0 ? (
               <p className="px-3 py-2 text-xs text-white/40">No countries found.</p>
             ) : (

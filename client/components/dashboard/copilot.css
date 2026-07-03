@@ -7,12 +7,12 @@
 
 .smeep-copilot {
   box-shadow: 0 16px 64px rgba(26, 10, 18, 0.24), 0 4px 20px rgba(26, 10, 18, 0.14);
-  --copilot-kit-primary-color: #9f2063;
+  --copilot-kit-primary-color: #652d90;
   --copilot-kit-contrast-color: #ffffff;
   --copilot-kit-background-color: #ffffff;
   --copilot-kit-secondary-color: #ffffff;
   --copilot-kit-secondary-contrast-color: #1a0a12;
-  --copilot-kit-separator-color: #f7e8f0;
+  --copilot-kit-separator-color: #F1ECFA;
   --copilot-kit-muted-color: #6b7280;
   /* V2 uses var(--background) for the chat area; reset it so the app's
      pinkish --background doesn't bleed into the copilot chat body */
@@ -116,7 +116,7 @@
 }
 
 .smeep-copilot .copilotKitUserMessage {
-  background: linear-gradient(135deg, #9f2063, #7a1a4c) !important;
+  background: linear-gradient(135deg, #652d90, #4a2168) !important;
   color: white !important;
   border-radius: 1rem 1rem 0.25rem 1rem !important;
 }
@@ -133,16 +133,16 @@
 }
 
 .smeep-copilot .copilotKitAssistantMessage {
-  background: #fdf5f9 !important;
+  background: #f9f9ff !important;
   color: #1a0a12 !important;
   border-radius: 1rem 1rem 1rem 0.25rem !important;
 }
 
 /* Suggestion chips — real CopilotKit selector: .copilotKitMessages footer .suggestions .suggestion */
 .smeep-copilot .copilotKitMessages footer .suggestions .suggestion {
-  border: 1.5px solid #e8b4d0 !important;
-  background: #fdf5f9 !important;
-  color: #9f2063 !important;
+  border: 1.5px solid #d9c2ef !important;
+  background: #f9f9ff !important;
+  color: #652d90 !important;
   border-radius: 999px !important;
   font-weight: 600 !important;
   font-size: 12px !important;
@@ -157,32 +157,32 @@
 .smeep-copilot .copilotKitMessages footer .suggestions button {
   display: inline-flex !important;
   align-items: center !important;
-  color: #9f2063 !important;
+  color: #652d90 !important;
 }
 
 .smeep-copilot .copilotKitMessages footer .suggestions .suggestion:hover,
 .smeep-copilot .copilotKitMessages footer .suggestions button:not(:disabled):hover {
-  background: #9f2063 !important;
+  background: #652d90 !important;
   color: white !important;
-  border-color: #9f2063 !important;
+  border-color: #652d90 !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(159, 32, 99, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(101, 45, 144, 0.25) !important;
 }
 
 .smeep-copilot .copilotKitButton {
-  background: #9f2063 !important;
+  background: #652d90 !important;
 }
 .smeep-copilot .copilotKitButton:hover {
-  background: #7a1a4c !important;
+  background: #4a2168 !important;
 }
 
 /* ===== Floating popup (DashboardCopilotPopup) ===== */
 
 /* The launcher bubble bottom-right */
 .smeep-copilot-popup .copilotKitButton {
-  background: linear-gradient(135deg, #9f2063, #7a1a4c) !important;
+  background: linear-gradient(135deg, #652d90, #4a2168) !important;
   box-shadow:
-    0 10px 30px -8px rgba(159, 32, 99, 0.55),
+    0 10px 30px -8px rgba(101, 45, 144, 0.55),
     0 4px 12px -4px rgba(26, 10, 18, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -192,10 +192,10 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
 }
 .smeep-copilot-popup .copilotKitButton:hover {
-  background: linear-gradient(135deg, #b6256f, #8a1c55) !important;
+  background: linear-gradient(135deg, #7c329c, #5a2371) !important;
   transform: translateY(-2px) scale(1.04);
   box-shadow:
-    0 14px 36px -8px rgba(159, 32, 99, 0.7),
+    0 14px 36px -8px rgba(101, 45, 144, 0.7),
     0 6px 16px -4px rgba(26, 10, 18, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
 }
@@ -208,11 +208,11 @@
 /* The popup window */
 .smeep-copilot-popup .copilotKitWindow {
   border-radius: 1.25rem !important;
-  border: 1px solid #f1d6e3 !important;
+  border: 1px solid #e3d3f0 !important;
   background: white !important;
   box-shadow:
     0 30px 60px -20px rgba(26, 10, 18, 0.25),
-    0 12px 28px -10px rgba(159, 32, 99, 0.18) !important;
+    0 12px 28px -10px rgba(101, 45, 144, 0.18) !important;
   overflow: hidden !important;
   width: min(384px, calc(100vw - 2rem)) !important;
   height: min(620px, calc(100vh - 7rem)) !important;
@@ -220,7 +220,7 @@
 
 /* Header bar — branded gradient */
 .smeep-copilot-popup .copilotKitHeader {
-  background: linear-gradient(135deg, #9f2063 0%, #7a1a4c 100%) !important;
+  background: linear-gradient(135deg, #652d90 0%, #4a2168 100%) !important;
   color: white !important;
   border-bottom: 0 !important;
   padding: 0.875rem 1rem !important;
@@ -309,7 +309,7 @@
 }
 
 .smeep-landing-dark .smeep-bot-bubble a {
-  color: rgba(232, 62, 148, 0.95) !important;
+  color: rgba(158, 119, 255, 0.95) !important;
 }
 
 /* Copy button in dark mode */
@@ -323,14 +323,20 @@
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
+/* Typing dots need a brighter tone in the dark bubble — the base brand
+   purple has too little contrast against a dark purple backdrop. */
+.smeep-landing-dark .smeep-typing-dot {
+  background: rgba(158, 119, 255, 0.95) !important;
+}
+
 /* Input wrap focus highlight — light (dashboard) */
 .smeep-chat-input-wrap {
   transition: box-shadow 0.18s ease, border-color 0.18s ease;
-  box-shadow: 0 0 0 1px rgba(159, 32, 99, 0.12), 0 0 20px rgba(26, 10, 18, 0.18), 0 0 6px rgba(26, 10, 18, 0.10);
+  box-shadow: 0 0 0 1px rgba(101, 45, 144, 0.12), 0 0 20px rgba(26, 10, 18, 0.18), 0 0 6px rgba(26, 10, 18, 0.10);
 }
 .smeep-chat-input-wrap:focus-within {
-  border-color: rgba(159, 32, 99, 0.45) !important;
-  box-shadow: 0 0 0 3px rgba(159, 32, 99, 0.14), 0 0 12px rgba(159, 32, 99, 0.10);
+  border-color: rgba(101, 45, 144, 0.45) !important;
+  box-shadow: 0 0 0 3px rgba(101, 45, 144, 0.14), 0 0 12px rgba(101, 45, 144, 0.10);
 }
 
 /* Dark input wrapper */
@@ -341,8 +347,8 @@
 
 /* Input wrap focus highlight — dark (hero chatbot) */
 .smeep-landing-dark .smeep-chat-input-wrap:focus-within {
-  border-color: rgba(159, 32, 99, 0.60) !important;
-  box-shadow: 0 0 0 3px rgba(159, 32, 99, 0.22), 0 0 18px rgba(159, 32, 99, 0.18);
+  border-color: rgba(101, 45, 144, 0.60) !important;
+  box-shadow: 0 0 0 3px rgba(101, 45, 144, 0.22), 0 0 18px rgba(101, 45, 144, 0.18);
 }
 
 /* Dark textarea text and placeholder */
@@ -392,9 +398,9 @@
   align-items: center !important;
   text-align: left !important;
   border-radius: 999px !important;
-  border: 1.5px solid #e8b4d0 !important;
-  background: #fdf5f9 !important;
-  color: #9f2063 !important;
+  border: 1.5px solid #d9c2ef !important;
+  background: #f9f9ff !important;
+  color: #652d90 !important;
   font-size: 12px !important;
   font-weight: 600 !important;
   line-height: 1.4 !important;
@@ -421,41 +427,41 @@
   gap: 8px;
   padding: 10px 18px;
   border-radius: 12px;
-  background: linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%);
+  background: linear-gradient(120deg, #652d90 0%, #4a2168 100%);
   color: #ffffff;
   font-size: 13px;
   font-weight: 600;
   font-family: inherit;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(159,32,99,0.30);
+  box-shadow: 0 2px 8px rgba(101,45,144,0.30);
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .smeep-topic-chip:hover {
-  background: linear-gradient(120deg, #b6256f 0%, #8a1c55 100%);
+  background: linear-gradient(120deg, #7c329c 0%, #5a2371 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(159,32,99,0.40);
+  box-shadow: 0 6px 16px rgba(101,45,144,0.40);
 }
 
 .smeep-topic-chip:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(159,32,99,0.25);
+  box-shadow: 0 2px 6px rgba(101,45,144,0.25);
 }
 
 .smeep-suggestion-pill--selected {
-  background: #9f2063 !important;
+  background: #652d90 !important;
   color: #ffffff !important;
-  border-color: #9f2063 !important;
-  box-shadow: 0 2px 8px rgba(159, 32, 99, 0.25) !important;
+  border-color: #652d90 !important;
+  box-shadow: 0 2px 8px rgba(101, 45, 144, 0.25) !important;
 }
 
 .smeep-suggestion-pill:hover:not(:disabled) {
-  background: #9f2063 !important;
+  background: #652d90 !important;
   color: #ffffff !important;
-  border-color: #9f2063 !important;
+  border-color: #652d90 !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(159, 32, 99, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(101, 45, 144, 0.25) !important;
 }
 
 .smeep-suggestion-pill:active:not(:disabled) {
@@ -476,7 +482,7 @@
   margin-bottom: 0 !important;
   padding: 7px 18px !important;
   border-radius: 999px !important;
-  background: #9f2063 !important;
+  background: #652d90 !important;
   color: #fff !important;
   font-size: 12px !important;
   font-weight: 600 !important;
@@ -484,13 +490,13 @@
   border: none !important;
   cursor: pointer !important;
   transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 2px 8px rgba(159, 32, 99, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(101, 45, 144, 0.3) !important;
 }
 
 .smeep-confirm-btn:hover:not(:disabled) {
-  background: #7a1a4c !important;
+  background: #4a2168 !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(159, 32, 99, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(101, 45, 144, 0.4) !important;
 }
 
 .smeep-confirm-btn:active:not(:disabled) {
@@ -575,14 +581,14 @@
 .smeep-bot-bubble hr,
 .smeep-doc-preview hr {
   border: none !important;
-  border-top: 1px solid #f0d8e7 !important;
+  border-top: 1px solid #e0d0ef !important;
   margin: 10px 0 !important;
 }
 
 .smeep-bot-bubble code,
 .smeep-doc-preview code {
   font-size: 11px !important;
-  background: #f7e8f0 !important;
+  background: #F1ECFA !important;
   border-radius: 3px !important;
   padding: 1px 4px !important;
   font-family: ui-monospace, monospace !important;

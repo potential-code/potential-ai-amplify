@@ -134,7 +134,7 @@ export default function InvitesPage() {
           <button
             onClick={() => generateMutation.mutate()}
             disabled={generateMutation.isPending}
-            className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-70 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-[0_6px_20px_-8px_rgba(159,32,99,0.7)]"
+            className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-70 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-[0_6px_20px_-8px_rgba(101,45,144,0.7)]"
           >
             {generateMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />

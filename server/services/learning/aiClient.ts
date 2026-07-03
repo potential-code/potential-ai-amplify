@@ -12,8 +12,8 @@ const aiDispatcher = new Agent({ headersTimeout: 1_800_000, bodyTimeout: 1_800_0
  *
  * Both calls authenticate with a short-lived service JWT signed with the shared
  * COPILOT_SERVICE_JWT_SECRET — the same secret/claim shape minted by the auth
- * controller (`{ platformId: 'smeep', userId }`, HS256). The AI service gates
- * these routes by platform; smeep is allowlisted.
+ * controller (`{ platformId: 'ai-amplify', userId }`, HS256). The AI service gates
+ * these routes by platform; ai-amplify is allowlisted.
  *
  * The AI responses use the standard `{ success, data }` envelope; we unwrap
  * `data` here so callers receive the bare payload.
@@ -104,14 +104,14 @@ function getAiBaseUrl(): string {
  * Mints a short-lived (~5min) service JWT for the AI backend.
  *
  * @param userId - The learner the request is acting on behalf of.
- * @returns A signed HS256 token carrying `{ platformId: 'smeep', userId }`.
+ * @returns A signed HS256 token carrying `{ platformId: 'ai-amplify', userId }`.
  */
 function mintServiceToken(userId: string): string {
   const secret = process.env['COPILOT_SERVICE_JWT_SECRET']
   if (!secret) {
     throw new AppError('AI backend is not configured', 503, 'AI_NOT_CONFIGURED')
   }
-  return jwt.sign({ platformId: 'smeep', userId }, secret, {
+  return jwt.sign({ platformId: 'ai-amplify', userId }, secret, {
     algorithm: 'HS256',
     expiresIn: 300, // 5 minutes — long enough for one request round-trip
   })

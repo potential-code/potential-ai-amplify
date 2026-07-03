@@ -734,7 +734,7 @@ function ExpertThankYou({ name, email, onClose }: { name: string; email: string;
 
       <button
         onClick={onClose}
-        className="mt-6 px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-dark text-white text-sm font-bold transition-colors shadow-[0_6px_20px_-8px_rgba(159,32,99,0.7)]"
+        className="mt-6 px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-dark text-white text-sm font-bold transition-colors shadow-[0_6px_20px_-8px_rgba(101,45,144,0.7)]"
       >
         Close
       </button>
@@ -755,7 +755,7 @@ function OrgThankYou({ name, onClose }: { name: string; onClose: () => void }) {
       </p>
       <button
         onClick={onClose}
-        className="mt-6 px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-dark text-white text-sm font-bold transition-colors shadow-[0_6px_20px_-8px_rgba(159,32,99,0.7)]"
+        className="mt-6 px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-dark text-white text-sm font-bold transition-colors shadow-[0_6px_20px_-8px_rgba(101,45,144,0.7)]"
       >
         Close
       </button>

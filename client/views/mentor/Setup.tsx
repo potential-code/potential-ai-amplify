@@ -81,7 +81,7 @@ function SetupForm() {
 
   if (tokenError || !tokenInfo) {
     return (
-      <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-8 shadow-[0_20px_60px_-20px_rgba(159,32,99,0.18)] text-center">
+      <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-8 shadow-[0_20px_60px_-20px_rgba(101,45,144,0.18)] text-center">
         <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center mx-auto mb-4">
           <AlertCircle className="w-6 h-6 text-rose-500" />
         </div>
@@ -94,7 +94,7 @@ function SetupForm() {
   }
 
   return (
-    <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-7 shadow-[0_20px_60px_-20px_rgba(159,32,99,0.18)]">
+    <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-7 shadow-[0_20px_60px_-20px_rgba(101,45,144,0.18)]">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Pre-filled read-only fields */}
         <div className="space-y-3">
@@ -133,7 +133,7 @@ function SetupForm() {
           type="submit"
           disabled={loading || password.length < 8}
           whileTap={{ scale: 0.98 }}
-          className="relative w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-70 disabled:cursor-not-allowed text-white py-3.5 rounded-xl text-sm font-semibold transition-colors mt-2 shadow-[0_10px_30px_-10px_rgba(159,32,99,0.7)] overflow-hidden"
+          className="relative w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-70 disabled:cursor-not-allowed text-white py-3.5 rounded-xl text-sm font-semibold transition-colors mt-2 shadow-[0_10px_30px_-10px_rgba(101,45,144,0.7)] overflow-hidden"
         >
           {loading && (
             <span
@@ -158,7 +158,7 @@ export default function MentorSetupPage() {
       badge="Mentor Onboarding"
       heading={
         <>
-          Set up your <span className="text-gradient-magenta">SMEEP</span> account
+          Set up your <span className="text-gradient-brand">SMEEP</span> account
         </>
       }
       subheading="Your application was approved. Create your password to access your mentor dashboard."

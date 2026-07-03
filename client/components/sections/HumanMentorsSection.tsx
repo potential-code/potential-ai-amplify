@@ -52,7 +52,7 @@ function getCategories(expertise: string[]): string[] {
 }
 
 function diceBearUrl(name: string) {
-  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=9f2063&fontSize=42&radius=50`
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=652d90&fontSize=42&radius=50`
 }
 
 type PublicMentor = {
@@ -119,7 +119,7 @@ export function HumanMentorsSection() {
             badge="Human Mentors"
             heading="Human"
             highlight="Mentors"
-            subtext="Book private one-on-one sessions with verified business experts."
+            subtext="When you need a human touch, book a private 1:1 session with a verified business expert."
           />
         </div>
 
@@ -164,7 +164,7 @@ export function HumanMentorsSection() {
                   whileHover={{ y: -8 }}
                   className={`group relative rounded-3xl bg-white border transition-all p-7 flex flex-col items-center text-center ${
                     mentor.featured
-                      ? 'border-brand-primary/40 shadow-[0_20px_50px_-20px_rgba(159,32,99,0.45)] bg-gradient-to-br from-white via-white to-brand-primary/[0.03]'
+                      ? 'border-brand-primary/40 shadow-[0_20px_50px_-20px_rgba(101,45,144,0.45)] bg-gradient-to-br from-white via-white to-brand-primary/[0.03]'
                       : 'border-brand-surface-2 shadow-sm hover:shadow-2xl hover:border-brand-primary/30'
                   }`}
                 >
@@ -209,7 +209,7 @@ export function HumanMentorsSection() {
                     )}
                     <a
                       href="/sign-up"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-primary text-white text-sm font-semibold shadow-[0_8px_20px_-8px_rgba(159,32,99,0.6)] hover:bg-brand-primary-dark transition-all group-hover:gap-2"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-primary text-white text-sm font-semibold shadow-[0_8px_20px_-8px_rgba(101,45,144,0.6)] hover:bg-brand-primary-dark transition-all group-hover:gap-2"
                     >
                       Book a Session
                       <ArrowRight className="w-3.5 h-3.5" />

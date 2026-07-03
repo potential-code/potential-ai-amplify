@@ -63,7 +63,7 @@ export function SectionHeader({
         {highlight && (
           <>
             {' '}
-            <span className="text-gradient-magenta">{highlight}</span>
+            <span className="text-gradient-brand">{highlight}</span>
           </>
         )}
       </motion.h2>

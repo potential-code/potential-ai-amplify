@@ -18,7 +18,7 @@ import type {
   LearningQuestion, UserLearningPath, UserLearningBlockProgress,
 } from '../../db/schema'
 
-const PLATFORM_ID = 'smeep'
+const PLATFORM_ID = 'ai-amplify'
 
 // topic-characterization only; setup graph doesn't need full body
 const MAX_BLOCK_TEXT_CHARS = 800

@@ -27,7 +27,7 @@ export function MagneticButton({
   const sizes = size === 'lg' ? 'px-9 py-4 text-base' : 'px-7 py-3 text-sm'
   const variants = {
     primary:
-      'bg-brand-primary text-white hover:bg-brand-primary-dark shadow-[0_10px_30px_-10px_rgba(159,32,99,0.7)]',
+      'bg-brand-primary text-white hover:bg-brand-primary-dark shadow-[0_10px_30px_-10px_rgba(101,45,144,0.7)]',
     ghost:
       'bg-white/10 text-white hover:bg-white/15 border border-white/15 backdrop-blur-md',
     outline:

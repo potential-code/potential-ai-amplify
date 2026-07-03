@@ -187,7 +187,7 @@ function OfferCard({ offer, userPoints, index, onRedeem }: OfferCardProps) {
       className="group relative"
     >
       {/* ── Top section ──────────────────────────────────────────────────── */}
-      <div className="relative rounded-t-2xl overflow-hidden bg-white border border-b-0 border-brand-surface-2 group-hover:border-brand-primary/30 group-hover:shadow-[0_16px_48px_-12px_rgba(159,32,99,0.22)] transition-all duration-300">
+      <div className="relative rounded-t-2xl overflow-hidden bg-white border border-b-0 border-brand-surface-2 group-hover:border-brand-primary/30 group-hover:shadow-[0_16px_48px_-12px_rgba(101,45,144,0.22)] transition-all duration-300">
         {/* Cover image / gradient placeholder */}
         <div className="relative h-40 flex-shrink-0 overflow-hidden bg-gradient-to-br from-brand-primary via-brand-primary-dark to-brand-violet/80">
           {offer.imageUrl ? (

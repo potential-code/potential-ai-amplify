@@ -91,14 +91,14 @@ function StakeholderTypeCard({
   )
 }
 
-const PIE_COLORS = ['#9f2063', '#4c1d6e', '#e83e94', '#c42b7a', '#7a1a4c', '#8b5cf6']
+const PIE_COLORS = ['#652d90', '#4c1d6e', '#e83e94', '#b966e7', '#4a2168', '#8b5cf6']
 
 const LINE_COLORS: Record<string, string> = {
-  expert:     '#9f2063',
+  expert:     '#652d90',
   vc:         '#4c1d6e',
   government: '#e83e94',
-  corporate:  '#c42b7a',
-  university: '#7a1a4c',
+  corporate:  '#b966e7',
+  university: '#4a2168',
   incubator:  '#8b5cf6',
 }
 

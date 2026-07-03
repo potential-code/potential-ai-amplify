@@ -1,21 +1,20 @@
 /**
- * One-time script: seed posttest assessments from WordPress export data.
+ * Seeds posttest assessments from WordPress export data.
  *
- * For each of the 40 courses that have an empty "posttest" unit in the
- * module/unit hierarchy, this script:
+ * For each DB course that has an empty "posttest" unit in the module/unit
+ * hierarchy, this script:
  *   1. Creates a proper `post` assessment in the assessments table.
  *   2. Populates assessment_questions from the WordPress JSON files.
  *   3. Deletes the now-redundant empty posttest unit.
  *
- * Safe to re-run: skips courses that already have a post assessment.
+ * The course title → WordPress export folder mapping is resolved dynamically
+ * (see buildTitleToFolderMap) so this works against any export batch, not
+ * just the courses present when this script was first written.
  *
- * Run from repo root:
- *   DATABASE_URL=postgresql://postgres:root@localhost:5432/smeep bun run server/db/seed/seed-posttests.ts
- * Or from server/:
- *   bun --env-file=../.env db/seed/seed-posttests.ts
+ * Safe to re-run: skips courses that already have a post assessment.
  */
 
-import { readFileSync } from 'fs'
+import { readFileSync, readdirSync } from 'fs'
 import { join, dirname, resolve } from 'path'
 import { eq, and, sql, count } from 'drizzle-orm'
 import { db } from '../index'
@@ -32,53 +31,42 @@ import {
 // Config
 // ---------------------------------------------------------------------------
 
-const COURSES_DIR = resolve(dirname(new URL(import.meta.url).pathname), 'seed-data/courses')
+const SEED_DATA_DIR = resolve(dirname(new URL(import.meta.url).pathname), 'seed-data')
+const COURSES_DIR = join(SEED_DATA_DIR, 'courses')
 const PASS_SCORE = 80
 const SHOW_ANSWERS = true
 const MAX_ATTEMPTS = 0 // unlimited
 
-// Verified mapping: DB course title → WordPress export folder name
-const COURSE_FOLDER_MAP: Record<string, string> = {
-  '24 Minute Accounting': 'course-15-24-minute-accounting',
-  '24 Minute CIO': 'course-21-24-minute-cio',
-  '24 Minute MBA': 'course-91-24-minute-mba',
-  '24 Minute Sales': 'course-43-24-minute-sales',
-  'Business Etiquette': 'course-17-business-etiquette',
-  'Call Center Essentials': 'course-20-call-center-essentials',
-  'Communication Skills': 'course-88-communication-skills',
-  'Corporate Social Responsibility (CSR)': 'course-24-corporate-social-responsibility-csr',
-  'Creative Thinking': 'course-22-creative-thinking',
-  'Critical Thinking': 'course-23-critical-thinking',
-  'Customer Service': 'course-26-customer-service',
-  'CV Writing': 'course-27-cv-writing',
-  'Effective Customer Meetings': 'course-28-effective-customer-meetings',
-  'Expand your Business': 'course-29-expand-your-business',
-  'Financial Literacy': 'course-31-financial-literacy',
-  'Fitness For Business': 'course-93-fitness-for-business',
-  'Freelancing in Gig Economy': 'course-34-freelancing-in-gig-economy',
-  'Innovation Design Thinking Course': 'course-32-innovation-design-thinking-course',
-  'Internet Research': 'course-97-internet-research',
-  'Interview Skills': 'course-33-interview-skills',
-  'Leadership Essentials': 'course-35-leadership-essentials',
-  'Managing your Cash Flow': 'course-36-managing-your-cash-flow',
-  'Negotiation Skills': 'course-37-negotiation-skills',
-  'Nutrition Tips': 'course-94-nutrition-tips',
-  'Online Productivity Tools': 'course-98-online-productivity-tools',
-  'Online Safety': 'course-38-online-safety',
-  'Optimizing Nutrition': 'course-96-optimizing-nutrition',
-  'Planning and Time Management': 'course-39-planning-and-time-management',
-  'Podcast': 'course-41-podcast',
-  'Presentation Skills': 'course-50-presentation-skills',
-  'Problem Solving': 'course-95-problem-solving',
-  'Productivity Skills': 'course-42-productivity-skills',
-  'Project Management Essentials': 'course-40-project-management-essentials',
-  'Social Media for Business': 'course-44-social-media-for-business',
-  'Starting a Blog Online': 'course-45-starting-a-blog-online',
-  'Startup your Business': 'course-46-startup',
-  'Supervision Skills': 'course-47-supervision-skills',
-  'SWOT Analysis': 'course-48-swot-analysis',
-  'Teamwork': 'course-49-teamwork',
-  'Uncovering Customer Needs': 'course-25-uncovering-customer-needs',
+interface CardsJson {
+  cpt: {
+    items: Array<{ title: string; meta: { course_id: string } }>
+  }
+}
+
+/**
+ * Builds a DB course title → WordPress export folder name map dynamically,
+ * mirroring seed-course-content.ts's join: cpt-cards.json gives course_id →
+ * title, and each seed-data/courses folder is named `course-<course_id>-...`.
+ */
+function buildTitleToFolderMap(): Map<string, string> {
+  const cardsPath = join(SEED_DATA_DIR, 'cpt-cards.json')
+  const cards: CardsJson = JSON.parse(readFileSync(cardsPath, 'utf-8'))
+
+  const wpIdToTitle = new Map<number, string>()
+  for (const card of cards.cpt.items) {
+    if (card.meta.course_id?.trim()) {
+      wpIdToTitle.set(parseInt(card.meta.course_id, 10), card.title)
+    }
+  }
+
+  const titleToFolder = new Map<string, string>()
+  for (const folder of readdirSync(COURSES_DIR)) {
+    const m = folder.match(/^course-(\d+)-/)
+    if (!m) continue
+    const title = wpIdToTitle.get(parseInt(m[1], 10))
+    if (title) titleToFolder.set(title, folder)
+  }
+  return titleToFolder
 }
 
 // ---------------------------------------------------------------------------
@@ -208,7 +196,9 @@ interface CourseResult {
 export async function seedPosttests() {
   console.log('=== Posttest Seeding Script ===\n')
 
-  // Load all 40 DB courses with empty posttest units
+  const courseFolderMap = buildTitleToFolderMap()
+
+  // Load all DB courses with empty posttest units
   const targetCourses = await db
     .select({ id: courses.id, title: courses.title })
     .from(courses)
@@ -247,7 +237,7 @@ export async function seedPosttests() {
       }
 
       // Find the WordPress folder for this course
-      const folder = COURSE_FOLDER_MAP[course.title]
+      const folder = courseFolderMap.get(course.title)
       if (!folder) {
         result.error = `No WordPress folder mapping found for course title`
         results.push(result)

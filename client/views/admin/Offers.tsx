@@ -438,7 +438,7 @@ export default function OffersAdminPage() {
         actions={
           <button
             onClick={() => setDialog({ mode: 'create' })}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-bold hover:bg-brand-primary-dark transition-colors shadow-[0_6px_20px_-8px_rgba(159,32,99,0.7)]"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-bold hover:bg-brand-primary-dark transition-colors shadow-[0_6px_20px_-8px_rgba(101,45,144,0.7)]"
           >
             <Plus className="w-4 h-4" />
             New Offer

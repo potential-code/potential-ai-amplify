@@ -181,7 +181,7 @@ export function DialogStyles() {
         outline: none;
         background: white;
         border-color: var(--color-brand-primary);
-        box-shadow: 0 0 0 3px rgba(159, 32, 99, 0.15);
+        box-shadow: 0 0 0 3px rgba(101, 45, 144, 0.15);
       }
     `}</style>
   )

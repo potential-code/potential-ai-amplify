@@ -245,7 +245,7 @@ async function buildBothPath(
  */
 export async function getBothPath(userId: string) {
   const [path] = await db.select().from(bothUserPaths)
-    .where(and(eq(bothUserPaths.userId, userId), eq(bothUserPaths.platformId, 'smeep')))
+    .where(and(eq(bothUserPaths.userId, userId), eq(bothUserPaths.platformId, 'ai-amplify')))
     .orderBy(desc(bothUserPaths.createdAt)).limit(1)
 
   if (!path) return null
@@ -316,6 +316,21 @@ export async function getBothPath(userId: string) {
 
   const learningStyle = (path.discoveryProfile as { learningStyle?: string } | null)?.learningStyle
 
+  // Single source of truth for style matching — used both for what's delivered
+  // to the user AND for what's required for milestone completion, so the two
+  // can never drift out of sync (a content item hidden from the user by style
+  // must never still be required to complete the milestone).
+  const matchesExternalStyle = (type: string): boolean => {
+    if (learningStyle === 'visual') return type === 'youtube'
+    if (learningStyle === 'reading') return type === 'article'
+    return true
+  }
+  const matchesInternalStyle = (type: string): boolean => {
+    if (learningStyle === 'visual') return type === 'video' || type === 'image'
+    if (learningStyle === 'reading') return type === 'text'
+    return true
+  }
+
   const milestones = (path.milestones as StoredMilestone[])
     .sort((a, b) => a.order - b.order)
     .map((m, idx, arr) => {
@@ -333,12 +348,7 @@ export async function getBothPath(userId: string) {
         // ── External items for this milestone ──────────────────────────────
         const externalItems: BothContentItem[] = contentRefs
           .filter((r) => r.ref.milestoneId === m.milestoneId)
-          .filter((r) => {
-            // Apply learning-style filter for external content only
-            if (learningStyle === 'visual') return r.pool.type === 'youtube'
-            if (learningStyle === 'reading') return r.pool.type === 'article'
-            return true
-          })
+          .filter((r) => matchesExternalStyle(r.pool.type))
           .map((r): BothContentItem => {
             const prog = progressByKey.get(`external:${r.ref.contentPoolId}`)
             return {
@@ -360,6 +370,7 @@ export async function getBothPath(userId: string) {
         // ── Internal block items for this milestone ────────────────────────
         const internalItems: BothContentItem[] = blockRefs
           .filter((r) => r.ref.milestoneId === m.milestoneId)
+          .filter((r) => matchesInternalStyle(r.block.type))
           .map((r): BothContentItem => {
             const prog = progressByKey.get(`internal:${r.ref.blockId}`)
             const qs = questionsByBlock.get(r.block.id) ?? []
@@ -394,16 +405,24 @@ export async function getBothPath(userId: string) {
         content = [...externalItems, ...internalItems].sort((a, b) => a.orderInMilestone - b.orderInMilestone)
       }
 
-      // Completion: all non-empty content rows must be 'completed' AND posttest passed
-      const allExternalComplete = contentRefs
+      // Completion: all non-empty content rows must be 'completed' AND posttest passed.
+      // Only content items that actually match the learner's style are required —
+      // an item filtered out of `content` above (and never shown to the user) must
+      // never be required for completion, or the milestone can never finish.
+      const styleMatchedExternalRefs = contentRefs
         .filter(r => r.ref.milestoneId === m.milestoneId)
+        .filter(r => matchesExternalStyle(r.pool.type))
+      const styleMatchedInternalRefs = blockRefs
+        .filter(r => r.ref.milestoneId === m.milestoneId)
+        .filter(r => matchesInternalStyle(r.block.type))
+
+      const allExternalComplete = styleMatchedExternalRefs
         .every(r => progressByKey.get(`external:${r.ref.contentPoolId}`)?.status === 'completed')
-      const allInternalComplete = blockRefs
-        .filter(r => r.ref.milestoneId === m.milestoneId)
+      const allInternalComplete = styleMatchedInternalRefs
         .every(r => progressByKey.get(`internal:${r.ref.blockId}`)?.status === 'completed')
 
-      const hasExternalContent = contentRefs.some(r => r.ref.milestoneId === m.milestoneId)
-      const hasInternalContent = blockRefs.some(r => r.ref.milestoneId === m.milestoneId)
+      const hasExternalContent = styleMatchedExternalRefs.length > 0
+      const hasInternalContent = styleMatchedInternalRefs.length > 0
       const allComplete = (
         (!hasExternalContent || allExternalComplete) &&
         (!hasInternalContent || allInternalComplete) &&

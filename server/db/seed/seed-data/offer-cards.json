@@ -1,12 +1,28 @@
 {
     "schema_version": "1.0",
-    "exported_at": "2026-05-18T10:57:55+00:00",
-    "source_site": "https://smeep.potential.org",
+    "exported_at": "2026-07-02T08:24:07+00:00",
+    "source_site": "https://aiamplify.potential.org",
     "cpt": {
         "slug": "offer_cards",
         "label": "SME Offers",
         "description": "WooCommerce-tied or external SME service offers shown on smeep.potential.org.",
         "items": [
+            {
+                "post_id": 4579,
+                "title": "Create your Custom AI Voice Agent",
+                "slug": "create-your-custom-ai-voice-agent",
+                "status": "publish",
+                "content": "",
+                "featured_image_url": null,
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/11/Screenshot-2025-11-27-173218-1.png",
+                "meta": {
+                    "offer_category": "AI",
+                    "offerprice": "   <span class=\"line-through\">$300</span> <span> $199/month\r\nFree Trial Included </span>       ",
+                    "prod_id": "",
+                    "redirecturl": "https://potential.com/voice",
+                    "couponoffer": "  300    "
+                }
+            },
             {
                 "post_id": 4043,
                 "title": "Clone yourself and your expertise into AI",
@@ -14,13 +30,13 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2025/01/Clone-Yourself-offer.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/Clone-Yourself-offer.png",
                 "meta": {
                     "offer_category": "AI",
-                    "offerprice": " <span class=\"line-through\">$50</span> <span> $25/month\r\nFree Trial Included </span>  ",
+                    "offerprice": " <span class=\"line-through\">$100</span> <span> $50/month\r\nFree Trial Included </span>    ",
                     "prod_id": "",
-                    "redirecturl": "   https://smeep.potential.org/product/clone-yourself-and-your-expertise-into-ai/",
-                    "couponoffer": "50  "
+                    "redirecturl": "https://potential.com/chatbot",
+                    "couponoffer": "100  "
                 }
             },
             {
@@ -30,28 +46,28 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2025/01/AI-Tools-Offer.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/AI-Tools-Offer.png",
                 "meta": {
                     "offer_category": "AI",
-                    "offerprice": " <span class=\"line-through\">$300</span> <span> $200/month</span>  ",
+                    "offerprice": " <span class=\"line-through\">$300</span> <span> $200/month</span>    ",
                     "prod_id": "",
-                    "redirecturl": "   https://smeep.potential.org/product/set-up-custom-ai-tools-to-automate-various-business-processes/",
-                    "couponoffer": " 400  "
+                    "redirecturl": "mailto:info@potential.com",
+                    "couponoffer": " 300    "
                 }
             },
             {
                 "post_id": 4041,
                 "title": "Enroll your team with an AI Upskilling Program",
                 "slug": "enroll-your-team-with-an-ai-upskilling-program",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2025/01/AI-Amplify-offer.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/AI-Amplify-offer.png",
                 "meta": {
                     "offer_category": "AI",
                     "offerprice": " <span class=\"line-through\">$50</span> <span> $25/month </span>  ",
                     "prod_id": "",
-                    "redirecturl": "   https://smeep.potential.org/product/enroll-your-team-with-an-ai-upskilling-program/",
+                    "redirecturl": "   ",
                     "couponoffer": "    50  "
                 }
             },
@@ -62,13 +78,13 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2025/01/AI-Coach-Offer.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/AI-Coach-Offer.png",
                 "meta": {
                     "offer_category": "AI",
-                    "offerprice": "<span class=\"line-through\">$50</span> <span> $25/month\r\nFree Trial Included </span>    ",
+                    "offerprice": "<span class=\"line-through\">$100</span> <span> $50/month\r\nFree Trial Included </span> ",
                     "prod_id": "",
-                    "redirecturl": "https://smeep.potential.org/product/create-your-custom-ai-mentors/",
-                    "couponoffer": " 50    "
+                    "redirecturl": "https://potential.com/chatbot",
+                    "couponoffer": "100"
                 }
             },
             {
@@ -78,28 +94,28 @@
                 "status": "publish",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2025/01/AI-Chatbot-Offer.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/AI-Chatbot-Offer.png",
                 "meta": {
                     "offer_category": "AI",
-                    "offerprice": "<span class=\"line-through\">$50</span> <span> $25/month\r\nFree Trial Included </span>  ",
+                    "offerprice": "<span class=\"line-through\">$100</span> <span> $50/month\r\nFree Trial Included </span> ",
                     "prod_id": "",
-                    "redirecturl": "   https://smeep.potential.org/product/create-your-customer-service-ai-agent/",
-                    "couponoffer": " 50  "
+                    "redirecturl": "https://potential.com/chatbot",
+                    "couponoffer": "100"
                 }
             },
             {
                 "post_id": 3832,
                 "title": "Launch your open innovation program",
                 "slug": "launch-your-open-innovation-program",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/06/SMEEP-offer-open-innovation.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/06/SMEEP-offer-open-innovation.png",
                 "meta": {
                     "offer_category": "MARKETING",
                     "offerprice": "<span>Free</span>   ",
                     "prod_id": "",
-                    "redirecturl": "  https://smeep.potential.org/product/launch-your-open-innovation-program/",
+                    "redirecturl": "  ",
                     "couponoffer": "    50   "
                 }
             },
@@ -107,15 +123,15 @@
                 "post_id": 3589,
                 "title": "Google My Business listing and verification + 27 other directories.",
                 "slug": "google-my-business-listing-and-verification-27-other-directories",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/04/FMB_Potential_Offer-scaled.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/04/FMB_Potential_Offer-scaled.jpg",
                 "meta": {
                     "offer_category": "MARKETING",
                     "offerprice": "<span>Starting from $99</span>  ",
                     "prod_id": "",
-                    "redirecturl": "  https://smeep.potential.org/product/google-my-business-listing-and-verification-27-other-directories/",
+                    "redirecturl": "  ",
                     "couponoffer": "100  "
                 }
             },
@@ -123,15 +139,15 @@
                 "post_id": 3529,
                 "title": "Free trials from CISCO for collaboration and security",
                 "slug": "free-trials-from-cisco-for-collaboration-and-security",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/03/cisco.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/cisco.jpg",
                 "meta": {
                     "offer_category": "IT",
                     "offerprice": " <span>Free</span> ",
                     "prod_id": "",
-                    "redirecturl": " https://smeep.potential.org/product/free-trials-from-cisco-for-collaboration-and-security/",
+                    "redirecturl": " ",
                     "couponoffer": "100 "
                 }
             },
@@ -139,15 +155,15 @@
                 "post_id": 3476,
                 "title": "Legal and Project Management essential document templates",
                 "slug": "legal-and-project-management-essential-document-templates",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/03/legalservices-1.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/legalservices-1.jpg",
                 "meta": {
                     "offer_category": "FINANCE",
                     "offerprice": "<span class=\"line-through\">$50</span> <span>$10</span> ",
                     "prod_id": "",
-                    "redirecturl": " https://smeep.potential.org/product/legal-and-project-management-essential-document-templates/",
+                    "redirecturl": " ",
                     "couponoffer": "200 "
                 }
             },
@@ -155,15 +171,15 @@
                 "post_id": 3473,
                 "title": "Create your Personal Brand and Leverage your Profile",
                 "slug": "building-your-personal-brand",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/03/litoffer-1.jpg",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/litoffer-1.jpg",
                 "meta": {
                     "offer_category": "PR",
                     "offerprice": " <span>Starting from $50</span> ",
                     "prod_id": "",
-                    "redirecturl": " https://smeep.potential.org/product/create-your-personal-brand-and-leverage-your-profile/",
+                    "redirecturl": " ",
                     "couponoffer": "100 "
                 }
             },
@@ -171,15 +187,15 @@
                 "post_id": 3460,
                 "title": "Customized PR packages to promote your SME",
                 "slug": "packages-for-pr-services",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/10/PR-services.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/10/PR-services.png",
                 "meta": {
                     "offer_category": "PR",
                     "offerprice": "<span>Starting from $100</span> ",
                     "prod_id": "",
-                    "redirecturl": " https://smeep.potential.org/product/customized-pr-packages-to-promote-your-sme/",
+                    "redirecturl": " ",
                     "couponoffer": "   100 "
                 }
             },
@@ -187,15 +203,15 @@
                 "post_id": 3453,
                 "title": "External Audit Services / Statutory Audit Services",
                 "slug": "external-audit-statutory-audit",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/03/SMEEP-shop-cards-Khazraji-Auditing.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/SMEEP-shop-cards-Khazraji-Auditing.png",
                 "meta": {
                     "offer_category": "FINANCE",
                     "offerprice": "<span> Starting from $1,200 </span> ",
                     "prod_id": "",
-                    "redirecturl": " https://smeep.potential.org/product/external-audit-services-statutory-audit-services/",
+                    "redirecturl": " ",
                     "couponoffer": "  100 "
                 }
             },
@@ -203,15 +219,15 @@
                 "post_id": 3434,
                 "title": "Seamless, Fast and Innovative Delivery Solutions",
                 "slug": "fast-seamless-and-innovative-delivery-solutions",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2021/01/SMEEP-shop-cards-aramex-2.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2021/01/SMEEP-shop-cards-aramex-2.png",
                 "meta": {
                     "offer_category": "ECOMMERCE",
                     "offerprice": "<span>Up to 75 free shipments</span> ",
                     "prod_id": "",
-                    "redirecturl": " https://smeep.potential.org/product/seamless-fast-and-innovative-delivery-solutions/",
+                    "redirecturl": " ",
                     "couponoffer": "400 "
                 }
             },
@@ -219,15 +235,15 @@
                 "post_id": 3395,
                 "title": "Future job skills 20 course bundle and (LMS) dashboard",
                 "slug": "future-job-skills-20-course-bundle-and-learning-management-system-lms-dashboard",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/09/Future-job-skills-offer-card.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/09/Future-job-skills-offer-card.png",
                 "meta": {
                     "offer_category": "TRAINING",
                     "offerprice": "<span class=\"line-through\">$50</span> <span> $10 </span> ",
                     "prod_id": "",
-                    "redirecturl": " https://smeep.potential.org/product/future-job-skills-20-course-bundle-and-learning-management-system-lms-dashboard/",
+                    "redirecturl": " ",
                     "couponoffer": "200 "
                 }
             },
@@ -235,15 +251,15 @@
                 "post_id": 3394,
                 "title": "Social Media Management",
                 "slug": "social-media-management",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/09/Marketing-ads-offer-card.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/09/Marketing-ads-offer-card.png",
                 "meta": {
                     "offer_category": "MARKETING",
                     "offerprice": "<span>Starting from $100</span>  ",
                     "prod_id": "",
-                    "redirecturl": "  https://smeep.potential.org/product/social-media-management/",
+                    "redirecturl": "  ",
                     "couponoffer": "100  "
                 }
             },
@@ -251,15 +267,15 @@
                 "post_id": 3393,
                 "title": "E-Commerce platform, content and sample marketing campaign",
                 "slug": "e-commerce-platform-content-and-sample-marketing-campaign",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/09/E-commerce-offer-card.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/09/E-commerce-offer-card.png",
                 "meta": {
                     "offer_category": "ECOMMERCE",
                     "offerprice": "<span>Starting from $50</span> ",
                     "prod_id": "",
-                    "redirecturl": " https://smeep.potential.org/product/e-commerce-platform-content-and-sample-marketing-campaign/",
+                    "redirecturl": " ",
                     "couponoffer": "400 "
                 }
             },
@@ -267,16 +283,16 @@
                 "post_id": 3392,
                 "title": "Cloud-Based Accounting Software with Setup and 1 Year Subscription",
                 "slug": "cloud-based-accounting-software-with-setup-and-1-year-subscription",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/10/SMEEP-shop-acc-ounting-card.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/10/SMEEP-shop-acc-ounting-card.png",
                 "meta": {
                     "offer_category": "FINANCE",
-                    "offerprice": "<span>Starting from $480</span>    ",
-                    "prod_id": "3884",
-                    "redirecturl": " https://smeep.potential.org/product/cloud-based-accounting-software-with-setup-and-1-year-subscription/   ",
-                    "couponoffer": "100    "
+                    "offerprice": "<span>Starting from $480</span> ",
+                    "prod_id": "",
+                    "redirecturl": " ",
+                    "couponoffer": "100 "
                 }
             },
             {
@@ -286,7 +302,7 @@
                 "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/10/AWS-offer-card.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/10/AWS-offer-card.png",
                 "meta": {
                     "offer_category": "webservices, featured",
                     "offerprice": "$5,000 in AWS Activate credits",
@@ -299,15 +315,15 @@
                 "post_id": 3389,
                 "title": "Website, Email, Marketing Video and One Year Hosting",
                 "slug": "website-social-media-email-marketing-video-and-1-year-hosting",
-                "status": "publish",
+                "status": "draft",
                 "content": "",
                 "featured_image_url": null,
-                "extra_image_url": "https://smeep.potential.org/wp-content/uploads/2020/10/SMEEP-shop-cards-go-daddy.png",
+                "extra_image_url": "https://aiamplify.potential.org/wp-content/uploads/2020/10/SMEEP-shop-cards-go-daddy.png",
                 "meta": {
                     "offer_category": "MARKETING",
                     "offerprice": "<span>Starting from $30</span> ",
                     "prod_id": "",
-                    "redirecturl": " https://smeep.potential.org/product/website-social-media-email-marketing-video-and-1-year-hosting/",
+                    "redirecturl": " ",
                     "couponoffer": "200 "
                 }
             }
@@ -317,133 +333,140 @@
         "images": [
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2025/01/Clone-Yourself-offer.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/11/Screenshot-2025-11-27-173218-1.png",
+                "zip_path": "wp-content/uploads/2025/11/Screenshot-2025-11-27-173218-1.png",
+                "level": "card_item",
+                "post_id": 4579
+            },
+            {
+                "role": "card_extra",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/Clone-Yourself-offer.png",
                 "zip_path": "wp-content/uploads/2025/01/Clone-Yourself-offer.png",
                 "level": "card_item",
                 "post_id": 4043
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2025/01/AI-Tools-Offer.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/AI-Tools-Offer.png",
                 "zip_path": "wp-content/uploads/2025/01/AI-Tools-Offer.png",
                 "level": "card_item",
                 "post_id": 4042
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2025/01/AI-Amplify-offer.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/AI-Amplify-offer.png",
                 "zip_path": "wp-content/uploads/2025/01/AI-Amplify-offer.png",
                 "level": "card_item",
                 "post_id": 4041
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2025/01/AI-Coach-Offer.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/AI-Coach-Offer.png",
                 "zip_path": "wp-content/uploads/2025/01/AI-Coach-Offer.png",
                 "level": "card_item",
                 "post_id": 4040
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2025/01/AI-Chatbot-Offer.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/01/AI-Chatbot-Offer.png",
                 "zip_path": "wp-content/uploads/2025/01/AI-Chatbot-Offer.png",
                 "level": "card_item",
                 "post_id": 4039
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/06/SMEEP-offer-open-innovation.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/06/SMEEP-offer-open-innovation.png",
                 "zip_path": "wp-content/uploads/2021/06/SMEEP-offer-open-innovation.png",
                 "level": "card_item",
                 "post_id": 3832
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/04/FMB_Potential_Offer-scaled.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/04/FMB_Potential_Offer-scaled.jpg",
                 "zip_path": "wp-content/uploads/2021/04/FMB_Potential_Offer-scaled.jpg",
                 "level": "card_item",
                 "post_id": 3589
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/03/cisco.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/cisco.jpg",
                 "zip_path": "wp-content/uploads/2021/03/cisco.jpg",
                 "level": "card_item",
                 "post_id": 3529
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/03/legalservices-1.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/legalservices-1.jpg",
                 "zip_path": "wp-content/uploads/2021/03/legalservices-1.jpg",
                 "level": "card_item",
                 "post_id": 3476
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/03/litoffer-1.jpg",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/litoffer-1.jpg",
                 "zip_path": "wp-content/uploads/2021/03/litoffer-1.jpg",
                 "level": "card_item",
                 "post_id": 3473
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/10/PR-services.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/10/PR-services.png",
                 "zip_path": "wp-content/uploads/2020/10/PR-services.png",
                 "level": "card_item",
                 "post_id": 3460
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/03/SMEEP-shop-cards-Khazraji-Auditing.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/03/SMEEP-shop-cards-Khazraji-Auditing.png",
                 "zip_path": "wp-content/uploads/2021/03/SMEEP-shop-cards-Khazraji-Auditing.png",
                 "level": "card_item",
                 "post_id": 3453
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2021/01/SMEEP-shop-cards-aramex-2.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2021/01/SMEEP-shop-cards-aramex-2.png",
                 "zip_path": "wp-content/uploads/2021/01/SMEEP-shop-cards-aramex-2.png",
                 "level": "card_item",
                 "post_id": 3434
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/09/Future-job-skills-offer-card.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/09/Future-job-skills-offer-card.png",
                 "zip_path": "wp-content/uploads/2020/09/Future-job-skills-offer-card.png",
                 "level": "card_item",
                 "post_id": 3395
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/09/Marketing-ads-offer-card.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/09/Marketing-ads-offer-card.png",
                 "zip_path": "wp-content/uploads/2020/09/Marketing-ads-offer-card.png",
                 "level": "card_item",
                 "post_id": 3394
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/09/E-commerce-offer-card.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/09/E-commerce-offer-card.png",
                 "zip_path": "wp-content/uploads/2020/09/E-commerce-offer-card.png",
                 "level": "card_item",
                 "post_id": 3393
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/10/SMEEP-shop-acc-ounting-card.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/10/SMEEP-shop-acc-ounting-card.png",
                 "zip_path": "wp-content/uploads/2020/10/SMEEP-shop-acc-ounting-card.png",
                 "level": "card_item",
                 "post_id": 3392
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/10/AWS-offer-card.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/10/AWS-offer-card.png",
                 "zip_path": "wp-content/uploads/2020/10/AWS-offer-card.png",
                 "level": "card_item",
                 "post_id": 3391
             },
             {
                 "role": "card_extra",
-                "url": "https://smeep.potential.org/wp-content/uploads/2020/10/SMEEP-shop-cards-go-daddy.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2020/10/SMEEP-shop-cards-go-daddy.png",
                 "zip_path": "wp-content/uploads/2020/10/SMEEP-shop-cards-go-daddy.png",
                 "level": "card_item",
                 "post_id": 3389

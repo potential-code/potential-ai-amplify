@@ -713,7 +713,7 @@ function CourseHeader({
                 initial={{ width: 0 }}
                 animate={{ width: `${pct}%` }}
                 transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="h-full rounded-full bg-gradient-to-r from-brand-primary-light via-brand-primary to-brand-primary-dark shadow-[0_0_18px_rgba(159,32,99,0.6)]"
+                className="h-full rounded-full bg-gradient-to-r from-brand-primary-light via-brand-primary to-brand-primary-dark shadow-[0_0_18px_rgba(101,45,144,0.6)]"
               />
             </div>
             {pct >= 100 && (

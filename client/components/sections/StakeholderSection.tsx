@@ -18,8 +18,8 @@ export function StakeholderSection() {
         <div className="text-center max-w-3xl mx-auto mb-12">
           <SectionHeader
             badge={STAKEHOLDER.badge}
-            heading="Become a Program"
-            highlight="Stakeholder"
+            heading="Become an AI Amplify"
+            highlight="Partner"
             subtext={STAKEHOLDER.intro}
           />
           <motion.div

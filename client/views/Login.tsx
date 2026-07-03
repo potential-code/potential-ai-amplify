@@ -61,7 +61,7 @@ function PrimaryButton({ loading, loadingLabel, label, disabled }: PrimaryButton
       type="submit"
       disabled={loading || disabled}
       whileTap={{ scale: 0.98 }}
-      className="relative w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-80 disabled:cursor-wait text-white py-3.5 rounded-xl text-sm font-semibold transition-colors mt-2 shadow-[0_10px_30px_-10px_rgba(159,32,99,0.7)] overflow-hidden"
+      className="relative w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-80 disabled:cursor-wait text-white py-3.5 rounded-xl text-sm font-semibold transition-colors mt-2 shadow-[0_10px_30px_-10px_rgba(101,45,144,0.7)] overflow-hidden"
     >
       {loading && (
         <span
@@ -518,21 +518,19 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
-      badge="Welcome back"
       heading={
         <>
-          Log in to <span className="text-gradient-magenta">SMEEP</span>
+          Log in to <span className="text-gradient-brand">AI Amplify</span>
         </>
       }
       subheading={subheadings[mode]}
-      topRightPrompt={{ text: "New here?", ctaLabel: "Create a free account", ctaHref: "/sign-up" }}
       altPrompt={{
         text: "Don't have an account?",
         ctaLabel: "Register for free",
         ctaHref: "/sign-up",
       }}
     >
-      <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-7 shadow-[0_20px_60px_-20px_rgba(159,32,99,0.18)]">
+      <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-7 shadow-[0_20px_60px_-20px_rgba(101,45,144,0.18)]">
         <AnimatePresence mode="wait" initial={false}>
           {mode === "password" && (
             <motion.div

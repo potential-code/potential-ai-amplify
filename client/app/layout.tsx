@@ -2,18 +2,14 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'SMEEP — SME Empowerment Program | Powered by AI',
+  title: 'AI Amplify — Amplify Your Business with AI | Powered by Potential.org',
   description:
-    'Discover how to integrate AI into your business processes to save costs, increase revenue, and stay ahead in the future of business—free with the SME Empowerment Program.',
-  keywords: 'SME, AI, business empowerment, startup, digital transformation, AI tools',
+    "Learn to put AI to work in your business: cut costs, win more customers, and build future-ready skills — free with AI Amplify, Potential.org's global program for SMEs and job seekers.",
+  keywords: 'AI Amplify, SME, AI, business empowerment, startup, digital transformation, AI tools',
   openGraph: {
-    title: 'SMEEP — SME Empowerment Program',
-    description: 'Free AI-powered program for SMEs and startups worldwide.',
+    title: 'AI Amplify — Amplify Your Business with AI',
+    description: 'Free AI-powered program for SMEs, startups, and job seekers worldwide.',
     type: 'website',
-  },
-  icons: {
-    icon: '/images/SMEEP-logo.png',
-    apple: '/images/SMEEP-logo.png',
   },
 }
 

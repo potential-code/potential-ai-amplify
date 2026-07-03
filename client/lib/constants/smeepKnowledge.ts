@@ -1,24 +1,20 @@
-// Shared Smeep platform knowledge — imported by both chatbots.
+// Shared AI Amplify platform knowledge — imported by both chatbots.
 // Keep this file as the single source of truth for platform facts.
 // Sourced from: client/lib/constants/content.ts, landing page sections,
 // dashboard data, and the actual schema/features in the codebase.
 
-export const SMEEP_PLATFORM_KNOWLEDGE = `
+export const AI_AMPLIFY_PLATFORM_KNOWLEDGE = `
 ---
 
-## SMEEP PLATFORM KNOWLEDGE BASE
+## AI AMPLIFY PLATFORM KNOWLEDGE BASE
 
 Use this for platform overview and FAQ only. For show/find/recommend queries (courses, mentors, offers, events), ALWAYS follow the SEMANTIC MATCHING and DISCOVERY rules above — call searchCatalogue and the appropriate show*Cards action. Never answer those from this static text.
 
-### What is SMEEP?
-SMEEP stands for the SME Empowerment Program — a free global initiative by the Potential.org Foundation. It gives small and medium businesses (SMEs) and startups access to AI training courses, AI mentors, AI business tools, human expert sessions, exclusive partner offers, and live events. Everything is 100% free — no credit card required, no hidden fees, no paid tiers.
+### What is AI Amplify?
+AI Amplify is a global initiative by the Potential.org Foundation. It gives small and medium businesses (SMEs) and startups access to AI training courses, AI mentors, AI business tools, human expert sessions, exclusive partner offers, and live events.
 
-### Key Platform Facts
-- Founded: 2010
-- SMEs reached: 300,000+
-- Countries: 50+
-- Cost: Always free; no credit card, no subscription, no paid tier
-- Contact: smeep@potential.com
+### Contact
+- info@potential.com
 
 ### The Six Core Pillars
 1. **AI Training Courses** — structured video-based modules with action plans and certificates upon completion
@@ -48,18 +44,12 @@ Four tools — Business Idea Generator, Business Plan Generator, Marketing Plan 
 Automatically issued when you complete a course. Viewable and downloadable from your Profile page under Achievements.
 
 ### Stakeholder Programs (for organisations)
-Six programs for non-SME participants: Experts, VC, Government, Corporate, University, and Incubator. Contact smeep@potential.com for details.
+Six programs for non-SME participants: Experts, VC, Government, Corporate, University, and Incubator. Contact info@potential.com for details.
 
 ### FAQ
 
-**Q: Is SMEEP really free?**
-Yes — 100% free. No credit card, no subscription, no hidden fees. Every feature is available immediately after registering.
-
 **Q: Who can join?**
-Any SME owner, startup founder, or entrepreneur, anywhere in the world. The program operates in 50+ countries.
-
-**Q: How long has SMEEP been running?**
-Since 2010. The program has reached 300,000+ SMEs across 50+ countries.
+Any SME owner, startup founder, or entrepreneur, anywhere in the world.
 
 **Q: What can I access after registering?**
 Immediately: all courses, AI mentors (24/7), AI business tools, partner offers, and live events.
@@ -83,10 +73,10 @@ Go to Human Mentors, browse the available experts, and use the booking widget to
 Four tools: Business Idea Generator, Business Plan Generator, Marketing Plan Creator, and Product/Sales Proposal Tool. Each produces a branded PDF delivered to your email.
 
 **Q: How do I contact support?**
-Email smeep@potential.com or use the Support page in the dashboard.
+Email info@potential.com or use the Support page in the dashboard.
 
-**Q: Can my organisation partner with SMEEP?**
-Yes — through one of the six stakeholder programs (Experts, VC, Government, Corporate, University, Incubator). Contact smeep@potential.com.
+**Q: Can my organisation partner with AI Amplify?**
+Yes — through one of the six stakeholder programs (Experts, VC, Government, Corporate, University, Incubator). Contact info@potential.com.
 
 **Q: What results have others seen?**
 Real members have cut customer-support costs by 38% in 90 days, booked 20% more calls using AI agents, and described the free mentor sessions as "worth thousands."
@@ -94,16 +84,14 @@ Real members have cut customer-support costs by 38% in 90 days, booked 20% more 
 
 // Landing-page-specific knowledge — only imported by LandingRegistrationChat.
 // Focuses on conversion: why register, what users get immediately, how fast registration is.
-export const LANDING_SMEEP_KNOWLEDGE = `
+export const LANDING_AI_AMPLIFY_KNOWLEDGE = `
 ## LANDING PAGE CONTEXT
 
 Use this to answer visitor questions about joining and getting started.
 
 ### Why Register?
-- Immediate free access to every SMEEP feature — no waiting list, no approval process
-- 300,000+ SMEs and entrepreneurs worldwide have already benefited
+- Immediate access to every AI Amplify feature — no waiting list, no approval process
 - Results members have reported: 38% reduction in customer-support costs, 20% more booked calls with AI agents, and mentor sessions they call "worth thousands"
-- Completely free — no credit card, no commitment, no expiry
 
 ### Registration Process
 - Takes under 2 minutes

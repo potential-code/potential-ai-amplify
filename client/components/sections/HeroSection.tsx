@@ -1,11 +1,20 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ChevronDown, Sparkles, ArrowRight } from 'lucide-react'
+import { ChevronDown, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react'
 import { HERO, REDESIGN_ASSETS } from '@/lib/constants'
 import { MagneticButton } from '@/components/shared/MagneticButton'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { LandingRegistrationChat } from '../landing/LandingRegistrationChat'
+
+const HERO_PILLS = ['AI Mentors', 'Live Events', 'AI Tools', 'Human Mentors']
+
+const HERO_CHECKPOINTS = [
+  'Free AI business coach, available 24/7',
+  'Live expert-led sessions',
+  'Practical, bite-sized AI courses',
+  '100% free — no credit card',
+]
 
 export function HeroSection() {
   const reduced = useReducedMotion()
@@ -25,8 +34,9 @@ export function HeroSection() {
           loading="eager"
         />
         {/* Readability overlays */}
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-dark/85 via-brand-dark/55 to-brand-dark/35" />
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/40 via-transparent to-brand-dark/80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-dark/95 via-brand-dark/78 to-brand-dark/35" />
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/35 via-transparent to-brand-dark/70" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_20%_45%,rgba(13,6,20,0.65)_0%,transparent_70%)]" />
       </div>
 
       {/* Layered glow accents */}
@@ -54,7 +64,7 @@ export function HeroSection() {
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-white/80 text-xs font-medium mb-7 self-center lg:self-start"
           >
             <Sparkles className="w-3.5 h-3.5 text-brand-primary-light" />
-            <span className="tracking-wide uppercase text-[11px]">SME Empowerment Program</span>
+            <span className="tracking-wide uppercase text-[11px]">AI Amplify</span>
             <span className="hidden sm:inline text-white/40">·</span>
             <span className="hidden sm:inline text-white/60">100% free, global</span>
           </motion.div>
@@ -63,24 +73,48 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="text-display text-balance text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-bold text-white leading-[1.08] drop-shadow-[0_4px_30px_rgba(0,0,0,0.45)]"
+            className="text-display text-balance text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-white leading-[1.1] drop-shadow-[0_4px_24px_rgba(0,0,0,0.65)]"
           >
             {HERO.headline}
           </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
+          {/* Feature pills */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25 }}
-            className="mt-5 text-sm sm:text-base text-white/75 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mt-7 flex flex-wrap gap-2 justify-center lg:justify-start"
           >
-            {HERO.subtext}
-          </motion.p>
+            {HERO_PILLS.map((pill) => (
+              <span
+                key={pill}
+                className="inline-flex items-center px-3.5 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm text-white/85 text-xs sm:text-[13px] font-semibold"
+              >
+                {pill}
+              </span>
+            ))}
+          </motion.div>
+
+          {/* Benefit checkpoints */}
+          <div className="mt-6 flex flex-col gap-2.5 max-w-lg mx-auto lg:mx-0">
+            {HERO_CHECKPOINTS.map((item, i) => (
+              <motion.div
+                key={item}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 + i * 0.08 }}
+                className="flex items-center gap-2.5 text-sm sm:text-[15px] text-white/85 justify-center lg:justify-start"
+              >
+                <CheckCircle2 className="w-4 h-4 text-brand-primary-light flex-shrink-0" />
+                <span>{item}</span>
+              </motion.div>
+            ))}
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.85 }}
             className="mt-9 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
           >
             <MagneticButton href={HERO.ctaHref} variant="primary" size="lg" magnetic={false}>
@@ -90,18 +124,6 @@ export function HeroSection() {
             <MagneticButton href={HERO.loginHref} variant="ghost" size="lg" magnetic={false}>
               {HERO.loginLabel}
             </MagneticButton>
-          </motion.div>
-
-          {/* Trust strip */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.55 }}
-            className="mt-10 flex flex-wrap justify-center lg:justify-start gap-x-8 gap-y-3 text-xs text-white/55"
-          >
-            <div><span className="text-white font-semibold text-base mr-1">300k+</span> SMEs reached</div>
-            <div><span className="text-white font-semibold text-base mr-1">50+</span> countries</div>
-            <div><span className="text-white font-semibold text-base mr-1">Since 2010</span></div>
           </motion.div>
 
         </div>

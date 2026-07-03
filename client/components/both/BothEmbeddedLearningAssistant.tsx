@@ -50,7 +50,7 @@ import { RemoveLearningPathDialog } from '@/components/shared/RemoveLearningPath
 
 const BOTH_DELIVERY_AGENT = 'chatbot'
 
-const BOTH_DELIVERY_INSTRUCTIONS = `You are Sana — SMEEP's AI learning guide. You walk the user through their personalised Learning Path (Both) ONE content item at a time. This path contains a mix of internal SMEEP learning blocks and external YouTube/article content.
+const BOTH_DELIVERY_INSTRUCTIONS = `You are Anna — AI Amplify's AI learning guide. You walk the user through their personalised Learning Path (Both) ONE content item at a time. This path contains a mix of internal AI Amplify learning blocks and external YouTube/article content.
 
 YOUR GOLDEN RULES:
 1. NEVER write, summarise, define, or invent learning content. Content is rendered by the tools below.
@@ -266,7 +266,7 @@ function ChatQuestionBlock({ item, onSubmitted }: ChatQuestionBlockProps) {
             onClick={handleSubmit}
             disabled={!allAnswered || pending}
             className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-            style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
           >
             <Send className="w-3 h-3" />
             {pending ? 'Submitting…' : 'Submit answers'}
@@ -394,7 +394,7 @@ function BothContentCard({
               onClick={() => void doComplete()}
               disabled={completing}
               className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+              style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               {completing ? 'Marking complete…' : 'Mark Complete'}
@@ -500,7 +500,7 @@ function BothContentCard({
               onClick={() => void doComplete()}
               disabled={completing}
               className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+              style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               {completing ? 'Marking complete…' : 'Mark Complete'}
@@ -551,7 +551,7 @@ function BothMilestoneGrid({
               'group flex flex-col text-left rounded-xl border border-brand-surface-2 bg-[#fdf5f9] overflow-hidden transition-all',
               m.unlocked ? 'cursor-pointer shadow-sm hover:border-brand-primary/50 hover:shadow-md' : 'cursor-not-allowed opacity-60',
             )}
-            style={{ borderTop: '3px solid #9f2063' }}
+            style={{ borderTop: '3px solid var(--color-brand-primary)' }}
           >
             <div className="flex flex-col flex-1 px-3.5 pt-3 pb-3">
               <div className="flex items-start justify-between gap-2">
@@ -563,7 +563,7 @@ function BothMilestoneGrid({
                 ) : (
                   <span
                     className="text-[9px] font-bold text-white px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap"
-                    style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+                    style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
                   >
                     {m.pretestCompleted && completedContent > 0 ? 'Continue' : m.pretestCompleted ? 'Start' : 'Knowledge check first'}
                   </span>
@@ -575,7 +575,7 @@ function BothMilestoneGrid({
                   <div className="flex-1 h-1.5 rounded-full bg-brand-surface-2 overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
-                      style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #9f2063 0%, #7a1a4c 100%)' }}
+                      style={{ width: `${pct}%`, background: 'linear-gradient(90deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
                     />
                   </div>
                   <span className="text-[10px] font-semibold text-brand-text-muted shrink-0">{completedItems}/{totalItems}</span>
@@ -820,7 +820,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
               type="button"
               onClick={() => onPathRefresh()}
               className="font-semibold underline"
-              style={{ color: '#9f2063' }}
+              style={{ color: 'var(--color-brand-primary)' }}
             >
               Refresh
             </button>
@@ -1009,8 +1009,8 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             input={SmeepChatInput as any}
             labels={{
-              chatInputPlaceholder: 'Ask Sana about your learning path…',
-              welcomeMessageText: "Hi! I'm Sana 👋\nLet's walk through your personalised learning path together.",
+              chatInputPlaceholder: 'Ask Anna about your learning path…',
+              welcomeMessageText: "Hi! I'm Anna 👋\nLet's walk through your personalised learning path together.",
             }}
           />
 
@@ -1018,18 +1018,18 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
             <div className="absolute inset-0 z-10 flex flex-col bg-white overflow-y-auto">
               {noInternalContent && (
                 <div className="mx-5 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
-                  <p className="text-[11px] text-amber-700">No SMEEP content matched your goals — showing external resources only.</p>
+                  <p className="text-[11px] text-amber-700">No AI Amplify content matched your goals — showing external resources only.</p>
                 </div>
               )}
               <div className="px-5 pt-6 pb-3">
                 <div className="flex items-center gap-2 mb-1.5">
                   <div
                     className="w-8 h-8 rounded-xl flex items-center justify-center"
-                    style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+                    style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
                   >
                     <Sparkles className="w-4 h-4 text-white" />
                   </div>
-                  <p className="text-base font-black text-brand-text-primary">Hi! I&apos;m Sana 👋</p>
+                  <p className="text-base font-black text-brand-text-primary">Hi! I&apos;m Anna 👋</p>
                 </div>
                 <p className="text-xs text-brand-text-secondary leading-relaxed">
                   Here are your personalised milestones. Click a milestone to start — you&apos;ll answer a quick knowledge-check first, then dive into curated content.

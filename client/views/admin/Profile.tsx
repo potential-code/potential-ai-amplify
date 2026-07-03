@@ -453,7 +453,7 @@ export default function AdminProfilePage() {
         >
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white"
-              style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}>
+              style={{ background: 'linear-gradient(120deg, #652d90 0%, #4a2168 100%)' }}>
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
@@ -481,7 +481,7 @@ export default function AdminProfilePage() {
             disabled={regenRunning}
             onClick={() => setRegenConfirmOpen(true)}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-opacity shadow-md"
-            style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+            style={{ background: 'linear-gradient(120deg, #652d90 0%, #4a2168 100%)' }}
           >
             {regenRunning ? (
               <>
@@ -522,7 +522,7 @@ export default function AdminProfilePage() {
           outline: none;
           background: white;
           border-color: var(--color-brand-primary);
-          box-shadow: 0 0 0 3px rgba(159, 32, 99, 0.15);
+          box-shadow: 0 0 0 3px rgba(101, 45, 144, 0.15);
         }
         .profile-readonly {
           width: 100%;

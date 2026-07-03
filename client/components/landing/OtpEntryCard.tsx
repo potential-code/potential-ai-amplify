@@ -124,7 +124,7 @@ export function OtpEntryCard({ email, respond, status }: OtpEntryCardProps) {
       {/* Header */}
       <div
         className="flex items-center gap-2 px-4 py-3"
-        style={{ background: "linear-gradient(120deg,#9f2063,#7a1a4c)" }}
+        style={{ background: "linear-gradient(120deg,#652d90,#4a2168)" }}
       >
         <Sparkles className="w-4 h-4 text-white/80 flex-shrink-0" />
         <span className="text-sm font-semibold text-white tracking-wide">
@@ -136,7 +136,7 @@ export function OtpEntryCard({ email, respond, status }: OtpEntryCardProps) {
       {status === "complete" ? (
         <div className="flex items-center gap-3 px-4 py-3">
           <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-white/10">
-            <Check className="w-3.5 h-3.5 text-[#9f2063]" strokeWidth={2.5} />
+            <Check className="w-3.5 h-3.5 text-[#652d90]" strokeWidth={2.5} />
           </div>
           <span className="text-sm font-medium text-white/90">
             {lastVerifiedRef.current ? "Email verified" : "Verification cancelled"}
@@ -175,7 +175,7 @@ export function OtpEntryCard({ email, respond, status }: OtpEntryCardProps) {
             />
             {(verifying || showSpinner) && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <Loader2 className="w-4 h-4 animate-spin text-[#9f2063]" />
+                <Loader2 className="w-4 h-4 animate-spin text-[#652d90]" />
               </div>
             )}
           </div>
@@ -189,7 +189,7 @@ export function OtpEntryCard({ email, respond, status }: OtpEntryCardProps) {
             disabled={isDisabled || verifying || code.trim().length !== 6}
             onClick={handleVerify}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: "linear-gradient(120deg,#9f2063,#7a1a4c)" }}
+            style={{ background: "linear-gradient(120deg,#652d90,#4a2168)" }}
           >
             {verifying ? (
               <>

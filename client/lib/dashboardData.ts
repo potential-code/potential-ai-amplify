@@ -363,12 +363,12 @@ export const LIVE_SESSIONS: LiveSessionItem[] = [
 ]
 
 export const FAQS: FaqItem[] = [
-  { q: 'Is SMEEP really free?', a: 'Yes — SMEEP is 100% free for SMEs and startups. There are no hidden fees and no credit card required.' },
-  { q: 'How do I book a session with a human mentor?', a: 'Open Programme Mentors, choose a mentor that fits your needs, and click Book Session. We will email you a calendar invite.' },
-  { q: 'What can the AI Business Assistant do?', a: 'It can draft a business plan, marketing plan, product proposal, generate ideas, and answer SMEEP-related questions tailored to your business.' },
-  { q: 'How are certificates issued?', a: 'You earn a certificate automatically when you complete all units in a module. They appear under Certifications and can be downloaded as PDF.' },
+  { q: 'Is AI Amplify really free?', a: 'Yes — AI Amplify is 100% free for SMEs and job seekers. There are no hidden fees and no credit card required.' },
+  { q: 'How do I book a session with a human mentor?', a: 'Open Human Mentors, choose a mentor that fits your needs, and click Book Session. We will email you a calendar invite.' },
+  { q: 'What can the Anna chatbot do?', a: 'Anna is your AI Business Assistant — she can draft a business plan, marketing plan, product proposal, generate business ideas, and answer AI Amplify-related questions tailored to your business.' },
+  { q: 'How are certificates issued?', a: 'You earn a certificate automatically when you complete all units in a course. They appear under Certifications on your Profile and can be downloaded as PDF.' },
   { q: 'Can I redeem multiple partner offers?', a: 'Yes — most offers can be stacked. Some have eligibility restrictions which are listed on the offer details page.' },
-  { q: 'How do I delete my account?', a: 'Email us at smeep@potential.com from your registered address and we will remove your account within 7 working days.' },
+  { q: 'How do I delete my account?', a: 'Email us at info@potential.com from your registered address and we will remove your account within 7 working days.' },
 ]
 
 export const STATS = {

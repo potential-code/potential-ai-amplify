@@ -1,0 +1,796 @@
+{
+    "schema_version": "1.0",
+    "exported_at": "2026-07-02T08:24:19+00:00",
+    "source_site": "https://aiamplify.potential.org",
+    "course": {
+        "course_id": 121,
+        "title": "Prompt Engineering and AI Troubleshooting",
+        "description": "",
+        "unit_count": 7,
+        "author_id": 3669,
+        "course_post_id": 4467,
+        "settings": {
+            "completion_wall": "all_visible",
+            "use_certificate": "use_certs",
+            "user_access": "default_show",
+            "unit_advancement": "manual",
+            "prerequisites": [],
+            "payments_type": "free",
+            "payments_price": "0.00"
+        },
+        "card": {
+            "card_post_id": 4558,
+            "title": "Prompt Engineering and AI Troubleshooting",
+            "content": "",
+            "course_unit_number": "",
+            "course_time": "",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/introduction-to-prompt-engineering/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-5.png",
+            "featured_image_url": null
+        },
+        "modules": [
+            {
+                "module_id": 121,
+                "title": "Prompt Engineering and AI Troubleshooting",
+                "description": "<p><span class=\"TextRun SCXW226361237 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW226361237 BCX8\">Prompt Engineering and AI Troubleshooting</span></span></p>",
+                "order": 1,
+                "number": 1,
+                "units": [
+                    {
+                        "unit_id": 4468,
+                        "title": "Introduction to Prompt Engineering",
+                        "slug": "introduction-to-prompt-engineering",
+                        "order": 10,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "gkjM5FquuaY",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Introduction-to-Prompt-Engineering.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n<h5>Welcome to the realm of AI Prompt Engineering! </h5>\r\n<h5>Embark on a journey where crafting precise instructions navigates AI's responses. </h5>\r\n<h5>Much like a skilled captain guides a ship, your prompts steer the course of AI interactions. </h5>\r\n<h5>Delve into the profound impact of well-crafted prompts on AI outcomes. </h5>\r\n<h5>\r\nBy the end, you'll possess practical insights into the art of prompt engineering and wield the ability to channel creativity and control to optimize AI interactions. \r\n</h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/-nSd9X51MPs?si=3-hOJl2oXo3pWICH\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 992,
+                            "title": "Introduction to Prompt Engineering",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW239454518 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW239454518 BCX8\">Introduction to Prompt Engineering</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How confident do you feel in crafting prompts to guide AI responses? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very confident  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat confident",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not very confident  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not confident at all ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2397,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4469,
+                        "title": "Common AI Issues and Challenges",
+                        "slug": "common-ai-issues-and-challenges",
+                        "order": 20,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "v9fT3RE97g8",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Common-AI-Issues-and-Challenges-1.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>As you enter the dynamic landscape of AI, you encounter common challenges that demand your attention. </h5>\r\n<h5>Overfitting, underperformance, and bias are adversaries you'll learn to identify and mitigate. </h5>\r\n<h5>Equip yourself with tools to recognize these issues, comprehend their implications, and employ strategic approaches to overcome them. </h5>\r\n<h5>Grasp these challenges to emerge as an adept problem solver, capable of navigating AI's intricacies with confidence.  </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/WY518YRfs5M?si=B8wxe1K45eObVL4w\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 993,
+                            "title": "Common AI Issues and Challenges",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW125957011 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW125957011 BCX8\">Common AI Issues and Challenges</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Which AI challenge do you find most concerning in real-world applications? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Overfitting",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Underperformance",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Bias in AI outputs  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Other",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2398,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4470,
+                        "title": "Troubleshooting AI Models",
+                        "slug": "troubleshooting-ai-models",
+                        "order": 30,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "hW5dfQpBRek",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Troubleshooting-AI-Models.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Step into the role of a diagnostic expert for AI models. </h5>\r\n<h5>Understand the nuances of model behavior to master the art of troubleshooting. </h5>\r\n<h5>Uncover the significance of fine-tuning, diagnosing misfires, and strategically refining models. </h5>\r\n<h5>Through practical insights, be empowered to effectively address issues and restore AI models to their optimal functioning state. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/G2fqAlgmoPo?si=qABbI39vW_q0t69O\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 994,
+                            "title": "Troubleshooting AI Models",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW258630915 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW258630915 BCX8\">Troubleshooting AI Models</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Have you ever encountered issues with an AI model&apos;s performance?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Yes",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "No",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2399,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4471,
+                        "title": "Identifying and Handling Bias in Prompts",
+                        "slug": "identifying-and-handling-bias-in-prompts",
+                        "order": 40,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "JUFfj6xNNho",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Identifying-and-Handling-Bias-in-Prompts.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Bias in AI outputs is a crucial concern, and you'll learn to identify and address it. </h5>\r\n<h5>Explore how bias can subtly infiltrate AI interactions, particularly through prompts. </h5>\r\n<h5>Delve into techniques that help recognize and reduce bias, fostering a commitment to ethical and unbiased AI practices. </h5>\r\n<h5>By the end, possess a comprehensive understanding of bias-related challenges and solutions. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/tJQSyzBUAew?si=geVHznMOmhZdQa12\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 995,
+                            "title": "Identifying and Handling Bias in Prompts",
+                            "description": "<p><span class=\"NormalTextRun SCXW42961072 BCX8\">Identifying</span><span class=\"NormalTextRun SCXW42961072 BCX8\"> and Handling Bias in Prompts</span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How important do you believe it is to address bias in AI outputs, particularly related to prompts?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Extremely important  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Very important  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Somewhat important ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not important ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2400,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4472,
+                        "title": "When to Seek Help from AI Specialists",
+                        "slug": "when-to-seek-help-from-ai-specialists",
+                        "order": 50,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "JUXBYOvbFIU",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/When-to-Seek-Help-from-AI-Specialists.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Encounter scenarios where seeking assistance from AI specialists becomes paramount. </h5>\r\n<h5>Delve into those critical moments, illuminating when collaboration with experts can lead to transformative outcomes. </h5>\r\n<h5>Recognize the value of AI specialists and embrace collaboration to conquer complex AI challenges and unlock new possibilities. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/yv0IG1D-OdU?si=xrg4p7lOIRAUD_rJ\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 996,
+                            "title": "When to Seek Help from AI Specialists",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW110685629 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW110685629 BCX8\">When to Seek Help from AI Specialists</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "open",
+                                    "text": "In your experience, when do you think involving AI specialists would be most beneficial? Please provide an example scenario.",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "small_textarea",
+                                    "question_id": 2401,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4473,
+                        "title": "Improving AI Performance and Reliability",
+                        "slug": "improving-ai-performance-and-reliability",
+                        "order": 60,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "CPY9SUklzhs",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Improving-AI-Performance-and-Reliability.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Become the conductor orchestrating AI performance and reliability. </h5>\r\n<h5>Explore a repertoire of techniques that elevate AI models to their zenith.  </h5>\r\n<h5>From meticulous maintenance to harmonizing user feedback, cultivate an environment of continuous improvement.  </h5>\r\n<h5>Embrace these strategies to cultivate AI experiences that resonate with reliability, precision, and lasting impact.  </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/jHv63Uvk5VA?si=hJFeXsI-NKCP9XvA\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 997,
+                            "title": "Improving AI Performance and Reliability",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW26056394 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW26056394 BCX8\">Improving AI Performance and Reliability</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How frequently do you collect user feedback to enhance your AI models? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very frequently  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat frequently ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Rarely",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Never",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2402,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4474,
+                        "title": "Post-Test",
+                        "slug": "post-test-5",
+                        "order": 70,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": null,
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "",
+                            "course-unit-read-more": "",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 998,
+                            "title": "Post-Test",
+                            "description": "<p>Post-Test</p>",
+                            "type": "quiz_block",
+                            "pass_mark": 80,
+                            "attempts_allowed": 2,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "What is the role of well-crafted prompts in AI interactions?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "They determine the AI model's physical appearance.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "They steer the course of AI responses.",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "They determine the processing speed of AI.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "They control the AI's emotional state.",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"2\";}",
+                                    "question_id": 2403,
+                                    "order": 0
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "Which of the following are common challenges faced by AI models? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Solar flares and tidal waves.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Holographic interference and teleportation.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Overfitting, underperformance, and bias.",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Time travel paradoxes and quantum entanglement.",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2404,
+                                    "order": 1
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What is the significance of fine-tuning in AI model development? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "It involves crafting intricate prompts.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "It helps diagnose hardware issues in AI.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "It addresses model misfires and improves performance.",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "It creates duplicate AI models for redundancy.",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2405,
+                                    "order": 2
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What is the goal of reducing bias in AI interactions?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "To eliminate AI models entirely.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "To achieve perfect and instantaneous results.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "To foster ethical and unbiased AI interactions.",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "To create AI models with human emotions.",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2406,
+                                    "order": 3
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "In what scenarios should you consider involving AI specialists? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "When your AI model needs a vacation.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "When you need help with basic computer tasks.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "When you encounter complex AI challenges or uncharted territories.",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "When you want to challenge AI specialists to a game of chess.",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2407,
+                                    "order": 4
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "How can user feedback contribute to enhancing an AI model&apos;s performance?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "User feedback has no impact on AI models.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "It can be used to make AI models more expensive.",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "It provides insights for iterative improvement and refinement.",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "It can be used to predict the future behavior of AI models.",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2408,
+                                    "order": 5
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "assets": {
+        "images": [
+            {
+                "role": "card_image",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-5.png",
+                "zip_path": "wp-content/uploads/2025/02/AI-5.png",
+                "level": "card"
+            }
+        ]
+    }
+}

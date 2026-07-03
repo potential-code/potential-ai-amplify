@@ -112,7 +112,7 @@ async function buildCodPath(
 /** Returns the active COD path for a user with content, progress, and quiz state. */
 export async function getCodPath(userId: string) {
   const [path] = await db.select().from(codUserPaths)
-    .where(and(eq(codUserPaths.userId, userId), eq(codUserPaths.platformId, 'smeep')))
+    .where(and(eq(codUserPaths.userId, userId), eq(codUserPaths.platformId, 'ai-amplify')))
     .orderBy(desc(codUserPaths.createdAt)).limit(1)
 
   if (!path) return null

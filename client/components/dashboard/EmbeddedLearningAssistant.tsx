@@ -36,7 +36,7 @@ import { RemoveLearningPathDialog } from '@/components/shared/RemoveLearningPath
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const LEARNING_INSTRUCTIONS = `You are Sana — SMEEP's AI learning guide. You walk the user through their personalised learning path ONE block at a time.
+const LEARNING_INSTRUCTIONS = `You are Anna — AI Amplify's AI learning guide. You walk the user through their personalised learning path ONE block at a time.
 
 YOUR GOLDEN RULES:
 1. NEVER write, summarise, define, or invent learning content yourself. Block content is rendered ONLY by the tools below.
@@ -288,7 +288,7 @@ function ChatQuestionBlock({ block, onSubmitted }: ChatQuestionBlockProps) {
             onClick={handleSubmit}
             disabled={!allAnswered || pending}
             className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-            style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
           >
             <Send className="w-3 h-3" />
             {pending ? 'Submitting…' : 'Submit answers'}
@@ -455,7 +455,7 @@ function LearningBlockCard({ block, nextBlock, milestoneTitle, onCompleted, send
             onClick={handleComplete}
             disabled={completing}
             className="w-full inline-flex items-center justify-center gap-1.5 cursor-pointer rounded-xl px-3 py-2 text-xs font-bold text-white shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-            style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             {completing ? 'Marking complete…' : 'Mark Complete'}
@@ -574,7 +574,7 @@ function MilestoneGrid({
             type="button"
             onClick={() => onStart(m.themeId, title)}
             className="group flex flex-col text-left cursor-pointer rounded-xl border border-brand-surface-2 bg-[#fdf5f9] overflow-hidden shadow-sm hover:border-brand-primary/50 hover:shadow-md transition-all"
-            style={{ borderTop: '3px solid #9f2063' }}
+            style={{ borderTop: '3px solid var(--color-brand-primary)' }}
           >
             <div className="flex flex-col flex-1 px-3.5 pt-3 pb-3">
               <div className="flex items-start justify-between gap-2">
@@ -584,7 +584,7 @@ function MilestoneGrid({
                 ) : (
                   <span
                     className="text-[9px] font-bold text-white px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap"
-                    style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+                    style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
                   >
                     {completed > 0 ? 'Continue' : 'Start'}
                   </span>
@@ -597,7 +597,7 @@ function MilestoneGrid({
                 <div className="flex-1 h-1.5 rounded-full bg-brand-surface-2 overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
-                    style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #9f2063 0%, #7a1a4c 100%)' }}
+                    style={{ width: `${pct}%`, background: 'linear-gradient(90deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
                   />
                 </div>
                 <span className="text-[10px] font-semibold text-brand-text-muted shrink-0">
@@ -914,7 +914,7 @@ export function EmbeddedLearningAssistant({ path, onPathRefresh, threadId, onRes
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white leading-tight">Learning Path</p>
           <p className="text-[10px] text-white/60 leading-tight">
-            {path.milestones.length} milestone{path.milestones.length !== 1 ? 's' : ''} · Guided by Sana
+            {path.milestones.length} milestone{path.milestones.length !== 1 ? 's' : ''} · Guided by Anna
           </p>
         </div>
         <button
@@ -962,8 +962,8 @@ export function EmbeddedLearningAssistant({ path, onPathRefresh, threadId, onRes
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           input={(showEmptyState ? NullInput : SmeepChatInput) as any}
           labels={{
-            chatInputPlaceholder: 'Ask Sana about your learning path…',
-            welcomeMessageText: "Hi! I'm Sana 👋\nLet's walk through your personalised learning path together.",
+            chatInputPlaceholder: 'Ask Anna about your learning path…',
+            welcomeMessageText: "Hi! I'm Anna 👋\nLet's walk through your personalised learning path together.",
           }}
         />
 
@@ -974,11 +974,11 @@ export function EmbeddedLearningAssistant({ path, onPathRefresh, threadId, onRes
               <div className="flex items-center gap-2 mb-1.5">
                 <div
                   className="w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+                  style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
                 >
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
-                <p className="text-base font-black text-brand-text-primary">Hi! I&apos;m Sana 👋</p>
+                <p className="text-base font-black text-brand-text-primary">Hi! I&apos;m Anna 👋</p>
               </div>
               <p className="text-xs text-brand-text-secondary leading-relaxed">
                 Here are your curated courses. Pick one to start learning — I&apos;ll walk you through it block by block.

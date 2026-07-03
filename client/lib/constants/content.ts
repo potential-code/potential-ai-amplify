@@ -1,8 +1,8 @@
 // Hero section
 export const HERO = {
-  headline: 'Empower Your Business with AI: Transform, Automate, and Grow',
+  headline: 'Amplify Your Business with AI — Work Smarter, Grow Faster',
   subtext:
-    'Discover how to integrate AI into your business processes to save costs, increase revenue, and stay ahead in the future of business—free with the SME Empowerment Program.',
+    "Learn to put AI to work in your business: cut costs, win more customers, and build future-ready skills — free with AI Amplify, Potential.org's global program for SMEs and job seekers.",
   ctaLabel: 'Get Started',
   ctaHref: '/sign-up',
   loginLabel: 'Login',
@@ -11,9 +11,21 @@ export const HERO = {
 
 // About section
 export const ABOUT = {
-  badge: 'About The Program',
-  heading: 'About The Program',
-  body: "The SME Empowerment Program, brought to you by the Potential.org Foundation, is a global initiative designed to help SMEs and startups harness the power of AI to transform their businesses. By joining this free program, you'll gain access to short training courses, events & live webinar sessions with industry experts, and future-ready skills to integrate AI into your processes and transform business models. Benefit from AI mentors and tools to automate workflows, book private sessions with human experts, and access exclusive partner offers and discounts. This program is your gateway to driving efficiency, cutting costs, and unlocking new revenue streams—empowering you to thrive in today's AI-driven economy.",
+  badge: 'About AI Amplify',
+  heading: 'About AI Amplify',
+  body: "In today's fast-paced business world, those who harness AI have a real edge over the competition. AI Amplify is a comprehensive training program that equips you with the skills to unlock AI's full potential in your work.",
+  outcomes: {
+    heading: "What You'll Get",
+    items: ['AI training courses', '24/7 AI coach', '1:1 expert sessions', 'Partner discounts'],
+  },
+  audience: {
+    heading: "Who It's For",
+    items: ['SME owners', 'Job seekers', 'Non-technical teams', 'AI-curious anyone'],
+  },
+  format: {
+    heading: 'Format',
+    items: ['100% free', 'Self-paced', 'Live webinars', 'Global access'],
+  },
   ctaLabel: 'Get Started',
   ctaHref: '/sign-up',
   image: '/images/about-banner.png',
@@ -21,39 +33,39 @@ export const ABOUT = {
 
 // Journey section
 export const JOURNEY = {
-  badge: 'Your AI-powered Journey',
-  heading: 'Your AI-powered Journey',
+  badge: 'Your AI Amplify Journey',
+  heading: 'Your AI Amplify Journey',
   subtext:
-    'Embark on a transformative journey with access to cutting-edge AI resources to elevate your business.',
+    'Six steps, one free program — everything you need to put AI to work and amplify your business.',
   items: [
     {
       title: 'AI Training Courses',
-      description: 'Learn to integrate AI and future-ready skills.',
+      description: 'Build future-ready AI skills in short, practical lessons.',
       image: '/images/redesign/journey-1-training.png',
     },
     {
       title: 'AI Mentors',
-      description: 'Guidance for automating workflows.',
+      description: 'Get 24/7 AI guidance to automate your workflows.',
       image: '/images/redesign/journey-2-mentors.png',
     },
     {
       title: 'AI Tools',
-      description: 'Automate and optimize operations.',
+      description: 'Generate plans, content, and proposals in minutes.',
       image: '/images/redesign/journey-3-tools.png',
     },
     {
       title: 'Private Mentorship',
-      description: 'Book one-on-one sessions with human mentors.',
+      description: 'Get personalized advice from verified human experts.',
       image: '/images/redesign/journey-4-private.png',
     },
     {
       title: 'SME Offers',
-      description: 'Access exclusive discounts and offers from program partners.',
+      description: 'Unlock exclusive discounts and tools from our partners.',
       image: '/images/redesign/journey-5-offers.png',
     },
     {
       title: 'Events',
-      description: 'Live online and in-person events – Insights from AI and business experts.',
+      description: 'Learn live from AI and business experts, on demand or in person.',
       image: '/images/redesign/journey-6-events.png',
     },
   ],
@@ -64,10 +76,10 @@ export const JOURNEY = {
 
 // Stakeholder section
 export const STAKEHOLDER = {
-  badge: 'Become a Program Stakeholder',
-  heading: 'Become a Program Stakeholder',
+  badge: 'Partner with AI Amplify',
+  heading: 'Become an AI Amplify Partner',
   intro:
-    'Do you represent a startup or SME? If yes, register here. Otherwise, choose from the below options that best suit your engagement.',
+    'Run an SME or startup? Register free below. Represent an organization that wants to bring AI Amplify to your community? Pick the track that fits — seats are limited.',
   smeCtaLabel: 'Register as SME',
   smeCtaHref: '/sign-up',
   cards: [
@@ -75,7 +87,7 @@ export const STAKEHOLDER = {
       kind: 'expert',
       title: 'Experts Program',
       description:
-        'Join as an individual expert, mentor, coach, or lecturer to share your expertise with the community!',
+        'Share your expertise as a mentor, coach, or lecturer and help SMEs put AI into practice.',
       ctaLabel: 'Join as an Expert',
       ctaHref: '#',
       image: '/images/redesign/stakeholder-1-experts.png',
@@ -84,7 +96,7 @@ export const STAKEHOLDER = {
       kind: 'vc',
       title: 'VC Program',
       description:
-        'Join as a VC, PE, Bank, or financing firm to identify businesses you can fund or finance!',
+        'Join as a VC, PE firm, bank, or financing partner to discover AI-ready businesses to fund.',
       ctaLabel: 'Join as a VC',
       ctaHref: '#',
       image: '/images/redesign/stakeholder-2-vc.png',
@@ -93,7 +105,7 @@ export const STAKEHOLDER = {
       kind: 'government',
       title: 'Government Program',
       description:
-        'Join as a multilateral or government entity to customize the program for your community!',
+        'Bring AI Amplify to your community as a multilateral or government partner.',
       ctaLabel: 'Join as a Government',
       ctaHref: '#',
       image: '/images/redesign/stakeholder-3-government.png',
@@ -102,7 +114,7 @@ export const STAKEHOLDER = {
       kind: 'corporate',
       title: 'Corporate Program',
       description:
-        'Join as a corporate sponsor to offer your solutions to businesses or to support the program!',
+        'Sponsor the program or put your solutions in front of AI-ready businesses.',
       ctaLabel: 'Join as a Corporate',
       ctaHref: '#',
       image: '/images/redesign/stakeholder-4-corporate.png',
@@ -111,7 +123,7 @@ export const STAKEHOLDER = {
       kind: 'university',
       title: 'University Program',
       description:
-        'Join as a university or think tank to share your faculty expertise and further your research!',
+        'Join as a university or think tank to share faculty expertise and advance applied AI research.',
       ctaLabel: 'Join as a University',
       ctaHref: '#',
       image: '/images/redesign/stakeholder-5-university.png',
@@ -120,7 +132,7 @@ export const STAKEHOLDER = {
       kind: 'incubator',
       title: 'Incubator Program',
       description:
-        'Join as a chamber, incubator, co-working space, or NGO and extend the program to your community!',
+        'Extend AI Amplify to your members as a chamber, incubator, co-working space, or NGO.',
       ctaLabel: 'Join as an Incubator',
       ctaHref: '#',
       image: '/images/redesign/stakeholder-6-incubator.png',
@@ -136,14 +148,8 @@ export type StakeholderKind =
   | 'university'
   | 'incubator'
 
-// CTA Banner
-export const CTA_BANNER = {
-  heading: 'Boost Your Revenue, Cut Costs\nJoin the Program for Free!',
-  ctaLabel: 'Get Started',
-  ctaHref: '/sign-up',
-} as const
-
-// Courses section — condensed to 3 tabs
+// Courses section — condensed to 3 tabs (also consumed by lib/dashboardData.ts to
+// generate the dashboard course catalog — keep this structure stable).
 export const COURSES = {
   badge: "The Entrepreneur's Journey",
   heading: "The Entrepreneur's Journey",
@@ -243,11 +249,66 @@ export const COURSES = {
   ],
 } as const
 
+// Landing-page-only display of "The Entrepreneur's Journey" — a flat list of 4
+// courses shown on the marketing site. Kept separate from COURSES above, which
+// feeds the dashboard's actual course catalog (lib/dashboardData.ts).
+export const JOURNEY_COURSES = {
+  badge: "The Entrepreneur's Journey",
+  heading: "The Entrepreneur's Journey",
+  subtext: 'A structured path from AI fundamentals to daily workflows — four courses to take you from curious to capable.',
+  courses: [
+    {
+      title: 'AI Fundamentals',
+      units: [
+        'Introduction to AI',
+        'Types of AI: Machine Learning',
+        'Types of AI: Deep Learning',
+        'Types of AI: Natural Language Processing',
+        'Real-World Applications of AI',
+        'AI Case Studies and Practical Usage',
+      ],
+    },
+    {
+      title: 'AI Ethics and Data Privacy',
+      units: [
+        'Understanding AI Ethics',
+        'Addressing Bias in AI',
+        'AI and Data Privacy Basics',
+        'Ensuring Data Confidentiality',
+        'Ethical Decision Making in AI',
+        "AI's Impact on Society and Responsible AI Practices",
+      ],
+    },
+    {
+      title: 'Generative AI, LLMs and Diffusion Models',
+      units: [
+        'Introduction to Generative AI',
+        'Language Models (LLMs)',
+        'Diffusion Models',
+        'LLMs for Text Generation',
+        'LLMs and Diffusion Models for Image Generation',
+        'Advanced Topics and Future Directions',
+      ],
+    },
+    {
+      title: 'AI in Daily Workflows',
+      units: [
+        'AI Integration in Everyday Tasks',
+        'Enhancing Efficiency through AI',
+        'AI in Decision-Making Processes',
+        'AI-Driven Optimization Techniques',
+        'AI and Personal Productivity',
+        'Practical Examples and Use Cases',
+      ],
+    },
+  ],
+} as const
+
 // AI Mentors — gif avatars from api.potential.com
 export const AI_MENTORS = {
-  badge: 'AI Mentors',
+  badge: 'Your AI Coaches',
   heading: 'AI Mentors',
-  subtext: 'Get instant guidance from our AI-powered business mentors, available 24/7.',
+  subtext: 'Meet your always-on AI coaches — instant, expert guidance whenever your business needs it.',
   mentors: [
     {
       name: 'Corporate Security & Safety Coach',
@@ -310,7 +371,7 @@ export const CHATBOT = {
   badge: 'AI Business Assistant',
   heading: 'Your AI Business Assistant',
   subtext:
-    'Ask anything — our AI will generate a Business Plan, Business Idea, Product Proposal, or Marketing Plan tailored to your needs.',
+    'Ask anything — Anna will draft a Business Plan, Business Idea, Product Proposal, or Marketing Plan tailored to your business, in minutes.',
   placeholder:
     'e.g. "Create a business plan for a sustainable clothing brand in Dubai"',
   capabilities: [
@@ -325,7 +386,7 @@ export const CHATBOT = {
 export const HUMAN_MENTORS = {
   badge: 'Human Mentors',
   heading: 'Human Mentors',
-  subtext: 'Book private one-on-one sessions with verified business experts.',
+  subtext: 'When you need a human touch, book a private 1:1 session with a verified business expert.',
   categories: ['All', 'Strategy', 'Marketing', 'Finance', 'Legal', 'Leadership', 'Operations'],
   // TODO: Update emails to match actual mentor user accounts in the DB
   mentors: [
@@ -489,9 +550,9 @@ export const HUMAN_MENTORS = {
 
 // Special Offers — section-level copy only; offer data comes from the API
 export const SPECIAL_OFFERS = {
-  badge: 'Special SME Offers',
-  heading: 'Special SME Offers',
-  subtext: 'Explore our offers for your business solution — exclusive discounts from program partners.',
+  badge: 'Partner Offers',
+  heading: 'Special AI Amplify Offers',
+  subtext: 'Exclusive discounts and tools from our partners — one more way AI Amplify pays for itself.',
   ctaLabel: 'Reveal Coupon',
   ctaHref: '#',
 } as const
@@ -501,7 +562,7 @@ export const COMMUNITY = {
   badge: 'Meet Our Community',
   heading: 'Meet Our Community',
   subtext:
-    'The SME Empowerment program was originally launched in 2010 and reached over 300,000 SMEs around the globe. We are eager to share your story and expertise with the community.',
+    "Since 2010, this program has reached over 300,000 SMEs across 50+ countries. Now it's amplified with AI — and we're eager to share your story and expertise with the community.",
   stats: [
     { value: 300000, label: 'SMEs Reached', display: '300,000+', animate: true },
     { value: 2010, label: 'Year Founded', display: 'Since 2010', animate: false },
@@ -512,8 +573,8 @@ export const COMMUNITY = {
 
 // CTA Final
 export const CTA_FINAL = {
-  heading: 'Save Costs and Grow Faster with AI – Register Now!',
-  subtext: 'Join thousands of SMEs already transforming their businesses with the power of AI.',
+  heading: 'Cut Costs and Grow Faster with AI — Register Now',
+  subtext: 'Seats are limited. Join thousands of SMEs already amplifying their business with AI — free.',
   ctaLabel: 'Register Now',
   ctaHref: '/sign-up',
   loginLabel: 'Login',
@@ -527,7 +588,7 @@ export const REDESIGN_ASSETS = {
     src: '/images/redesign/hero-bg.png',
     alt: '',
   },
-  aboutGlobe: { src: '/images/redesign/about-globe.png', alt: 'Global SME network' },
+  aboutPhoto: { src: '/images/redesign/about-photo.png', alt: 'SME owner working with AI tools' },
   journeyFlow: {
     src: '/images/redesign/journey-flow-image.png',
     alt: 'AI-powered journey flow diagram',
@@ -538,28 +599,35 @@ export const REDESIGN_ASSETS = {
   },
   worldMap: { src: '/images/redesign/world-map.png', alt: 'Global community map' },
   chatbotOrb: { src: '/images/redesign/chatbot-orb.png', alt: 'AI assistant orb avatar' },
-  logo: { src: '/images/SMEEP-logo.png', alt: 'SMEEP' },
+  logo: { src: '/images/redesign/potential-logo.png', alt: 'Potential' },
+  annaAvatar96: { src: '/images/redesign/anna-avatar-96.png', alt: 'Anna, your AI Business Assistant' },
+  annaAvatar200: { src: '/images/redesign/anna-avatar-200.png', alt: 'Anna, your AI Business Assistant' },
+  ctaFinalBg: { src: '/images/redesign/cta-final-bg.png', alt: '' },
+  authVisual: { src: '/images/redesign/auth-visual.png', alt: '' },
 } as const
 
-// Rotating testimonials for auth-page brand panel
-export const AUTH_TESTIMONIALS = [
+// Testimonials
+export const TESTIMONIALS = [
   {
     quote:
-      'SMEEP gave us the AI playbook we never had. We cut customer-support costs by 38% in 90 days.',
-    name: 'Priya Raman',
-    role: 'Founder, Vellora Textiles',
+      'This AI Marketing Plan tool is a remarkable solution, efficiently producing all my marketing materials tailored to our product, streamlining our promotional efforts.',
+    name: 'Andrea',
+    role: 'Marketing Manager, UK Startup',
+    rating: 5,
   },
   {
     quote:
-      'The mentor sessions alone are worth thousands. Getting them free changed how we run the business.',
-    name: 'Tomás Herrera',
-    role: 'CEO, Andes Logistics',
+      'This AI Press Release generator revolutionizes the PR process, making it incredibly fast and user-friendly for anyone seeking to create impactful press releases effortlessly.',
+    name: 'Hana',
+    role: 'MarCom, Japanese Keiretsu',
+    rating: 5,
   },
   {
     quote:
-      'In 6 weeks we shipped an AI agent that books 20% of our calls. The training is genuinely practical.',
-    name: 'Aisha Bello',
-    role: 'COO, BrightLane Health',
+      'The AI Career Counselor is a game-changer, providing students personalized and insightful career guidance tailored to their interests and strengths.',
+    name: 'Méchèle',
+    role: 'University Professor in UAE',
+    rating: 5,
   },
 ] as const
 
@@ -573,8 +641,8 @@ export const NEWSLETTER = {
 
 // Footer
 export const FOOTER = {
-  contactEmail: 'smeep@potential.com',
-  copyright: 'Potential © 2005-2025 | All Rights Reserved.',
+  contactEmail: 'info@potential.com',
+  copyright: 'Potential © 2005-2026 | All Rights Reserved.',
   contactHeading: 'Get in Touch',
-  contactBody: 'For any inquiries about the program, please contact us at:',
+  contactBody: 'For any inquiries about AI Amplify, please contact us at:',
 } as const

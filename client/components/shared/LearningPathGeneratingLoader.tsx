@@ -22,7 +22,7 @@ function CompletedIcon() {
   return (
     <span
       className="flex items-center justify-center w-7 h-7 rounded-full flex-shrink-0"
-      style={{ background: '#9f2063' }}
+      style={{ background: 'var(--color-brand-primary)' }}
     >
       <CheckCircle2 size={15} strokeWidth={2.5} className="text-white" />
     </span>
@@ -36,13 +36,13 @@ function ActiveIcon({ reduced }: { reduced: boolean }) {
       {!reduced && (
         <span
           className="absolute inset-0 rounded-full animate-ping"
-          style={{ background: 'rgba(159,32,99,0.25)' }}
+          style={{ background: 'rgba(101, 45, 144, 0.25)' }}
         />
       )}
       {/* Inner filled circle with spinner dots */}
       <span
         className="relative flex items-center justify-center w-7 h-7 rounded-full border-2"
-        style={{ borderColor: '#9f2063', background: 'rgba(159,32,99,0.08)' }}
+        style={{ borderColor: 'var(--color-brand-primary)', background: 'rgba(101, 45, 144, 0.08)' }}
       >
         <span className="flex gap-0.5 items-center">
           {[0, 1, 2].map((i) => (
@@ -50,7 +50,7 @@ function ActiveIcon({ reduced }: { reduced: boolean }) {
               key={i}
               className="w-1 h-1 rounded-full"
               style={{
-                background: '#9f2063',
+                background: 'var(--color-brand-primary)',
                 animation: reduced
                   ? 'none'
                   : `bounceDot 1.2s ease-in-out ${i * 0.2}s infinite`,
@@ -67,9 +67,9 @@ function UpcomingIcon() {
   return (
     <span
       className="flex items-center justify-center w-7 h-7 rounded-full flex-shrink-0 border-2"
-      style={{ borderColor: '#f7e8f0', background: '#fdf5f9' }}
+      style={{ borderColor: 'var(--color-brand-surface-2)', background: 'var(--color-brand-surface)' }}
     >
-      <span className="w-2 h-2 rounded-full bg-[#d4b8c8]" />
+      <span className="w-2 h-2 rounded-full bg-brand-primary-light/40" />
     </span>
   )
 }
@@ -114,9 +114,9 @@ export function LearningPathGeneratingLoader({ complete }: LearningPathGeneratin
         >
           <span
             className="flex items-center justify-center w-12 h-12 rounded-2xl"
-            style={{ background: 'linear-gradient(135deg, #fdf5f9 0%, #f7e8f0 100%)', border: '1.5px solid #f0d5e5' }}
+            style={{ background: 'linear-gradient(135deg, var(--color-brand-surface) 0%, var(--color-brand-surface-2) 100%)', border: '1.5px solid var(--color-brand-surface-2)' }}
           >
-            <Sparkles size={22} style={{ color: '#9f2063' }} />
+            <Sparkles size={22} style={{ color: 'var(--color-brand-primary)' }} />
           </span>
           <div>
             <p className="text-[15px] font-semibold text-brand-text-primary leading-snug">
@@ -182,7 +182,7 @@ export function LearningPathGeneratingLoader({ complete }: LearningPathGeneratin
                   className="text-[13px] leading-snug transition-colors duration-300"
                   style={{
                     color: isCompleted || isDone
-                      ? '#9f2063'
+                      ? 'var(--color-brand-primary)'
                       : isActive
                       ? '#1A0A12'
                       : '#9B8E94',
@@ -196,7 +196,7 @@ export function LearningPathGeneratingLoader({ complete }: LearningPathGeneratin
                 {(isCompleted || isDone) && (
                   <motion.span
                     className="ml-auto text-[11px] font-medium"
-                    style={{ color: '#9f2063' }}
+                    style={{ color: 'var(--color-brand-primary)' }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.15 }}
@@ -212,14 +212,14 @@ export function LearningPathGeneratingLoader({ complete }: LearningPathGeneratin
         {/* Bottom shimmer bar */}
         <motion.div
           className="mt-8 w-full h-1 rounded-full overflow-hidden"
-          style={{ background: '#f7e8f0' }}
+          style={{ background: 'var(--color-brand-surface-2)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
           <motion.div
             className="h-full rounded-full"
-            style={{ background: 'linear-gradient(90deg, #9f2063 0%, #c42b7a 50%, #9f2063 100%)' }}
+            style={{ background: 'linear-gradient(90deg, var(--color-brand-primary) 0%, var(--color-brand-primary-light) 50%, var(--color-brand-primary) 100%)' }}
             animate={
               complete
                 ? { width: '100%' }

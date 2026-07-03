@@ -1,0 +1,828 @@
+{
+    "schema_version": "1.0",
+    "exported_at": "2026-07-02T08:24:18+00:00",
+    "source_site": "https://aiamplify.potential.org",
+    "course": {
+        "course_id": 119,
+        "title": "Generative AI, LLMs and Diffusion Models",
+        "description": "",
+        "unit_count": 7,
+        "author_id": 3669,
+        "course_post_id": 4451,
+        "settings": {
+            "completion_wall": "all_visible",
+            "use_certificate": "use_certs",
+            "user_access": "default_show",
+            "unit_advancement": "manual",
+            "prerequisites": [],
+            "payments_type": "free",
+            "payments_price": "0.00"
+        },
+        "card": {
+            "card_post_id": 4552,
+            "title": "Generative AI, LLMS & Diffusion Models",
+            "content": "",
+            "course_unit_number": "",
+            "course_time": "",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/introduction-to-generative-ai/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-3-1.png",
+            "featured_image_url": null
+        },
+        "modules": [
+            {
+                "module_id": 119,
+                "title": "Generative AI, LLMS & Diffusion Models",
+                "description": "<p>Generative AI, LLMS & Diffusion Models</p>",
+                "order": 1,
+                "number": 1,
+                "units": [
+                    {
+                        "unit_id": 4452,
+                        "title": "Introduction to Generative AI",
+                        "slug": "introduction-to-generative-ai",
+                        "order": 10,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "RcikP0v8XPE",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Introduction-to-Generative-AI-1.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Generative AI unleashes creativity in machines, birthing art, text, and beyond. </h5>\r\n<h5>Imagine Picasso in code or Shakespeare in algorithms! </h5>\r\n<h5>It's not just about art—it powers recommendation systems, drug discovery, and more. </h5>\r\n<h5>For starters, understand Generative adversarial networks (GANs) and variational autoencoders (VAEs), the artists behind the scenes. </h5>\r\n<h5>In the practical realm, dive into hands-on projects and analyze which generative model fits your task best. </h5>\r\n<h5>With this, we set the stage for your exciting journey into the world of Generative AI. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/hfIUstzHs9A?si=j5CWN6g_pbEnmcU2\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 978,
+                            "title": "Introduction to Generative AI",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW4445842 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW4445842 BCX8\">Introduction to Generative AI</span></span><span class=\"EOP SCXW4445842 BCX8\" data-ccp-props=\"{\"201341983\":0,\"335559740\":259}\"> </span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How familiar are you with the practical applications of Generative AI? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very familiar ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat familiar  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not very familiar  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not familiar at all ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2373,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4453,
+                        "title": "Language Models (LLMs)",
+                        "slug": "language-models-llms",
+                        "order": 20,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "N2toep9Jdd8",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Language-Models-LLMs-1.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Language models are our digital wordsmiths, churning out human-like text.  </h5>\r\n<h5>From answering questions to content generation, LLMs are game-changers.</h5> \r\n<h5>In practice, grasp pre-training and fine-tuning. Explore GPT-3, GPT-4, and friends, finding their niches.</h5>\r\n<h5>Metrics guide you to measure LLM performance; precision counts! </h5>\r\n<h5>Your foray into the universe of language models begins here, where you'll learn to harness the power of language to craft compelling narratives and enhance user experiences. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/iR2O2GPbB0E?si=a4S2dDUY9EVgwK1Z\" allowfullscreen></iframe>\r\n  </div>\r\n",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 979,
+                            "title": "Language Models (LLMs)",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW45036803 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW45036803 BCX8\">Language Models (LLMs)</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "In your opinion, what is the most promising real-world application of language models like GPT-3 and GPT-4? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Content creation and automation  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Healthcare and medical diagnosis ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Financial forecasting and trading  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Environmental monitoring and conservation ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2374,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4454,
+                        "title": "Diffusion Models",
+                        "slug": "diffusion-models",
+                        "order": 30,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "yH3QtJFYDpI",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Diffusion-Models.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Diffusion models are like magic—they learn by imagining.  </h5>\r\n<h5>Used for images, text, and more, they excel in diverse fields. </h5>\r\n<h5>Dive into the mechanics of diffusion models and uncover their practical applications. </h5>\r\n<h5>Training and fine-tuning techniques are your trusty allies. </h5>\r\n<h5>Watch out for challenges; they're part of the game. </h5>\r\n<h5>Be prepared to infuse your projects with a dash of magic, turning data into creative masterpieces. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/yTAMrHVG1ew?si=z6oBvDW3IKx50pjK\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 980,
+                            "title": "Diffusion Models",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW236106495 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW236106495 BCX8\">Diffusion Models</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "Have you ever used or considered using diffusion models for creative projects or data analysis? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Yes, I have used diffusion models  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "No, but I am considering using them  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "No, and I do not plan to use them  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not sure ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2375,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4455,
+                        "title": "LLMs for Text Generation",
+                        "slug": "llms-for-text-generation",
+                        "order": 40,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "t9PM54M50Wo",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/LLMs-for-Text-Generation.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Text generation with LLMs is a superpower in your digital toolkit. </h5>\r\n<h5>Craft persuasive content, automate responses, and enhance chatbots. </h5>\r\n<h5>Learn when to finesse pre-trained models or start from scratch. </h5>\r\n<h5>Ethical considerations are crucial; don't script misinformation. </h5>\r\n<h5>Your journey to becoming a text-generation wizard begins now, empowering you to shape the future of written communication and content creation. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/5sLYAQS9sWQ?si=es6WdlMQnXWRyITu\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 981,
+                            "title": "LLMs for Text Generation",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW207755664 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW207755664 BCX8\">LLMs for Text Generation</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "What is your primary concern when using LLMs for text generation in real-world applications?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Ensuring accuracy and relevance  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Addressing ethical concerns  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Managing computational resources  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "None of the above ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2376,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4456,
+                        "title": "LLMs and Diffusion Models for Image Generation",
+                        "slug": "llms-and-diffusion-models-for-image-generation",
+                        "order": 50,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "pAbmiqy5gU0",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/LLMsand-diffusion-models-for-Image-Generation.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Pictures are worth a thousand words, but LLMs and diffusion models can paint them all. </h5>\r\n<h5>Discover the art of image generation using LLMs and diffusion models. </h5>\r\n<h5>From generating art to enhancing photos, the possibilities are endless. </h5>\r\n<h5>Challenges are your canvas; paint over them with creativity. </h5>\r\n<h5>Welcome to the world where pixels meet poetry, and where you'll uncover the secrets of transforming ideas into visual masterpieces. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/kzxz8CO_oG4?si=WrU710nhkf4RDB-3\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 982,
+                            "title": "LLMs for Image Generation",
+                            "description": "<p><span class=\"NormalTextRun SCXW186145577 BCX8\">LLMs for Image </span><span class=\"NormalTextRun SCXW186145577 BCX8\">Generation</span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "How likely are you to integrate LLMs into your creative projects for image generation?  ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Very likely  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Somewhat likely  ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Not very likely",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Not likely at all ",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2377,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4457,
+                        "title": "Advanced Topics and Future Directions",
+                        "slug": "advanced-topics-and-future-directions",
+                        "order": 60,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": "4DkTBT2Yd5E",
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "<audio controls>\r\n  <source src=\"https://educate.potential.com/wp-content/uploads/2023/09/Advanced-Topics-and-Future-Directions.mp3\" type=\"audio/mp3\">\r\n  Your browser does not support the audio element.\r\n</audio>\r\n\r\n<h5>Stay on the cutting edge with advanced generative AI topics. </h5>\r\n<h5>Recent breakthroughs and trends will fuel your imagination. </h5>\r\n<h5>Dive deep into real-world cases to see how this technology shapes industries. </h5>\r\n<h5>But remember, with great power comes great responsibility—ethics matter. </h5>\r\n<h5>Your journey doesn't end here; it evolves with the ever-changing landscape of generative AI, shaping the future of innovation and ethical technology use. </h5>",
+                            "course-unit-read-more": "<div class=\"embed-responsive embed-responsive-16by9\">\r\n    <iframe class=\"embed-responsive-item\" src=\"https://www.youtube.com/embed/1U83yhGY_pI?si=FH-j7QH0qm-ScxVq\" allowfullscreen></iframe>\r\n  </div>",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 983,
+                            "title": "Advanced Topics and Future Directions",
+                            "description": "<p><span class=\"TextRun MacChromeBold SCXW35410682 BCX8\" lang=\"EN-US\" xml:lang=\"EN-US\" data-contrast=\"auto\"><span class=\"NormalTextRun SCXW35410682 BCX8\">Advanced Topics and Future Directions</span></span></p>",
+                            "type": "survey",
+                            "pass_mark": 50,
+                            "attempts_allowed": -1,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "To what extent do you believe ethics should influence the development and use of advanced generative AI technologies? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Ethics should have a significant influence",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Ethics should have some influence ",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Ethics should have minimal influence",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Ethics should have no influence",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "question_id": 2378,
+                                    "order": 0
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "unit_id": 4458,
+                        "title": "Post-Test",
+                        "slug": "post-test-7",
+                        "order": 70,
+                        "status": "publish",
+                        "content": "",
+                        "media": {
+                            "youtube_video_id": null,
+                            "banner_image_url": null,
+                            "featured_image_url": null,
+                            "pdf_template_url": null
+                        },
+                        "meta": {
+                            "course-unit-read": "",
+                            "course-unit-read-more": "",
+                            "course-unit-quotes": "",
+                            "course-unit-case-study": "",
+                            "course-unit-last-related-content": "",
+                            "course-unit-customrelated": "",
+                            "course-unit-page-show-game": "",
+                            "course-unit-page-show-related": "",
+                            "course-unit-page-ads": "",
+                            "action_plan": "",
+                            "templates_title": "",
+                            "atq_btn": "",
+                            "course-unit-atq-link": "",
+                            "course-unit-atq-one": "",
+                            "course-unit-atq-two": "",
+                            "atqq_3": "",
+                            "atqq_4": "",
+                            "atqq_5": "",
+                            "limit_chars": "",
+                            "bot_html": "",
+                            "bot_script": "",
+                            "course-unit-formid": "",
+                            "formid_tooltip": ""
+                        },
+                        "action_plan_questions": [],
+                        "quiz": {
+                            "quiz_id": 984,
+                            "title": "Post-Test",
+                            "description": "<p>Post-Test</p>",
+                            "type": "quiz_block",
+                            "pass_mark": 80,
+                            "attempts_allowed": 2,
+                            "show_answers": "no_answers",
+                            "timer": {
+                                "mode": "no_timer",
+                                "limit_minutes": 15
+                            },
+                            "questions": [
+                                {
+                                    "type": "multi",
+                                    "text": "What is one practical application of Generative AI mentioned in this course?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Weather forecasting",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Recommendation systems",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Quantum computing",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Robotics",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"2\";}",
+                                    "question_id": 2379,
+                                    "order": 0
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What is a key focus regarding language models?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Evaluating social media data",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Fine-tuning language models",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Analyzing quantum physics",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Designing hardware for AI",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"2\";}",
+                                    "question_id": 2380,
+                                    "order": 1
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "Diffusion models are primarily used for which of the following? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Generating weather reports",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Creating music compositions",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Images, text, and more",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Analyzing financial markets",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"3\";}",
+                                    "question_id": 2381,
+                                    "order": 2
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What is emphasized as an essential consideration when working with LLMs for text generation? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Measuring computational speed",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Crafting compelling narratives",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Evaluating artistic quality",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Reducing hardware costs",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"2\";}",
+                                    "question_id": 2382,
+                                    "order": 3
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What is one of the main focuses regarding LLMs? ",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Enhancing musical compositions",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "Transforming data into creative masterpieces",
+                                            "is_correct": true
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Forecasting stock market trends",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Writing scientific research papers",
+                                            "is_correct": false
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"2\";}",
+                                    "question_id": 2383,
+                                    "order": 4
+                                },
+                                {
+                                    "type": "multi",
+                                    "text": "What is a key message regarding the future of generative AI?",
+                                    "image": "",
+                                    "hint": "",
+                                    "explanation": "",
+                                    "answer_type": "",
+                                    "answers": [
+                                        {
+                                            "index": 1,
+                                            "text": "Ethics has no role in AI development",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 2,
+                                            "text": "The journey ends when the course concludes",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 3,
+                                            "text": "Recent advancements will have no impact on industries",
+                                            "is_correct": false
+                                        },
+                                        {
+                                            "index": 4,
+                                            "text": "Ethics is crucial in shaping the future of AI",
+                                            "is_correct": true
+                                        }
+                                    ],
+                                    "correct_answer_raw": "a:1:{i:0;s:1:\"4\";}",
+                                    "question_id": 2384,
+                                    "order": 5
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "assets": {
+        "images": [
+            {
+                "role": "card_image",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2025/02/AI-3-1.png",
+                "zip_path": "wp-content/uploads/2025/02/AI-3-1.png",
+                "level": "card"
+            }
+        ]
+    }
+}

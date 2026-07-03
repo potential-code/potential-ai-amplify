@@ -129,7 +129,7 @@ export async function deleteBothPath(req: Request, res: Response, next: NextFunc
   try {
     await db.delete(bothUserPaths).where(and(
       eq(bothUserPaths.userId, req.user!.userId),
-      eq(bothUserPaths.platformId, 'smeep'),
+      eq(bothUserPaths.platformId, 'ai-amplify'),
     ))
     res.status(200).json({ success: true })
   } catch (e) { next(e) }

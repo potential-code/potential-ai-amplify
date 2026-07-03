@@ -380,7 +380,7 @@ function EventCard({ event, isPast, index, onViewDetails }: EventCardProps) {
       transition={{ delay: 0.04 * index, duration: 0.4 }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       whileTap={{ scale: 0.985, transition: { duration: 0.12 } }}
-      className="group flex flex-col bg-white rounded-2xl border border-brand-surface-2 hover:border-brand-primary/40 hover:shadow-[0_12px_36px_-10px_rgba(159,32,99,0.18)] transition-all overflow-hidden"
+      className="group flex flex-col bg-white rounded-2xl border border-brand-surface-2 hover:border-brand-primary/40 hover:shadow-[0_12px_36px_-10px_rgba(101,45,144,0.18)] transition-all overflow-hidden"
     >
       {/* ── Header: with-image or gradient ────────────────────────────── */}
       {event.coverImage ? (

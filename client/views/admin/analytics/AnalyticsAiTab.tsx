@@ -59,7 +59,7 @@ export function AnalyticsAiTab() {
                 <XAxis dataKey="label" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #f7e8f0', fontSize: 12 }} />
-                <Line type="monotone" dataKey="value" stroke="#9f2063" strokeWidth={3} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="value" stroke="#652d90" strokeWidth={3} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -130,7 +130,7 @@ export function AnalyticsAiTab() {
                 <defs>
                   <linearGradient id="grActive" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#e83e94" />
-                    <stop offset="100%" stopColor="#9f2063" />
+                    <stop offset="100%" stopColor="#652d90" />
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke="#f7e8f0" vertical={false} />

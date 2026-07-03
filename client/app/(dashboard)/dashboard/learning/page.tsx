@@ -121,7 +121,7 @@ function LearningPageInner() {
             type="button"
             onClick={loadPath}
             className="mt-4 rounded-xl px-4 py-2 text-sm font-semibold text-white"
-            style={{ background: 'linear-gradient(120deg, #9f2063 0%, #7a1a4c 100%)' }}
+            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
           >
             Retry
           </button>

@@ -1,7 +1,7 @@
 {
     "schema_version": "1.0",
-    "exported_at": "2026-05-19T05:51:23+00:00",
-    "source_site": "https://smeep.potential.org",
+    "exported_at": "2026-07-02T08:24:17+00:00",
+    "source_site": "https://aiamplify.potential.org",
     "course": {
         "course_id": 89,
         "title": "24 Minute Human Resources",
@@ -24,8 +24,8 @@
             "content": "",
             "course_unit_number": "",
             "course_time": "",
-            "course_unit_link": "https://smeep.potential.org/module-1/human-resource-management-key-activities/",
-            "course_image_url": "https://smeep.potential.org/wp-content/uploads/2018/10/hr.png",
+            "course_unit_link": "https://aiamplify.potential.org/module-1/human-resource-management-key-activities/",
+            "course_image_url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/hr.png",
             "featured_image_url": null
         },
         "modules": [
@@ -1017,7 +1017,7 @@
                             "action_plan": "",
                             "templates_title": "",
                             "atq_btn": "",
-                            "course-unit-atq-link": "https://smeep.potential.org/wp-content/themes/blankslate/tcpdf/examples/at_10.php",
+                            "course-unit-atq-link": "https://aiamplify.potential.org/wp-content/themes/blankslate/tcpdf/examples/at_10.php",
                             "course-unit-atq-one": "To ensure that my employees are placed in the right job for them, I should classify their personalities by:",
                             "course-unit-atq-two": "",
                             "atqq_3": "",
@@ -1097,7 +1097,7 @@
         "images": [
             {
                 "role": "card_image",
-                "url": "https://smeep.potential.org/wp-content/uploads/2018/10/hr.png",
+                "url": "https://aiamplify.potential.org/wp-content/uploads/2018/10/hr.png",
                 "zip_path": "wp-content/uploads/2018/10/hr.png",
                 "level": "card"
             }
