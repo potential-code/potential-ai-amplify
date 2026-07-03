@@ -15,25 +15,13 @@ async function buildAll() {
   await rm(distDir, { recursive: true, force: true });
 
   await esbuild({
-    entryPoints: [
-      { in: path.resolve(artifactDir, "index.ts"), out: "index" },
-      { in: path.resolve(artifactDir, "db/seed/seed-entrypoint.ts"), out: "seed" },
-    ],
+    entryPoints: [path.resolve(artifactDir, "index.ts")],
     platform: "node",
     bundle: true,
     format: "esm",
     outdir: distDir,
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
-    // seed.ts and seed-posttests.ts each have their own `if (import.meta.main)`
-    // standalone-run guard (for `bun run <file>.ts`). Once bundled together into
-    // one output file they'd share the same import.meta and all fire at once on
-    // import, bypassing seed-entrypoint.ts's own gated invocation. Statically
-    // false-out import.meta.main for the bundle only — source files and `bun run`
-    // usage are unaffected.
-    define: {
-      "import.meta.main": "false",
-    },
     // Some packages may not be bundleable, so we externalize them, we can add more here as needed.
     // Some of the packages below may not be imported or installed, but we're adding them in case they are in the future.
     // Examples of unbundleable packages:
