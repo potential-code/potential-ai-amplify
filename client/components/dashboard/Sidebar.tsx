@@ -39,8 +39,8 @@ export const DASHBOARD_NAV: NavItem[] = [
   { label: 'My Sessions', href: '/dashboard/sessions', icon: CalendarCheck2 },
   { label: 'Offers', href: '/dashboard/offers', icon: Tag },
   { label: 'Events', href: '/dashboard/events', icon: Calendar },
-  { label: 'Learning Path', href: '/dashboard/learning', icon: Route },
-  { label: 'Learning Path (COD)', href: '/dashboard/learning-cod', icon: Sparkles },
+  // { label: 'Learning Path', href: '/dashboard/learning', icon: Route },
+  // { label: 'Learning Path (COD)', href: '/dashboard/learning-cod', icon: Sparkles },
   { label: 'Learning Path (Both)', href: '/dashboard/learning-both', icon: Layers },
   { label: 'Support', href: '/dashboard/support', icon: HelpCircle },
 ]
