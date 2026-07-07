@@ -125,7 +125,7 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
   })
 
   return (
-    <div className="smeep-copilot flex flex-col h-[calc(100vh-7rem)] min-h-[560px] rounded-2xl border border-brand-surface-2 overflow-hidden">
+    <div className="smeep-copilot flex flex-col h-[calc(100vh-11rem)] min-h-[480px] rounded-2xl border border-brand-surface-2 overflow-hidden">
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-3 border-b border-white/10 flex-shrink-0"
@@ -138,7 +138,7 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
         />
         <div>
           <p className="text-sm font-semibold text-white leading-tight">Anna — Learning Path Advisor</p>
-          <p className="text-[10px] text-white/60 leading-tight">Building your personalised Both learning path</p>
+          <p className="text-[10px] text-white/60 leading-tight">Building your personalised learning path</p>
         </div>
       </div>
 

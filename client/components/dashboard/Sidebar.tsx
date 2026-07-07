@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   GraduationCap,
   Bot,
+  MessageCircle,
   Users,
   Tag,
   Calendar,
@@ -15,9 +16,6 @@ import {
   User,
   HelpCircle,
   LogOut,
-  Route,
-  Sparkles,
-  Layers,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -33,6 +31,7 @@ export type NavItem = {
 
 export const DASHBOARD_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Anna - AI Concierge', href: '/dashboard/anna', icon: MessageCircle },
   { label: 'Courses', href: '/dashboard/courses', icon: GraduationCap },
   { label: 'AI Mentors', href: '/dashboard/ai-mentors', icon: Bot },
   { label: 'Human Mentors', href: '/dashboard/human-mentors', icon: Users },
@@ -41,7 +40,6 @@ export const DASHBOARD_NAV: NavItem[] = [
   { label: 'Events', href: '/dashboard/events', icon: Calendar },
   // { label: 'Learning Path', href: '/dashboard/learning', icon: Route },
   // { label: 'Learning Path (COD)', href: '/dashboard/learning-cod', icon: Sparkles },
-  { label: 'Learning Path (Both)', href: '/dashboard/learning-both', icon: Layers },
   { label: 'Support', href: '/dashboard/support', icon: HelpCircle },
 ]
 

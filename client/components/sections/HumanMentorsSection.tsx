@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Linkedin, ArrowRight } from 'lucide-react'
+import { Star } from 'lucide-react'
 import { SectionHeader } from '@/components/shared/SectionHeader'
 
 const API = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'}/api/mentors/public`
@@ -197,24 +197,6 @@ export function HumanMentorsSection() {
                     {mentor.specialty}
                   </p>
 
-                  <div className="mt-4 flex items-center gap-3">
-                    {mentor.linkedin && (
-                      <a
-                        href="/sign-up"
-                        aria-label={`${mentor.name} on LinkedIn`}
-                        className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary hover:text-white transition-colors"
-                      >
-                        <Linkedin className="w-4 h-4" />
-                      </a>
-                    )}
-                    <a
-                      href="/sign-up"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-primary text-white text-sm font-semibold shadow-[0_8px_20px_-8px_rgba(101,45,144,0.6)] hover:bg-brand-primary-dark transition-all group-hover:gap-2"
-                    >
-                      Book a Session
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>

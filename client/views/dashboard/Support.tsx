@@ -2,15 +2,36 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, HelpCircle, Mail, MessageSquare, Sparkles } from 'lucide-react'
-import Link from 'next/link'
+import { ChevronDown, HelpCircle, CreditCard, Calendar, Award, Tag } from 'lucide-react'
+import { CopilotKit } from '@copilotkit/react-core/v2'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { PageHeader } from '@/components/dashboard/widgets/PageHeader'
+import { EmbeddedDashboardAssistant } from '@/components/dashboard/EmbeddedDashboardAssistant'
+import { type EmptyStateChip } from '@/components/dashboard/ChatEmptyState'
+import { useCopilotTokenReady, getCopilotHeaders } from '@/components/dashboard/copilotConfig'
 import { FAQS } from '@/lib/dashboardData'
 import { cn } from '@/lib/utils'
 
+// CopilotKit v2 runtime (multi-route Express handler: /info, /transcribe,
+// /agent/:id/run). The agent + thread bind on <CopilotChat>/useAgent inside
+// EmbeddedDashboardAssistant, not on the provider.
+const AI_BACKEND_URL =
+  (process.env.NEXT_PUBLIC_AI_BACKEND_URL as string | undefined)?.replace(/\/$/, '') ||
+  'http://localhost:8000'
+const VOICE_RUNTIME_URL = `${AI_BACKEND_URL}/copilotkit-voice`
+
+const SUPPORT_CHIPS: EmptyStateChip[] = [
+  { label: 'Pricing & plans', icon: CreditCard, message: 'How much does AI Amplify cost?' },
+  { label: 'Book a mentor', icon: Calendar, message: 'How do I book a session with a human mentor?' },
+  { label: 'Certificates', icon: Award, message: 'How are certificates issued?' },
+  { label: 'Partner offers', icon: Tag, message: 'Can I redeem multiple partner offers?' },
+]
+
 export default function SupportPage() {
   const [open, setOpen] = useState<number | null>(0)
+  // Assistant is for logged-in users only: wait for the minted service token
+  // before mounting the CopilotKit provider (its first request needs auth).
+  const copilotReady = useCopilotTokenReady()
   return (
     <DashboardLayout>
       <PageHeader
@@ -21,7 +42,7 @@ export default function SupportPage() {
       />
 
       <div className="grid grid-cols-12 gap-4 lg:gap-6">
-        <div className="col-span-12 lg:col-span-8">
+        <div className="col-span-12 lg:col-span-6">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -76,47 +97,35 @@ export default function SupportPage() {
           </motion.div>
         </div>
 
-        <aside className="col-span-12 lg:col-span-4 space-y-4">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="relative overflow-hidden rounded-2xl bg-brand-deep text-white p-5 border border-white/10"
-          >
-            <div className="absolute inset-0 bg-noise opacity-[0.05] mix-blend-overlay pointer-events-none" />
-            <Sparkles className="w-6 h-6 text-brand-primary-light mb-2" />
-            <h3 className="text-lg font-black">Try the AI assistant</h3>
-            <p className="mt-1 text-sm text-white/65">
-              Get instant answers about AI Amplify, your account, or your business.
-            </p>
-            <Link
-              href="/dashboard"
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white text-brand-primary px-4 py-2 text-sm font-bold hover:bg-brand-primary-light hover:text-white transition-colors"
+        <div className="col-span-12 lg:col-span-6">
+          {copilotReady ? (
+            <CopilotKit
+              runtimeUrl={VOICE_RUNTIME_URL}
+              headers={getCopilotHeaders()}
+              useSingleEndpoint={false}
+              enableInspector={false}
+              showDevConsole={false}
             >
-              <MessageSquare className="w-4 h-4" />
-              Open AI assistant
-            </Link>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-2xl bg-white border border-brand-surface-2 p-5"
-          >
-            <Mail className="w-6 h-6 text-brand-primary mb-2" />
-            <h3 className="font-bold text-brand-text-primary">Email support</h3>
-            <p className="text-sm text-brand-text-muted mt-1">
-              We typically reply within one working day.
-            </p>
-            <a
-              href="mailto:info@potential.com"
-              className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-brand-primary hover:gap-2 transition-all"
-            >
-              info@potential.com →
-            </a>
-          </motion.div>
-        </aside>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 }}
+                className="rounded-2xl border border-brand-surface-2 bg-white overflow-hidden"
+              >
+                <EmbeddedDashboardAssistant
+                  className="h-[calc(100vh-14rem)] min-h-[560px]"
+                  emptyStateChips={SUPPORT_CHIPS}
+                  emptyStateChipsGrid
+                  emptyStateShowAiTools={false}
+                  emptyStateTagline="Ask me anything about AI Amplify, your account, or your business."
+                  emptyStateHint="Choose a question to get started, or type your own."
+                />
+              </motion.div>
+            </CopilotKit>
+          ) : (
+            <div className="h-[calc(100vh-14rem)] min-h-[560px] rounded-2xl border border-brand-surface-2 bg-white shadow-sm animate-pulse" />
+          )}
+        </div>
       </div>
     </DashboardLayout>
   )

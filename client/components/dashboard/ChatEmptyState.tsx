@@ -2,13 +2,28 @@
 
 import { useState, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { TrendingUp, Star, Rocket, Users, Lightbulb, FileText, Megaphone, Zap, ArrowUp } from 'lucide-react'
+import { TrendingUp, Star, Rocket, Users, Lightbulb, FileText, Megaphone, Zap, ArrowUp, type LucideIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+export interface EmptyStateChip {
+  label: string
+  icon: LucideIcon
+  message: string
+}
 
 interface Props {
   onSend: (message: string) => void
+  chips?: EmptyStateChip[]
+  chipsGrid?: boolean
+  showAiTools?: boolean
+  tagline?: string
+  hint?: string
 }
 
-const CHIPS = [
+const DEFAULT_TAGLINE = 'I help you grow your business — find resources, create documents, and discover AI tools.'
+const DEFAULT_HINT = 'Select a goal to get started, or type below'
+
+const CHIPS: EmptyStateChip[] = [
   { label: 'Increase my sales',    icon: TrendingUp, message: 'I want to increase my sales' },
   { label: 'Grow my brand',        icon: Star,       message: 'I want to grow my brand' },
   { label: 'Launch a new product', icon: Rocket,     message: 'I want to launch a new product' },
@@ -22,7 +37,14 @@ const AI_TOOLS = [
   { id: 'ai-proposal',    title: 'AI Proposal',    desc: 'Draft a persuasive product or sales proposal for your next pitch',     Icon: Zap,       image: '/images/ai-tools/ai-proposal.png',    message: 'Help me write a product proposal' },
 ]
 
-export function ChatEmptyState({ onSend }: Props) {
+export function ChatEmptyState({
+  onSend,
+  chips = CHIPS,
+  chipsGrid = false,
+  showAiTools = true,
+  tagline = DEFAULT_TAGLINE,
+  hint = DEFAULT_HINT,
+}: Props) {
   const [inputValue, setInputValue] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -67,18 +89,21 @@ export function ChatEmptyState({ onSend }: Props) {
         <div className="flex flex-col items-center gap-0.5 text-center">
           <p className="font-bold text-[15px] text-brand-text-primary leading-tight">Anna</p>
           <p className="text-[11px] text-brand-text-muted max-w-[260px] leading-[1.4]">
-            I help you grow your business — find resources, create documents, and discover AI tools.
+            {tagline}
           </p>
         </div>
 
         {/* Quick-action chips */}
-        <div className="flex flex-wrap gap-1.5 justify-center w-full">
-          {CHIPS.map(({ label, icon: Icon, message }) => (
+        <div className={chipsGrid ? 'grid grid-cols-2 gap-2 w-full' : 'flex flex-wrap gap-1.5 justify-center w-full'}>
+          {chips.map(({ label, icon: Icon, message }) => (
             <button
               key={label}
               type="button"
               onClick={() => onSend(message)}
-              className="inline-flex items-center gap-1.5 bg-white border-2 border-brand-primary/50 text-brand-primary rounded-full px-3 py-1.5 text-[11px] font-semibold hover:bg-brand-primary hover:text-white hover:border-brand-primary hover:shadow-md active:scale-95 transition-all shadow-sm cursor-pointer"
+              className={cn(
+                'inline-flex items-center gap-1.5 bg-white border-2 border-brand-primary/50 text-brand-primary rounded-full px-3 py-1.5 text-[11px] font-semibold hover:bg-brand-primary hover:text-white hover:border-brand-primary hover:shadow-md active:scale-95 transition-all shadow-sm cursor-pointer',
+                chipsGrid && 'w-full justify-center',
+              )}
             >
               <Icon className="w-3 h-3 flex-shrink-0" />
               {label}
@@ -87,51 +112,55 @@ export function ChatEmptyState({ onSend }: Props) {
         </div>
 
         <p className="text-[10px] text-brand-text-muted/60 text-center -mt-1">
-          Select a goal to get started, or type below
+          {hint}
         </p>
 
-        <hr className="w-full border-brand-primary/10" />
+        {showAiTools && (
+          <>
+            <hr className="w-full border-brand-primary/10" />
 
-        {/* AI Business Tools */}
-        <div className="w-full">
-          <p className="text-[11px] font-semibold text-brand-text-muted text-center mb-2">
-            Explore AI-powered tools to grow your business
-          </p>
-          <div className="flex gap-2 justify-center">
-            {AI_TOOLS.map((tool, i) => (
-              <motion.div
-                key={tool.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 * i }}
-                className="w-[22%] flex-shrink-0 rounded-xl bg-white border border-brand-primary/15 overflow-hidden hover:border-brand-primary/40 hover:shadow-md transition-all"
-              >
-                <div className="relative h-30 overflow-hidden">
-                  <img
-                    src={tool.image}
-                    alt={tool.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-2">
-                    <h4 className="font-bold text-[11px] text-white leading-tight line-clamp-1">{tool.title}</h4>
-                    <p className="text-[9px] text-white/70 line-clamp-1 mt-0.5">{tool.desc}</p>
-                  </div>
-                </div>
-                <div className="px-2 py-2">
-                  <button
-                    type="button"
-                    onClick={() => onSend(tool.message)}
-                    className="w-full inline-flex items-center justify-center gap-1 rounded-lg bg-brand-primary text-white px-2 py-1.5 text-[12px] font-bold hover:opacity-90 transition-all"
+            {/* AI Business Tools */}
+            <div className="w-full">
+              <p className="text-[11px] font-semibold text-brand-text-muted text-center mb-2">
+                Explore AI-powered tools to grow your business
+              </p>
+              <div className="flex gap-2 justify-center">
+                {AI_TOOLS.map((tool, i) => (
+                  <motion.div
+                    key={tool.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 * i }}
+                    className="w-[22%] flex-shrink-0 rounded-xl bg-white border border-brand-primary/15 overflow-hidden hover:border-brand-primary/40 hover:shadow-md transition-all"
                   >
-                    <tool.Icon className="w-3 h-3" />
-                    Start
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+                    <div className="relative h-30 overflow-hidden">
+                      <img
+                        src={tool.image}
+                        alt={tool.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                        <h4 className="font-bold text-[11px] text-white leading-tight line-clamp-1">{tool.title}</h4>
+                        <p className="text-[9px] text-white/70 line-clamp-1 mt-0.5">{tool.desc}</p>
+                      </div>
+                    </div>
+                    <div className="px-2 py-2">
+                      <button
+                        type="button"
+                        onClick={() => onSend(tool.message)}
+                        className="w-full inline-flex items-center justify-center gap-1 rounded-lg bg-brand-primary text-white px-2 py-1.5 text-[12px] font-bold hover:opacity-90 transition-all"
+                      >
+                        <tool.Icon className="w-3 h-3" />
+                        Start
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calendar,
@@ -23,6 +24,7 @@ import {
 } from '@/lib/api/liveEvents'
 import { gsap, useGSAP } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
+import { isYouTubeUrl } from '@/lib/video'
 
 type EventItem = LiveEvent
 
@@ -121,16 +123,27 @@ function EventDetailModal({
           <div className="flex-shrink-0 border-t border-brand-surface-2 px-6 py-4 flex gap-2">
             {isPast ? (
               primaryLink ? (
-                <a
-                  href={primaryLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex flex-1 items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-bold hover:opacity-90 transition-opacity"
-                >
-                  <PlayCircle className="w-4 h-4" />
-                  Watch Recording
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </a>
+                isYouTubeUrl(primaryLink) ? (
+                  <Link
+                    href={`/dashboard/events/${event.id}/recording`}
+                    className="flex flex-1 items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-bold hover:opacity-90 transition-opacity"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    Watch Recording
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                ) : (
+                  <a
+                    href={primaryLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex flex-1 items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-bold hover:opacity-90 transition-opacity"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    Watch Recording
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                )
               ) : null
             ) : (
               event.meetingLink ? (
@@ -301,16 +314,27 @@ function FeaturedCard({
           <div className="flex-shrink-0 flex items-center gap-2">
             {isPast ? (
               event.recordingLink ? (
-                <a
-                  href={event.recordingLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-brand-primary text-sm font-bold hover:bg-brand-primary hover:text-white transition-colors"
-                >
-                  <PlayCircle className="w-4 h-4" />
-                  Watch Recording
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                </a>
+                isYouTubeUrl(event.recordingLink) ? (
+                  <Link
+                    href={`/dashboard/events/${event.id}/recording`}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-brand-primary text-sm font-bold hover:bg-brand-primary hover:text-white transition-colors"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    Watch Recording
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                ) : (
+                  <a
+                    href={event.recordingLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-brand-primary text-sm font-bold hover:bg-brand-primary hover:text-white transition-colors"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    Watch Recording
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </a>
+                )
               ) : null
             ) : (
               event.meetingLink ? (
@@ -475,18 +499,31 @@ function EventCard({ event, isPast, index, onViewDetails }: EventCardProps) {
       <div className="flex-shrink-0 border-t border-brand-surface-2 px-4 py-3 flex items-center gap-2">
         {isPast ? (
           hasRecording ? (
-            <a
-              href={event.recordingLink!}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1 inline-flex items-center justify-center gap-1.5 bg-brand-primary text-white text-xs font-bold rounded-xl px-3 py-2 hover:bg-brand-primary-dark transition-colors"
-            >
-              <PlayCircle className="w-3.5 h-3.5" />
-              Watch Recording
-              <span data-cta-arrow className="inline-block">
-                <ArrowRight className="w-3 h-3" />
-              </span>
-            </a>
+            isYouTubeUrl(event.recordingLink!) ? (
+              <Link
+                href={`/dashboard/events/${event.id}/recording`}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 bg-brand-primary text-white text-xs font-bold rounded-xl px-3 py-2 hover:bg-brand-primary-dark transition-colors"
+              >
+                <PlayCircle className="w-3.5 h-3.5" />
+                Watch Recording
+                <span data-cta-arrow className="inline-block">
+                  <ArrowRight className="w-3 h-3" />
+                </span>
+              </Link>
+            ) : (
+              <a
+                href={event.recordingLink!}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 bg-brand-primary text-white text-xs font-bold rounded-xl px-3 py-2 hover:bg-brand-primary-dark transition-colors"
+              >
+                <PlayCircle className="w-3.5 h-3.5" />
+                Watch Recording
+                <span data-cta-arrow className="inline-block">
+                  <ArrowRight className="w-3 h-3" />
+                </span>
+              </a>
+            )
           ) : (
             <span className="text-[11px] text-brand-text-muted italic flex-1">
               Recording coming soon

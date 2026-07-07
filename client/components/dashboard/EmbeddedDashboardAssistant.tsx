@@ -51,7 +51,7 @@ import { EventAssistantCards } from '@/components/dashboard/assistant-cards/Even
 import { filterCourses, filterOffers } from '@/components/dashboard/assistant-cards/filterUtils'
 import { MentorBookingWidget } from '@/components/dashboard/assistant-cards/MentorBookingWidget'
 import { AssistantCardSkeleton } from '@/components/dashboard/assistant-cards/AssistantCardStrip'
-import { ChatEmptyState } from './ChatEmptyState'
+import { ChatEmptyState, type EmptyStateChip } from './ChatEmptyState'
 
 const VALID_COUNTRIES = getCountryDataList()
   .map((c) => c.name)
@@ -65,7 +65,7 @@ import { AI_AMPLIFY_PLATFORM_KNOWLEDGE } from '@/lib/constants/smeepKnowledge'
 // the card-display actions (showXxxCards) instead.
 const NAVIGATION_ACTIONS_ENABLED = false
 
-const ASSISTANT_INSTRUCTIONS = `You are Anna — AI Amplify's friendly, concise dashboard assistant embedded in the AI Business Assistant section of the dashboard.
+const ASSISTANT_INSTRUCTIONS = `You are Anna — AI Amplify's friendly, concise dashboard assistant, available on her own dedicated page in the dashboard.
 
 CRITICAL — BUSINESS TOOLS (read this first):
 You have four AI business tools built in.
@@ -287,6 +287,7 @@ const PAGE_NAMES: Record<string, string> = {
   '/dashboard/ai-mentors': 'AI Mentors',
   '/dashboard/support': 'Support',
   '/dashboard/learning': 'Learning Path',
+  '/dashboard/anna': 'Anna - AI Concierge',
 }
 
 // v2 tool results arrive as strings (the respond() payload is JSON-serialized
@@ -637,7 +638,21 @@ const NullInput = () => null
 // ref at click time always reaches the live agent (same pattern as onPillClickRef).
 const onToolStartRef: { current: ((msg: string) => void) | null } = { current: null }
 
-export function EmbeddedDashboardAssistant({ className }: { className?: string } = {}) {
+export function EmbeddedDashboardAssistant({
+  className,
+  emptyStateChips,
+  emptyStateChipsGrid,
+  emptyStateShowAiTools,
+  emptyStateTagline,
+  emptyStateHint,
+}: {
+  className?: string
+  emptyStateChips?: EmptyStateChip[]
+  emptyStateChipsGrid?: boolean
+  emptyStateShowAiTools?: boolean
+  emptyStateTagline?: string
+  emptyStateHint?: string
+} = {}) {
   const [userSnapshot, setUserSnapshot] = useState<UserSnapshot | null>(null)
   const router = useRouter()
   const pathname = usePathname()
@@ -2012,7 +2027,14 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
         />
         {showEmptyState && (
           <div className="absolute inset-0 z-10 flex flex-col bg-white">
-            <ChatEmptyState onSend={handleSendFromEmptyState} />
+            <ChatEmptyState
+              onSend={handleSendFromEmptyState}
+              chips={emptyStateChips}
+              chipsGrid={emptyStateChipsGrid}
+              showAiTools={emptyStateShowAiTools}
+              tagline={emptyStateTagline}
+              hint={emptyStateHint}
+            />
           </div>
         )}
       </div>

@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import {
-  ArrowRight,
   Gift,
   Users,
   Clock,
@@ -19,7 +18,6 @@ import {
 } from 'lucide-react'
 import { ABOUT, REDESIGN_ASSETS } from '@/lib/constants'
 import { SectionHeader } from '@/components/shared/SectionHeader'
-import { MagneticButton } from '@/components/shared/MagneticButton'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 const ABOUT_GROUPS = [
@@ -75,19 +73,6 @@ export function AboutSection() {
             >
               {ABOUT.body}
             </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.35 }}
-              className="mt-8"
-            >
-              <MagneticButton href={ABOUT.ctaHref} variant="primary" size="lg">
-                {ABOUT.ctaLabel}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </MagneticButton>
-            </motion.div>
 
             {/* What you'll get / Who it's for / Format — glass cards */}
             <div className="mt-10 grid grid-cols-3 gap-3">

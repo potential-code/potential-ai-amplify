@@ -2,11 +2,7 @@
 export const HERO = {
   headline: 'Amplify Your Business with AI — Work Smarter, Grow Faster',
   subtext:
-    "Learn to put AI to work in your business: cut costs, win more customers, and build future-ready skills — free with AI Amplify, Potential.org's global program for SMEs and job seekers.",
-  ctaLabel: 'Get Started',
-  ctaHref: '/sign-up',
-  loginLabel: 'Login',
-  loginHref: '/login',
+    "Learn to put AI to work in your business: cut costs, win more customers, and build future-ready skills with AI Amplify, Potential.org's global program for SMEs and job seekers.",
 } as const
 
 // About section
@@ -24,10 +20,8 @@ export const ABOUT = {
   },
   format: {
     heading: 'Format',
-    items: ['100% free', 'Self-paced', 'Live webinars', 'Global access'],
+    items: ['Certificate included', 'Self-paced', 'Live webinars', 'Global access'],
   },
-  ctaLabel: 'Get Started',
-  ctaHref: '/sign-up',
   image: '/images/about-banner.png',
 } as const
 
@@ -36,7 +30,7 @@ export const JOURNEY = {
   badge: 'Your AI Amplify Journey',
   heading: 'Your AI Amplify Journey',
   subtext:
-    'Six steps, one free program — everything you need to put AI to work and amplify your business.',
+    'Six steps — everything you need to put AI to work and amplify your business.',
   items: [
     {
       title: 'AI Training Courses',
@@ -79,9 +73,7 @@ export const STAKEHOLDER = {
   badge: 'Partner with AI Amplify',
   heading: 'Become an AI Amplify Partner',
   intro:
-    'Run an SME or startup? Register free below. Represent an organization that wants to bring AI Amplify to your community? Pick the track that fits — seats are limited.',
-  smeCtaLabel: 'Register as SME',
-  smeCtaHref: '/sign-up',
+    'Run an SME or startup? Represent an organization that wants to bring AI Amplify to your community? Pick the track that fits — seats are limited.',
   cards: [
     {
       kind: 'expert',
@@ -255,7 +247,7 @@ export const COURSES = {
 export const JOURNEY_COURSES = {
   badge: "The Entrepreneur's Journey",
   heading: "The Entrepreneur's Journey",
-  subtext: 'A structured path from AI fundamentals to daily workflows — four courses to take you from curious to capable.',
+  subtext: 'A structured path from AI fundamentals to daily workflows — six courses to take you from curious to capable.',
   courses: [
     {
       title: 'AI Fundamentals',
@@ -299,6 +291,28 @@ export const JOURNEY_COURSES = {
         'AI-Driven Optimization Techniques',
         'AI and Personal Productivity',
         'Practical Examples and Use Cases',
+      ],
+    },
+    {
+      title: 'Prompt Engineering and AI Troubleshooting',
+      units: [
+        'Introduction to Prompt Engineering',
+        'Common AI Issues and Challenges',
+        'Troubleshooting AI Models',
+        'Identifying and Handling Bias in Prompts',
+        'When to Seek Help from AI Specialists',
+        'Improving AI Performance and Reliability',
+      ],
+    },
+    {
+      title: "AI's Future and Continuous Learning",
+      units: [
+        'The Evolving Landscape of AI',
+        'Latest Advances in AI Technologies',
+        'Embracing Continuous Learning in AI',
+        'Resources for Staying Up-to-Date with AI',
+        "Ethical Considerations in AI's Future",
+        "AI's Societal Impact and Future Opportunities",
       ],
     },
   ],
@@ -573,10 +587,8 @@ export const COMMUNITY = {
 
 // CTA Final
 export const CTA_FINAL = {
-  heading: 'Cut Costs and Grow Faster with AI — Register Now',
-  subtext: 'Seats are limited. Join thousands of SMEs already amplifying their business with AI — free.',
-  ctaLabel: 'Register Now',
-  ctaHref: '/sign-up',
+  heading: 'Cut Costs and Grow Faster with AI',
+  subtext: 'Seats are limited. Join thousands of SMEs already amplifying their business with AI.',
   loginLabel: 'Login',
   loginHref: '/login',
 } as const

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, Clock, ArrowRight, PlayCircle, Sparkles, MapPin } from 'lucide-react'
+import { Calendar, Clock, PlayCircle, Sparkles, MapPin } from 'lucide-react'
 import { SectionHeader } from '@/components/shared/SectionHeader'
-import { MagneticButton } from '@/components/shared/MagneticButton'
 import { fetchPublishedEvents, type LiveEvent } from '@/lib/api/liveEvents'
 
 const DISPLAY_COUNT = 2
@@ -20,8 +19,7 @@ function parseDate(d: string) {
 function EventCard({ event, index }: { event: EventItem; index: number }) {
   const { month, day, year } = parseDate(event.date)
   return (
-    <motion.a
-      href="/sign-up"
+    <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
@@ -83,13 +81,8 @@ function EventCard({ event, index }: { event: EventItem; index: number }) {
         <p className="text-white/65 text-sm leading-relaxed max-w-lg">
           {event.description}
         </p>
-
-        <div className="mt-auto pt-8 inline-flex items-center gap-2 text-sm font-bold text-brand-primary-light">
-          Register to watch
-          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-        </div>
       </div>
-    </motion.a>
+    </motion.div>
   )
 }
 
@@ -121,10 +114,6 @@ export function LiveEventsSection() {
             highlight="Events"
             align="left"
           />
-          <MagneticButton href="/sign-up" variant="outline">
-            Explore More
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </MagneticButton>
         </div>
 
         {loading ? (

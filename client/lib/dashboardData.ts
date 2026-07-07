@@ -363,7 +363,7 @@ export const LIVE_SESSIONS: LiveSessionItem[] = [
 ]
 
 export const FAQS: FaqItem[] = [
-  { q: 'Is AI Amplify really free?', a: 'Yes — AI Amplify is 100% free for SMEs and job seekers. There are no hidden fees and no credit card required.' },
+  { q: 'How much does AI Amplify cost?', a: 'AI Amplify is a paid program. Contact our team for current pricing and registration details.' },
   { q: 'How do I book a session with a human mentor?', a: 'Open Human Mentors, choose a mentor that fits your needs, and click Book Session. We will email you a calendar invite.' },
   { q: 'What can the Anna chatbot do?', a: 'Anna is your AI Business Assistant — she can draft a business plan, marketing plan, product proposal, generate business ideas, and answer AI Amplify-related questions tailored to your business.' },
   { q: 'How are certificates issued?', a: 'You earn a certificate automatically when you complete all units in a course. They appear under Certifications on your Profile and can be downloaded as PDF.' },

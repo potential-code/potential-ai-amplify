@@ -13,6 +13,27 @@ import { cn } from "@/lib/utils";
 
 import type { LearnerCourse } from "@/lib/api/lms";
 
+// The 6 AI-branded flagship seed courses — grouped to the top of the page
+// regardless of enrollment status. There's no "featured" flag on the courses
+// table, so this is a hardcoded title allowlist (case-insensitive exact match).
+const MAIN_COURSE_TITLES = [
+  "AI Fundamentals",
+  "AI Ethics and Data Privacy",
+  "Generative AI, LLMs and Diffusion Models",
+  "AI in Daily Workflows",
+  "Prompt Engineering and AI Troubleshooting",
+  "AI's Future and Continuous Learning",
+].map((t) => t.toLowerCase());
+
+function isMainCourse(title: string): boolean {
+  return MAIN_COURSE_TITLES.includes(title.trim().toLowerCase());
+}
+
+function courseCta(c: LearnerCourse): string {
+  if (!c.isEnrolled) return "Start course";
+  return c.progressPercentage === 100 ? "Review" : "Continue";
+}
+
 function CourseCard({
   c,
   i,
@@ -110,8 +131,7 @@ function CourseCard({
 
 export default function CoursesPage() {
   const [query, setQuery] = useState("");
-  const [showAllEnrolled, setShowAllEnrolled] = useState(false);
-  const [showAllAvailable, setShowAllAvailable] = useState(false);
+  const [showAllAdditional, setShowAllAdditional] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -132,14 +152,22 @@ export default function CoursesPage() {
   const filtered = courses.filter(
     (c) => !query || c.title.toLowerCase().includes(query.toLowerCase()),
   );
-  const filteredEnrolled = filtered
-    .filter((c) => c.isEnrolled)
+  // "Your Courses" groups by course identity (the 6 flagship AI courses),
+  // not enrollment status — a main course can appear here whether or not
+  // the user has enrolled yet.
+  const yourCourses = filtered
+    .filter((c) => isMainCourse(c.title))
     .sort((a, b) => {
-      // in-progress (1–99) first, then not-started (0), then completed (100)
-      const rank = (pct: number) => (pct > 0 && pct < 100 ? 0 : pct === 0 ? 1 : 2);
-      return rank(a.progressPercentage) - rank(b.progressPercentage);
+      // enrolled + in-progress first, then enrolled-not-started, then completed, then not-enrolled
+      const rank = (c: LearnerCourse) => {
+        if (!c.isEnrolled) return 3;
+        if (c.progressPercentage > 0 && c.progressPercentage < 100) return 0;
+        if (c.progressPercentage === 0) return 1;
+        return 2;
+      };
+      return rank(a) - rank(b);
     });
-  const filteredAvailable = filtered.filter((c) => !c.isEnrolled);
+  const additionalCourses = filtered.filter((c) => !isMainCourse(c.title));
 
   const searchBar = (
     <div className="relative">
@@ -191,77 +219,74 @@ export default function CoursesPage() {
         </p>
       )}
 
-      {/* Your Courses */}
-      {filteredEnrolled.length > 0 && (
+      {/* Your Courses — the 6 flagship AI courses, always on top */}
+      {yourCourses.length > 0 && (
         <section className="mb-10">
           <div className="mb-4">
             <h2 className="text-lg font-bold text-brand-text-primary">Your Courses</h2>
             <p className="text-sm text-brand-text-muted mt-0.5">
-              Resume where you left off and keep the momentum going
+              The core AI curriculum — resume where you left off or get started
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(showAllEnrolled ? filteredEnrolled : filteredEnrolled.slice(0, 3)).map((c, i) => {
-              const pct = c.progressPercentage;
-              const ctaLabel = pct === 100 ? "Review" : "Continue";
-              return (
-                <CourseCard
-                  key={c.id}
-                  c={c}
-                  i={i}
-                  ctaLabel={ctaLabel}
-                  isPending={false}
-                  onCta={() => router.push(`/dashboard/courses/${c.id}`)}
-                />
-              );
-            })}
-          </div>
-          {filteredEnrolled.length > 3 && (
-            <div className="mt-6 flex justify-center">
-              <button
-                onClick={() => setShowAllEnrolled((v) => !v)}
-                className="inline-flex items-center gap-2 rounded-xl border border-brand-surface-2 bg-white px-5 py-2 text-sm font-semibold text-brand-text-primary hover:border-brand-primary/40 hover:shadow transition-all"
-              >
-                {showAllEnrolled ? `Show less` : `Load more (${filteredEnrolled.length - 3} more)`}
-              </button>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* Explore & Enroll */}
-      {filteredAvailable.length > 0 && (
-        <section>
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-brand-text-primary">Explore & Enroll</h2>
-            <p className="text-sm text-brand-text-muted mt-0.5">
-              Practical courses built for SME founders — short videos, real insights, instant impact
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(showAllAvailable ? filteredAvailable : filteredAvailable.slice(0, 3)).map((c, i) => {
+            {yourCourses.map((c, i) => {
               const isPending = enrollMutation.isPending && enrollMutation.variables === c.id;
               return (
                 <CourseCard
                   key={c.id}
                   c={c}
                   i={i}
-                  ctaLabel="Start course"
+                  ctaLabel={courseCta(c)}
                   isPending={isPending}
-                  onCta={() => enrollMutation.mutate(c.id)}
+                  onCta={() =>
+                    c.isEnrolled
+                      ? router.push(`/dashboard/courses/${c.id}`)
+                      : enrollMutation.mutate(c.id)
+                  }
                 />
               );
             })}
           </div>
-          {filteredAvailable.length > 3 && (
+        </section>
+      )}
+
+      {/* Additional Courses */}
+      {additionalCourses.length > 0 && (
+        <section>
+          <div className="mb-4">
+            <h2 className="text-lg font-bold text-brand-text-primary">Additional Courses</h2>
+            <p className="text-sm text-brand-text-muted mt-0.5">
+              Practical courses built for SME founders — short videos, real insights, instant impact
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(showAllAdditional ? additionalCourses : additionalCourses.slice(0, 3)).map((c, i) => {
+              const isPending = enrollMutation.isPending && enrollMutation.variables === c.id;
+              return (
+                <CourseCard
+                  key={c.id}
+                  c={c}
+                  i={i}
+                  ctaLabel={courseCta(c)}
+                  isPending={isPending}
+                  onCta={() =>
+                    c.isEnrolled
+                      ? router.push(`/dashboard/courses/${c.id}`)
+                      : enrollMutation.mutate(c.id)
+                  }
+                />
+              );
+            })}
+          </div>
+          {additionalCourses.length > 3 && (
             <div className="mt-6 flex justify-center">
               <button
-                onClick={() => setShowAllAvailable((v) => !v)}
+                onClick={() => setShowAllAdditional((v) => !v)}
                 className="inline-flex items-center gap-2 rounded-xl border border-brand-surface-2 bg-white px-5 py-2 text-sm font-semibold text-brand-text-primary hover:border-brand-primary/40 hover:shadow transition-all"
               >
-                {showAllAvailable
+                {showAllAdditional
                   ? `Show less`
-                  : `Load more (${filteredAvailable.length - 3} more)`}
+                  : `Load more (${additionalCourses.length - 3} more)`}
               </button>
             </div>
           )}

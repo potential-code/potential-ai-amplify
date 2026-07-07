@@ -802,7 +802,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
             pathId={bp.path.id}
             onPass={async () => {
               await onPathRefresh()
-              sendMessage(`I just passed the quiz for "${m.title}". Show my updated Both learning path.`)
+              sendMessage(`I just passed the quiz for "${m.title}". Show my updated learning path.`)
             }}
           />
         )
@@ -919,7 +919,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
           pathId={bp.path.id}
           onPass={async () => {
             await onPathRefresh()
-            sendMessage(`I just passed the quiz for "${m.title}". Show my updated Both learning path.`)
+            sendMessage(`I just passed the quiz for "${m.title}". Show my updated learning path.`)
           }}
         />
       )
@@ -962,7 +962,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
             <BookOpen className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white leading-tight">Learning Path (Both)</p>
+            <p className="text-sm font-semibold text-white leading-tight">Learning Path</p>
             <p className="text-[10px] text-white/60 leading-tight">
               {bothPath.milestones.length} milestone{bothPath.milestones.length !== 1 ? 's' : ''} · Internal + External content
             </p>

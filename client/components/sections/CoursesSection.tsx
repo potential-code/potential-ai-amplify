@@ -22,9 +22,9 @@ export function CoursesSection() {
         />
 
         {/* Journey stepper */}
-        <div className="relative mt-16 max-w-4xl mx-auto">
-          <div className="absolute top-6 left-[12.5%] right-[12.5%] h-0.5 bg-brand-surface-2 hidden sm:block" />
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-2 relative">
+        <div className="relative mt-16 max-w-5xl mx-auto">
+          <div className="absolute top-6 left-[8.33%] right-[8.33%] h-0.5 bg-brand-surface-2 hidden lg:block" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-6 gap-x-2 relative">
             {JOURNEY_COURSES.courses.map((c, i) => {
               const isActive = active === i
               return (
@@ -60,7 +60,7 @@ export function CoursesSection() {
         </div>
 
         {/* Selected course detail */}
-        <div className="max-w-4xl mx-auto mt-12">
+        <div className="max-w-5xl mx-auto mt-12">
           <AnimatePresence mode="wait">
             <motion.div
               key={active}

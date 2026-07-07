@@ -23,9 +23,8 @@ import { CopilotKit } from '@copilotkit/react-core/v2'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { StatCard } from '@/components/dashboard/widgets/StatCard'
 import { DashboardCard } from '@/components/dashboard/widgets/DashboardCard'
-import { EmbeddedDashboardAssistant } from '@/components/dashboard/EmbeddedDashboardAssistant'
-import { useCopilotTokenReady } from '@/components/dashboard/AssistantProvider'
-import { getCopilotHeaders } from '@/components/dashboard/copilotConfig'
+import { LearningPathPanel } from '@/components/both/LearningPathPanel'
+import { useCopilotTokenReady, getCopilotHeaders } from '@/components/dashboard/copilotConfig'
 import { getUser } from '@/lib/auth'
 import { getMyAiMentors } from '@/lib/dashboardData'
 import { fetchLearnerCourses, fetchUserCertificates } from '@/lib/api/lms'
@@ -175,8 +174,8 @@ export default function DashboardOverview() {
         </div>
       </motion.div>
 
-      {/* AI Business Assistant — full width, bare embed. Mounted only after
-          the copilot service token is minted (logged-in users only). */}
+      {/* Learning Path — full width. Mounted only after the copilot service
+          token is minted (logged-in users only). */}
       <div className="mb-8">
         {copilotReady ? (
           <CopilotKit
@@ -196,14 +195,7 @@ export default function DashboardOverview() {
             enableInspector={false}
             showDevConsole={false}
           >
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 }}
-              className="rounded-2xl border border-brand-surface-2 bg-white overflow-hidden" style={{ boxShadow: '0 16px 64px rgba(26, 10, 18, 0.24), 0 4px 20px rgba(26, 10, 18, 0.14)' }}
-            >
-              <EmbeddedDashboardAssistant className="h-[calc(100vh-11rem)] min-h-[520px]" />
-            </motion.div>
+            <LearningPathPanel />
           </CopilotKit>
         ) : (
           <div className="h-[calc(100vh-11rem)] min-h-[520px] rounded-2xl border border-brand-surface-2 bg-white shadow-sm animate-pulse" />

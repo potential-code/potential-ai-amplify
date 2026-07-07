@@ -4,11 +4,11 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'AI Amplify — Amplify Your Business with AI | Powered by Potential.org',
   description:
-    "Learn to put AI to work in your business: cut costs, win more customers, and build future-ready skills — free with AI Amplify, Potential.org's global program for SMEs and job seekers.",
+    "Learn to put AI to work in your business: cut costs, win more customers, and build future-ready skills with AI Amplify, Potential.org's global program for SMEs and job seekers.",
   keywords: 'AI Amplify, SME, AI, business empowerment, startup, digital transformation, AI tools',
   openGraph: {
     title: 'AI Amplify — Amplify Your Business with AI',
-    description: 'Free AI-powered program for SMEs, startups, and job seekers worldwide.',
+    description: 'An AI-powered program for SMEs, startups, and job seekers worldwide.',
     type: 'website',
   },
 }

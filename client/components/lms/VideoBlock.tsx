@@ -8,16 +8,13 @@ import { apiUpdateBlockProgress, type LearnerBlock } from '@/lib/api/lms'
 import { YouTubePlayer } from './YouTubePlayer'
 import { RichContent } from './RichContent'
 import { cn } from '@/lib/utils'
+import { isYouTubeUrl } from '@/lib/video'
 
 type Props = {
   block: LearnerBlock
   onCompleted: () => void
   onAdvance?: () => void
   onWatchThreshold?: () => void
-}
-
-function isYouTubeUrl(url: string): boolean {
-  return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com')
 }
 
 export function VideoBlock({ block, onCompleted, onAdvance, onWatchThreshold }: Props) {

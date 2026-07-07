@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { CTA_FINAL, REDESIGN_ASSETS } from '@/lib/constants'
 import { MagneticButton } from '@/components/shared/MagneticButton'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
@@ -66,7 +66,7 @@ export function CtaFinalSection() {
       <div ref={contentRef} className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
         <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-white/80 text-xs font-medium mb-5">
           <Sparkles className="w-3.5 h-3.5 text-brand-primary-light" />
-          Free to join · No credit card
+          Seats are limited
         </span>
         <h2 className="font-bold text-white leading-[1.15] tracking-tight [hyphens:none] text-balance text-[clamp(1.25rem,3.5vw,2.25rem)] drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)]">
           {CTA_FINAL.heading}
@@ -75,10 +75,6 @@ export function CtaFinalSection() {
           {CTA_FINAL.subtext}
         </p>
         <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
-          <MagneticButton href={CTA_FINAL.ctaHref} variant="primary" size="lg" className="px-8 py-3 text-sm">
-            {CTA_FINAL.ctaLabel}
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </MagneticButton>
           <MagneticButton href={CTA_FINAL.loginHref} variant="ghost" size="lg" className="px-8 py-3 text-sm">
             {CTA_FINAL.loginLabel}
           </MagneticButton>

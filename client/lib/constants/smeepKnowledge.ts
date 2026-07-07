@@ -25,7 +25,17 @@ AI Amplify is a global initiative by the Potential.org Foundation. It gives smal
 6. **Live Events** — online webinars, workshops, and in-person events with AI and business experts
 
 ### How Courses Work
-Each course consists of video units with reflection/survey questions and action planning exercises. Completing a full course earns you points and an automatic certificate. Three course tracks are available: Transform with AI, Digitize Your Business, and Additional Courses.
+Each course consists of video units with reflection/survey questions and action planning exercises. Completing a full course earns you points and an automatic certificate.
+
+The core curriculum is six flagship AI courses, "The Entrepreneur's Journey":
+1. AI Fundamentals
+2. AI Ethics and Data Privacy
+3. Generative AI, LLMs and Diffusion Models
+4. AI in Daily Workflows
+5. Prompt Engineering and AI Troubleshooting
+6. AI's Future and Continuous Learning
+
+Beyond these six, members also get a large library of additional courses covering broader business skills (e.g. digital marketing, cash flow management, negotiation, leadership, and more).
 
 ### How AI Mentors Work
 6 AI coaches (covering Security, Sales, Marketing, Legal, Sustainability, and Leadership) are available 24/7 via chat from the AI Mentors section. Each specialises in a different business domain.
@@ -51,8 +61,11 @@ Six programs for non-SME participants: Experts, VC, Government, Corporate, Unive
 **Q: Who can join?**
 Any SME owner, startup founder, or entrepreneur, anywhere in the world.
 
-**Q: What can I access after registering?**
-Immediately: all courses, AI mentors (24/7), AI business tools, partner offers, and live events.
+**Q: Is AI Amplify free?**
+No. AI Amplify is a paid program — it is not free to join and there is no free tier. Do not describe it as free, free-to-access, or free-to-join under any circumstances.
+
+**Q: What can members access?**
+All courses (including the six flagship AI courses), AI mentors (24/7), AI business tools, partner offers, and live events.
 
 **Q: How do I earn points?**
 Complete courses to earn points. Points accumulate as you finish each course.
@@ -83,25 +96,21 @@ Real members have cut customer-support costs by 38% in 90 days, booked 20% more 
 `
 
 // Landing-page-specific knowledge — only imported by LandingRegistrationChat.
-// Focuses on conversion: why register, what users get immediately, how fast registration is.
+// This chat does NOT handle registration — it can only log in existing
+// members. Never frame answers around "how to register" or imply self-serve
+// sign-up is available here.
 export const LANDING_AI_AMPLIFY_KNOWLEDGE = `
 ## LANDING PAGE CONTEXT
 
-Use this to answer visitor questions about joining and getting started.
+Use this to answer visitor questions about AI Amplify and to help existing members log in. This chat cannot register new accounts — see the REGISTRATION REDIRECT guardrail for how to handle sign-up requests.
 
-### Why Register?
-- Immediate access to every AI Amplify feature — no waiting list, no approval process
-- Results members have reported: 38% reduction in customer-support costs, 20% more booked calls with AI agents, and mentor sessions they call "worth thousands"
+### Is AI Amplify free?
+No — it is a paid program, not a free platform. Never say or imply it is free, free-to-access, free-to-join, or has a free tier. If asked about pricing, say it's a paid program and that the team can be contacted for details — do not invent a specific price.
 
-### Registration Process
-- Takes under 2 minutes
-- Fields required: Full name · Email address · Password · Country · Optional invite code
-- Immediately redirected to the full dashboard upon completion
+### What Members Get Access To
+- All AI training courses — including the six flagship courses in "The Entrepreneur's Journey" (AI Fundamentals; AI Ethics and Data Privacy; Generative AI, LLMs and Diffusion Models; AI in Daily Workflows; Prompt Engineering and AI Troubleshooting; AI's Future and Continuous Learning) — plus a wider library of additional business-skills courses
+- AI mentors (24/7), AI business tools, human mentor bookings, partner offers, and live events
+- Points earned by completing course units, redeemable for exclusive partner discounts (AWS, Cisco, and more)
 
-### What Happens After Registering?
-- Instant access to all AI training courses, AI mentors (24/7), AI business tools, human mentor bookings, partner offers, and live events
-- Start earning points by completing course units
-- Redeem points for exclusive partner discounts (AWS, Cisco, and more)
-
-NOTE: The AI Business Tools (Business Plan, Marketing Plan, etc.) run inside the dashboard — they cannot be used here on the landing page. If a visitor asks to use one, describe the tool briefly and encourage them to register for free access.
+NOTE: The AI Business Tools (Business Plan, Marketing Plan, etc.) run inside the member dashboard — they cannot be used here on the landing page. If a visitor asks to use one, describe the tool briefly; do not tell them to register or sign up — only existing members can log in to use it.
 `

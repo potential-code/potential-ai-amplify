@@ -2,11 +2,10 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 import { STAKEHOLDER } from '@/lib/constants'
 import type { StakeholderKind } from '@/lib/constants/content'
 import { SectionHeader } from '@/components/shared/SectionHeader'
-import { MagneticButton } from '@/components/shared/MagneticButton'
 import { StakeholderRegisterDialog } from '@/components/sections/StakeholderRegisterDialog'
 
 export function StakeholderSection() {
@@ -22,18 +21,6 @@ export function StakeholderSection() {
             highlight="Partner"
             subtext={STAKEHOLDER.intro}
           />
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="mt-8"
-          >
-            <MagneticButton href={STAKEHOLDER.smeCtaHref} variant="primary" size="lg">
-              {STAKEHOLDER.smeCtaLabel}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </MagneticButton>
-          </motion.div>
         </div>
 
         {/* Card grid with AI-generated images */}

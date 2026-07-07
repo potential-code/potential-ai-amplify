@@ -328,7 +328,7 @@ function SignUpForm() {
             />
           )}
           <span className="relative inline-flex items-center gap-2">
-            {loading ? 'Creating your account…' : 'Register for Free'}
+            {loading ? 'Creating your account…' : 'Register'}
             {!loading && <ArrowRight className="w-4 h-4" />}
           </span>
         </motion.button>

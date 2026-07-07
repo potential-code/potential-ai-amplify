@@ -6,6 +6,14 @@ import { Maximize, Minimize, Pause, Play } from 'lucide-react'
 type Props = {
   videoUrl: string
   onProgress?: (pct: number) => void
+  /**
+   * When true (default), disables YouTube's native controls/seek bar and
+   * blocks pointer events so learners can't skip ahead in course lesson
+   * videos. Pass `false` for freely-rewatchable content (e.g. live event
+   * recordings) to show YouTube's native controls — play/pause, seek bar,
+   * fullscreen — and allow scrubbing.
+   */
+  restrictSeeking?: boolean
 }
 
 function getYouTubeId(url: string): string {
@@ -23,7 +31,7 @@ function getYouTubeId(url: string): string {
   return ''
 }
 
-export function YouTubePlayer({ videoUrl, onProgress }: Props) {
+export function YouTubePlayer({ videoUrl, onProgress, restrictSeeking = true }: Props) {
   const id = getYouTubeId(videoUrl)
 
   const playerRef = useRef<any>(null)
@@ -88,10 +96,10 @@ export function YouTubePlayer({ videoUrl, onProgress }: Props) {
       host: 'https://www.youtube-nocookie.com',
       videoId: id,
       playerVars: {
-        controls: 0,
-        disablekb: 1,
+        controls: restrictSeeking ? 0 : 1,
+        disablekb: restrictSeeking ? 1 : 0,
         rel: 0,
-        fs: 0,
+        fs: restrictSeeking ? 0 : 1,
         modestbranding: 1,
         iv_load_policy: 3,
         playsinline: 1,
@@ -128,7 +136,7 @@ export function YouTubePlayer({ videoUrl, onProgress }: Props) {
         },
       },
     })
-  }, [id, bumpOverlay, clearHide, checkVideoProgress])
+  }, [id, bumpOverlay, clearHide, checkVideoProgress, restrictSeeking])
 
   // Only re-runs when the video ID changes — not on every parent render
   useEffect(() => {
@@ -251,36 +259,40 @@ export function YouTubePlayer({ videoUrl, onProgress }: Props) {
         </div>
       )}
 
-      {/* Block top bar clicks (YT branding) */}
-      <div aria-hidden className="absolute left-0 right-0 top-0 h-14" style={{ background: 'rgba(0,0,0,0.01)', zIndex: 40 }} />
-      {/* Block bottom-right corner (YT logo / watch later) */}
-      <div aria-hidden className="absolute right-0 bottom-0 w-36 h-12" style={{ background: 'rgba(0,0,0,0.01)', zIndex: 40 }} />
-      {/* Absorb pointer events to prevent seeking */}
-      <div
-        aria-hidden
-        className="absolute inset-0"
-        style={{ zIndex: 35, pointerEvents: 'auto' }}
-        onDoubleClick={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.stopPropagation()}
-      />
+      {restrictSeeking && (
+        <>
+          {/* Block top bar clicks (YT branding) */}
+          <div aria-hidden className="absolute left-0 right-0 top-0 h-14" style={{ background: 'rgba(0,0,0,0.01)', zIndex: 40 }} />
+          {/* Block bottom-right corner (YT logo / watch later) */}
+          <div aria-hidden className="absolute right-0 bottom-0 w-36 h-12" style={{ background: 'rgba(0,0,0,0.01)', zIndex: 40 }} />
+          {/* Absorb pointer events to prevent seeking */}
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{ zIndex: 35, pointerEvents: 'auto' }}
+            onDoubleClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          />
 
-      {showOverlay && (
-        <button
-          onClick={(e) => { e.stopPropagation(); togglePlay(); bumpOverlay() }}
-          className="absolute z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-4 flex items-center justify-center transition-colors"
-        >
-          {isPlaying ? <Pause className="w-8 h-8 text-white" /> : <Play className="w-8 h-8 text-white" />}
-        </button>
-      )}
+          {showOverlay && (
+            <button
+              onClick={(e) => { e.stopPropagation(); togglePlay(); bumpOverlay() }}
+              className="absolute z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-4 flex items-center justify-center transition-colors"
+            >
+              {isPlaying ? <Pause className="w-8 h-8 text-white" /> : <Play className="w-8 h-8 text-white" />}
+            </button>
+          )}
 
-      {(showOverlay || isInFullscreen) && (
-        <button
-          onClick={(e) => { e.stopPropagation(); toggleFullscreen(); bumpOverlay() }}
-          className="absolute right-3 bottom-3 z-50 bg-black/50 hover:bg-black/70 rounded p-2 transition-colors"
-        >
-          {isInFullscreen ? <Minimize className="w-5 h-5 text-white" /> : <Maximize className="w-5 h-5 text-white" />}
-        </button>
+          {(showOverlay || isInFullscreen) && (
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleFullscreen(); bumpOverlay() }}
+              className="absolute right-3 bottom-3 z-50 bg-black/50 hover:bg-black/70 rounded p-2 transition-colors"
+            >
+              {isInFullscreen ? <Minimize className="w-5 h-5 text-white" /> : <Maximize className="w-5 h-5 text-white" />}
+            </button>
+          )}
+        </>
       )}
     </div>
   )

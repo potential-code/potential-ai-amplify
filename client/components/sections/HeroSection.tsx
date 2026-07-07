@@ -1,19 +1,18 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ChevronDown, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { ChevronDown, Sparkles, CheckCircle2 } from 'lucide-react'
 import { HERO, REDESIGN_ASSETS } from '@/lib/constants'
-import { MagneticButton } from '@/components/shared/MagneticButton'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { LandingRegistrationChat } from '../landing/LandingRegistrationChat'
 
 const HERO_PILLS = ['AI Mentors', 'Live Events', 'AI Tools', 'Human Mentors']
 
 const HERO_CHECKPOINTS = [
-  'Free AI business coach, available 24/7',
+  'AI business coach, available 24/7',
   'Live expert-led sessions',
   'Practical, bite-sized AI courses',
-  '100% free — no credit card',
+  'Trusted by SMEs in 50+ countries',
 ]
 
 export function HeroSection() {
@@ -66,7 +65,7 @@ export function HeroSection() {
             <Sparkles className="w-3.5 h-3.5 text-brand-primary-light" />
             <span className="tracking-wide uppercase text-[11px]">AI Amplify</span>
             <span className="hidden sm:inline text-white/40">·</span>
-            <span className="hidden sm:inline text-white/60">100% free, global</span>
+            <span className="hidden sm:inline text-white/60">Global program</span>
           </motion.div>
 
           <motion.h1
@@ -110,21 +109,6 @@ export function HeroSection() {
               </motion.div>
             ))}
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.85 }}
-            className="mt-9 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
-          >
-            <MagneticButton href={HERO.ctaHref} variant="primary" size="lg" magnetic={false}>
-              {HERO.ctaLabel}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </MagneticButton>
-            <MagneticButton href={HERO.loginHref} variant="ghost" size="lg" magnetic={false}>
-              {HERO.loginLabel}
-            </MagneticButton>
-          </motion.div>
 
         </div>
 

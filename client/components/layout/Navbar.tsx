@@ -152,12 +152,6 @@ export function Navbar() {
             >
               Login
             </a>
-            <a
-              href="/sign-up"
-              className="inline-flex items-center bg-brand-primary hover:bg-brand-primary-dark text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-[0_8px_24px_-8px_rgba(101,45,144,0.6)] hover:shadow-[0_10px_30px_-8px_rgba(101,45,144,0.8)]"
-            >
-              Sign Up
-            </a>
           </div>
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -243,13 +237,6 @@ export function Navbar() {
                     className="text-base font-medium text-white/80 hover:text-white px-4 py-3 rounded-xl hover:bg-white/5 transition-colors"
                   >
                     Login
-                  </a>
-                  <a
-                    href="/sign-up"
-                    onClick={() => setMobileOpen(false)}
-                    className="bg-brand-primary hover:bg-brand-primary-dark text-white text-center px-5 py-3 rounded-xl text-base font-semibold transition-colors shadow-lg"
-                  >
-                    Sign Up — It's Free
                   </a>
                 </div>
               </nav>

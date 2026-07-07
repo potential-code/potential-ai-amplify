@@ -10,7 +10,7 @@ interface AuthLayoutProps {
   badge?: string
   heading: ReactNode
   subheading: string
-  altPrompt: { text: string; ctaLabel: string; ctaHref: string }
+  altPrompt?: { text: string; ctaLabel: string; ctaHref: string }
   children: ReactNode
 }
 
@@ -82,7 +82,7 @@ export function AuthLayout({
             )}
             <h2 className="text-display text-balance text-4xl xl:text-5xl font-bold leading-[1.05] mt-2 max-w-md">
               Empower your business with{' '}
-              <span className="text-gradient-brand">AI — for free.</span>
+              <span className="text-gradient-brand">AI.</span>
             </h2>
 
             <ul className="mt-8 space-y-2.5 text-sm text-white/70">
@@ -121,15 +121,17 @@ export function AuthLayout({
 
             {children}
 
-            <p className="text-center lg:text-left text-sm text-brand-text-secondary mt-6">
-              {altPrompt.text}{' '}
-              <Link
-                href={altPrompt.ctaHref}
-                className="text-brand-primary hover:text-brand-primary-dark font-semibold transition-colors"
-              >
-                {altPrompt.ctaLabel}
-              </Link>
-            </p>
+            {altPrompt && (
+              <p className="text-center lg:text-left text-sm text-brand-text-secondary mt-6">
+                {altPrompt.text}{' '}
+                <Link
+                  href={altPrompt.ctaHref}
+                  className="text-brand-primary hover:text-brand-primary-dark font-semibold transition-colors"
+                >
+                  {altPrompt.ctaLabel}
+                </Link>
+              </p>
+            )}
           </motion.div>
         </main>
       </div>

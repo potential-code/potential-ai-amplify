@@ -8,8 +8,8 @@ import { Logo } from '@/components/shared/Logo'
 
 const SHARE_URL = 'https://potential.com'
 const SHARE_TEXT =
-  'Grow your business with free AI training, mentors, and tools — join AI Amplify from Potential.com'
-const LI_SUMMARY = 'Put AI to work in your business, free with AI Amplify'
+  'Grow your business with AI training, mentors, and tools — join AI Amplify from Potential.com'
+const LI_SUMMARY = 'Put AI to work in your business with AI Amplify'
 
 const SHARE_LINKS = [
   {
@@ -112,7 +112,7 @@ export function Footer() {
               <Logo tone="inverted" size="lg" />
             </a>
             <p className="text-white/60 text-sm leading-relaxed max-w-xs">
-              AI Amplify — free AI training, mentors, and community for SMEs, startups, and job
+              AI Amplify — AI training, mentors, and community for SMEs, startups, and job
               seekers worldwide.
             </p>
 

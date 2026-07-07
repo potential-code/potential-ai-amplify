@@ -209,13 +209,7 @@ function OtpCodeForm({ email, onSuccess, onBack }: OtpCodeFormProps) {
       </p>
 
       {/* Errors */}
-      {notFound && (
-        <InlineError message="No account found for this email. ">
-          <a href="/sign-up" className="underline font-semibold ml-0.5">
-            Create one
-          </a>
-        </InlineError>
-      )}
+      {notFound && <InlineError message="No account found for this email." />}
       {inlineError && !notFound && <InlineError message={inlineError} />}
 
       {/* Code input — single field, numeric, matching card visual language */}
@@ -524,11 +518,6 @@ export default function LoginPage() {
         </>
       }
       subheading={subheadings[mode]}
-      altPrompt={{
-        text: "Don't have an account?",
-        ctaLabel: "Register for free",
-        ctaHref: "/sign-up",
-      }}
     >
       <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-7 shadow-[0_20px_60px_-20px_rgba(101,45,144,0.18)]">
         <AnimatePresence mode="wait" initial={false}>

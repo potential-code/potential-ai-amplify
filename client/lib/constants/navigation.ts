@@ -27,7 +27,6 @@ export const FOOTER_LINKS = {
   importantLinks: [
     { label: 'Home Page', href: '/' },
     { label: 'Login', href: '/login' },
-    { label: 'Register', href: '/sign-up' },
     { label: 'Privacy Policy', href: '#' },
     { label: 'Terms & Conditions', href: '#' },
     { label: 'FAQs', href: '#' },
