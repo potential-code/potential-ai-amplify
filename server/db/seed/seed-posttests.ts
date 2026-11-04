@@ -410,7 +410,7 @@ export async function seedPosttests() {
   if (errors.length > 0) throw new Error(`${errors.length} course(s) failed to seed posttests`)
 }
 
-// @ts-ignore
+// @ts-expect-error — import.meta.main is Bun-specific (falsy under Node)
 if (import.meta.main) {
   seedPosttests().catch((err) => {
     console.error('Fatal error:', err)

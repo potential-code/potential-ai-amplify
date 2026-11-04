@@ -183,6 +183,83 @@
       "when": 1793783147522,
       "tag": "0025_points_ledger",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1793789220706,
+      "tag": "0026_redesign_features",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1793791573061,
+      "tag": "0027_better_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1793792805337,
+      "tag": "0028_newsletter",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1793802745805,
+      "tag": "0029_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1793802861207,
+      "tag": "0030_achievements",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1793803550676,
+      "tag": "0031_announcements",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1793804226994,
+      "tag": "0032_video_position",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793804647943,
+      "tag": "0033_event_scheduling",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793804856972,
+      "tag": "0034_organisations",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1793805040940,
+      "tag": "0035_ai_turns",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1793805225288,
+      "tag": "0036_ai_reports",
+      "breakpoints": true
     }
   ]
 }

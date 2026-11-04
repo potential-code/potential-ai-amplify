@@ -85,12 +85,12 @@ export function resetBothLearningThreadId(): string {
 // --- Copilot service token --------------------------------------------------
 // The AI backend (potential-ai) requires a service JWT on every request — chat
 // runs, transcription, TTS, and the voice WebSocket. Logged-in users obtain a
-// short-lived token from the smeep server (GET /api/auth/copilot-token); the
+// short-lived token from the smeep server (GET /api/account/copilot-token); the
 // shared signing secret never reaches the browser. The token is cached in
 // localStorage and re-minted shortly before expiry.
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
-import { getToken } from '@/lib/auth'
+import { getUser } from '@/lib/auth'
 
 const COPILOT_JWT_KEY = 'smeep_copilot_jwt'
 const COPILOT_JWT_EXP_KEY = 'smeep_copilot_jwt_exp'
@@ -117,7 +117,7 @@ export function getCopilotJwt(): string {
 let inflightMint: Promise<string | null> | null = null
 
 async function mintFrom(
-  endpoint: '/api/auth/copilot-token' | '/api/auth/copilot-token/guest',
+  endpoint: '/api/account/copilot-token' | '/api/account/copilot-token/guest',
   kind: 'user' | 'guest',
 ): Promise<string> {
   const res = await apiFetch<{ success: boolean; data: { token: string; expiresAt: number } }>(
@@ -139,13 +139,13 @@ async function mintFrom(
  * needed. Logged-in users get a per-user token; anonymous visitors (the public
  * landing chat) get a short-lived guest token.
  *
- * Robustness: a `smeep_token` lingering in localStorage doesn't mean the
- * session is still valid (it may be expired). If the user-token mint fails
- * (e.g. 401 on a stale session), we fall back to a guest token so the assistant
- * still works instead of breaking — the landing chat must never hard-fail.
+ * Robustness: a cached signed-in user doesn't prove the session is still
+ * valid (it may have ended). If the user-token mint fails (e.g. 401), we fall
+ * back to a guest token so the assistant still works instead of breaking —
+ * the landing chat must never hard-fail.
  */
 export function ensureCopilotToken(): Promise<string | null> {
-  const desiredKind = getToken() ? 'user' : 'guest'
+  const desiredKind = getUser() ? 'user' : 'guest'
   const cached = getCopilotJwt()
   let cachedKind = ''
   try {
@@ -159,15 +159,15 @@ export function ensureCopilotToken(): Promise<string | null> {
   inflightMint = (async () => {
     if (desiredKind === 'user') {
       try {
-        return await mintFrom('/api/auth/copilot-token', 'user')
+        return await mintFrom('/api/account/copilot-token', 'user')
       } catch (err) {
-        // Stale/expired login token — fall back to an anonymous token so the
+        // Ended session — fall back to an anonymous token so the
         // assistant degrades gracefully instead of 401-ing forever.
         console.warn('[copilot] user token mint failed, falling back to guest', err)
       }
     }
     try {
-      return await mintFrom('/api/auth/copilot-token/guest', 'guest')
+      return await mintFrom('/api/account/copilot-token/guest', 'guest')
     } catch (err) {
       console.warn('[copilot] guest token mint failed', err)
       return null

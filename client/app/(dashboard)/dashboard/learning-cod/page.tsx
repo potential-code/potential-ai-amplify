@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { CopilotKit } from '@copilotkit/react-core/v2'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
+import { JourneyLoading, JourneyMessage } from '@/components/journeys/JourneyStates'
+import { btn } from '@/components/kit'
 import { CodPathBuildingProgress } from '@/components/cod/CodPathBuildingProgress'
 import { CodConversationalQuestionnaire } from '@/components/cod/CodConversationalQuestionnaire'
 import { CodEmbeddedLearningAssistant } from '@/components/cod/CodEmbeddedLearningAssistant'
@@ -17,24 +19,13 @@ const AI_BACKEND_URL =
   'http://localhost:8000'
 const VOICE_RUNTIME_URL = `${AI_BACKEND_URL}/copilotkit-voice`
 
-function PageSkeleton() {
-  return (
-    <div className="space-y-4 animate-pulse">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="rounded-2xl border border-brand-surface-2 bg-white p-6 space-y-3">
-          <div className="h-4 w-1/3 bg-brand-surface-2 rounded" />
-          <div className="h-3 w-2/3 bg-brand-surface-2 rounded" />
-        </div>
-      ))}
-    </div>
-  )
-}
-
 function CodPageInner() {
   const [path, setPath] = useState<CodPathResponse | null | undefined>(undefined)
   const [loadError, setLoadError] = useState<string | null>(null)
 
   const loadPath = useCallback(async () => {
+    // Clear a previous failure first, or Retry keeps showing the old error.
+    setLoadError(null)
     try {
       const result = await fetchCodPath()
       setPath(result)
@@ -67,26 +58,25 @@ function CodPageInner() {
 
   if (path === undefined && !loadError) {
     return (
-      <DashboardLayout>
-        <PageSkeleton />
+      <DashboardLayout fullBleed>
+        <JourneyLoading title="Content on Demand" />
       </DashboardLayout>
     )
   }
 
   if (loadError) {
     return (
-      <DashboardLayout>
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-8 text-center">
-          <p className="text-sm font-semibold text-red-700">{loadError}</p>
-          <button
-            type="button"
-            onClick={loadPath}
-            className="mt-4 rounded-xl px-4 py-2 text-sm font-semibold text-white"
-            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-          >
-            Retry
-          </button>
-        </div>
+      <DashboardLayout fullBleed>
+        <JourneyMessage
+          title="Content on Demand"
+          heading="We couldn't load your path"
+          body={loadError}
+          action={
+            <button type="button" onClick={loadPath} className={btn({ variant: 'primary', size: 'md' })}>
+              Retry
+            </button>
+          }
+        />
       </DashboardLayout>
     )
   }
@@ -94,7 +84,7 @@ function CodPageInner() {
   // No path yet → questionnaire
   if (!path) {
     return (
-      <DashboardLayout>
+      <DashboardLayout fullBleed>
         <CodConversationalQuestionnaire onProfileExtracted={handleProfileExtracted} />
       </DashboardLayout>
     )
@@ -104,50 +94,31 @@ function CodPageInner() {
   if (path.path.status === 'building' || path.path.status === 'failed') {
     if (path.path.status === 'failed') {
       return (
-        <DashboardLayout>
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-8 text-center">
-            <p className="text-sm font-semibold text-red-700">Path generation failed. Please try again.</p>
-            <button
-              type="button"
-              onClick={() => setPath(null)}
-              className="mt-4 rounded-xl px-4 py-2 text-sm font-semibold text-white"
-              style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-            >
-              Retry
-            </button>
-          </div>
+        <DashboardLayout fullBleed>
+          <JourneyMessage
+            title="Content on Demand"
+            heading="We couldn't build your path"
+            body="Something went wrong while Anna was building it. Start again and she will build a new one."
+            action={
+              <button type="button" onClick={() => setPath(null)} className={btn({ variant: 'primary', size: 'md' })}>
+                Retry
+              </button>
+            }
+          />
         </DashboardLayout>
       )
     }
     return (
-      <DashboardLayout>
-        <div className="smeep-copilot flex flex-col h-[calc(100vh-7rem)] min-h-[560px] rounded-2xl border border-brand-surface-2 overflow-hidden">
-          <div
-            className="flex items-center gap-3 px-4 py-3 border-b border-white/10 flex-shrink-0"
-            style={{ background: 'linear-gradient(120deg, #1A0A12 0%, #2d0f20 100%)' }}
-          >
-            <img
-              src="/images/redesign/anna-avatar-96.png"
-              alt="Anna"
-              className="w-8 h-8 rounded-full object-cover object-top"
-            />
-            <div>
-              <p className="text-sm font-semibold text-white leading-tight">Anna — Learning Path Advisor</p>
-              <p className="text-[10px] text-white/60 leading-tight">Building your personalised COD learning path</p>
-            </div>
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <CodPathBuildingProgress onReady={setPath} onFailed={() => setPath(null)} />
-          </div>
-        </div>
+      <DashboardLayout fullBleed>
+        <CodPathBuildingProgress title="Content on Demand" onReady={setPath} onFailed={() => setPath(null)} />
       </DashboardLayout>
     )
   }
 
   // Path active/complete → learning assistant
   return (
-    <DashboardLayout>
-      <div className="h-[calc(100vh-7rem)] min-h-[560px] rounded-2xl border border-brand-surface-2 bg-white overflow-hidden" style={{ boxShadow: '0 16px 64px rgba(26, 10, 18, 0.24), 0 4px 20px rgba(26, 10, 18, 0.14)' }}>
+    <DashboardLayout fullBleed>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <CodEmbeddedLearningAssistant codPath={path} onPathRefresh={loadPath} />
       </div>
     </DashboardLayout>
@@ -159,8 +130,8 @@ export default function CodLearningPage() {
 
   if (!copilotReady) {
     return (
-      <DashboardLayout>
-        <div className="h-[calc(100vh-7rem)] min-h-[560px] rounded-2xl border border-brand-surface-2 bg-white shadow-sm animate-pulse" />
+      <DashboardLayout fullBleed>
+        <JourneyLoading title="Content on Demand" />
       </DashboardLayout>
     )
   }

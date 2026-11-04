@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { getCountryDataList } from 'countries-list'
-import { Check, Loader2, Sparkles } from 'lucide-react'
+import { Check, Globe, Loader2 } from 'lucide-react'
 
 interface CountryPickerCardProps {
   respond: (value: { countryName: string; countryCode: string }) => void
@@ -60,34 +60,23 @@ export function CountryPickerCard({ respond, status }: CountryPickerCardProps) {
   }
 
   return (
-    <div
-      className="my-2 rounded-xl overflow-hidden border"
-      style={{ background: 'rgba(20, 10, 16, 0.90)', borderColor: 'rgba(255,255,255,0.10)', maxWidth: '340px' }}
-    >
-      {/* Header */}
-      <div
-        className="flex items-center gap-2 px-4 py-3"
-        style={{ background: 'linear-gradient(120deg,#652d90,#4a2168)' }}
-      >
-        <Sparkles className="w-4 h-4 text-white/80 flex-shrink-0" />
-        <span className="text-sm font-semibold text-white tracking-wide">
-          Select Your Country
+    <div className="my-2 w-full max-w-[340px] overflow-hidden rounded-[14px] border border-ui-line bg-ui-surface text-ui-text">
+      <div className="flex items-center gap-2.5 border-b border-ui-line px-4 py-3">
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-ui-brand-soft text-ui-brand-text">
+          <Globe className="h-[18px] w-[18px]" aria-hidden />
         </span>
+        <span className="text-sm font-semibold">Select your country</span>
       </div>
 
-      {/* Complete state */}
       {status === 'complete' ? (
         <div className="flex items-center gap-3 px-4 py-3">
-          <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-white/10">
-            <Check className="w-3.5 h-3.5 text-[#652d90]" strokeWidth={2.5} />
-          </div>
-          <span className="text-sm font-medium text-white/90">
-            {lastSelectedRef.current?.name ?? 'Country selected'}
+          <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ui-ok-soft text-ui-ok">
+            <Check className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden />
           </span>
+          <span className="text-sm font-medium">{lastSelectedRef.current?.name ?? 'Country selected'}</span>
         </div>
       ) : (
-        <div className="p-3 space-y-2">
-          {/* Search input */}
+        <div className="flex flex-col gap-2 p-3">
           <div className="relative">
             <input
               ref={inputRef}
@@ -95,21 +84,19 @@ export function CountryPickerCard({ respond, status }: CountryPickerCardProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               disabled={isDisabled}
-              placeholder="Search countries…"
-              className="w-full rounded-lg px-3 py-2 text-sm text-white/90 outline-none transition-colors placeholder:text-white/30 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
+              placeholder="Search countries"
+              aria-label="Search countries"
+              className="h-10 w-full rounded-[10px] border border-ui-line bg-ui-surface px-3 text-sm text-ui-text outline-none transition-[border-color,box-shadow] placeholder:text-ui-muted focus:border-ui-brand focus:ring-[3px] focus:ring-ui-brand-soft disabled:cursor-not-allowed disabled:opacity-50"
             />
             {showSpinner && (
               <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#652d90]" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-ui-brand-text" aria-hidden />
               </div>
             )}
           </div>
-
-          {/* Country list */}
-          <div className="max-h-48 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(101,45,144,0.3) transparent' }}>
+          <div className="max-h-48 overflow-y-auto">
             {filtered.length === 0 ? (
-              <p className="px-3 py-2 text-xs text-white/40">No countries found.</p>
+              <p className="px-3 py-2 text-xs text-ui-muted">No countries found.</p>
             ) : (
               filtered.map((country) => (
                 <button
@@ -117,7 +104,7 @@ export function CountryPickerCard({ respond, status }: CountryPickerCardProps) {
                   type="button"
                   disabled={isDisabled}
                   onClick={() => handleSelect(country)}
-                  className="w-full text-left rounded-lg px-3 py-2 text-sm text-white/90 transition-colors disabled:cursor-not-allowed hover:bg-white/5"
+                  className="w-full rounded-lg px-3 py-2 text-left text-sm text-ui-text transition-colors hover:bg-ui-surface-2 disabled:cursor-not-allowed"
                 >
                   {country.name}
                 </button>

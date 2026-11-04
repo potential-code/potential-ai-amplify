@@ -1,11 +1,12 @@
 import { Agent } from 'undici'
 import jwt from 'jsonwebtoken'
 import { AppError } from '../../utils/app-error'
+import { SERVER_CLAIMS } from '../serviceTokenClaims'
 
 // Setup (Graph A) over the full catalogue can take many minutes of gpt-5 work;
 // undici's default 300s headers/body timeout aborts the request mid-flight. Use a
 // long-lived dispatcher with generous timeouts. Harmless for the fast path call.
-const aiDispatcher = new Agent({ headersTimeout: 1_800_000, bodyTimeout: 1_800_000 }) // 30 min
+export const aiDispatcher = new Agent({ headersTimeout: 1_800_000, bodyTimeout: 1_800_000 }) // 30 min
 
 /**
  * AI client for the learning-path subgraph (potential-ai).
@@ -92,7 +93,7 @@ export interface PathResult {
 // ── Internals ────────────────────────────────────────────────────────────────
 
 /** Resolves the AI backend base URL, throwing a configured error if missing. */
-function getAiBaseUrl(): string {
+export function getAiBaseUrl(): string {
   const base = process.env['NEXT_PUBLIC_AI_BACKEND_URL']
   if (!base) {
     throw new AppError('AI backend is not configured', 503, 'AI_NOT_CONFIGURED')
@@ -106,12 +107,12 @@ function getAiBaseUrl(): string {
  * @param userId - The learner the request is acting on behalf of.
  * @returns A signed HS256 token carrying `{ platformId: 'ai-amplify', userId }`.
  */
-function mintServiceToken(userId: string): string {
+export function mintServiceToken(userId: string): string {
   const secret = process.env['COPILOT_SERVICE_JWT_SECRET']
   if (!secret) {
     throw new AppError('AI backend is not configured', 503, 'AI_NOT_CONFIGURED')
   }
-  return jwt.sign({ platformId: 'ai-amplify', userId }, secret, {
+  return jwt.sign({ platformId: 'ai-amplify', userId, ...SERVER_CLAIMS }, secret, {
     algorithm: 'HS256',
     expiresIn: 300, // 5 minutes — long enough for one request round-trip
   })

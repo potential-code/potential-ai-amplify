@@ -1,8 +1,7 @@
 {{#> layout}}
 
   <p style="margin:0 0 20px;font-family:'Noto Sans',system-ui,sans-serif;font-size:15px;line-height:1.65;color:#1A0A12;">
-    Use the verification code below to confirm your email and continue setting up your
-    <strong style="color:#652d90;">AI Amplify</strong> account.
+    {{intro}}
   </p>
 
   <!-- Verification code -->
@@ -15,7 +14,7 @@
         <p style="margin:0 0 8px;font-family:'Noto Sans',system-ui,sans-serif;
                   font-size:13px;font-weight:600;letter-spacing:1px;
                   text-transform:uppercase;color:rgba(255,255,255,0.85);">
-          Your verification code
+          {{label}}
         </p>
         <p style="margin:0;font-family:'Noto Sans',system-ui,sans-serif;
                   font-size:40px;font-weight:700;letter-spacing:12px;
@@ -34,7 +33,7 @@
                  padding:12px 16px;">
         <p style="margin:0;font-family:'Noto Sans',system-ui,sans-serif;
                   font-size:13px;font-weight:500;color:#92400e;">
-          This code expires in <strong>10 minutes</strong>. Enter it soon to verify your email.
+          This code expires in <strong>10 minutes</strong>. {{expiryNote}}
         </p>
       </td>
     </tr>
@@ -42,7 +41,7 @@
 
   <p style="margin:0;font-family:'Noto Sans',system-ui,sans-serif;font-size:13px;
             line-height:1.6;color:#6B7280;">
-    If you didn't request this code, you can safely ignore this email — no account changes will be made.
+    {{ignoreNote}}
   </p>
 
 {{/layout}}

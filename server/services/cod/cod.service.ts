@@ -3,8 +3,9 @@ import {
   codContentPool, codUserPaths, codPathContentRefs,
   codMilestoneAssessments, codUserQuizResults, codUserContentProgress,
 } from '../../db/schema'
-import { eq, and, desc, gt } from 'drizzle-orm'
+import { eq, and, desc, gt, sql } from 'drizzle-orm'
 import { AppError } from '../../utils/app-error'
+import { recordLearningStep } from '../streak.service'
 import { callCodPathBuilder, type CodPathBuilderInput } from '../learning/codAiClient'
 
 const PASS_THRESHOLD = 0.7
@@ -250,7 +251,32 @@ export async function completeContent(userId: string, pathId: string, contentPoo
       completedAt: new Date(),
     })
   }
+  if (existing?.status !== 'completed') await recordLearningStep(userId)
 }
+
+/**
+ * Saves where the learner is in a Content on Demand video, so they resume
+ * there on any device. Watched % only goes up; a completed item stays completed.
+ * Returns null when the path isn't the learner's own.
+ */
+export async function saveVideoPosition(userId: string, pathId: string, contentPoolId: string, positionSec: number, watchPct: number) {
+  const [path] = await db.select({ id: codUserPaths.id }).from(codUserPaths)
+    .where(and(eq(codUserPaths.id, pathId), eq(codUserPaths.userId, userId))).limit(1)
+  if (!path) return null
+  const [row] = await db.insert(codUserContentProgress)
+    .values({ userId, contentPoolId, codUserPathId: pathId, status: 'in_progress', videoPositionSec: positionSec, videoWatchPct: watchPct })
+    .onConflictDoUpdate({
+      target: [codUserContentProgress.userId, codUserContentProgress.contentPoolId, codUserContentProgress.codUserPathId],
+      set: {
+        videoPositionSec: positionSec,
+        videoWatchPct: sql`greatest(coalesce(${codUserContentProgress.videoWatchPct}, 0), ${watchPct})`,
+        status: sql`case when ${codUserContentProgress.status} = 'not_started' then 'in_progress'::cod_content_progress_status else ${codUserContentProgress.status} end`,
+      },
+    })
+    .returning({ videoPositionSec: codUserContentProgress.videoPositionSec, videoWatchPct: codUserContentProgress.videoWatchPct })
+  return row ?? null
+}
+
 
 /** Returns pretest questions for a milestone (no correct answers in response). */
 export async function getMilestonePretest(userId: string, pathId: string, milestoneId: string) {
@@ -299,6 +325,7 @@ export async function submitPretest(userId: string, pathId: string, milestoneId:
     answers,
   })
 
+  await recordLearningStep(userId)
   return { score, total: questions.length }
 }
 
@@ -346,6 +373,7 @@ export async function submitQuiz(userId: string, pathId: string, milestoneId: st
     attemptNumber: prevAttempts.length + 1,
     answers,
   })
+  await recordLearningStep(userId)
 
   // Check if all milestones complete → flip path status
   if (passed) {

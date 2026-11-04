@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { authenticate } from '../middleware/authenticate'
 import { requireRole } from '../middleware/require-role'
 import { validate } from '../middleware/validate'
+import { patchOf } from '../utils/zodPatch'
+import { COURSE_TOPICS } from '../db/schema'
 import { perUser, capped, HOUR } from '../middleware/limits'
 import { oneAtATime } from '../middleware/oneAtATime'
 import * as courses from '../controllers/lms/courses.controller'
@@ -16,6 +18,7 @@ import * as cod from '../controllers/cod/cod.controller'
 import * as codAdmin from '../controllers/cod/codAdmin.controller'
 import * as both from '../controllers/both/both.controller'
 import * as bothAdmin from '../controllers/both/bothAdmin.controller'
+import { httpUrl, isHttpUrl } from "../utils/httpUrl";
 
 const router: IRouter = Router()
 
@@ -35,7 +38,7 @@ const createCourseDto = z.object({
   cover: z
     .string()
     .refine(
-      (val) => val.startsWith('/') || z.string().url().safeParse(val).success,
+      (val) => val.startsWith('/') || isHttpUrl(val),
       { message: "cover must be a valid URL or a path starting with '/'" },
     )
     .optional()
@@ -44,10 +47,22 @@ const createCourseDto = z.object({
   pointsPerUnit: z.number().int().min(0).default(10),
   enableCertificate: z.boolean().default(true),
   status: z.enum(['draft', 'published']).default('draft'),
+  /** Course topic for learner filters; one of COURSE_TOPICS, or null for uncategorised. */
+  category: z.enum(COURSE_TOPICS).optional().nullable(),
 })
 
-/** Partial update — every field optional; same allowlist as create (no timestamps). */
-const updateCourseDto = createCourseDto.partial()
+/**
+ * Partial update — every field optional; same allowlist as create (no timestamps).
+ * Built without the create defaults: under Zod 4, `.partial()` still applies
+ * `.default()` values, so a PATCH of one field would silently reset status to
+ * 'draft' (unpublishing the course), difficulty, points and certificate.
+ */
+const updateCourseDto = createCourseDto.extend({
+  difficulty: z.enum(['Beginner', 'Intermediate', 'Advanced']),
+  pointsPerUnit: z.number().int().min(0),
+  enableCertificate: z.boolean(),
+  status: z.enum(['draft', 'published']),
+}).partial()
 
 // --- Module DTOs ---
 
@@ -57,13 +72,19 @@ const createModuleDto = z.object({
   description: z.string().max(5000).optional().nullable(),
 })
 
-const updateModuleDto = createModuleDto.partial()
+const updateModuleDto = patchOf(createModuleDto)
 
 /**
  * Used by all reorder endpoints. Validated as a non-empty UUID array at the
  * controller level (empty array guard) to ensure order assignment is well-defined.
  */
 const reorderDto = z.object({ ids: z.array(z.string().uuid()) })
+
+const generateQuizDto = z.object({
+  assessmentId: z.string().uuid(),
+  count: z.number().int().min(1).max(10).default(5),
+  format: z.enum(['multiple-choice', 'true-false', 'mixed']).default('multiple-choice'),
+})
 
 // --- Unit DTOs ---
 
@@ -73,7 +94,7 @@ const createUnitDto = z.object({
   durationMinutes: z.number().int().min(0).optional().nullable(),
 })
 
-const updateUnitDto = createUnitDto.partial()
+const updateUnitDto = patchOf(createUnitDto)
 
 // --- Block DTOs ---
 
@@ -81,16 +102,16 @@ const createBlockDto = z.object({
   title: z.string().max(500).trim().default(''),
   type: z.enum(['text', 'video', 'image', 'question']),
   body: z.string().optional().nullable(),
-  videoUrl: z.string().url().optional().nullable(),
+  videoUrl: httpUrl().optional().nullable(),
   transcript: z.string().optional().nullable(),
-  imageUrl: z.string().url().optional().nullable(),
+  imageUrl: httpUrl().optional().nullable(),
 })
 
 /**
  * `type` is immutable after creation — omit it from the update allowlist so
  * changing the block type via PATCH is rejected at the schema level.
  */
-const updateBlockDto = createBlockDto.partial().omit({ type: true })
+const updateBlockDto = patchOf(createBlockDto).omit({ type: true })
 
 // --- Block Question DTOs ---
 
@@ -104,7 +125,7 @@ const createBlockQuestionDto = z.object({
   placeholder: z.string().optional().nullable(),
 })
 
-const updateBlockQuestionDto = createBlockQuestionDto.partial()
+const updateBlockQuestionDto = patchOf(createBlockQuestionDto)
 
 // --- Assessment DTOs ---
 
@@ -122,7 +143,7 @@ const createAssessmentDto = z.object({
  * `assessmentType` ('pre'/'post') is immutable after creation — omit it from
  * the update allowlist to prevent silently swapping assessment purpose.
  */
-const updateAssessmentDto = createAssessmentDto.partial().omit({ assessmentType: true })
+const updateAssessmentDto = patchOf(createAssessmentDto).omit({ assessmentType: true })
 
 // --- Assessment Question DTOs ---
 
@@ -134,7 +155,7 @@ const createAssessmentQuestionDto = z.object({
   explanation: z.string().optional().nullable(),
 })
 
-const updateAssessmentQuestionDto = createAssessmentQuestionDto.partial()
+const updateAssessmentQuestionDto = patchOf(createAssessmentQuestionDto)
 
 // ---------------------------------------------------------------------------
 // Request DTOs — Learner
@@ -145,14 +166,22 @@ const blockProgressDto = z.object({
   videoWatchPct: z.number().int().min(0).max(100).optional(),
 })
 
+const videoPositionDto = z.object({
+  positionSec: z.number().int().min(0).max(86_400),
+  watchPct: z.number().int().min(0).max(100),
+})
+
 const unitProgressDto = z.object({
   status: z.enum(['not_started', 'in_progress', 'completed']),
 })
 
+/** Longest written answer kept (an action plan is a few paragraphs; this stops megabyte payloads). */
+const MAX_WRITTEN_ANSWER = 10_000
+
 const questionAnswerDto = z.object({
   answerData: z.object({
-    selectedAnswer: z.number().int().optional(),
-    openEndedAnswer: z.string().optional(),
+    selectedAnswer: z.number().int().min(0).optional(),
+    openEndedAnswer: z.string().max(MAX_WRITTEN_ANSWER, `Keep answers under ${MAX_WRITTEN_ANSWER.toLocaleString('en-US')} characters`).optional(),
   }),
 })
 
@@ -218,6 +247,10 @@ adminRouter.post('/units/:unitId/blocks/reorder', validate(reorderDto), blocksCt
 adminRouter.patch('/blocks/:blockId', validate(updateBlockDto), blocksCtrl.update)
 adminRouter.delete('/blocks/:blockId', blocksCtrl.remove)
 
+// Quiz questions: AI drafts from the course's own text (nothing saved; the admin adds the ones they keep).
+// Each call is a paid AI run, so it's bounded per admin.
+adminRouter.post('/quiz/generate', perUser('quiz-generate', HOUR, 30), validate(generateQuizDto), blocksCtrl.generateQuiz)
+
 // Block Questions  (parent: block)
 adminRouter.post('/blocks/:blockId/questions', validate(createBlockQuestionDto), blocksCtrl.createQuestion)
 adminRouter.post('/blocks/:blockId/questions/reorder', validate(reorderDto), blocksCtrl.reorderQuestions)
@@ -251,6 +284,9 @@ learnerRouter.post('/courses/:courseId/enroll', learner.enrollInCourse)
 // Progress is a claim the server checks (progress.service.ts); this bounds how fast it can be made.
 const progressLimit = perUser('learner-progress', HOUR, 300)
 learnerRouter.post('/learning-blocks/:blockId/progress', progressLimit, validate(blockProgressDto), learner.updateBlockProgress)
+// The player saves every 10s while playing (360 an hour), so position saves get their own budget.
+const videoPositionLimit = perUser('video-position', HOUR, 900)
+learnerRouter.put('/learning-blocks/:blockId/video-position', videoPositionLimit, validate(videoPositionDto), learner.saveVideoPosition)
 learnerRouter.post('/units/:unitId/progress', progressLimit, validate(unitProgressDto), learner.updateUnitProgress)
 learnerRouter.get('/learning-blocks/:blockId/answers', learner.getBlockAnswers)
 learnerRouter.post('/questions/:questionId/answer', validate(questionAnswerDto), learner.saveQuestionAnswer)
@@ -332,6 +368,12 @@ const completeContentDto = z.object({
   videoWatchPct: z.number().int().min(0).max(100).optional(),
 })
 
+const codVideoPositionDto = z.object({
+  pathId: z.string().uuid(),
+  positionSec: z.number().int().min(0).max(86_400),
+  watchPct: z.number().int().min(0).max(100),
+})
+
 const submitAnswersDto = z.object({
   pathId: z.string().uuid(),
   answers: z.array(z.number().int().min(0).max(3)),
@@ -342,6 +384,7 @@ router.delete('/cod/path', authenticate, cod.deleteCodPath)
 // One build at a time is enforced in the service (a path still 'building'); these cap the rate.
 router.post('/cod/path/generate', authenticate, ...capped('cod-path', 5, HOUR, 15), validate(generateCodPathDto), cod.generateCodPath)
 router.post('/cod/content/:contentId/complete', authenticate, validate(completeContentDto), cod.completeContent)
+router.put('/cod/content/:contentId/video-position', authenticate, validate(codVideoPositionDto), cod.saveVideoPosition)
 router.get('/cod/milestones/:milestoneId/pretest', authenticate, cod.getMilestonePretest)
 router.post('/cod/milestones/:milestoneId/pretest/submit', authenticate, validate(submitAnswersDto), cod.submitPretest)
 router.get('/cod/milestones/:milestoneId/quiz', authenticate, cod.getMilestoneQuiz)
@@ -368,6 +411,14 @@ const generateBothPathDto = z.object({
   }),
 })
 
+const bothVideoPositionDto = z.object({
+  itemType: z.enum(['external', 'internal']),
+  pathId: z.string().uuid(),
+  milestoneId: z.string().min(1),
+  positionSec: z.number().int().min(0).max(86_400),
+  watchPct: z.number().int().min(0).max(100),
+})
+
 const completeItemDto = z.object({
   itemType: z.enum(['external', 'internal']),
   pathId: z.string().uuid(),
@@ -388,6 +439,7 @@ router.get('/both/path', authenticate, both.getBothPath)
 router.delete('/both/path', authenticate, both.deleteBothPath)
 router.post('/both/path/generate', authenticate, ...capped('both-path', 5, HOUR, 15), validate(generateBothPathDto), both.generateBothPath)
 router.post('/both/items/:itemId/complete', authenticate, validate(completeItemDto), both.completeItem)
+router.put('/both/items/:itemId/video-position', authenticate, validate(bothVideoPositionDto), both.saveVideoPosition)
 router.get('/both/milestones/:milestoneId/pretest', authenticate, both.getMilestonePretest)
 router.post('/both/milestones/:milestoneId/pretest/submit', authenticate, validate(submitBothAnswersDto), both.submitPretest)
 router.get('/both/milestones/:milestoneId/quiz', authenticate, both.getMilestoneQuiz)

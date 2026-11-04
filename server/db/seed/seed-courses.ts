@@ -58,7 +58,7 @@ export async function seedCourses(): Promise<void> {
   console.log(`[seed-courses] Seeded ${seeded} courses.`);
 }
 
-// @ts-ignore
+// @ts-expect-error — import.meta.main is Bun-specific (falsy under Node)
 if (import.meta.main) {
   seedCourses()
     .catch((err) => {

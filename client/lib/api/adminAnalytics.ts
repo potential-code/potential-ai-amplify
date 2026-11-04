@@ -131,3 +131,73 @@ export const fetchCourseEngagement = () =>
   apiFetch<{ success: boolean; data: CourseEngagementPoint[] }>(
     '/api/admin/analytics/course-engagement',
   ).then((r) => r.data)
+
+// ── Impact (admin home) ──────────────────────────────────────────────────────
+
+export interface ImpactSummary {
+  learners: number
+  newLearners30d: number
+  activeLearners30d: number
+  countries: number
+  lessonsCompleted: number
+  coursesCompleted: number
+  certificates: number
+  mentorSessions: number
+  journeysStarted: number
+  offersRedeemed: number
+}
+
+export interface ImpactMonth {
+  month: string
+  activeLearners: number
+  lessonsCompleted: number
+  coursesCompleted: number
+  certificates: number
+}
+
+export interface Impact {
+  summary: ImpactSummary
+  monthly: ImpactMonth[]
+  journeys: { journey: string; learners: number }[]
+  countries: { country: string; learners: number }[]
+}
+
+export const fetchImpact = () =>
+  apiFetch<{ success: boolean; data: Impact }>('/api/admin/analytics/impact').then((r) => r.data)
+
+// ── Analytics page insights (range KPIs vs previous period, charts) ─────────
+
+export interface KpiDelta {
+  current: number
+  previous: number
+}
+
+export interface AnalyticsInsights {
+  range: AnalyticsRange
+  kpis: {
+    newLearners: KpiDelta
+    activeLearners: KpiDelta
+    lessonsCompleted: KpiDelta
+    coursesCompleted: KpiDelta
+    certificates: KpiDelta
+    mentorSessions: KpiDelta
+    offersRedeemed: KpiDelta
+    journeysStarted: KpiDelta
+  }
+  series: {
+    bucket: string
+    newLearners: number
+    activeLearners: number
+    lessonsCompleted: number
+    sessionsBooked: number
+    sessionsCompleted: number
+    sessionsCancelled: number
+  }[]
+  funnel: { step: string; learners: number }[]
+  journeyMix: { journey: string; count: number }[]
+  weekdays: { day: string; activeLearners: number }[]
+  countries: { country: string; learners: number }[]
+}
+
+export const fetchAnalyticsInsights = (range: AnalyticsRange) =>
+  apiFetch<{ success: boolean; data: AnalyticsInsights }>(`/api/admin/analytics/insights?range=${range}`).then((r) => r.data)

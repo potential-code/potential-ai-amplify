@@ -163,8 +163,18 @@ export async function sendMail(options: SendMailOptions): Promise<void> {
     to,
     subject,
     html,
-    // Plain-text fallback: strip HTML tags for clients that prefer text/plain.
-    text: html.replace(/<[^>]+>/g, ""),
+    // Plain-text fallback for clients that prefer text/plain: drop the <head>
+    // and <style> blocks (their CSS is not readable text), then the tags.
+    text: html
+      .replace(/<(head|style)[\s\S]*?<\/\1>/gi, "")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&mdash;/g, "—")
+      .replace(/&copy;/g, "©")
+      .replace(/&amp;/g, "&")
+      .replace(/^[ \t]+|[ \t]+$/gm, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim(),
     ...(options.attachments?.length ? { attachments: options.attachments } : {}),
   });
 }

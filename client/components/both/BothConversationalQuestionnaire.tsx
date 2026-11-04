@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect, type ReactNode } from 'react'
 import { z } from 'zod'
 import {
   useFrontendTool,
@@ -9,61 +9,163 @@ import {
   UseAgentUpdate,
   useAgent,
   useCopilotKit,
+  type CopilotChatInputProps,
+  type CopilotChatAssistantMessageProps,
 } from '@copilotkit/react-core/v2'
 import '@copilotkit/react-ui/v2/styles.css'
 import '@/components/dashboard/copilot.css'
-import { SmeepAssistantMessage, SmeepUserMessage, SmeepChatInput } from '@/components/dashboard/chat-components'
+import { SmeepAssistantMessage, SmeepTypingCursor, onPillClickRef } from '@/components/dashboard/chat-components'
+import { SanaAssistantMessage, SanaUserMessage } from '@/components/learning-ui/SanaMessages'
+import { SanaChatInput } from '@/components/learning-ui/SanaChatInput'
+import { useJourneyRail } from '@/components/learning-ui/useJourneyRail'
+import { useSanaRunError, SanaConnectionNotice } from '@/components/learning-ui/SanaRunError'
+import '@/components/learning-ui/sana-studio.css'
 import { makeUuid } from '@/components/dashboard/useStreamingVoice'
-import { SendHorizontal, Target, GraduationCap, TrendingUp, ChevronRight } from 'lucide-react'
+import { PanelRight, type LucideIcon } from 'lucide-react'
+import {
+  HeaderIconButton,
+  JourneyBody,
+  JourneyCanvas,
+  JourneyHeader,
+  JourneyIntro,
+  LearnerLine,
+  SANA_AVATAR,
+} from '@/components/journeys/JourneyKit'
+import { AfterAnswersNote, DiscoveryHowItWorks } from '@/components/journeys/DiscoveryPanel'
+import { DiscoveryIntro, IntroComposer, ProfileCapturedNote, STANDARD_DISCOVERY_STEPS } from '@/components/journeys/DiscoveryIntro'
 import type { BothDiscoveryProfile } from '@/lib/api/both'
+import { TOPIC_CHIPS, TopicGoalCard, ButtonChoiceCard, type TopicGoalResult } from '../cod/discovery-cards'
+import { SanaReplyActionsProvider } from '@/components/learning-ui/SanaReplyActions'
 
-const COD_AGENT = 'codDiscovery'
+export interface ValueProp {
+  Icon: LucideIcon
+  label: string
+}
+
+export interface AccentTheme {
+  solid: string
+  dark: string
+  ink: string
+  line: string
+}
+
+// Hides CopilotChat's own composer while the opening turn (with its own composer) is up.
 const NullInput = () => null
 
-const TOPIC_CHIPS = [
-  'Leadership & Management',
-  'AI & Machine Learning',
-  'Product Management',
-  'Data Skills',
-  'Communication',
-]
-
-const STEPS = [
-  { num: '1', label: 'Your goals' },
-  { num: '2', label: 'Skill check' },
-  { num: '3', label: 'Path ready' },
-]
-
-const VALUE_PROPS = [
-  { Icon: Target, label: 'Custom milestones' },
-  { Icon: GraduationCap, label: 'Matched to your level' },
-  { Icon: TrendingUp, label: 'Track progress' },
-]
+const DEFAULT_HEADER_AVATAR = (
+  <img src={SANA_AVATAR} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover object-top" />
+)
 
 interface Props {
-  onProfileExtracted: (profile: BothDiscoveryProfile) => void | Promise<void>
+  /**
+   * `topicSelection` is the verbatim `collectTopicGoal` chip/goal payload the learner last
+   * responded with (null if they only typed free text) — ground truth, unlike `profile`
+   * which the LLM composes and may paraphrase away from the exact chip label.
+   */
+  onProfileExtracted: (profile: BothDiscoveryProfile, topicSelection?: TopicGoalResult | null) => void | Promise<void>
+  agentId?: string
+  headerAvatar?: ReactNode
+  headerTitle?: ReactNode
+  headerSubtitle?: ReactNode
+  heroAvatar?: ReactNode
+  heroHeadline?: ReactNode
+  heroSubtitle?: ReactNode
+  valueProps?: ValueProp[]
+  topicPrompt?: ReactNode
+  topicChips?: string[]
+  topicCard?: { title?: string; prompt?: string; chips?: string[]; goalPlaceholder?: string; singleSelect?: boolean; hideGoal?: boolean }
+  composerPlaceholder?: string
+  /** Placeholder for the in-chat composer once the conversation has started (SmeepChatInput). Undefined preserves the existing default there — set only by callers that need it to match `composerPlaceholder`. */
+  chatInputPlaceholder?: string
+  /** Shows a typing-dots bubble while the assistant composes its next reply. Opt-in so existing callers render exactly as before. */
+  showTypingIndicator?: boolean
+  /** Per-message assistant avatar in the chat bubbles/typing cursor. Undefined keeps the existing AI Amplify avatar. */
+  assistantAvatar?: ReactNode
+  accent?: Partial<AccentTheme>
+  showValueProps?: boolean
+  showTopicPrompt?: boolean
+  /** Whether the learning-style card is offered to the agent. */
+  askLearningStyle?: boolean
+  entryAction?: { label: ReactNode; message?: string; onClick?: () => void }
+  /** Card that opens the conversation instead of Anna's topic starters. */
+  introCard?: ReactNode
+  /** Side panel content; defaults to "How it works" plus the build steps. */
+  panel?: ReactNode
+  /** Journey name used in Anna's opening line. */
+  journeyName?: string
+  /** Extra content after the entry action in the opening turn. */
+  introExtra?: ReactNode
 }
 
 const ProfileSchema = z.object({
   goals: z.string(),
   topics: z.array(z.string()),
   experienceLevel: z.enum(['beginner', 'intermediate', 'advanced']),
-  learningStyle: z.enum(['visual', 'reading', 'mixed']),
+  learningStyle: z.enum(['visual', 'reading', 'mixed']).optional().default('mixed'),
   milestoneCount: z.number().int().min(3).max(6),
 })
 
-export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
+export function BothConversationalQuestionnaire({
+  onProfileExtracted,
+  agentId = 'codDiscovery',
+  headerAvatar = DEFAULT_HEADER_AVATAR,
+  headerTitle = 'Blended Learning',
+  headerSubtitle = 'Building your personalised Blended Learning path',
+  topicPrompt = 'Start with a topic, or type your own goal below.',
+  topicChips = TOPIC_CHIPS,
+  topicCard,
+  composerPlaceholder = 'What do you want to learn?',
+  chatInputPlaceholder,
+  showTypingIndicator = false,
+  assistantAvatar,
+  showTopicPrompt = true,
+  askLearningStyle = true,
+  entryAction,
+  introCard,
+  panel,
+  journeyName = 'Blended Learning',
+  introExtra,
+}: Props) {
   const { copilotkit } = useCopilotKit()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const agentRef = useRef<any>(null)
   const runChainRef = useRef<Promise<void>>(Promise.resolve())
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const collectTopicGoalResolveRef = useRef<((value: TopicGoalResult) => void) | null>(null)
+  const lastTopicSelectionRef = useRef<TopicGoalResult | null>(null)
+  const selectExperienceLevelResolveRef = useRef<((value: string) => void) | null>(null)
+  const selectLearningStyleResolveRef = useRef<((value: string) => void) | null>(null)
 
   const [showEmptyState, setShowEmptyState] = useState(true)
-  const [inputValue, setInputValue] = useState('')
+  const [panelOpen, togglePanel] = useJourneyRail()
+
+  // The composer stays live under the opening turn: before the conversation it
+  // shows the intro prompt, after that the in-chat one. SanaChatInput reads it
+  // from this shared ref as well as the prop.
+  const placeholder = showEmptyState ? composerPlaceholder : (chatInputPlaceholder ?? 'Type your answer')
+
+  // Custom `input` renderers only receive CopilotChat's standard props, so the
+  // per-caller placeholder is threaded through a small wrapper instead — memoized
+  // so identity stays stable and typing doesn't lose focus on every render.
+  const StudioChatInput = useMemo(() => {
+    return function StudioChatInputWithPlaceholder(props: CopilotChatInputProps) {
+      return <SanaChatInput {...props} placeholder={placeholder} />
+    }
+  }, [placeholder])
+
+  const AssistantMessage = useMemo(() => {
+    return function AssistantMessageWithAvatar(props: CopilotChatAssistantMessageProps) {
+      return <SmeepAssistantMessage {...props} avatar={assistantAvatar} />
+    }
+  }, [assistantAvatar])
+
+  const Cursor = useMemo(() => {
+    return function CursorWithAvatar() {
+      return <SmeepTypingCursor avatar={assistantAvatar} />
+    }
+  }, [assistantAvatar])
 
   const { agent } = useAgent({
-    agentId: COD_AGENT,
+    agentId,
     updates: [UseAgentUpdate.OnMessagesChanged],
   })
   agentRef.current = agent
@@ -94,13 +196,20 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
     [copilotkit],
   )
 
-  const handleInputSend = useCallback(() => {
-    const text = inputValue.trim()
-    if (!text) return
-    setInputValue('')
-    if (textareaRef.current) textareaRef.current.style.height = 'auto'
-    sendMessage(text)
-  }, [inputValue, sendMessage])
+  // Wire answer-pill clicks (SanaAssistantMessage renders the agent's
+  // <!-- options: --> blocks as pills; without this registration they are dead).
+  useEffect(() => {
+    onPillClickRef.current = sendMessage
+    return () => { onPillClickRef.current = null }
+  }, [sendMessage])
+
+  // Visible failure state for runs (backend down / network drop) — retry
+  // re-runs the agent; the user's message is already in the local thread.
+  const [runFailed, setRunFailed] = useSanaRunError(copilotkit, agent)
+  const retryRun = useCallback(() => {
+    setRunFailed(false)
+    void copilotkit.runAgent({ agent: agentRef.current }).catch(() => setRunFailed(true))
+  }, [copilotkit, setRunFailed])
 
   useFrontendTool({
     name: 'emitProfile',
@@ -109,14 +218,12 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
     render: ({ status }) => {
       if (status === ToolCallStatus.InProgress) return null
       return (
-        <div className="my-2 px-4 py-3 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-medium text-emerald-700">
-          Profile captured — starting to build your learning path...
-        </div>
+        <ProfileCapturedNote />
       )
     },
     handler: async (profile) => {
       try {
-        await onProfileExtracted(profile)
+        await onProfileExtracted(profile, lastTopicSelectionRef.current)
       } catch (err) {
         console.warn('[both] onProfileExtracted failed', err)
       }
@@ -124,177 +231,161 @@ export function BothConversationalQuestionnaire({ onProfileExtracted }: Props) {
     },
   })
 
-  return (
-    <div className="smeep-copilot flex flex-col h-[calc(100vh-11rem)] min-h-[480px] rounded-2xl border border-brand-surface-2 overflow-hidden">
-      {/* Header */}
-      <div
-        className="flex items-center gap-3 px-4 py-3 border-b border-white/10 flex-shrink-0"
-        style={{ background: 'linear-gradient(120deg, #1A0A12 0%, #2d0f20 100%)' }}
-      >
-        <img
-          src="/images/redesign/anna-avatar-96.png"
-          alt="Anna"
-          className="w-8 h-8 rounded-full object-cover object-top"
-        />
-        <div>
-          <p className="text-sm font-semibold text-white leading-tight">Anna — Learning Path Advisor</p>
-          <p className="text-[10px] text-white/60 leading-tight">Building your personalised learning path</p>
-        </div>
-      </div>
+  useFrontendTool({
+    name: 'collectTopicGoal',
+    description:
+      'Show an in-chat card for the learner to pick one or more topics of interest and describe their goal. Pauses until the learner responds, then returns their selection.',
+    parameters: z.object({}),
+    render: ({ status }) => (
+      <TopicGoalCard
+        {...topicCard}
+        status={status}
+        respond={(value) => {
+          lastTopicSelectionRef.current = value
+          collectTopicGoalResolveRef.current?.(value)
+          collectTopicGoalResolveRef.current = null
+        }}
+      />
+    ),
+    handler: async () => {
+      const value = await new Promise<TopicGoalResult>((resolve) => {
+        collectTopicGoalResolveRef.current = resolve
+      })
+      return JSON.stringify(value)
+    },
+  })
 
-      {/* Chat area */}
-      <div className="relative flex-1 overflow-hidden smeep-assistant-chat">
+  useFrontendTool({
+    name: 'selectExperienceLevel',
+    description:
+      "Show a 3-option card for the learner's experience level (beginner/intermediate/advanced). Pauses until the learner responds.",
+    parameters: z.object({}),
+    render: ({ status }) => (
+      <ButtonChoiceCard
+        title="What's your experience level?"
+        status={status}
+        options={[
+          { value: 'beginner', label: 'Beginner' },
+          { value: 'intermediate', label: 'Intermediate' },
+          { value: 'advanced', label: 'Advanced' },
+        ]}
+        respond={(value) => {
+          selectExperienceLevelResolveRef.current?.(value)
+          selectExperienceLevelResolveRef.current = null
+        }}
+      />
+    ),
+    handler: async () => {
+      const value = await new Promise<string>((resolve) => {
+        selectExperienceLevelResolveRef.current = resolve
+      })
+      return JSON.stringify({ experienceLevel: value })
+    },
+  })
+
+  useFrontendTool({
+    name: 'selectLearningStyle',
+    available: askLearningStyle,
+    description:
+      'Show a 3-option card for how the learner prefers to learn (videos/reading/mix). Pauses until the learner responds.',
+    parameters: z.object({}),
+    render: ({ status }) => (
+      <ButtonChoiceCard
+        title="How do you learn best?"
+        status={status}
+        options={[
+          { value: 'visual', label: 'Videos' },
+          { value: 'reading', label: 'Reading' },
+          { value: 'mixed', label: 'Mix' },
+        ]}
+        respond={(value) => {
+          selectLearningStyleResolveRef.current?.(value)
+          selectLearningStyleResolveRef.current = null
+        }}
+      />
+    ),
+    handler: async () => {
+      const value = await new Promise<string>((resolve) => {
+        selectLearningStyleResolveRef.current = resolve
+      })
+      return JSON.stringify({ learningStyle: value })
+    },
+  })
+
+  return (
+    <JourneyCanvas>
+      <JourneyHeader
+        leading={headerAvatar}
+        title={headerTitle}
+        subtitle={headerSubtitle}
+        secondaryActions={
+          <HeaderIconButton
+            label={panelOpen ? 'Hide how it works' : 'Show how it works'}
+            aria-pressed={panelOpen}
+            onClick={togglePanel}
+            className="hidden xl:inline-flex"
+          >
+            <PanelRight className="h-4 w-4" aria-hidden />
+          </HeaderIconButton>
+        }
+      />
+      {runFailed && <SanaConnectionNotice onRetry={retryRun} />}
+
+      <JourneyBody
+        panelOpen={panelOpen}
+        panel={
+          panel ?? (
+            <>
+              <DiscoveryHowItWorks steps={STANDARD_DISCOVERY_STEPS} />
+              <AfterAnswersNote />
+            </>
+          )
+        }
+      >
+        <SanaReplyActionsProvider reportSurface="blended-setup">
         <CopilotChat
-          agentId={COD_AGENT}
+          agentId={agentId}
+          messageView={{
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            assistantMessage: (assistantAvatar ? AssistantMessage : SanaAssistantMessage) as any,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            userMessage: SanaUserMessage as any,
+            // CopilotKit's own cursor slot fires reliably on isRunning regardless of
+            // message-array timing (unlike keying off an empty assistant message).
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...(showTypingIndicator ? { cursor: Cursor as any } : {}),
+          }}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          messageView={{ assistantMessage: SmeepAssistantMessage as any, userMessage: SmeepUserMessage as any }}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          input={(showEmptyState ? NullInput : SmeepChatInput) as any}
+          input={(showEmptyState ? NullInput : StudioChatInput) as any}
           labels={{
-            chatInputPlaceholder: 'Type your answer…',
+            chatInputPlaceholder: placeholder,
             welcomeMessageText: '',
           }}
         />
+        </SanaReplyActionsProvider>
 
-        {/* Empty state overlay — replaced by chat once conversation begins */}
+        {/* Opening turn — replaced by the chat once the conversation begins.
+            The composer below stays live, so the learner can just type. */}
         {showEmptyState && (
-          <div className="absolute inset-0 z-10 flex flex-col bg-white overflow-y-auto">
-            {/* Hero */}
-            <div className="flex-1 flex flex-col items-center justify-center px-5 pt-6 pb-2">
-              {/* Anna avatar */}
-              <img
-                src="/images/redesign/anna-avatar-96.png"
-                alt="Anna"
-                className="w-24 h-24 rounded-full object-cover object-top mb-4 flex-shrink-0"
-                style={{
-                  boxShadow: '0 0 0 4px white, 0 0 0 6px #e8b4d0, 0 0 32px 8px rgba(101, 45, 144,0.25)',
+          <JourneyIntro footer={<IntroComposer placeholder={placeholder} onSend={sendMessage} />}>
+            {introCard ??
+              (showTopicPrompt ? (
+                <DiscoveryIntro journeyName={journeyName} topics={topicChips} onTopic={sendMessage} prompt={typeof topicPrompt === 'string' ? topicPrompt : undefined} />
+              ) : null)}
+            {entryAction && (
+              <LearnerLine
+                onClick={() => {
+                  if (entryAction.onClick) entryAction.onClick()
+                  else if (entryAction.message) sendMessage(entryAction.message)
                 }}
-              />
-
-              {/* Headline */}
-              <h2 className="text-lg font-black text-[#1A0A12] text-center leading-tight mb-1.5">
-                Your personalised learning path<br />starts here.
-              </h2>
-              <p className="text-xs text-[#6b7280] text-center leading-relaxed mb-5 max-w-[260px]">
-                I&apos;ll ask a few questions and build a path made just for you — takes under 2 minutes.
-              </p>
-
-              {/* Step indicator */}
-              <div className="flex items-start mb-5">
-                {STEPS.map((step, i) => (
-                  <div key={step.num} className="flex items-start">
-                    <div className="flex flex-col items-center gap-1">
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-                      >
-                        {step.num}
-                      </div>
-                      <span className="text-[10px] text-[#6b7280] text-center whitespace-nowrap">{step.label}</span>
-                    </div>
-                    {i < STEPS.length - 1 && (
-                      <div className="h-px w-10 mt-3.5 flex-shrink-0" style={{ background: '#e8b4d0' }} />
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Value props */}
-              <div className="flex flex-wrap gap-2 justify-center mb-6">
-                {VALUE_PROPS.map(({ Icon, label }) => (
-                  <div
-                    key={label}
-                    className="flex flex-row items-center gap-2 px-3 py-2 overflow-hidden relative"
-                    style={{
-                      borderRadius: '999px',
-                      background: 'linear-gradient(120deg, rgba(101, 45, 144,0.10) 0%, rgba(74,33,104,0.28) 100%)',
-                      border: '1.5px solid rgba(101, 45, 144,0.25)',
-                      boxShadow: '0 2px 10px rgba(101, 45, 144,0.07)',
-                    }}
-                  >
-                    {/* faded ghost icon in background */}
-                    <Icon
-                      className="absolute -bottom-2 -right-3 opacity-[0.07]"
-                      size={44}
-                      strokeWidth={1.5}
-                      style={{ color: 'var(--color-brand-primary)' }}
-                    />
-                    {/* foreground icon */}
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'rgba(255,255,255,0.30)' }}
-                    >
-                      <Icon size={13} strokeWidth={2} style={{ color: 'var(--color-brand-primary)' }} />
-                    </div>
-                    <span className="text-[11px] font-semibold relative z-10 whitespace-nowrap" style={{ color: '#3d1a2b' }}>
-                      {label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Topic chips */}
-              <p className="text-sm font-semibold mb-3 text-center" style={{ color: 'rgba(101, 45, 144,0.75)' }}>
-                Start with a topic — or type below:
-              </p>
-              <div className="flex flex-wrap gap-2 w-full justify-center">
-                {TOPIC_CHIPS.map((topic) => (
-                  <button
-                    key={topic}
-                    type="button"
-                    onClick={() => sendMessage(topic)}
-                    className="smeep-topic-chip"
-                  >
-                    {topic}
-                    <ChevronRight size={14} strokeWidth={2.5} className="opacity-70" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Input — same styling as SmeepChatInput */}
-            <div className="px-3 pb-3 pt-2 flex-shrink-0">
-              <div className="smeep-chat-input-wrap flex items-end gap-2 px-3 py-2 bg-[#fdf5f9] border border-[#f7e8f0] rounded-2xl">
-                <textarea
-                  ref={textareaRef}
-                  value={inputValue}
-                  onChange={(e) => {
-                    setInputValue(e.target.value)
-                    e.target.style.height = 'auto'
-                    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      handleInputSend()
-                    }
-                  }}
-                  placeholder="What do you want to learn?"
-                  rows={1}
-                  className="smeep-chat-textarea flex-1 bg-transparent outline-none resize-none text-[13px] text-[#1A0A12] leading-snug placeholder:text-[#6B7280]/50 min-w-0"
-                  style={{ minHeight: '20px', maxHeight: '120px', fontFamily: 'inherit' }}
-                />
-                <button
-                  onClick={handleInputSend}
-                  disabled={!inputValue.trim()}
-                  aria-label="Send"
-                  className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0 self-end transition-opacity disabled:opacity-30"
-                  style={
-                    inputValue.trim()
-                      ? { background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }
-                      : { background: '#f7e8f0' }
-                  }
-                >
-                  <SendHorizontal size={13} strokeWidth={2.5} className="text-white" />
-                </button>
-              </div>
-              <p className="smeep-chat-hint text-[10px] text-center mt-1.5 select-none text-gray-500/45">
-                Enter to send · Shift+Enter for new line
-              </p>
-            </div>
-          </div>
+              >
+                {entryAction.label}
+              </LearnerLine>
+            )}
+            {introExtra}
+          </JourneyIntro>
         )}
-      </div>
-    </div>
+      </JourneyBody>
+    </JourneyCanvas>
   )
 }

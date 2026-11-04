@@ -296,7 +296,7 @@ export async function seedCourseContent(): Promise<void> {
               unitId: dbUnit.id,
               type: "question",
               title: "Action Plan",
-              order: blockOrder++,
+              order: blockOrder,
             })
             .returning({ id: learningBlocks.id });
           totalBlocks++;
@@ -321,7 +321,7 @@ export async function seedCourseContent(): Promise<void> {
               unitId: dbUnit.id,
               type: "question",
               title: quiz.title || "Quiz",
-              order: blockOrder++,
+              order: blockOrder,
             })
             .returning({ id: learningBlocks.id });
           totalBlocks++;
@@ -358,7 +358,7 @@ export async function seedCourseContent(): Promise<void> {
   );
 }
 
-// @ts-ignore
+// @ts-expect-error — import.meta.main is Bun-specific (falsy under Node)
 if (import.meta.main) {
   seedCourseContent()
     .catch((err) => {

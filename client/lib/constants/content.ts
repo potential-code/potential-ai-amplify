@@ -1,8 +1,11 @@
 // Hero section
 export const HERO = {
-  headline: 'Amplify Your Business with AI — Work Smarter, Grow Faster',
+  headline: 'Amplify your business with AI. Work smarter, grow faster.',
   subtext:
     "Learn to put AI to work in your business: cut costs, win more customers, and build future-ready skills with AI Amplify, Potential.org's global program for SMEs and job seekers.",
+  // Registration is invite-only: the sign-up page (and Anna's chat) ask for the code.
+  ctaHref: '/sign-up',
+  loginHref: '/login',
 } as const
 
 // About section
@@ -130,6 +133,8 @@ export const STAKEHOLDER = {
       image: '/images/redesign/stakeholder-6-incubator.png',
     },
   ],
+  smeCtaLabel: 'Register as SME',
+  smeCtaHref: '/sign-up',
 } as const
 
 export type StakeholderKind =
@@ -318,11 +323,22 @@ export const JOURNEY_COURSES = {
   ],
 } as const
 
+// Landing "More courses" picks. Titles, unit counts and covers mirror AI
+// Amplify's published courses in the database.
+export const LANDING_COURSE_PICKS = [
+  { title: 'Financial Literacy', units: 6, cover: '/images/courses/financial-literacy.png' },
+  { title: 'Communication Skills', units: 10, cover: '/images/courses/communication-skills.png' },
+  { title: 'Leadership Essentials', units: 12, cover: '/images/courses/leadership-essentials.png' },
+  { title: 'Managing your Cash Flow', units: 5, cover: '/images/courses/managing-your-cash-flow.png' },
+  { title: 'Digital Marketing', units: 12, cover: '/images/courses/24minmarketing.png' },
+  { title: 'Negotiation Skills', units: 6, cover: '/images/courses/negotiation-skills.png' },
+] as const
+
 // AI Mentors — gif avatars from api.potential.com
 export const AI_MENTORS = {
   badge: 'Your AI Coaches',
   heading: 'AI Mentors',
-  subtext: 'Meet your always-on AI coaches — instant, expert guidance whenever your business needs it.',
+  subtext: 'Get instant guidance from AI-powered business mentors, available 24/7.',
   mentors: [
     {
       name: 'Corporate Security & Safety Coach',
@@ -377,7 +393,7 @@ export const AI_MENTORS = {
     },
   ],
   ctaLabel: 'Chat Now',
-  ctaHref: '#',
+  ctaHref: '/sign-up',
 } as const
 
 // Chatbot Section
@@ -396,7 +412,7 @@ export const CHATBOT = {
   ],
 } as const
 
-// Human Mentors — real people from smeep.potential.org
+// Human Mentors — real people from aiamplify.potential.org
 export const HUMAN_MENTORS = {
   badge: 'Human Mentors',
   heading: 'Human Mentors',
@@ -406,151 +422,151 @@ export const HUMAN_MENTORS = {
   mentors: [
     {
       name: 'Monika Papadopoulou',
-      email: 'monika.papadopoulou@smeep.potential.org',
+      email: 'monika.papadopoulou@aiamplify.potential.org',
       specialty: 'Leadership, Sales, Branding',
       category: 'Leadership',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2021/03/monika.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2021/03/monika.jpg',
       linkedin: 'https://www.linkedin.com/in/monika-papadopoulou-26484191/',
       featured: true,
     },
     {
       name: 'Ziad Banna',
-      email: 'ziad.banna@smeep.potential.org',
+      email: 'ziad.banna@aiamplify.potential.org',
       specialty: 'Project Management, Leadership, Accounting',
       category: 'Leadership',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2021/03/ziadbanna.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2021/03/ziadbanna.jpg',
       linkedin: 'https://www.linkedin.com/in/ziad-b-a7206b24/',
       featured: true,
     },
     {
       name: 'Celine Chami',
-      email: 'celine.chami@smeep.potential.org',
+      email: 'celine.chami@aiamplify.potential.org',
       specialty: 'Social Media, Marketing, Communication',
       category: 'Marketing',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2020/07/Celine-card.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2020/07/Celine-card.jpg',
       linkedin: 'https://www.linkedin.com/in/celinechami',
       featured: true,
     },
     {
       name: 'Alla Musnicka',
-      email: 'alla.musnicka@smeep.potential.org',
+      email: 'alla.musnicka@aiamplify.potential.org',
       specialty: 'Sales, Marketing, PR',
       category: 'Marketing',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2020/07/Alla-card.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2020/07/Alla-card.jpg',
       linkedin: 'https://www.linkedin.com/in/alla-marija-musnicka-21154224',
       featured: true,
     },
     {
       name: 'Ivan Kraemer',
-      email: 'ivan.kraemer@smeep.potential.org',
+      email: 'ivan.kraemer@aiamplify.potential.org',
       specialty: 'ICT, Sales, Team Building',
       category: 'Operations',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2020/06/Ivan-Kraemer-smeep-card.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2020/06/Ivan-Kraemer-smeep-card.jpg',
       linkedin: 'https://www.linkedin.com/in/ivankraemer/',
       featured: true,
     },
     {
       name: 'Mita Srinivasan',
-      email: 'mita.srinivasan@smeep.potential.org',
+      email: 'mita.srinivasan@aiamplify.potential.org',
       specialty: 'PR, Social Media, Communications',
       category: 'Marketing',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2020/06/Mita-Smeep-card.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2020/06/Mita-Smeep-card.jpg',
       linkedin: 'https://www.linkedin.com/in/mitasrinivasan/',
       featured: true,
     },
     {
       name: 'Shahrazad Shehab',
-      email: 'shahrazad.shehab@smeep.potential.org',
+      email: 'shahrazad.shehab@aiamplify.potential.org',
       specialty: 'PR, Social Media',
       category: 'Marketing',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2021/06/Shahrazad-Shehab-card-1.png',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2021/06/Shahrazad-Shehab-card-1.png',
       linkedin: 'https://www.linkedin.com/in/shahrazad-shehab/',
       featured: false,
     },
     {
       name: 'Sawsan Abbasy',
-      email: 'sawsan.abbasy@smeep.potential.org',
+      email: 'sawsan.abbasy@aiamplify.potential.org',
       specialty: 'Strategy, Sales',
       category: 'Strategy',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2021/05/Sawsan-Abbasy-300x300-1.png',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2021/05/Sawsan-Abbasy-300x300-1.png',
       linkedin: 'https://www.linkedin.com/in/sawsanabbasi/',
       featured: false,
     },
     {
       name: 'Umair Azhar',
-      email: 'umair.azhar@smeep.potential.org',
+      email: 'umair.azhar@aiamplify.potential.org',
       specialty: 'Insurance, Financials',
       category: 'Finance',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2021/03/Umair.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2021/03/Umair.jpg',
       linkedin: 'https://www.linkedin.com/in/umair-azhar-b112117b/',
       featured: false,
     },
     {
       name: 'Ghinwa Abi Zeid',
-      email: 'ghinwa.abizeid@smeep.potential.org',
+      email: 'ghinwa.abizeid@aiamplify.potential.org',
       specialty: 'Legal, Partnerships, Company Setup',
       category: 'Legal',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2021/03/ghenwa.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2021/03/ghenwa.jpg',
       linkedin: 'https://www.linkedin.com/in/ghinwa-abi-zeid-7a129016/',
       featured: false,
     },
     {
       name: 'Albert Jose',
-      email: 'albert.jose@smeep.potential.org',
+      email: 'albert.jose@aiamplify.potential.org',
       specialty: 'Accounting, Auditing, Tax',
       category: 'Finance',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2021/03/Albert-card.png',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2021/03/Albert-card.png',
       linkedin: 'https://www.linkedin.com/in/al-khazraji-audit-b08523168/',
       featured: false,
     },
     {
       name: 'Nika Sturm',
-      email: 'nika.sturm@smeep.potential.org',
+      email: 'nika.sturm@aiamplify.potential.org',
       specialty: 'Strategy',
       category: 'Strategy',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2020/08/Nika-Sturm.png',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2020/08/Nika-Sturm.png',
       linkedin: 'https://www.linkedin.com/in/nikasturm/',
       featured: false,
     },
     {
       name: 'Ahmed Alsuleimani',
-      email: 'ahmed.alsuleimani@smeep.potential.org',
+      email: 'ahmed.alsuleimani@aiamplify.potential.org',
       specialty: 'Leadership, Strategy',
       category: 'Leadership',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2020/08/Ahmed-Alsuleimani.png',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2020/08/Ahmed-Alsuleimani.png',
       linkedin: 'https://www.linkedin.com/in/ahmed-alsuleimani-42a04066',
       featured: false,
     },
     {
       name: 'Samer Hamadeh',
-      email: 'samer.hamadeh@smeep.potential.org',
+      email: 'samer.hamadeh@aiamplify.potential.org',
       specialty: 'Product Development, Strategy, Business Development',
       category: 'Strategy',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2020/07/Samer-card.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2020/07/Samer-card.jpg',
       linkedin: 'https://www.linkedin.com/in/samerhamadeh/',
       featured: false,
     },
     {
       name: 'Kirsten Westholter',
-      email: 'kirsten.westholter@smeep.potential.org',
+      email: 'kirsten.westholter@aiamplify.potential.org',
       specialty: 'Design Thinking, Business Transformation, Strategy',
       category: 'Strategy',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2020/07/Kirsten-card.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2020/07/Kirsten-card.jpg',
       linkedin: 'https://www.linkedin.com/in/kirstenwestholter/',
       featured: false,
     },
     {
       name: 'Tony Feghali',
-      email: 'tony.feghali@smeep.potential.org',
+      email: 'tony.feghali@aiamplify.potential.org',
       specialty: 'Strategy, Leadership, Sales',
       category: 'Leadership',
-      avatar: 'https://smeep.potential.org/wp-content/uploads/2020/07/Tony-card.jpg',
+      avatar: 'https://aiamplify.potential.org/wp-content/uploads/2020/07/Tony-card.jpg',
       linkedin: 'https://www.linkedin.com/in/tonyfeghali/',
       featured: false,
     },
     {
       name: 'Lara Haddad',
-      email: 'lara.haddad@smeep.potential.org',
+      email: 'lara.haddad@aiamplify.potential.org',
       specialty: 'Strategy & Operations',
       category: 'Strategy',
       avatar: '/assets/mentors/mentor-placeholder.jpg',
@@ -568,7 +584,7 @@ export const SPECIAL_OFFERS = {
   heading: 'Special AI Amplify Offers',
   subtext: 'Exclusive discounts and tools from our partners — one more way AI Amplify pays for itself.',
   ctaLabel: 'Reveal Coupon',
-  ctaHref: '#',
+  ctaHref: '/sign-up',
 } as const
 
 // Community section
@@ -589,6 +605,8 @@ export const COMMUNITY = {
 export const CTA_FINAL = {
   heading: 'Cut Costs and Grow Faster with AI',
   subtext: 'Seats are limited. Join thousands of SMEs already amplifying their business with AI.',
+  ctaLabel: 'Log in',
+  ctaHref: '/login',
   loginLabel: 'Login',
   loginHref: '/login',
 } as const
@@ -601,6 +619,7 @@ export const REDESIGN_ASSETS = {
     alt: '',
   },
   aboutPhoto: { src: '/images/redesign/about-photo.png', alt: 'SME owner working with AI tools' },
+  aboutGlobe: { src: '/images/redesign/about-globe.png', alt: 'Global SME network' },
   journeyFlow: {
     src: '/images/redesign/journey-flow-image.png',
     alt: 'AI-powered journey flow diagram',
@@ -654,7 +673,15 @@ export const NEWSLETTER = {
 // Footer
 export const FOOTER = {
   contactEmail: 'info@potential.com',
-  copyright: 'Potential © 2005-2026 | All Rights Reserved.',
+  copyright: `Potential © 2005-${new Date().getFullYear()} | All Rights Reserved.`,
   contactHeading: 'Get in Touch',
   contactBody: 'For any inquiries about AI Amplify, please contact us at:',
 } as const
+
+/** Amplify's headline figures: the landing hero and the admin Impact banner both show these. */
+export const PROGRAM_FACTS = [
+  { value: '6', label: 'core AI courses' },
+  { value: '6', label: 'AI mentors' },
+  { value: '24/7', label: 'with Anna, your AI concierge' },
+  { value: '1:1', label: 'sessions with human mentors' },
+] as const

@@ -1,0 +1,48 @@
+{{#> layout}}
+
+  <p style="margin:0 0 20px;font-family:'Noto Sans',system-ui,sans-serif;font-size:15px;line-height:1.65;color:#1A0A12;">
+    Hi <strong>{{name}}</strong>,
+  </p>
+
+  <p style="margin:0 0 20px;font-family:'Noto Sans',system-ui,sans-serif;font-size:15px;line-height:1.65;color:#1A0A12;">
+    The <strong style="color:#652d90;">AI Amplify</strong> team has set up a partner dashboard for
+    <strong>{{organisation}}</strong>. It shows how your learners are doing: who has joined, their course
+    progress, certificates and how much they improve from pre-test to final exam.
+  </p>
+
+  <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin:0 0 24px;">
+    <tr>
+      <td align="center" bgcolor="#652d90"
+          style="background-color:#652d90;border-radius:8px;mso-padding-alt:0;">
+        <a href="{{setupLink}}" target="_blank"
+           style="display:inline-block;padding:14px 36px;
+                  font-family:'Noto Sans',system-ui,sans-serif;
+                  font-size:15px;font-weight:700;color:#ffffff;
+                  text-decoration:none;border-radius:8px;
+                  mso-padding-alt:14px 36px;">
+          Set up my login
+        </a>
+      </td>
+    </tr>
+  </table>
+
+  <table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%"
+         style="margin:0 0 20px;">
+    <tr>
+      <td style="background-color:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;
+                 padding:12px 16px;">
+        <p style="margin:0;font-family:'Noto Sans',system-ui,sans-serif;
+                  font-size:13px;font-weight:500;color:#92400e;">
+          This link works for <strong>{{days}} days</strong>. After that, ask the AI Amplify team for a new one.
+        </p>
+      </td>
+    </tr>
+  </table>
+
+  <p style="margin:0;font-family:'Noto Sans',system-ui,sans-serif;font-size:13px;
+            line-height:1.6;color:#6B7280;">
+    If the button doesn't work, copy this link into your browser:<br>
+    <a href="{{setupLink}}" style="color:#652d90;text-decoration:underline;word-break:break-all;">{{setupLink}}</a>
+  </p>
+
+{{/layout}}

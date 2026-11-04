@@ -45,10 +45,10 @@ export function getCourseCta(course: LearnerCourse): {
   label: string
   intent: 'enroll' | 'start' | 'continue' | 'review'
 } {
-  if (!course.isEnrolled) return { label: 'Enroll & Start', intent: 'enroll' }
-  if (course.progressPercentage === 0) return { label: 'Start Course', intent: 'start' }
-  if (course.progressPercentage < 100) return { label: 'Continue Course', intent: 'continue' }
-  return { label: 'Review Course', intent: 'review' }
+  if (!course.isEnrolled) return { label: 'Enroll and start', intent: 'enroll' }
+  if (course.progressPercentage === 0) return { label: 'Start course', intent: 'start' }
+  if (course.progressPercentage < 100) return { label: 'Continue course', intent: 'continue' }
+  return { label: 'Review course', intent: 'review' }
 }
 
 export function filterOffers(offers: Offer[], topic?: string): Offer[] {
@@ -81,5 +81,5 @@ export function filterEventsByIds(events: LiveEvent[], ids: string[]): LiveEvent
 }
 
 export function isEventPast(event: LiveEvent): boolean {
-  return new Date(event.date) < new Date(new Date().setHours(0, 0, 0, 0))
+  return Date.parse(event.endsAt) < Date.now() || !!event.endedAt
 }

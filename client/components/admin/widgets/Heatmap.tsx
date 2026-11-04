@@ -1,23 +1,23 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { HEATMAP_DAYS, HEATMAP_HOURS, HEATMAP_DATA } from '@/lib/adminData'
 
-function colorFor(value: number) {
-  // 0..100 → brand-purple intensity
-  const alpha = 0.08 + (value / 100) * 0.85
-  return `rgba(101, 45, 144, ${alpha.toFixed(3)})`
+/** Activity heatmap (day x hour). Cell tint is the brand token mixed by value 0..100. */
+function background(value: number) {
+  const pct = Math.round(8 + (Math.max(0, Math.min(100, value)) / 100) * 85)
+  return `color-mix(in srgb, var(--ui-brand) ${pct}%, var(--ui-surface-2))`
 }
 
 export function Heatmap() {
   return (
     <div className="overflow-x-auto">
-      <table className="border-separate border-spacing-1 min-w-full">
+      <table className="min-w-full border-separate border-spacing-1">
+        <caption className="sr-only">Activity by day and time</caption>
         <thead>
           <tr>
             <th className="w-12" />
             {HEATMAP_HOURS.map((h) => (
-              <th key={h} className="text-[10px] font-bold uppercase tracking-wider text-brand-text-muted px-2 pb-2">
+              <th key={h} scope="col" className="px-2 pb-2 text-xs font-medium text-ui-muted">
                 {h}
               </th>
             ))}
@@ -26,22 +26,18 @@ export function Heatmap() {
         <tbody>
           {HEATMAP_DATA.map((row, ri) => (
             <tr key={HEATMAP_DAYS[ri]}>
-              <td className="text-[10px] font-bold uppercase tracking-wider text-brand-text-muted pr-2 text-right">
+              <th scope="row" className="pr-2 text-right text-xs font-medium text-ui-muted">
                 {HEATMAP_DAYS[ri]}
-              </td>
+              </th>
               {row.map((v, ci) => (
                 <td key={ci}>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.6 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: (ri * row.length + ci) * 0.012, duration: 0.3 }}
-                    className="h-9 w-full rounded-md flex items-center justify-center text-[10px] font-bold text-brand-text-primary/70 hover:scale-110 transition-transform cursor-default"
-                    style={{ background: colorFor(v) }}
-                    title={`${HEATMAP_DAYS[ri]} ${HEATMAP_HOURS[ci]} · ${v}`}
+                  <div
+                    className="flex h-9 w-full items-center justify-center rounded-md text-[11px] font-semibold tabular-nums"
+                    style={{ background: background(v), color: v > 55 ? '#fff' : 'var(--ui-text)' }}
+                    title={`${HEATMAP_DAYS[ri]} ${HEATMAP_HOURS[ci]}: ${v}`}
                   >
                     {v}
-                  </motion.div>
+                  </div>
                 </td>
               ))}
             </tr>

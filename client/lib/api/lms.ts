@@ -6,6 +6,8 @@ export type LearnerCourse = {
   description: string | null
   cover: string | null
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced'
+  /** Topic, e.g. "Money and finance". */
+  category?: string | null
   pointsPerUnit: number
   enableCertificate: boolean
   status: 'published'
@@ -19,6 +21,8 @@ export type LearnerCourse = {
 export type BlockProgress = {
   status: 'not_started' | 'in_progress' | 'completed'
   videoWatchPct: number | null
+  /** Where the learner stopped in the video, in seconds. */
+  videoPositionSec?: number | null
   completedAt: string | null
 }
 
@@ -59,11 +63,31 @@ export type LearnerModule = Omit<CourseModule, 'units'> & {
   isLocked: boolean
 }
 
+export type CoursePreviewUnit = {
+  title: string
+  description: string | null
+  lessons: number
+  videos: number
+  readings: number
+  activities: number
+}
+
+/** What a learner sees before starting: the outline and counts, no lesson content. */
+export type CoursePreview = {
+  units: CoursePreviewUnit[]
+  totals: { units: number; lessons: number; videos: number; readings: number; activities: number }
+  hasPreTest: boolean
+  hasFinalExam: boolean
+  learners: number
+}
+
 export type LearnerCourseDetail = LearnerCourse & {
   modules: LearnerModule[]
   preAssessment: (Assessment & { isLocked: boolean; isCompleted: boolean }) | null
   postAssessment: (Assessment & { isLocked: boolean }) | null
   courseProgress: CourseProgress | null
+  /** Only before enrolment. */
+  preview?: CoursePreview
 }
 
 export type AssessmentSummary = {
@@ -190,20 +214,15 @@ export type CourseWithContent = CourseSummary & {
   postAssessment: Assessment | null
 }
 
-const BASE = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'}/api/lms`
+const BASE = `/api/lms`
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem('smeep_token')
-}
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getToken()
   const res = await fetch(`${BASE}${path}`, {
     ...init,
+    credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers ?? {}),
     },
   })
@@ -297,6 +316,15 @@ export const apiUpdateBlockProgress = (
   blockId: string,
   data: { status: 'not_started' | 'in_progress' | 'completed'; videoWatchPct?: number },
 ) => apiFetch<BlockProgress>(`/learning-blocks/${blockId}/progress`, { method: 'POST', body: JSON.stringify(data) })
+/** Saves the video position; keepalive so it also goes out as the page closes. */
+export const apiSaveVideoPosition = (blockId: string, data: { positionSec: number; watchPct: number }) =>
+  fetch(`${BASE}/learning-blocks/${blockId}/video-position`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    keepalive: true,
+    body: JSON.stringify(data),
+  }).catch(() => undefined)
 export const apiUpdateUnitProgress = (
   unitId: string,
   data: { status: 'not_started' | 'in_progress' | 'completed' },
@@ -323,9 +351,7 @@ export const fetchActionPlan = (courseId: string) =>
   )
 /** Returns a raw Response so the caller can stream the PDF blob. */
 export const downloadActionPlanPdf = (courseId: string) =>
-  fetch(`${BASE}/courses/${courseId}/action-plan/pdf`, {
-    headers: { Authorization: `Bearer ${getToken()}` },
-  })
+  fetch(`${BASE}/courses/${courseId}/action-plan/pdf`, { credentials: 'same-origin' })
 
 // Assessments
 export const fetchAssessmentSummary = (assessmentId: string) =>
@@ -344,9 +370,7 @@ export const fetchUserCertificates = () =>
   apiFetch<CertificateWithCourse[]>('/certificates')
 /** Returns a raw Response so the caller can stream the certificate PDF blob. */
 export const downloadCertificate = (certId: string) =>
-  fetch(`${BASE}/certificates/${certId}/download`, {
-    headers: { Authorization: `Bearer ${getToken()}` },
-  })
+  fetch(`${BASE}/certificates/${certId}/download`, { credentials: 'same-origin' })
 
 // ── Learning path ─────────────────────────────────────────────────────────────
 
@@ -386,6 +410,10 @@ export type LearningPathMilestone = {
 export type ActiveLearningPath = {
   id: string
   basedOnSetupVersion: number
+  /** Latest platform setup version. */
+  currentSetupVersion: number
+  /** The path predates the current setup: offer an "Update path" nudge. */
+  stale: boolean
   generatedAt: string
   milestones: LearningPathMilestone[]
 }
@@ -416,3 +444,17 @@ export const apiRegenerateLearningSetupAll = () =>
     '/learning/admin/regenerate-all',
     { method: 'POST' },
   )
+
+/** An AI-drafted question, not saved until the admin adds it. */
+export type DraftQuestion = {
+  format: 'multiple-choice' | 'true-false'
+  question: string
+  /** Multiple choice: 4 options. True/false: ["True", "False"]. */
+  options: string[]
+  /** Index into options (true/false: 0 = True). */
+  correctIndex: number
+  explanation: string
+}
+export type QuizDraftFormat = 'multiple-choice' | 'true-false' | 'mixed'
+export const apiGenerateQuiz = (data: { assessmentId: string; count: number; format: QuizDraftFormat }) =>
+  apiFetch<{ questions: DraftQuestion[] }>('/admin/quiz/generate', { method: 'POST', body: JSON.stringify(data) })

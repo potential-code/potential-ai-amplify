@@ -110,6 +110,8 @@ export const codUserContentProgress = pgTable('cod_user_content_progress', {
   codUserPathId: uuid('cod_user_path_id').notNull().references(() => codUserPaths.id, { onDelete: 'cascade' }),
   status: codContentProgressStatusEnum('status').notNull().default('not_started'),
   videoWatchPct: integer('video_watch_pct').default(0),
+  /** Where the learner stopped in this item's video, so they can resume. */
+  videoPositionSec: integer('video_position_sec').default(0),
   completedAt: timestamp('completed_at'),
 }, (table) => [
   unique().on(table.userId, table.contentPoolId, table.codUserPathId),

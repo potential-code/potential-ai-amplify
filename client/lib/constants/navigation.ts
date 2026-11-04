@@ -23,13 +23,19 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Testimonials', href: '#testimonials' },
 ]
 
+/** AI Amplify is run by Potential; its legal pages live on potential.com. */
+export const LEGAL_LINKS = {
+  privacy: 'https://potential.com/privacy',
+  terms: 'https://potential.com/terms',
+} as const
+
 export const FOOTER_LINKS = {
   importantLinks: [
     { label: 'Home Page', href: '/' },
     { label: 'Login', href: '/login' },
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms & Conditions', href: '#' },
-    { label: 'FAQs', href: '#' },
+    { label: 'Register', href: '/sign-up' },
+    { label: 'Privacy Policy', href: LEGAL_LINKS.privacy },
+    { label: 'Terms of Use', href: LEGAL_LINKS.terms },
   ],
   stakeholderLinks: [
     { label: 'Experts', href: '/#stakeholder' },

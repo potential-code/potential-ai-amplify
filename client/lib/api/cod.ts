@@ -17,7 +17,7 @@ export interface CodContentItem {
   durationSeconds: number | null
   articleText: string | null
   status: 'active' | 'unavailable'
-  progress: { status: string; videoWatchPct: number } | null
+  progress: { status: string; videoWatchPct: number; videoPositionSec?: number | null } | null
   orderInMilestone: number
   rationale: string | null
 }
@@ -50,20 +50,15 @@ export interface CodAssessment {
 export type CodPretest = CodAssessment
 export type CodQuiz = CodAssessment
 
-const BASE = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'}/api/lms`
+const BASE = `/api/lms`
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem('smeep_token')
-}
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getToken()
   const res = await fetch(`${BASE}${path}`, {
     ...init,
+    credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers ?? {}),
     },
   })
@@ -83,6 +78,18 @@ export async function fetchCodPath(): Promise<CodPathResponse | null> {
 export async function generateCodPath(profile: CodDiscoveryProfile): Promise<{ pathId: string }> {
   return apiFetch('/cod/path/generate', { method: 'POST', body: JSON.stringify({ profile }) })
 }
+
+/** Saves the video position; keepalive so it also goes out as the page closes. */
+export function saveCodVideoPosition(contentId: string, pathId: string, positionSec: number, watchPct: number) {
+  return fetch(`${BASE}/cod/content/${contentId}/video-position`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    keepalive: true,
+    body: JSON.stringify({ pathId, positionSec, watchPct }),
+  }).catch(() => undefined)
+}
+
 
 export async function completeCodContent(contentId: string, pathId: string, videoWatchPct?: number): Promise<void> {
   await apiFetch(`/cod/content/${contentId}/complete`, { method: 'POST', body: JSON.stringify({ pathId, videoWatchPct }) })

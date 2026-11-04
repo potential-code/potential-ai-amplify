@@ -134,3 +134,22 @@ export async function deleteBothPath(req: Request, res: Response, next: NextFunc
     res.status(200).json({ success: true })
   } catch (e) { next(e) }
 }
+
+/** PUT /lms/both/items/:itemId/video-position  { pathId, itemType, milestoneId, positionSec, watchPct } */
+export async function saveVideoPosition(req: Request<{ itemId: string }>, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { pathId, itemType, milestoneId, positionSec, watchPct } = req.body as {
+      pathId: string
+      itemType: 'external' | 'internal'
+      milestoneId: string
+      positionSec: number
+      watchPct: number
+    }
+    const data = await bothSvc.saveVideoPosition(req.user!.userId, itemType, req.params.itemId, pathId, milestoneId, positionSec, watchPct)
+    if (!data) {
+      res.status(404).json({ success: false, error: { message: 'Path not found', code: 'NOT_FOUND' } })
+      return
+    }
+    res.json({ success: true, data })
+  } catch (e) { next(e) }
+}

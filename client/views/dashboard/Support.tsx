@@ -1,130 +1,153 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, HelpCircle, CreditCard, Calendar, Award, Tag } from 'lucide-react'
-import { CopilotKit } from '@copilotkit/react-core/v2'
+import Link from 'next/link'
+import { ArrowUpRight, ChevronDown, Mail, Search, Sparkles } from 'lucide-react'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { PageHeader } from '@/components/dashboard/widgets/PageHeader'
-import { EmbeddedDashboardAssistant } from '@/components/dashboard/EmbeddedDashboardAssistant'
-import { type EmptyStateChip } from '@/components/dashboard/ChatEmptyState'
-import { useCopilotTokenReady, getCopilotHeaders } from '@/components/dashboard/copilotConfig'
+import { Button, Card, EmptyState, PageHeader, btn, inputClass } from '@/components/kit'
 import { FAQS } from '@/lib/dashboardData'
+import { LEGAL_LINKS } from '@/lib/constants/navigation'
 import { cn } from '@/lib/utils'
 
-// CopilotKit v2 runtime (multi-route Express handler: /info, /transcribe,
-// /agent/:id/run). The agent + thread bind on <CopilotChat>/useAgent inside
-// EmbeddedDashboardAssistant, not on the provider.
-const AI_BACKEND_URL =
-  (process.env.NEXT_PUBLIC_AI_BACKEND_URL as string | undefined)?.replace(/\/$/, '') ||
-  'http://localhost:8000'
-const VOICE_RUNTIME_URL = `${AI_BACKEND_URL}/copilotkit-voice`
+const SUPPORT_EMAIL = 'info@potential.com'
 
-const SUPPORT_CHIPS: EmptyStateChip[] = [
-  { label: 'Pricing & plans', icon: CreditCard, message: 'How much does AI Amplify cost?' },
-  { label: 'Book a mentor', icon: Calendar, message: 'How do I book a session with a human mentor?' },
-  { label: 'Certificates', icon: Award, message: 'How are certificates issued?' },
-  { label: 'Partner offers', icon: Tag, message: 'Can I redeem multiple partner offers?' },
-]
+/** Visible copy uses full stops instead of dashes ("Yes — joining" -> "Yes. Joining"). */
+function plain(text: string) {
+  return text.replace(/\s+[—–]\s+(\w)/g, (_, c: string) => `. ${c.toUpperCase()}`)
+}
 
 export default function SupportPage() {
   const [open, setOpen] = useState<number | null>(0)
-  // Assistant is for logged-in users only: wait for the minted service token
-  // before mounting the CopilotKit provider (its first request needs auth).
-  const copilotReady = useCopilotTokenReady()
+  const [q, setQ] = useState('')
+
+  const query = q.trim().toLowerCase()
+  const faqs = FAQS.map((f, i) => ({ ...f, i })).filter((f) => !query || `${f.q} ${f.a}`.toLowerCase().includes(query))
+
   return (
     <DashboardLayout>
-      <PageHeader
-        eyebrow="Support"
-        title="How can we"
-        highlight="help?"
-        subtitle="Search the knowledge base, message us, or chat with the AI Amplify assistant."
-      />
+      <PageHeader title="Support" subtitle="Browse common questions, email our team, or ask Anna." />
 
-      <div className="grid grid-cols-12 gap-4 lg:gap-6">
-        <div className="col-span-12 lg:col-span-6">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl bg-white border border-brand-surface-2 overflow-hidden"
-          >
-            <header className="px-6 py-5 border-b border-brand-surface-2 flex items-center gap-3">
-              <span className="w-9 h-9 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center">
-                <HelpCircle className="w-4 h-4" />
-              </span>
-              <div>
-                <h3 className="font-bold text-brand-text-primary">Frequently asked</h3>
-                <p className="text-xs text-brand-text-muted">Top questions from AI Amplify members.</p>
-              </div>
-            </header>
-            <ul className="divide-y divide-brand-surface-2">
-              {FAQS.map((f, i) => {
-                const isOpen = i === open
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <Card aria-labelledby="s-faq">
+          <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center">
+            <div className="flex flex-1 flex-col gap-0.5">
+              <h2 id="s-faq" className="text-base font-semibold text-ui-text">Frequently asked</h2>
+              <span className="text-[13px] text-ui-muted">Top questions from AI Amplify members</span>
+            </div>
+            <div className="relative w-full sm:w-[260px]">
+              <label htmlFor="s-search" className="sr-only">
+                Search questions
+              </label>
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ui-muted" aria-hidden />
+              <input
+                id="s-search"
+                type="search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search questions"
+                className={cn(inputClass, 'h-[38px] bg-ui-bg pl-9')}
+              />
+            </div>
+          </div>
+          {faqs.length === 0 ? (
+            <EmptyState
+              icon={Search}
+              title="No questions match"
+              body={`Nothing matches "${q.trim()}". Email us or ask Anna instead.`}
+              action={
+                <Button variant="secondary" size="sm" onClick={() => setQ('')}>
+                  Clear search
+                </Button>
+              }
+              className="border-t border-ui-line"
+            />
+          ) : (
+            <ul>
+              {faqs.map((f) => {
+                const isOpen = query ? true : f.i === open
                 return (
-                  <li key={f.q}>
-                    <button
-                      type="button"
-                      onClick={() => setOpen(isOpen ? null : i)}
-                      className="w-full flex items-center gap-3 px-6 py-4 text-left hover:bg-brand-surface/50 transition-colors"
-                    >
-                      <span className="flex-1 text-sm font-bold text-brand-text-primary">{f.q}</span>
-                      <ChevronDown
-                        className={cn(
-                          'w-4 h-4 text-brand-text-muted transition-transform',
-                          isOpen && 'rotate-180 text-brand-primary',
-                        )}
-                      />
-                    </button>
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                          className="overflow-hidden"
-                        >
-                          <p className="px-6 pb-5 text-sm text-brand-text-muted leading-relaxed">
-                            {f.a}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  <li key={f.q} className="border-t border-ui-line">
+                    <h3>
+                      <button
+                        type="button"
+                        aria-expanded={isOpen}
+                        aria-controls={`faq-${f.i}`}
+                        onClick={() => setOpen(f.i === open ? null : f.i)}
+                        disabled={!!query}
+                        className="flex w-full items-center gap-3 px-5 py-4 text-left text-[15px] font-semibold text-ui-text transition-colors hover:bg-ui-bg focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ui-brand disabled:cursor-default disabled:hover:bg-transparent"
+                      >
+                        <span className="flex-1">{f.q}</span>
+                        <ChevronDown
+                          className={cn('h-[18px] w-[18px] shrink-0 text-ui-muted transition-transform', isOpen && 'rotate-180')}
+                          aria-hidden
+                        />
+                      </button>
+                    </h3>
+                    {isOpen && (
+                      <p id={`faq-${f.i}`} className="max-w-[680px] px-5 pb-[18px] text-[15px] leading-relaxed text-ui-muted">
+                        {plain(f.a)}
+                      </p>
+                    )}
                   </li>
                 )
               })}
             </ul>
-          </motion.div>
-        </div>
-
-        <div className="col-span-12 lg:col-span-6">
-          {copilotReady ? (
-            <CopilotKit
-              runtimeUrl={VOICE_RUNTIME_URL}
-              headers={getCopilotHeaders()}
-              useSingleEndpoint={false}
-              enableInspector={false}
-              showDevConsole={false}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 }}
-                className="rounded-2xl border border-brand-surface-2 bg-white overflow-hidden"
-              >
-                <EmbeddedDashboardAssistant
-                  className="h-[calc(100vh-14rem)] min-h-[560px]"
-                  emptyStateChips={SUPPORT_CHIPS}
-                  emptyStateChipsGrid
-                  emptyStateShowAiTools={false}
-                  emptyStateTagline="Ask me anything about AI Amplify, your account, or your business."
-                  emptyStateHint="Choose a question to get started, or type your own."
-                />
-              </motion.div>
-            </CopilotKit>
-          ) : (
-            <div className="h-[calc(100vh-14rem)] min-h-[560px] rounded-2xl border border-brand-surface-2 bg-white shadow-sm animate-pulse" />
           )}
+        </Card>
+
+        <div className="flex flex-col gap-4">
+          <Card aria-labelledby="s-sana" className="flex flex-col gap-3 p-5 shadow-ui">
+            <div className="flex items-center gap-3">
+              <img
+                src="/images/redesign/anna-avatar-96.png"
+                alt=""
+                className="h-11 w-11 rounded-full object-cover object-top"
+              />
+              <div className="flex flex-col">
+                <h2 id="s-sana" className="text-base font-semibold text-ui-text">Ask Anna</h2>
+                <span className="text-[13px] text-ui-muted">Your AI concierge, any time</span>
+              </div>
+            </div>
+            <p className="text-sm leading-relaxed text-ui-muted">Get instant answers about AI Amplify, your account, or your business.</p>
+            <Link href="/dashboard/anna" className={btn()}>
+              <Sparkles className="h-4 w-4" aria-hidden />
+              Ask Anna
+            </Link>
+          </Card>
+
+          <Card aria-labelledby="s-mail" className="flex flex-col gap-2.5 p-5">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-ui-surface-2 text-ui-text">
+                <Mail className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+              </span>
+              <div className="flex flex-col">
+                <h2 id="s-mail" className="text-base font-semibold text-ui-text">Email support</h2>
+                <span className="text-[13px] text-ui-muted">We typically reply within one working day</span>
+              </div>
+            </div>
+            <a href={`mailto:${SUPPORT_EMAIL}`} className={btn({ variant: 'secondary' })}>
+              {SUPPORT_EMAIL}
+            </a>
+          </Card>
+
+          <Card aria-labelledby="s-legal" className="flex flex-col gap-2 px-5 py-4">
+            <h2 id="s-legal" className="text-sm font-semibold text-ui-text">Policies</h2>
+            {[
+              { label: 'Privacy policy', href: LEGAL_LINKS.privacy },
+              { label: 'Terms of use', href: LEGAL_LINKS.terms },
+            ].map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between rounded py-1 text-sm text-ui-brand-text hover:underline"
+              >
+                {l.label}
+                <ArrowUpRight className="h-4 w-4" aria-hidden />
+              </a>
+            ))}
+          </Card>
         </div>
       </div>
     </DashboardLayout>

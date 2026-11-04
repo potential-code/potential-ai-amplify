@@ -7,15 +7,28 @@ const __dirname = path.dirname(__filename)
 import cors from "cors";
 import helmet from "helmet";
 import pinoHttp from "pino-http";
+import { toNodeHandler } from "better-auth/node";
 import router from "./routes";
+import { auth } from "./auth";
 import { logger } from "./config/logger";
 import { basicAuthGate } from "./middleware/basic-auth";
 import { errorHandler } from "./middleware/error-handler";
+import zoomWebhookRouter from "./routes/zoomWebhook.routes";
+import { perIp, MINUTE } from "./middleware/limits";
 
-// Fail fast if JWT_SECRET is missing — auth cannot function without it.
-if (!process.env["JWT_SECRET"]) {
+// Fail fast without a signing secret: Better Auth signs session cookies with
+// BETTER_AUTH_SECRET, falling back to JWT_SECRET (auth/index.ts).
+const sessionSecret = process.env["BETTER_AUTH_SECRET"] || process.env["JWT_SECRET"];
+if (!sessionSecret) {
   throw new Error(
-    "JWT_SECRET environment variable is required but was not provided.",
+    "BETTER_AUTH_SECRET (or JWT_SECRET) environment variable is required but was not provided.",
+  );
+}
+// Anyone who learns or guesses the secret can forge session cookies, an
+// admin's included. Production refuses to start with a weak one.
+if (process.env["NODE_ENV"] === "production" && sessionSecret.length < 32) {
+  throw new Error(
+    "BETTER_AUTH_SECRET must be at least 32 characters in production (generate one with `openssl rand -base64 32`).",
   );
 }
 
@@ -67,16 +80,42 @@ app.use(
 app.use(cors({
   // Lock CORS to the configured frontend origin. Falls back to localhost in
   // development; override via FRONTEND_URL in production.
-  origin: process.env["FRONTEND_URL"] ?? "http://localhost:3000",
+  // `||`, not `??`: compose passes an unset FRONTEND_URL as "", which would allow any origin.
+  origin: process.env["FRONTEND_URL"] || "http://localhost:3000",
   credentials: true,
 }));
+// Better Auth reads the raw request body, so it is mounted before the body
+// parsers. It owns everything under /api/auth.
+app.all("/api/auth/*splat", toNodeHandler(auth));
+
+// Zoom signs the raw body, so its webhook is mounted before the JSON parser.
+app.use("/api/webhooks/zoom", zoomWebhookRouter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// A ceiling for every API route, per visitor, under the routes' own limits:
+// 20 requests a second is far above any real page, even for an office sharing
+// one address. Sign-in (/api/auth, above) has its own limits.
+app.use("/api", perIp("api", MINUTE, 1200));
 
 // Serve uploaded files without authentication — files are addressed by
 // opaque filenames and do not expose sensitive data beyond the file itself.
 // The basicAuthGate (admin UI guard) is intentionally bypassed here.
-app.use("/uploads", express.static(path.join(__dirname, '..', 'uploads')));
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, '..', 'uploads'), {
+    setHeaders: (res, filePath) => {
+      // Never let the browser guess a different type than the extension says.
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      // An SVG opened directly is a document that can run script on this
+      // origin; sandbox it. <img> embeds are unaffected.
+      if (filePath.toLowerCase().endsWith(".svg")) {
+        res.setHeader("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+      }
+    },
+  }),
+);
 
 app.use(basicAuthGate);
 

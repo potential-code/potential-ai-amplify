@@ -28,7 +28,9 @@ export async function listLearnerCourses(req: Request, res: Response, next: Next
 /**
  * GET /lms/courses/:courseId
  * Returns the full nested course structure with per-item progress and lock status
- * for an enrolled learner. Returns 403 if the learner is not enrolled.
+ * for an enrolled learner. For a published course the learner is NOT enrolled
+ * in, returns a header-only preview (isEnrolled=false) so the client can offer
+ * enrollment. Returns 404 for missing or unpublished courses.
  */
 export async function getLearnerCourse(
   req: Request<{ courseId: string }>,
@@ -39,6 +41,9 @@ export async function getLearnerCourse(
     const data = await learnerSvc.getLearnerCourse(req.user!.userId, req.params.courseId)
     res.json({ success: true, data })
   } catch (e) {
+    if (e instanceof Error && e.message === 'COURSE_NOT_FOUND') {
+      return next(new AppError('Course not found', 404, 'COURSE_NOT_FOUND'))
+    }
     if (e instanceof Error && e.message === 'NOT_ENROLLED') {
       return next(new AppError('Not enrolled', 403, 'NOT_ENROLLED'))
     }
@@ -74,6 +79,30 @@ export async function enrollInCourse(
 }
 
 // ── Progress endpoints ───────────────────────────────────────────────────────
+
+/**
+ * PUT /lms/learning-blocks/:blockId/video-position  { positionSec, watchPct }
+ * Saves where the learner is in the block's video, for resume on any device.
+ */
+export async function saveVideoPosition(
+  req: Request<{ blockId: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { positionSec, watchPct } = req.body as { positionSec: number; watchPct: number }
+    // Like every progress write: only in a published course the learner is enrolled in.
+    await progressSvc.assertBlockAvailable(req.user!.userId, req.params.blockId)
+    const data = await progressSvc.saveVideoPosition(req.user!.userId, req.params.blockId, positionSec, watchPct)
+    if (!data) {
+      res.status(404).json({ success: false, error: { message: 'Video not found', code: 'NOT_FOUND' } })
+      return
+    }
+    res.json({ success: true, data })
+  } catch (e) {
+    next(e)
+  }
+}
 
 /**
  * POST /lms/learning-blocks/:blockId/progress
@@ -114,7 +143,7 @@ export async function updateUnitProgress(
     const { status } = req.body as { status: 'not_started' | 'in_progress' | 'completed' }
     if (status === 'completed') await progressSvc.assertUnitCompletable(req.user!.userId, req.params.unitId)
     else await progressSvc.assertUnitAvailableFor(req.user!.userId, req.params.unitId)
-    const data = await progressSvc.updateUnitProgress(req.user!.userId, req.params.unitId, status)
+    const data = await progressSvc.updateUnitProgress(req.user!.userId, req.params.unitId, status, { recordStep: true })
     res.json({ success: true, data })
   } catch (e) {
     next(e)

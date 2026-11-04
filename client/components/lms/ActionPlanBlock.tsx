@@ -18,7 +18,7 @@ type Props = {
  * An action-plan step. A step can hold several prompts; each gets its own box,
  * Save waits until every one is answered, saves them all and then completes
  * the block (the server only accepts completion once every prompt has an
- * answer). Answers saved earlier fill their boxes. (Ported from SMEEP d40e894.)
+ * answer). Answers saved earlier fill their boxes. (Ported from AI Amplify d40e894.)
  */
 export function ActionPlanBlock({ block, onCompleted }: Props) {
   const queryClient = useQueryClient()
@@ -65,24 +65,16 @@ export function ActionPlanBlock({ block, onCompleted }: Props) {
 
   return (
     <div>
-      {/* Block header */}
-      <div className="flex items-center gap-2 mb-4">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-brand-accent/10 text-brand-accent shrink-0">
-          <Send className="w-4 h-4" />
-        </span>
-        <div>
-          <p className="text-[10px] font-bold text-brand-accent uppercase tracking-[0.2em]">Action plan</p>
-          <h3 className="text-base sm:text-lg font-black text-brand-text-primary leading-tight">{block.title}</h3>
-        </div>
-      </div>
+      <p className="mb-2 text-[15px] text-ui-muted">Turn this unit into a step for your own business. Your answers build your action plan.</p>
 
       {prompts.map((q, i) => {
         const text = texts[q.id] ?? ''
         return (
           <div key={q.id} className={i === 0 ? '' : 'mt-6'}>
-            <p className="text-sm sm:text-base text-brand-text-primary leading-relaxed font-semibold">{q.prompt}</p>
+            <p className="text-base sm:text-[17px] text-ui-text leading-relaxed font-semibold">{q.prompt}</p>
             <div className="mt-3 relative">
               <textarea
+                maxLength={10_000}
                 value={text}
                 onChange={(e) => setTexts((prev) => ({ ...prev, [q.id]: e.target.value }))}
                 disabled={submitted}
@@ -90,14 +82,14 @@ export function ActionPlanBlock({ block, onCompleted }: Props) {
                 placeholder={q.placeholder ?? 'Write your action plan here…'}
                 rows={prompts.length > 1 ? 4 : 5}
                 className={cn(
-                  'w-full rounded-xl border bg-white px-4 py-3 text-sm text-brand-text-primary leading-relaxed placeholder:text-brand-text-muted/70 focus:outline-none transition-all resize-none',
+                  'w-full rounded-[10px] border bg-ui-surface px-4 py-3 text-sm text-ui-text leading-relaxed placeholder:text-ui-muted focus:outline-none transition-all resize-none',
                   submitted
-                    ? 'border-emerald-200 bg-emerald-50/40'
-                    : 'border-brand-surface-2 focus:border-brand-primary/40 focus:ring-4 focus:ring-brand-primary/10',
+                    ? 'border-transparent bg-ui-ok-soft'
+                    : 'border-ui-line focus:border-ui-brand focus:ring-2 focus:ring-ui-brand/20',
                 )}
               />
               {!submitted && (
-                <div className="absolute bottom-2 right-3 text-[10px] text-brand-text-muted">
+                <div className="absolute bottom-2 right-3 text-xs text-ui-muted">
                   {text.length} chars
                 </div>
               )}
@@ -115,7 +107,7 @@ export function ActionPlanBlock({ block, onCompleted }: Props) {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs font-bold text-emerald-700">
+            <div className="mt-4 inline-flex items-center gap-2 rounded-[10px] bg-ui-ok-soft border border-transparent px-3 py-2 text-xs font-bold text-ui-ok">
               <CheckCircle2 className="w-4 h-4" />
               Saved to your action plan
             </div>
@@ -124,19 +116,19 @@ export function ActionPlanBlock({ block, onCompleted }: Props) {
       </AnimatePresence>
 
       {submitMutation.isError && !submitted && (
-        <p className="mt-4 text-xs text-rose-600">We couldn&apos;t save your action plan. Please try again.</p>
+        <p className="mt-4 text-sm text-ui-danger">We couldn&apos;t save your action plan. Please try again.</p>
       )}
 
       {/* CTA */}
       {!submitted && (
         <div className="mt-5 flex items-center justify-end gap-3">
           {prompts.length > 1 && !allAnswered && (
-            <span className="text-[11px] text-brand-text-muted">Answer every prompt to save</span>
+            <span className="text-xs text-ui-muted">Answer every prompt to save</span>
           )}
           <button
             onClick={() => submitMutation.mutate()}
             disabled={!allAnswered || submitMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white px-4 py-2 text-xs font-bold shadow-md shadow-brand-primary/30 disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-2 rounded-[10px] bg-ui-brand hover:bg-ui-brand-hover text-white h-10 px-4 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <Send className="w-3.5 h-3.5" />
             {submitMutation.isPending ? 'Saving…' : 'Save my action plan'}

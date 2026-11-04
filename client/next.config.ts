@@ -4,6 +4,12 @@ import path from 'path'
 
 loadEnv({ path: path.resolve(__dirname, '../.env'), override: false })
 
+// Where the API server is reachable from this Next server (in Docker, the
+// compose service name). Read when the app is built: the browser only ever
+// talks to this site, which forwards /api and /uploads there, so the
+// session cookie is first-party.
+const API_INTERNAL_URL = (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000').replace(/\/$/, '')
+
 const config: NextConfig = {
   output: 'standalone',
   // Monorepo: `next` is hoisted to the workspace root node_modules. Trace from
@@ -25,9 +31,41 @@ const config: NextConfig = {
     '*.spock.replit.dev',
     '*.riker.replit.dev',
   ],
+  async rewrites() {
+    return [
+      { source: '/api/:path*', destination: `${API_INTERNAL_URL}/api/:path*` },
+      { source: '/uploads/:path*', destination: `${API_INTERNAL_URL}/uploads/:path*` },
+    ]
+  },
+  // public/images file names are not content-hashed, so cache for a day and
+  // revalidate in the background for a week rather than forever.
+  async headers() {
+    return [
+      {
+        source: '/images/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }],
+      },
+      {
+        // Every page (the /api responses get theirs from the API's helmet).
+        // No other site can frame this one, so none can trick an admin into
+        // clicking through an invisible page.
+        source: '/((?!api/).*)',
+        headers: [
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // The microphone stays available to this site (talking to Anna, dictation).
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=(), browsing-topics=()' },
+          ...(process.env.NODE_ENV === 'production'
+            ? [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' }]
+            : []),
+        ],
+      },
+    ]
+  },
   env: {
     NEXT_PUBLIC_AI_BACKEND_URL: process.env.NEXT_PUBLIC_AI_BACKEND_URL,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   },
 }

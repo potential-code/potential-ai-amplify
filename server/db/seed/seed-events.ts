@@ -33,6 +33,13 @@ function localEventImageUrl(externalUrl: string | null): string | null {
   return filename ? `/images/events/${filename}` : null;
 }
 
+/** The legacy events give a date and a free-text UAE time ("04:00 PM"); noon when there is none. */
+function startOf(date: string, time: string): Date {
+  const m = time.match(/(\d{1,2}):(\d{2})\s*([AaPp])?/);
+  const hour = m ? (Number(m[1]) % 12) + (m[3]?.toLowerCase() === "p" ? 12 : m[3] ? 0 : Math.floor(Number(m[1]) / 12) * 12) : 12;
+  return new Date(`${date}T${String(hour).padStart(2, "0")}:${m ? m[2] : "00"}:00+04:00`);
+}
+
 // ── Main seed function ────────────────────────────────────────────────────────
 
 export async function seedEvents(): Promise<void> {
@@ -53,7 +60,11 @@ export async function seedEvents(): Promise<void> {
   let inserted = 0;
 
   for (const item of items) {
+    const startsAt = startOf(item.meta.fulldate, item.meta.time?.trim() || "");
     await db.insert(liveEvents).values({
+      startsAt,
+      endsAt: new Date(startsAt.getTime() + 60 * 60_000),
+      format: "link",
       title: item.title,
       description: item.meta.overview_txt?.trim() || null,
       type: "Webinar",

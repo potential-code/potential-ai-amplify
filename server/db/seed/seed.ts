@@ -1,7 +1,7 @@
 import { pool, db } from "../index";
-import { users } from "../schema";
+import { users, authAccounts } from "../schema";
 import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs";
+import { hashPassword } from "../../auth/password";
 import { seedMentors } from "./seed-mentors";
 import { seedOffers } from "./seed-offers";
 import { seedEvents } from "./seed-events";
@@ -27,12 +27,17 @@ export async function seed(): Promise<void> {
     .limit(1)
 
   if (existing.length === 0) {
-    const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 12)
-    await db.insert(users).values({
-      fullName: "Admin",
-      email: ADMIN_EMAIL,
-      passwordHash,
-      role: "admin",
+    const [admin] = await db
+      .insert(users)
+      .values({ fullName: "Admin", email: ADMIN_EMAIL, emailVerified: true, role: "admin" })
+      .returning({ id: users.id })
+    // A Better Auth credential account is what makes the password work.
+    await db.insert(authAccounts).values({
+      id: crypto.randomUUID(),
+      accountId: admin!.id,
+      providerId: "credential",
+      userId: admin!.id,
+      password: await hashPassword(ADMIN_PASSWORD),
     })
     console.log("[seed] Admin user created: admin@email.com")
   } else {
@@ -58,7 +63,7 @@ export async function seed(): Promise<void> {
   await seedMentors()
 }
 
-// @ts-ignore — import.meta.main is Bun-specific; falsy in Node so this block is skipped when bundled
+// @ts-expect-error — import.meta.main is Bun-specific; falsy in Node so this block is skipped when bundled
 if (import.meta.main) {
   seed()
     .catch((err) => {

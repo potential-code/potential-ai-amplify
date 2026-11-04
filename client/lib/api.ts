@@ -1,24 +1,23 @@
-import { getToken } from './auth'
-
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'
+/**
+ * API requests are same-origin: next.config.ts forwards /api/* and /uploads/*
+ * to the API server, so the session cookie rides along automatically.
+ */
+export const API_BASE = ''
 
 /**
  * Thin fetch wrapper that:
- * - Prepends the API base URL
- * - Attaches Authorization: Bearer <token> when a token exists
+ * - Sends the request same-origin (the session cookie is attached by the browser)
  * - Throws the parsed JSON error body on non-2xx responses
  */
 export async function apiFetch<T = unknown>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const token = getToken()
-
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers as Record<string, string> | undefined),
     },
   })
@@ -31,7 +30,9 @@ export async function apiFetch<T = unknown>(
     } catch {
       body = { error: res.statusText }
     }
-    throw body
+    // Keep the HTTP status: some error bodies (Better Auth's 429) carry only a
+    // message, and callers need it to say "wait a minute".
+    throw body && typeof body === 'object' ? { ...(body as object), status: res.status } : { error: body, status: res.status }
   }
 
   return res.json() as Promise<T>

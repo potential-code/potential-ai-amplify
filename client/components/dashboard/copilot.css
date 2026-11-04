@@ -609,3 +609,43 @@
   background: rgba(255, 255, 255, 0.1) !important;
 }
 
+/* ===== Larger, more readable text — Learning Path (Both) chat only =====
+   Scoped to .smeep-chat-lg, applied on the Both delivery + questionnaire
+   wrappers so the COD bot, dashboard advisor and landing chat keep 13px. */
+.smeep-chat-lg .smeep-bot-bubble,
+.smeep-chat-lg .smeep-user-bubble {
+  font-size: 15px !important;
+}
+
+.smeep-chat-lg .smeep-bot-bubble h1,
+.smeep-chat-lg .smeep-bot-bubble h2 {
+  font-size: 15.5px !important;
+}
+
+.smeep-chat-lg .smeep-bot-bubble h3 {
+  font-size: 15px !important;
+}
+
+.smeep-chat-lg .smeep-bot-bubble code {
+  font-size: 12.5px !important;
+}
+
+.smeep-chat-lg .smeep-chat-textarea {
+  font-size: 15px !important;
+}
+
+/* Dark mode overrides for bot bubble markdown */
+.smeep-landing-dark .smeep-bot-bubble h1,
+.smeep-landing-dark .smeep-bot-bubble h2,
+.smeep-landing-dark .smeep-bot-bubble h3 {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.smeep-landing-dark .smeep-bot-bubble hr {
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.smeep-landing-dark .smeep-bot-bubble code {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+

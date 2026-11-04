@@ -13,125 +13,92 @@ import {
 } from '@copilotkit/react-core/v2'
 import '@copilotkit/react-ui/v2/styles.css'
 import '@/components/dashboard/copilot.css'
-import { BookOpen, RefreshCw, RotateCcw, CheckCircle2, PlayCircle, FileText, Lock, Sparkles, Trash2 } from 'lucide-react'
-import { makeUuid } from '@/components/dashboard/useStreamingVoice'
+import '@/components/learning-ui/sana-studio.css'
 import {
-  SmeepAssistantMessage,
-  SmeepUserMessage,
-  SmeepChatInput,
-} from '@/components/dashboard/chat-components'
+  Check,
+  ClipboardCheck,
+  ExternalLink,
+  FileText,
+  FileStack,
+  MessageSquarePlus,
+  PanelRight,
+  PlayCircle,
+  RefreshCw,
+  Route,
+  Target,
+  Trash2,
+} from 'lucide-react'
+import { makeUuid } from '@/components/dashboard/useStreamingVoice'
+import { chatPlaceholderRef } from '@/components/dashboard/chat-components'
+import {
+  SanaAssistantMessage,
+  SanaUserMessage,
+} from '@/components/learning-ui/SanaMessages'
+import { SanaChatInput } from '@/components/learning-ui/SanaChatInput'
+import { useSanaRunError, SanaConnectionNotice } from '@/components/learning-ui/SanaRunError'
+import { useJourneyRail } from '@/components/learning-ui/useJourneyRail'
+import { btn } from '@/components/kit'
+import {
+  HeaderIconButton,
+  JourneyBody,
+  JourneyCanvas,
+  JourneyHeader,
+  JourneyIntro,
+  JourneyPanel,
+  LearnerLine,
+  MilestoneStrip,
+  PanelNote,
+  SanaLine,
+  type PanelItem,
+  type PanelStep,
+} from '@/components/journeys/JourneyKit'
+import {
+  CardAction,
+  CardTag,
+  DoneNote,
+  GateNote,
+  JourneyCard,
+  JourneyCardSkeleton,
+  ThreadNotice,
+} from '@/components/journeys/JourneyCard'
+import { YouTubeVideo, journeyProse } from '@/components/journeys/JourneyMedia'
+import { FollowUpChips } from '@/components/journeys/FollowUpChips'
+import {
+  AskedForCard,
+  MilestoneRecapCard,
+  UpNextCard,
+  formatDuration,
+  type ContentRowData,
+} from '@/components/journeys/ContentList'
 import { cn } from '@/lib/utils'
+import { getUser } from '@/lib/auth'
 import { RichContent } from '@/components/lms/RichContent'
-import { completeCodContent, type CodPathResponse, type CodMilestone, type CodContentItem } from '@/lib/api/cod'
+import { completeCodContent, saveCodVideoPosition, type CodPathResponse, type CodMilestone, type CodContentItem } from '@/lib/api/cod'
 import { apiFetch } from '@/lib/api'
 import { MilestonePretestCard } from './MilestonePretestCard'
 import { MilestoneQuizCard } from './MilestoneQuizCard'
 import { RemoveLearningPathDialog } from '@/components/shared/RemoveLearningPathDialog'
+import { SanaReplyActionsProvider } from '@/components/learning-ui/SanaReplyActions'
+import { COD_DELIVERY_PROMPT as COD_DELIVERY_INSTRUCTIONS } from "../../../shared/anna/prompts";
 
 const COD_DELIVERY_AGENT = 'chatbot'
 
-const COD_DELIVERY_INSTRUCTIONS = `You are Anna — AI Amplify's AI learning guide. You walk the user through their personalised Content-On-Demand (COD) learning path ONE content item at a time.
 
-YOUR GOLDEN RULES:
-1. NEVER write, summarise, define, or invent learning content. Content is rendered by the tools below.
-2. The user drives the flow by clicking cards. When they click, you get an explicit instruction telling you EXACTLY which tool to call with which id. Call that tool with that exact id and nothing else.
-3. After calling any tool, output NO TEXT — not a single word. The card speaks for itself.
-4. The content card handles completion and advancing — do NOT call the next tool yourself. Wait for the user's message.
-5. When all content in a milestone is complete, call triggerQuiz with the milestoneId.
-
-YOUR KNOWLEDGE OF THE PATH:
-- __cod_learning_path__ holds all milestones with their unlock/completion state.
-- __current_cod_milestone__ holds the full content list for the active milestone.
-
-TOOL FLOW:
-- "show my path" / "milestones" → showCodMilestones
-- "Start milestone (id: X)" → openCodMilestone(X)   [only when pretestCompleted=false]
-- "Start learning ... (id: X)" → openMilestoneContent(X)   [pretest done, show content]
-- "Display content (id: X)" → displayCodContent(X)
-- "All content done in milestone X" → triggerQuiz(X)
-
-When the user asks questions about their learning topic, answer concisely from your general expertise.`
-
-// ── YouTube helpers ────────────────────────────────────────────────────────────
-
-function extractYouTubeId(url: string): string | null {
-  const patterns = [/[?&]v=([^&]+)/, /youtu\.be\/([^?&]+)/, /embed\/([^?&]+)/]
-  for (const p of patterns) {
-    const m = url.match(p)
-    if (m) return m[1]!
-  }
-  return null
-}
-
-function YouTubeVideo({ url, onEnded }: { url: string; onEnded: () => void }) {
-  const hostRef = useRef<HTMLDivElement>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const playerRef = useRef<any>(null)
-  const onEndedRef = useRef(onEnded)
-  onEndedRef.current = onEnded
-
-  useEffect(() => {
-    const videoId = extractYouTubeId(url)
-    if (!videoId || !hostRef.current) return
-    let interval: ReturnType<typeof setInterval> | undefined
-
-    function createPlayer() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const YT = (window as any).YT
-      if (!YT?.Player || !hostRef.current || playerRef.current) return
-      playerRef.current = new YT.Player(hostRef.current, {
-        videoId,
-        playerVars: { rel: 0, modestbranding: 1 },
-        events: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onStateChange: (e: any) => {
-            if (e.data === YT.PlayerState.ENDED) onEndedRef.current()
-          },
-        },
-      })
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((window as any).YT?.Player) {
-      createPlayer()
-    } else {
-      if (!document.getElementById('yt-iframe-api')) {
-        const tag = document.createElement('script')
-        tag.id = 'yt-iframe-api'
-        tag.src = 'https://www.youtube.com/iframe_api'
-        document.body.appendChild(tag)
-      }
-      interval = setInterval(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((window as any).YT?.Player) {
-          clearInterval(interval)
-          createPlayer()
-        }
-      }, 200)
-    }
-
-    return () => {
-      if (interval) clearInterval(interval)
-      try { playerRef.current?.destroy?.() } catch { /* noop */ }
-      playerRef.current = null
-    }
-  }, [url])
-
-  return (
-    <div className="max-w-[580px] w-full mx-auto">
-      <div className="aspect-video rounded-lg overflow-hidden bg-black">
-        <div ref={hostRef} className="w-full h-full" />
-      </div>
-    </div>
-  )
-}
 
 // ── Content card ───────────────────────────────────────────────────────────────
 
+function contentMeta(item: CodContentItem): string {
+  const parts = [item.type === 'youtube' ? 'Video' : 'Article']
+  if (item.channelTitle) parts.push(item.channelTitle)
+  const d = formatDuration(item.durationSeconds)
+  if (d) parts.push(d)
+  return parts.join(', ')
+}
+
 function CodContentCard({
-  item, pathId, nextItemId, milestoneId, milestoneTitle, onCompleted, sendMessage,
+  item, position, total, pathId, nextItemId, milestoneId, milestoneTitle, onCompleted, sendMessage,
 }: {
-  item: CodContentItem; pathId: string; nextItemId: string | null
+  item: CodContentItem; position: number; total: number; pathId: string; nextItemId: string | null
   milestoneId: string; milestoneTitle: string; onCompleted: () => void; sendMessage: (text: string) => void
 }) {
   const alreadyDone = item.progress?.status === 'completed'
@@ -141,7 +108,6 @@ function CodContentCard({
   const isYoutube = item.type === 'youtube' && !!item.youtubeVideoId
 
   const done = alreadyDone || justCompleted
-  const canComplete = !done
 
   async function doComplete() {
     if (completing || done) return
@@ -152,7 +118,7 @@ function CodContentCard({
       if (nextItemId) {
         sendMessage(`Display content (id: ${nextItemId})`)
       } else {
-        sendMessage(`All content done in milestone "${milestoneTitle}" (id: ${milestoneId}). Trigger the quiz.`)
+        sendMessage(`All content done in milestone "${milestoneTitle}" (id: ${milestoneId}). Show the next step.`)
       }
       onCompleted()
     } catch (err) {
@@ -162,140 +128,181 @@ function CodContentCard({
     }
   }
 
+  // Video watch-gate: the action stays quiet until the video ends.
+  const gated = isYoutube && !videoEnded && !done
+
   return (
-    <div className="my-2 rounded-xl border border-brand-surface-2 bg-white overflow-hidden shadow-sm">
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-brand-surface-2 bg-brand-surface">
-        {isYoutube ? <PlayCircle className="w-4 h-4 text-brand-text-secondary" /> : <FileText className="w-4 h-4 text-brand-text-secondary" />}
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-brand-text-primary truncate">{item.title}</p>
-          <p className="text-[10px] text-brand-text-muted capitalize">{item.type === 'youtube' ? 'Video' : 'Article'}</p>
-        </div>
-        {done && (
-          <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">
-            <CheckCircle2 className="w-3 h-3" /> Done
-          </span>
-        )}
-      </div>
-      <div className="p-4 space-y-3">
-        {isYoutube && (
-          <YouTubeVideo url={`https://www.youtube.com/watch?v=${item.youtubeVideoId}`} onEnded={() => setVideoEnded(true)} />
-        )}
-        {item.type === 'article' && item.articleText && (
-          <div className="max-h-[480px] overflow-y-auto pr-1">
-            <RichContent content={item.articleText} className="text-xs" />
-          </div>
-        )}
-        {item.rationale && (
-          <p className="text-[10px] text-brand-text-muted italic">{item.rationale}</p>
-        )}
-      </div>
-      {!done && (
-        <div className="px-4 pb-4 space-y-2">
-          {isYoutube && !videoEnded && (
-            <p className="flex items-center gap-1.5 text-[11px] text-brand-text-muted">
-              <Lock className="w-3 h-3 shrink-0" /> Finish watching to unlock completion.
-            </p>
-          )}
-          <button
-            type="button"
-            onClick={() => void doComplete()}
-            disabled={completing}
-            className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            {completing ? 'Marking complete…' : 'Mark Complete'}
-          </button>
-        </div>
-      )}
-      {done && (
-        <div className="px-4 pb-4">
-          <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <p className="text-[11px] font-semibold text-emerald-700">Completed!</p>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── Skeleton ───────────────────────────────────────────────────────────────────
-
-function CardSkeleton() {
-  return (
-    <div className="rounded-xl border border-brand-surface-2 bg-brand-surface p-4 my-2 animate-pulse space-y-2">
-      <div className="h-3 w-2/3 bg-brand-surface-2 rounded" />
-      <div className="h-2 w-full bg-brand-surface-2 rounded" />
-    </div>
-  )
-}
-
-// ── Milestone grid ─────────────────────────────────────────────────────────────
-
-function CodMilestoneGrid({
-  milestones, onStart,
-}: {
-  milestones: CodMilestone[]
-  onStart: (milestoneId: string, title: string) => void
-}) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-      {milestones.map((m, idx) => {
-        const completedContent = m.content.filter((c) => c.progress?.status === 'completed').length
-        const totalContent = m.content.length
-        const pretestTotal = m.hasPretest ? 1 : 0
-        const pretestDone = m.pretestCompleted ? 1 : 0
-        const posttestDone = m.quiz?.passed ? 1 : 0
-        const totalItems = totalContent + pretestTotal + 1
-        const completedItems = completedContent + pretestDone + posttestDone
-        const pct = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
-        return (
-          <button
-            key={m.milestoneId}
-            type="button"
-            disabled={!m.unlocked}
-            onClick={() => m.unlocked && onStart(m.milestoneId, m.title)}
-            className={cn(
-              'group flex flex-col text-left rounded-xl border border-brand-surface-2 bg-[#fdf5f9] overflow-hidden transition-all',
-              m.unlocked ? 'cursor-pointer shadow-sm hover:border-brand-primary/50 hover:shadow-md' : 'cursor-not-allowed opacity-60',
-            )}
-            style={{ borderTop: '3px solid var(--color-brand-primary)' }}
-          >
-            <div className="flex flex-col flex-1 px-3.5 pt-3 pb-3">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-semibold text-brand-text-primary line-clamp-2 leading-snug">{m.title}</p>
-                {m.completed ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                ) : !m.unlocked ? (
-                  <Lock className="w-4 h-4 text-brand-text-muted flex-shrink-0 mt-0.5" />
-                ) : (
-                  <span
-                    className="text-[9px] font-bold text-white px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap"
-                    style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-                  >
-                    {m.pretestCompleted && completedContent > 0 ? 'Continue' : m.pretestCompleted ? 'Start' : 'Knowledge check first'}
-                  </span>
-                )}
-              </div>
-              <p className="text-[10px] text-brand-text-muted mt-1">Milestone {idx + 1}</p>
-              {m.pretestCompleted && totalItems > 0 && (
-                <div className="mt-2.5 flex items-center gap-2">
-                  <div className="flex-1 h-1.5 rounded-full bg-brand-surface-2 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{ width: `${pct}%`, background: 'linear-gradient(90deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-                    />
-                  </div>
-                  <span className="text-[10px] font-semibold text-brand-text-muted shrink-0">{completedItems}/{totalItems}</span>
-                </div>
+    <>
+      <JourneyCard
+        latest={!done}
+        tag={
+          <CardTag icon={isYoutube ? PlayCircle : FileText} tone="outline">
+            {isYoutube ? 'Curated video' : 'Curated article'}
+          </CardTag>
+        }
+        meta={`${item.channelTitle ? `${item.channelTitle}, ` : ''}item ${position} of ${total}`}
+        title={item.title}
+        why={item.rationale ? `Why this: ${item.rationale}` : undefined}
+        footer={
+          done ? (
+            <DoneNote />
+          ) : (
+            <>
+              {gated ? <GateNote>Finish watching to unlock</GateNote> : <span className="flex-1" />}
+              {item.type === 'article' && item.url && (
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(btn({ variant: 'secondary', size: 'md' }), 'h-9 w-full sm:w-auto')}
+                >
+                  Read full article
+                  <ExternalLink className="h-4 w-4" aria-hidden />
+                  <span className="sr-only">(opens in a new tab)</span>
+                </a>
               )}
+              <CardAction gated={gated} busy={completing} onClick={() => void doComplete()}>
+                {!completing && <Check className="h-4 w-4" strokeWidth={2.25} aria-hidden />}
+                {completing ? 'Marking complete' : 'Mark complete'}
+              </CardAction>
+            </>
+          )
+        }
+      >
+        <div className="flex flex-col gap-3">
+          {isYoutube && (
+            <YouTubeVideo
+              url={`https://www.youtube.com/watch?v=${item.youtubeVideoId}`}
+              title={item.title}
+              onEnded={() => setVideoEnded(true)}
+              resumeAt={item.progress?.videoPositionSec ?? null}
+              watchedPct={item.progress?.videoWatchPct ?? null}
+              onSavePosition={(positionSec, watchPct) => void saveCodVideoPosition(item.id, pathId, positionSec, watchPct)}
+            />
+          )}
+          {item.type === 'article' && item.articleText && (
+            <div className="max-h-[480px] overflow-y-auto rounded-[10px] bg-ui-bg px-3.5 py-3">
+              <RichContent content={item.articleText} className={journeyProse} />
             </div>
-          </button>
-        )
-      })}
-    </div>
+          )}
+          {item.type === 'article' && !item.articleText && item.description && (
+            <p className="text-[15px] leading-relaxed text-ui-text">{item.description}</p>
+          )}
+        </div>
+      </JourneyCard>
+      {!done && <FollowUpChips onSend={sendMessage} />}
+    </>
   )
+}
+
+// ── Journey mapping ────────────────────────────────────────────────────────────
+//
+// One derivation feeds the journey panel, the phone strip and the in-chat
+// milestone list, so every view reads the same path state.
+
+function styleFilterFor(learningStyle: string | undefined) {
+  return (items: CodContentItem[]) =>
+    items.filter((c) => {
+      if (learningStyle === 'visual') return c.type === 'youtube'
+      if (learningStyle === 'reading') return c.type === 'article'
+      return true
+    })
+}
+
+function currentCodId(milestones: CodMilestone[], activeMilestoneId?: string | null): string | null {
+  // "Now" follows the milestone the learner has open in this session; before
+  // anything is opened it falls back to the first unlocked, unfinished one.
+  const activeOk =
+    activeMilestoneId != null &&
+    milestones.some((m) => m.milestoneId === activeMilestoneId && m.unlocked && !m.completed)
+  return activeOk ? activeMilestoneId! : (milestones.find((m) => m.unlocked && !m.completed)?.milestoneId ?? null)
+}
+
+function buildCodItems(
+  milestones: CodMilestone[],
+  learningStyle: string | undefined,
+  activeMilestoneId?: string | null,
+): PanelItem[] {
+  const styleFilter = styleFilterFor(learningStyle)
+  const currentId = currentCodId(milestones, activeMilestoneId)
+
+  return milestones.map((m, i) => {
+    let state: PanelItem['state']
+    if (m.completed) state = 'done'
+    else if (!m.unlocked) state = 'locked'
+    else if (m.milestoneId === currentId) state = 'current'
+    else state = 'ready'
+
+    const content = styleFilter(m.content)
+    const doneContent = content.filter((c) => c.progress?.status === 'completed').length
+    const allContentDone = content.length > 0 && doneContent === content.length
+
+    let steps: PanelStep[] | undefined
+    if (state === 'current') {
+      steps = []
+      if (m.hasPretest) {
+        steps.push({ key: 'pretest', label: 'Knowledge check', state: m.pretestCompleted ? 'done' : 'now' })
+      }
+      steps.push({
+        key: 'content',
+        label: 'Content',
+        value: content.length > 0 ? `${doneContent} of ${content.length}` : undefined,
+        state: !m.pretestCompleted && m.hasPretest ? 'todo' : allContentDone ? 'done' : 'now',
+      })
+      steps.push({
+        key: 'quiz',
+        label: 'Quiz',
+        value: m.quiz?.passed ? 'Passed' : '70% to pass',
+        state: m.quiz?.passed ? 'done' : m.quizAvailable ? 'now' : 'todo',
+      })
+    }
+
+    const status =
+      state === 'done'
+        ? m.quiz
+          ? `Completed, quiz ${m.quiz.score}/${m.quiz.total}`
+          : 'Completed'
+        : state === 'locked'
+          ? `Locked until milestone ${i} is done`
+          : state === 'current'
+            ? m.pretestCompleted || doneContent > 0
+              ? 'In progress'
+              : 'Up next'
+            : 'Ready'
+
+    return {
+      id: m.milestoneId,
+      title: m.title,
+      state,
+      status,
+      steps,
+      stripLabel: `${i + 1}. ${m.title}`,
+      stripCount: state === 'current' && content.length > 0 && m.pretestCompleted ? `${doneContent} of ${content.length}` : undefined,
+    }
+  })
+}
+
+function contentRows(items: CodContentItem[], locked: boolean): ContentRowData[] {
+  return items.map((c) => ({
+    id: c.id,
+    title: c.title,
+    kind: c.type === 'youtube' ? 'video' : 'article',
+    meta: contentMeta(c),
+    note: locked ? (c.rationale ?? c.description) : null,
+    done: c.progress?.status === 'completed',
+    locked: locked && c.progress?.status !== 'completed',
+  }))
+}
+
+const STYLE_LABEL: Record<string, string> = {
+  visual: 'Videos',
+  reading: 'Reading',
+  mixed: 'Mix of videos and reading',
+}
+const LEVEL_LABEL: Record<string, string> = {
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
@@ -325,6 +332,10 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
   const codPathRef = useRef(codPath)
   codPathRef.current = codPath
 
+  // SanaChatInput reads its placeholder from this shared ref.
+  chatPlaceholderRef.current = 'Ask Anna about your path'
+  useEffect(() => () => { chatPlaceholderRef.current = null }, [])
+
   const { agent } = useAgent({
     agentId: COD_DELIVERY_AGENT,
     threadId,
@@ -342,10 +353,19 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
     if (hasConversation) setShowEmptyState(false)
   }, [hasConversation])
 
+  // Visible failure state for runs (backend down / network drop) — retry
+  // re-runs the agent; the user's message is already in the local thread.
+  const [runFailed, setRunFailed] = useSanaRunError(copilotkit, agent)
+  const retryRun = useCallback(() => {
+    setRunFailed(false)
+    void copilotkit.runAgent({ agent: agentRef.current }).catch(() => setRunFailed(true))
+  }, [copilotkit, setRunFailed])
+
   const runChainRef = useRef<Promise<void>>(Promise.resolve())
   const sendMessage = useCallback(
     (text: string) => {
       if (!text.trim()) return
+      setShowEmptyState(false)
       runChainRef.current = runChainRef.current.then(async () => {
         const liveAgent = agentRef.current
         try {
@@ -378,7 +398,6 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
     try { agentAny.setMessages?.([]) } catch { /* noop */ }
     setThreadId(makeUuid())
     setShowEmptyState(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentAny, copilotkit])
 
   // COD path summary context
@@ -415,22 +434,34 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
 
   useFrontendTool({
     name: 'showCodMilestones',
-    description: 'Show the user their COD milestone overview. Each card is clickable to start that milestone.',
+    description: 'Show the user their Content on Demand milestone overview. Each card is clickable to start that milestone.',
     parameters: z.object({}),
     render: ({ status }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const codPath = codPathRef.current
+      const learningStyle = codPath.path.discoveryProfile?.learningStyle as string | undefined
       return (
-        <div className="my-2 space-y-2">
-          <p className="text-xs font-semibold text-brand-text-secondary mb-1">Your Learning Path · tap a milestone to begin</p>
-          <CodMilestoneGrid milestones={codPath.milestones} onStart={startMilestone} />
-        </div>
+        <JourneyCard
+          tag={<CardTag icon={Route}>Your milestones</CardTag>}
+          meta="Pick one to begin. A quick knowledge check comes first."
+        >
+          <div className="-mx-2 flex flex-col gap-2 pb-1">
+            <JourneyPanel
+              count={`${codPath.milestones.length} milestones`}
+              items={buildCodItems(codPath.milestones, learningStyle, activeMilestoneId)}
+              onSelect={(id) => {
+                const m = codPath.milestones.find((ms) => ms.milestoneId === id)
+                if (m) startMilestone(m.milestoneId, m.title)
+              }}
+            />
+          </div>
+        </JourneyCard>
       )
     },
     handler: async () => {
       const codPath = codPathRef.current
       const summary = codPath.milestones.map((m) => `${m.title}: ${m.unlocked ? 'unlocked' : 'locked'}`).join('; ')
-      return `COD milestones: ${summary}`
+      return `Content on Demand milestones: ${summary}`
     },
   })
 
@@ -444,7 +475,7 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
     description: 'Show the pretest knowledge check inline for a milestone. Only call this when pretestCompleted=false.',
     parameters: z.object({ milestoneId: z.string() }),
     render: ({ status, args }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const codPath = codPathRef.current
       const m = codPath.milestones.find((ms) => ms.milestoneId === args.milestoneId)
       if (!m) return <></>
@@ -457,7 +488,11 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
             pretestJustCompletedRef.current.add(m.milestoneId)
             setShowEmptyState(false)
             await onPathRefresh()
-            await new Promise<void>((resolve) => { requestAnimationFrame(() => resolve()) })
+            // One tick so the refreshed path state (pretestCompleted=true) lands
+            // before the agent call. setTimeout, NOT requestAnimationFrame: rAF
+            // never fires in a hidden/background tab, which left this await
+            // hanging forever and silently swallowed the "Start learning" send.
+            await new Promise<void>((resolve) => { setTimeout(resolve, 32) })
             sendMessage(`Start learning "${m.title}" (id: ${m.milestoneId}).`)
           }}
         />
@@ -482,14 +517,15 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
     description: 'Show learning content or final quiz inline for a milestone. Only call this when pretestCompleted=true.',
     parameters: z.object({ milestoneId: z.string() }),
     render: ({ status, args }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const codPath = codPathRef.current
       const m = codPath.milestones.find((ms) => ms.milestoneId === args.milestoneId)
       if (!m) return <></>
 
-      // All content done + quiz not passed → inline quiz
       const filteredContent = filterByStyle(m.content)
       const allContentDone = filteredContent.length > 0 && filteredContent.every((c) => c.progress?.status === 'completed')
+
+      // All content done + quiz not passed → inline quiz
       if (allContentDone && !m.completed) {
         return (
           <MilestoneQuizCard
@@ -498,7 +534,7 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
             pathId={codPath.path.id}
             onPass={async () => {
               await onPathRefresh()
-              sendMessage(`I just passed the quiz for "${m.title}". Show my updated COD learning path.`)
+              sendMessage(`I just passed the quiz for "${m.title}". Congratulate me in one short sentence, then show my updated learning path.`)
             }}
           />
         )
@@ -510,23 +546,20 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
       // recoverable message instead of silently rendering nothing.
       if (!first) {
         return (
-          <div className="my-2 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm text-brand-text-secondary">
-            Preparing your content…{' '}
-            <button
-              type="button"
-              onClick={() => onPathRefresh()}
-              className="font-semibold underline"
-              style={{ color: 'var(--color-brand-primary)' }}
-            >
+          <ThreadNotice>
+            Preparing your content.{' '}
+            <button type="button" onClick={() => onPathRefresh()} className="font-semibold text-ui-brand-text underline">
               Refresh
             </button>
-          </div>
+          </ThreadNotice>
         )
       }
       const firstIdx = filteredContent.indexOf(first)
       const nextItem = filteredContent[firstIdx + 1] ?? null
       return (
         <CodContentCard
+          position={firstIdx + 1}
+          total={filteredContent.length}
           item={first}
           pathId={codPath.path.id}
           nextItemId={nextItem?.id ?? null}
@@ -547,7 +580,7 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
         return `All content complete. Showing posttest quiz for "${m.title}".`
       }
       const first = m.content.find((c) => c.progress?.status !== 'completed') ?? m.content[0]
-      return `Showing content "${first?.title ?? 'n/a'}" in "${m.title}". The content card handles completion and advancing — do nothing else.`
+      return `Showing content "${first?.title ?? 'n/a'}" in "${m.title}". The content card is already on screen — your turn is over. Do NOT call any other tool now; output nothing.`
     },
   })
 
@@ -555,10 +588,10 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
 
   useFrontendTool({
     name: 'displayCodContent',
-    description: 'Render one specific COD content item (YouTube video or article).',
+    description: 'Render one specific Content on Demand item (YouTube video or article).',
     parameters: z.object({ contentId: z.string() }),
     render: ({ status, args }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const codPath = codPathRef.current
       for (const m of codPath.milestones) {
         const item = m.content.find((c) => c.id === args.contentId)
@@ -567,6 +600,8 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
           const nextItem = m.content[itemIdx + 1] ?? null
           return (
             <CodContentCard
+              position={itemIdx + 1}
+              total={m.content.length}
               item={item}
               pathId={codPath.path.id}
               nextItemId={nextItem?.id ?? null}
@@ -585,7 +620,7 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
       for (const m of codPath.milestones) {
         const item = m.content.find((c) => c.id === contentId)
         if (item) {
-          return `Showing "${item.title}" (${item.type}). The content card handles completion and advancing — do nothing else.`
+          return `Showing "${item.title}" (${item.type}). The content card is already on screen — your turn is over. Do NOT call any other tool now; output nothing.`
         }
       }
       return 'Content item not found.'
@@ -599,7 +634,7 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
     description: 'Show the posttest quiz inline for a milestone after all content is complete.',
     parameters: z.object({ milestoneId: z.string() }),
     render: ({ status, args }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const codPath = codPathRef.current
       const m = codPath.milestones.find((ms) => ms.milestoneId === args.milestoneId)
       if (!m) return <></>
@@ -610,7 +645,7 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
           pathId={codPath.path.id}
           onPass={async () => {
             await onPathRefresh()
-            sendMessage(`I just passed the quiz for "${m.title}". Show my updated COD learning path.`)
+            sendMessage(`I just passed the quiz for "${m.title}". Congratulate me in one short sentence, then show my updated learning path.`)
           }}
         />
       )
@@ -640,92 +675,162 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
+  const items = buildCodItems(codPath.milestones, learningStyle, activeMilestoneId)
+  const doneCount = items.filter((m) => m.state === 'done').length
+  const milestoneCount = codPath.milestones.length
+  const pathPct = milestoneCount ? (doneCount / milestoneCount) * 100 : 0
+  const selectFromJourney = useCallback(
+    (id: string) => {
+      const m = codPathRef.current.milestones.find((ms) => ms.milestoneId === id)
+      if (m) startMilestone(m.milestoneId, m.title)
+    },
+    [startMilestone],
+  )
+
+  const [railOpen, toggleRail] = useJourneyRail()
+  const firstName = (getUser()?.fullName ?? '').trim().split(/\s+/)[0]
+  const profile = codPath.path.discoveryProfile
+  const currentId = currentCodId(codPath.milestones, activeMilestoneId)
+  const current = codPath.milestones.find((m) => m.milestoneId === currentId)
+  const currentIndex = current ? codPath.milestones.indexOf(current) : -1
+  const lastDone = [...codPath.milestones].reverse().find((m) => m.completed)
+  const lastDoneIndex = lastDone ? codPath.milestones.indexOf(lastDone) : -1
+  const currentContent = current ? filterByStyle(current.content) : []
+  const currentDone = currentContent.filter((c) => c.progress?.status === 'completed').length
+  const needsCheck = !!current && current.hasPretest && !current.pretestCompleted
+
   return (
-    <>
-      <div className="smeep-copilot flex flex-col h-full overflow-hidden">
-        <div
-          className="flex items-center gap-3 px-4 py-3 border-b border-white/10 flex-shrink-0"
-          style={{ background: 'linear-gradient(120deg, #1A0A12 0%, #2d0f20 100%)' }}
-        >
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10">
-            <BookOpen className="w-4 h-4 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white leading-tight">Learning Path (COD)</p>
-            <p className="text-[10px] text-white/60 leading-tight">
-              {codPath.milestones.length} milestone{codPath.milestones.length !== 1 ? 's' : ''} · Guided by Anna
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="New chat"
-            onClick={handleResetChat}
-            disabled={!hasConversation}
-            className="inline-flex items-center justify-center w-8 h-8 cursor-pointer rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            aria-label="Refresh path"
-            onClick={onPathRefresh}
-            className="inline-flex items-center justify-center w-8 h-8 cursor-pointer rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            aria-label="Delete learning path"
-            title="Delete learning path"
-            onClick={() => setShowDeleteDialog(true)}
-            className="inline-flex items-center justify-center gap-1.5 h-8 px-2 cursor-pointer rounded-full text-white/60 hover:text-white hover:bg-white/15 transition-colors text-[10px] font-semibold"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Delete learning path</span>
-          </button>
-        </div>
+    <JourneyCanvas>
+      <JourneyHeader
+        title="Content on Demand"
+        subtitle={`${milestoneCount} milestone${milestoneCount !== 1 ? 's' : ''} of curated videos and articles, guided by Anna`}
+        progress={{ done: doneCount, total: milestoneCount }}
+        secondaryActions={
+          <>
+            <HeaderIconButton label="New chat" onClick={handleResetChat} disabled={!hasConversation}>
+              <MessageSquarePlus className="h-4 w-4" aria-hidden />
+            </HeaderIconButton>
+            <HeaderIconButton label="Refresh path" onClick={onPathRefresh}>
+              <RefreshCw className="h-4 w-4" aria-hidden />
+            </HeaderIconButton>
+            <HeaderIconButton label="Delete learning path" onClick={() => setShowDeleteDialog(true)}>
+              <Trash2 className="h-4 w-4" aria-hidden />
+            </HeaderIconButton>
+            <HeaderIconButton
+              label={railOpen ? 'Hide your journey' : 'Show your journey'}
+              aria-pressed={railOpen}
+              onClick={toggleRail}
+              className="hidden xl:inline-flex"
+            >
+              <PanelRight className="h-4 w-4" aria-hidden />
+            </HeaderIconButton>
+          </>
+        }
+      />
 
-        <div className="relative flex-1 overflow-hidden smeep-assistant-chat">
-          <CopilotChat
-            agentId={COD_DELIVERY_AGENT}
-            threadId={threadId}
-            messageView={{
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              assistantMessage: SmeepAssistantMessage as any,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              userMessage: SmeepUserMessage as any,
-            }}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            input={SmeepChatInput as any}
-            labels={{
-              chatInputPlaceholder: 'Ask Anna about your learning path…',
-              welcomeMessageText: "Hi! I'm Anna 👋\nLet's walk through your personalised learning path together.",
-            }}
+      <MilestoneStrip items={items} onSelect={selectFromJourney} />
+
+      {runFailed && <SanaConnectionNotice onRetry={retryRun} />}
+
+      <JourneyBody
+        panelOpen={railOpen}
+        panel={
+          <JourneyPanel
+            count={`${milestoneCount} milestone${milestoneCount !== 1 ? 's' : ''}`}
+            progress={{ value: pathPct, label: `${Math.round(pathPct)}%` }}
+            items={items}
+            onSelect={selectFromJourney}
+            footer={
+              <PanelNote title="How each milestone works">
+                A knowledge check, then the videos and articles Anna picked for you, and a quiz you pass at 70% to unlock
+                the next milestone.
+              </PanelNote>
+            }
           />
+        }
+      >
+        <SanaReplyActionsProvider reportSurface="content-on-demand">
+        <CopilotChat
+          agentId={COD_DELIVERY_AGENT}
+          threadId={threadId}
+          messageView={{
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            assistantMessage: SanaAssistantMessage as any,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            userMessage: SanaUserMessage as any,
+          }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          input={SanaChatInput as any}
+          labels={{
+            chatInputPlaceholder: 'Ask Anna about your path',
+            welcomeMessageText: "Hi, I'm Anna. Let's walk through your personalised learning path together.",
+          }}
+        />
+        </SanaReplyActionsProvider>
 
-          {showEmptyState && (
-            <div className="absolute inset-0 z-10 flex flex-col bg-white overflow-y-auto">
-              <div className="px-5 pt-6 pb-3">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center"
-                    style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-                  >
-                    <Sparkles className="w-4 h-4 text-white" />
-                  </div>
-                  <p className="text-base font-black text-brand-text-primary">Hi! I&apos;m Anna 👋</p>
-                </div>
-                <p className="text-xs text-brand-text-secondary leading-relaxed">
-                  Here are your personalised milestones. Click a milestone to start — you&apos;ll answer a quick knowledge-check first, then dive into curated content.
-                </p>
-              </div>
-              <div className="px-5 pb-6">
-                <CodMilestoneGrid milestones={codPath.milestones} onStart={startMilestone} />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+        {showEmptyState && (
+          <JourneyIntro footer={<div className="h-[112px] shrink-0" aria-hidden />}>
+            <SanaLine>
+              {firstName ? `Hi ${firstName}. ` : 'Hi. '}I picked videos and articles that match your goal and grouped them
+              into {milestoneCount} milestone{milestoneCount !== 1 ? 's' : ''}.
+            </SanaLine>
+
+            {profile && (
+              <AskedForCard
+                aside="From your chat with Anna"
+                goal={profile.goals}
+                topics={profile.topics}
+                facts={[
+                  { label: 'Experience', value: LEVEL_LABEL[profile.experienceLevel] ?? profile.experienceLevel },
+                  { label: 'Learns best with', value: STYLE_LABEL[profile.learningStyle] ?? profile.learningStyle },
+                  { label: 'Path length', value: `${milestoneCount} milestones` },
+                ]}
+              />
+            )}
+
+            {lastDone && (
+              <MilestoneRecapCard
+                index={lastDoneIndex + 1}
+                title={lastDone.title}
+                stats={[
+                  ...(lastDone.hasPretest ? [{ icon: Target, label: 'Knowledge check', value: 'Done' }] : []),
+                  {
+                    icon: FileStack,
+                    label: 'Content',
+                    value: `${filterByStyle(lastDone.content).filter((c) => c.progress?.status === 'completed').length} of ${filterByStyle(lastDone.content).length}`,
+                  },
+                  ...(lastDone.quiz ? [{ icon: ClipboardCheck, label: 'Quiz', value: `${lastDone.quiz.score}/${lastDone.quiz.total}, passed` }] : []),
+                ]}
+                rows={contentRows(filterByStyle(lastDone.content), false)}
+              />
+            )}
+
+            {current ? (
+              <>
+                <SanaLine>
+                  {lastDone ? `That's ${lastDone.title} done, well earned. ` : ''}
+                  {needsCheck
+                    ? `Next is ${current.title}. A quick knowledge check comes first so we can measure how much you improve.`
+                    : currentDone > 0
+                      ? `Let's pick up ${current.title} where you left off.`
+                      : `Next is ${current.title}. Your content is ready.`}
+                </SanaLine>
+                <LearnerLine onClick={() => startMilestone(current.milestoneId, current.title)}>
+                  {needsCheck ? `Start the knowledge check for milestone ${currentIndex + 1}` : `${currentDone > 0 ? 'Continue' : 'Start'} ${current.title}`}
+                </LearnerLine>
+                <UpNextCard
+                  heading={needsCheck ? 'Unlocks after the knowledge check' : `In ${current.title}`}
+                  locked={needsCheck}
+                  rows={contentRows(currentContent, needsCheck)}
+                />
+              </>
+            ) : (
+              <SanaLine>Every milestone is complete. To learn something new, delete this path and I'll build a fresh one.</SanaLine>
+            )}
+          </JourneyIntro>
+        )}
+      </JourneyBody>
+
       <RemoveLearningPathDialog
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
@@ -733,6 +838,6 @@ export function CodEmbeddedLearningAssistant({ codPath, onPathRefresh }: Props) 
         loading={deleteLoading}
         includeQuestionnaireNote={false}
       />
-    </>
+    </JourneyCanvas>
   )
 }

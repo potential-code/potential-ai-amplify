@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useCallback, useState, useEffect } from 'react'
+import { useRef, useCallback, useState, useEffect, type ReactNode } from 'react'
 import { z } from 'zod'
 import {
   CopilotChat,
@@ -13,297 +13,108 @@ import {
 } from '@copilotkit/react-core/v2'
 import '@copilotkit/react-ui/v2/styles.css'
 import '@/components/dashboard/copilot.css'
+import '@/components/learning-ui/sana-studio.css'
 import {
   BookOpen,
-  RefreshCw,
-  RotateCcw,
-  CheckCircle2,
-  PlayCircle,
+  Check,
+  ExternalLink,
   FileText,
+  GraduationCap,
   ImageIcon,
   ListChecks,
-  Send,
-  Lock,
-  Sparkles,
+  MessageSquarePlus,
+  PanelRight,
+  PlayCircle,
+  RefreshCw,
+  Route,
   Trash2,
 } from 'lucide-react'
 import { makeUuid } from '@/components/dashboard/useStreamingVoice'
 import {
-  SmeepAssistantMessage,
-  SmeepUserMessage,
-  SmeepChatInput,
+  chatPlaceholderRef,
 } from '@/components/dashboard/chat-components'
+import { SanaAssistantMessage, SanaUserMessage } from '@/components/learning-ui/SanaMessages'
+import { SanaChatInput } from '@/components/learning-ui/SanaChatInput'
+import { useSanaRunError, SanaConnectionNotice } from '@/components/learning-ui/SanaRunError'
+import { useJourneyRail } from '@/components/learning-ui/useJourneyRail'
+import { btn } from '@/components/kit'
+import {
+  HeaderIconButton,
+  JourneyBody,
+  JourneyCanvas,
+  JourneyHeader,
+  JourneyIntro,
+  JourneyPanel,
+  LearnerLine,
+  MilestoneStrip,
+  PanelNote,
+  SanaLine,
+  leadIndent,
+  type PanelItem,
+  type PanelStep,
+} from '@/components/journeys/JourneyKit'
+import {
+  CardAction,
+  CardTag,
+  DoneNote,
+  GateNote,
+  JourneyCard,
+  JourneyCardSkeleton,
+  ThreadNotice,
+} from '@/components/journeys/JourneyCard'
+import { FileVideo, ReflectionQuestions, YouTubeVideo, isYouTubeUrl, journeyProse } from '@/components/journeys/JourneyMedia'
+import { FollowUpChips } from '@/components/journeys/FollowUpChips'
+import { AskedForCard, UpNextCard, formatDuration, type ContentRowData } from '@/components/journeys/ContentList'
 import { cn } from '@/lib/utils'
+import { getUser } from '@/lib/auth'
 import { RichContent } from '@/components/lms/RichContent'
 import {
   completeBothItem,
+  deleteBothPath,
   type BothPathResponse,
   type BothMilestone,
   type BothContentItem,
-  type BlockQuestion,
+  saveBothVideoPosition,
 } from '@/lib/api/both'
-import { apiSaveQuestionAnswer } from '@/lib/api/lms'
-import { apiFetch } from '@/lib/api'
 import { BothMilestonePretestCard } from './BothMilestonePretestCard'
 import { BothMilestoneQuizCard } from './BothMilestoneQuizCard'
 import { RemoveLearningPathDialog } from '@/components/shared/RemoveLearningPathDialog'
+import { SanaReplyActionsProvider } from '@/components/learning-ui/SanaReplyActions'
+import { BOTH_DELIVERY_PROMPT as BOTH_DELIVERY_INSTRUCTIONS } from "../../../shared/anna/prompts";
 
-const BOTH_DELIVERY_AGENT = 'chatbot'
 
-const BOTH_DELIVERY_INSTRUCTIONS = `You are Anna — AI Amplify's AI learning guide. You walk the user through their personalised Learning Path (Both) ONE content item at a time. This path contains a mix of internal AI Amplify learning blocks and external YouTube/article content.
 
-YOUR GOLDEN RULES:
-1. NEVER write, summarise, define, or invent learning content. Content is rendered by the tools below.
-2. The user drives the flow by clicking cards. When they click, you get an explicit instruction telling you EXACTLY which tool to call with which id. Call that tool with that exact id and nothing else.
-3. After calling any tool, output NO TEXT — not a single word. The card speaks for itself.
-4. The content card handles completion and advancing — do NOT call the next tool yourself. Wait for the user's message.
-5. When all content in a milestone is complete, call triggerBothQuiz with the milestoneId.
-
-YOUR KNOWLEDGE OF THE PATH:
-- __both_learning_path__ holds all milestones with their unlock/completion state.
-- __current_both_milestone__ holds the full content list for the active milestone.
-
-TOOL FLOW:
-- "show my path" / "milestones" → showBothMilestones
-- "Start milestone (id: X)" → openBothMilestone(X)   [only when pretestCompleted=false]
-- "Start learning ... (id: X)" → openBothMilestoneContent(X)   [pretest done, show content]
-- "Display content (id: X)" → displayBothContent(X)
-- "All content done in milestone X" → triggerBothQuiz(X)
-
-When the user asks questions about their learning topic, answer concisely from your general expertise.`
-
-// ── YouTube helpers ────────────────────────────────────────────────────────────
-
-function extractYouTubeId(url: string): string | null {
-  const patterns = [/[?&]v=([^&]+)/, /youtu\.be\/([^?&]+)/, /embed\/([^?&]+)/]
-  for (const p of patterns) {
-    const m = url.match(p)
-    if (m) return m[1]!
-  }
-  return null
+type BothContentItemWithSegment = BothContentItem & {
+  startSeconds?: number | null
+  endSeconds?: number | null
 }
 
-function YouTubeVideo({ url, onEnded }: { url: string; onEnded: () => void }) {
-  const hostRef = useRef<HTMLDivElement>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const playerRef = useRef<any>(null)
-  const onEndedRef = useRef(onEnded)
-  onEndedRef.current = onEnded
+const itemDone = (c: BothContentItem) =>
+  (c.itemType === 'external' ? c.progress?.status : c.blockProgress?.status) === 'completed'
 
-  useEffect(() => {
-    const videoId = extractYouTubeId(url)
-    if (!videoId || !hostRef.current) return
-    let interval: ReturnType<typeof setInterval> | undefined
-
-    function createPlayer() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const YT = (window as any).YT
-      if (!YT?.Player || !hostRef.current || playerRef.current) return
-      playerRef.current = new YT.Player(hostRef.current, {
-        videoId,
-        playerVars: { rel: 0, modestbranding: 1 },
-        events: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onStateChange: (e: any) => {
-            if (e.data === YT.PlayerState.ENDED) onEndedRef.current()
-          },
-        },
-      })
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((window as any).YT?.Player) {
-      createPlayer()
-    } else {
-      if (!document.getElementById('yt-iframe-api')) {
-        const tag = document.createElement('script')
-        tag.id = 'yt-iframe-api'
-        tag.src = 'https://www.youtube.com/iframe_api'
-        document.body.appendChild(tag)
-      }
-      interval = setInterval(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((window as any).YT?.Player) {
-          clearInterval(interval)
-          createPlayer()
-        }
-      }, 200)
-    }
-
-    return () => {
-      if (interval) clearInterval(interval)
-      try { playerRef.current?.destroy?.() } catch { /* noop */ }
-      playerRef.current = null
-    }
-  }, [url])
-
-  return (
-    <div className="max-w-[580px] w-full mx-auto">
-      <div className="aspect-video rounded-lg overflow-hidden bg-black">
-        <div ref={hostRef} className="w-full h-full" />
-      </div>
-    </div>
-  )
-}
-
-// ── Block type icon ───────────────────────────────────────────────────────────
-
-function BlockTypeIcon({ type, className }: { type: string; className?: string }) {
-  if (type === 'video') return <PlayCircle className={cn('w-4 h-4', className)} />
-  if (type === 'image') return <ImageIcon className={cn('w-4 h-4', className)} />
-  if (type === 'question') return <ListChecks className={cn('w-4 h-4', className)} />
-  return <FileText className={cn('w-4 h-4', className)} />
-}
-
-// ── Chat question renderer ────────────────────────────────────────────────────
-
-type ChatQuestionBlockProps = {
-  item: BothContentItem
-  onSubmitted: () => void
-}
-
-function ChatQuestionBlock({ item, onSubmitted }: ChatQuestionBlockProps) {
-  type Answers = Record<string, number | string>
-  const [answers, setAnswers] = useState<Answers>({})
-  const [submitted, setSubmitted] = useState(false)
-  const [pending, setPending] = useState(false)
-
-  const questions: BlockQuestion[] = item.questions ?? []
-
-  const allAnswered = questions.every((q) => {
-    const ans = answers[q.id]
-    if (q.format === 'short-text') return typeof ans === 'string' && ans.trim().length > 0
-    return typeof ans === 'number'
-  })
-
-  async function handleSubmit() {
-    if (!allAnswered || pending || submitted) return
-    setPending(true)
-    try {
-      await Promise.all(
-        questions.map((q) => {
-          const ans = answers[q.id]
-          if (q.format === 'short-text') {
-            return apiSaveQuestionAnswer(q.id, { openEndedAnswer: String(ans ?? '') })
-          }
-          return apiSaveQuestionAnswer(q.id, { selectedAnswer: typeof ans === 'number' ? ans : 0 })
-        }),
-      )
-      setSubmitted(true)
-      onSubmitted()
-    } catch (err) {
-      console.warn('[both-assistant] saving question answer failed', err)
-    } finally {
-      setPending(false)
-    }
-  }
-
-  return (
-    <div className="space-y-3">
-      {questions.map((q) => (
-        <div key={q.id}>
-          <p className="text-xs font-semibold text-brand-text-primary mb-2 leading-relaxed">{q.prompt}</p>
-
-          {q.format === 'short-text' ? (
-            <textarea
-              value={typeof answers[q.id] === 'string' ? (answers[q.id] as string) : ''}
-              onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
-              disabled={submitted}
-              placeholder={q.placeholder ?? 'Write your answer…'}
-              rows={3}
-              className={cn(
-                'w-full rounded-xl border bg-white px-3 py-2 text-xs text-brand-text-primary placeholder:text-brand-text-muted/70 focus:outline-none transition-all resize-none',
-                submitted
-                  ? 'border-emerald-200 bg-emerald-50/40'
-                  : 'border-brand-surface-2 focus:border-brand-primary/40 focus:ring-2 focus:ring-brand-primary/10',
-              )}
-            />
-          ) : (
-            <div className="grid gap-1.5">
-              {(q.format === 'true-false' ? ['True', 'False'] : (q.options ?? [])).map((opt, idx) => {
-                const isSelected = answers[q.id] === idx
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => !submitted && setAnswers((prev) => ({ ...prev, [q.id]: idx }))}
-                    disabled={submitted}
-                    className={cn(
-                      'flex items-center gap-2.5 rounded-xl border px-3 py-2 text-xs text-left transition-all',
-                      isSelected
-                        ? 'border-brand-primary bg-brand-primary/5 text-brand-text-primary shadow-sm'
-                        : 'border-brand-surface-2 bg-white text-brand-text-primary hover:border-brand-primary/40',
-                      submitted && !isSelected && 'opacity-50',
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        'flex items-center justify-center w-4 h-4 rounded-full border-2 transition-colors shrink-0',
-                        isSelected ? 'border-brand-primary bg-brand-primary' : 'border-brand-surface-2 bg-white',
-                      )}
-                    >
-                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                    </span>
-                    <span className="flex-1">{opt}</span>
-                    {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-brand-primary shrink-0" />}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      ))}
-
-      {submitted ? (
-        <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-          <p className="text-[11px] font-semibold text-emerald-700">Answers submitted</p>
-        </div>
-      ) : (
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!allAnswered || pending}
-            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-          >
-            <Send className="w-3 h-3" />
-            {pending ? 'Submitting…' : 'Submit answers'}
-          </button>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── Skeleton ───────────────────────────────────────────────────────────────────
-
-function CardSkeleton() {
-  return (
-    <div className="rounded-xl border border-brand-surface-2 bg-brand-surface p-4 my-2 animate-pulse space-y-2">
-      <div className="h-3 w-2/3 bg-brand-surface-2 rounded" />
-      <div className="h-2 w-full bg-brand-surface-2 rounded" />
-    </div>
-  )
+function internalKind(blockType: string | null | undefined) {
+  if (blockType === 'video') return { label: 'Video lesson', icon: PlayCircle }
+  if (blockType === 'image') return { label: 'Visual', icon: ImageIcon }
+  if (blockType === 'question') return { label: 'Reflection', icon: ListChecks }
+  return { label: 'Reading', icon: BookOpen }
 }
 
 // ── BothContentCard ────────────────────────────────────────────────────────────
 
 function BothContentCard({
-  item, pathId, nextItemId, milestoneId, milestoneTitle, onCompleted, sendMessage,
+  item, position, total, pathId, nextItemId, milestoneId, milestoneTitle, onCompleted, sendMessage,
 }: {
   item: BothContentItem
+  position: number
+  total: number
   pathId: string
   nextItemId: string | null
   milestoneId: string
   milestoneTitle: string
-  onCompleted: () => void
+  onCompleted: () => void | Promise<void>
   sendMessage: (text: string) => void
 }) {
-  const isDone = item.itemType === 'external'
-    ? item.progress?.status === 'completed'
-    : item.blockProgress?.status === 'completed'
+  const isDone = itemDone(item)
 
   const [videoEnded, setVideoEnded] = useState(false)
   const [questionsSubmitted, setQuestionsSubmitted] = useState(false)
@@ -315,16 +126,8 @@ function BothContentCard({
   // Determine if this is a video (external youtube or internal video block)
   const isExternalYoutube = item.itemType === 'external' && item.type === 'youtube' && !!item.youtubeVideoId
   const isInternalVideo = item.itemType === 'internal' && item.blockType === 'video' && !!item.videoUrl
-  const isInternalYouTube = isInternalVideo && !!(item.videoUrl?.includes('youtube.com') || item.videoUrl?.includes('youtu.be'))
+  const isInternalYouTube = isInternalVideo && isYouTubeUrl(item.videoUrl)
   const isInternalQuestion = item.itemType === 'internal' && item.blockType === 'question' && (item.questions?.length ?? 0) > 0
-
-  const canComplete = (() => {
-    if (done) return false
-    if (isExternalYoutube) return videoEnded
-    if (isInternalVideo) return videoEnded
-    if (isInternalQuestion) return questionsSubmitted
-    return true
-  })()
 
   async function doComplete() {
     if (completing || done) return
@@ -334,12 +137,13 @@ function BothContentCard({
       const videoWatchPct = (isExternalYoutube || isInternalVideo) ? 100 : undefined
       await completeBothItem(itemId, pathId, item.itemType, milestoneId, videoWatchPct)
       setJustCompleted(true)
+      // Refresh first: the agent run reads the course-state context, which is stale until this resolves.
+      await onCompleted()
       if (nextItemId) {
         sendMessage(`Display content (id: ${nextItemId})`)
       } else {
-        sendMessage(`All content done in milestone "${milestoneTitle}" (id: ${milestoneId}). Trigger the quiz.`)
+        sendMessage(`All content done in milestone "${milestoneTitle}" (id: ${milestoneId}). Show the next step.`)
       }
-      onCompleted()
     } catch (err) {
       console.warn('[both-assistant] content completion failed', err)
     } finally {
@@ -347,256 +151,336 @@ function BothContentCard({
     }
   }
 
+  const markComplete = (gated: boolean) => (
+    <CardAction gated={gated} busy={completing} onClick={() => void doComplete()}>
+      {!completing && <Check className="h-4 w-4" strokeWidth={2.25} aria-hidden />}
+      {completing ? 'Marking complete' : 'Mark complete'}
+    </CardAction>
+  )
+
   // ── External item rendering ────────────────────────────────────────────────
 
   if (item.itemType === 'external') {
+    const gated = isExternalYoutube && !videoEnded && !done
+    const seg = item as BothContentItemWithSegment
+    const duration = formatDuration(item.durationSeconds)
     return (
-      <div className="my-2 rounded-xl border border-brand-surface-2 bg-white overflow-hidden shadow-sm">
-        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-brand-surface-2 bg-brand-surface">
-          {isExternalYoutube
-            ? <PlayCircle className="w-4 h-4 text-brand-text-secondary" />
-            : <FileText className="w-4 h-4 text-brand-text-secondary" />}
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-brand-text-primary truncate">{item.title}</p>
-            <p className="text-[10px] text-brand-text-muted capitalize">{item.type === 'youtube' ? 'Video' : 'Article'}</p>
-          </div>
-          {done && (
-            <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">
-              <CheckCircle2 className="w-3 h-3" /> Done
-            </span>
-          )}
-        </div>
-        <div className="p-4 space-y-3">
-          {isExternalYoutube && (
-            <YouTubeVideo
-              url={`https://www.youtube.com/watch?v=${item.youtubeVideoId}`}
-              onEnded={() => setVideoEnded(true)}
-            />
-          )}
-          {item.type === 'article' && item.articleText && (
-            <div className="max-h-[480px] overflow-y-auto pr-1">
-              <RichContent content={item.articleText} className="text-xs" />
-            </div>
-          )}
-          {item.rationale && (
-            <p className="text-[10px] text-brand-text-muted italic">{item.rationale}</p>
-          )}
-        </div>
-        {!done && (
-          <div className="px-4 pb-4 space-y-2">
-            {isExternalYoutube && !videoEnded && (
-              <p className="flex items-center gap-1.5 text-[11px] text-brand-text-muted">
-                <Lock className="w-3 h-3 shrink-0" /> Finish watching to unlock completion.
-              </p>
+      <>
+        <JourneyCard
+          latest={!done}
+          tag={
+            <CardTag icon={item.type === 'youtube' ? PlayCircle : FileText} tone="outline">
+              {item.type === 'youtube' ? 'Curated video' : 'Curated article'}
+            </CardTag>
+          }
+          meta={`${duration ? `${duration}, ` : ''}item ${position} of ${total}`}
+          title={item.title}
+          why={item.rationale ? `Why this: ${item.rationale}` : undefined}
+          footer={
+            done ? (
+              <DoneNote />
+            ) : (
+              <>
+                {gated ? <GateNote>Finish watching to unlock</GateNote> : <span className="flex-1" />}
+                {item.type === 'article' && item.url && (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(btn({ variant: 'secondary', size: 'md' }), 'h-9 w-full sm:w-auto')}
+                  >
+                    Read full article
+                    <ExternalLink className="h-4 w-4" aria-hidden />
+                    <span className="sr-only">(opens in a new tab)</span>
+                  </a>
+                )}
+                {markComplete(gated)}
+              </>
+            )
+          }
+        >
+          <div className="flex flex-col gap-3">
+            {isExternalYoutube && (
+              <YouTubeVideo
+                url={`https://www.youtube.com/watch?v=${item.youtubeVideoId}`}
+                title={item.title}
+                onEnded={() => setVideoEnded(true)}
+                startSeconds={seg.startSeconds}
+                endSeconds={seg.endSeconds}
+                resumeAt={item.progress?.videoPositionSec ?? null}
+                watchedPct={item.progress?.videoWatchPct ?? null}
+                onSavePosition={(positionSec, watchPct) =>
+                  void saveBothVideoPosition(item.id, { pathId, itemType: 'external', milestoneId, positionSec, watchPct })
+                }
+              />
             )}
-            <button
-              type="button"
-              onClick={() => void doComplete()}
-              disabled={completing}
-              className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              {completing ? 'Marking complete…' : 'Mark Complete'}
-            </button>
+            {item.type === 'article' && item.articleText && (
+              <div className="max-h-[480px] overflow-y-auto rounded-[10px] bg-ui-bg px-3.5 py-3">
+                <RichContent content={item.articleText} className={journeyProse} />
+              </div>
+            )}
+            {item.type === 'article' && !item.articleText && item.description && (
+              <p className="text-[15px] leading-relaxed text-ui-text">{item.description}</p>
+            )}
           </div>
-        )}
-        {done && (
-          <div className="px-4 pb-4">
-            <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <p className="text-[11px] font-semibold text-emerald-700">Completed!</p>
-            </div>
-          </div>
-        )}
-      </div>
+        </JourneyCard>
+        {!done && <FollowUpChips onSend={sendMessage} />}
+      </>
     )
   }
 
   // ── Internal block rendering ───────────────────────────────────────────────
 
+  const kind = internalKind(item.blockType)
+  const internalGated = (isInternalVideo && !videoEnded) || (isInternalQuestion && !questionsSubmitted)
+
   return (
-    <div className="my-2 rounded-xl border border-brand-surface-2 bg-white overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-brand-surface-2 bg-brand-surface">
-        <BlockTypeIcon type={item.blockType ?? 'text'} className="text-brand-text-secondary" />
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-brand-text-primary truncate">{item.title}</p>
-          <p className="text-[10px] text-brand-text-muted capitalize">{item.blockType ?? 'text'} block</p>
-        </div>
-        {done && (
-          <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">
-            <CheckCircle2 className="w-3 h-3" /> Done
-          </span>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        {item.blockType === 'text' && item.body && (
-          <RichContent content={item.body} className="text-xs" />
-        )}
-
-        {isInternalVideo && (
-          isInternalYouTube ? (
-            <YouTubeVideo url={item.videoUrl!} onEnded={() => setVideoEnded(true)} />
+    <>
+      <JourneyCard
+        latest={!done}
+        tag={
+          <CardTag icon={GraduationCap} tone="solid">
+            AI Amplify course block
+          </CardTag>
+        }
+        meta={`${kind.label}, item ${position} of ${total}`}
+        title={item.blockType === 'question' ? undefined : item.title}
+        why={item.rationale ? `Why this: ${item.rationale}` : undefined}
+        footer={
+          done ? (
+            <DoneNote />
           ) : (
-            <div className="aspect-video rounded-lg overflow-hidden bg-black">
-              <video
-                src={item.videoUrl!}
-                controls
-                onEnded={() => setVideoEnded(true)}
-                className="w-full h-full"
-              />
-            </div>
+            <>
+              {isInternalVideo && !videoEnded ? (
+                <GateNote>Finish watching to unlock</GateNote>
+              ) : isInternalQuestion && !questionsSubmitted ? (
+                <GateNote>Submit your answer to continue</GateNote>
+              ) : (
+                <span className="flex-1" />
+              )}
+              {!isInternalQuestion && markComplete(internalGated)}
+            </>
           )
-        )}
+        }
+      >
+        <div className="flex flex-col gap-3">
+          {item.blockType === 'text' && item.body && <RichContent content={item.body} className={journeyProse} />}
 
-        {item.blockType === 'image' && item.imageUrl && (
-          <div className="flex justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.imageUrl} alt={item.title} className="max-w-full rounded-lg" />
-          </div>
-        )}
+          {isInternalVideo &&
+            (isInternalYouTube ? (
+              <YouTubeVideo
+                url={item.videoUrl!}
+                title={item.title}
+                onEnded={() => setVideoEnded(true)}
+                resumeAt={item.blockProgress?.videoPositionSec ?? null}
+                watchedPct={item.blockProgress?.videoWatchPct ?? null}
+                onSavePosition={(positionSec, watchPct) =>
+                  void saveBothVideoPosition(item.blockId!, { pathId, itemType: 'internal', milestoneId, positionSec, watchPct })
+                }
+              />
+            ) : (
+              <FileVideo src={item.videoUrl!} onEnded={() => setVideoEnded(true)} />
+            ))}
 
-        {isInternalQuestion && (
-          <div className="rounded-lg bg-brand-surface border border-brand-surface-2 px-3 py-3">
-            {item.body && <RichContent content={item.body} className="text-xs mb-3" />}
-            <ChatQuestionBlock
-              item={item}
-              onSubmitted={() => {
-                setQuestionsSubmitted(true)
-                void doComplete()
-              }}
-            />
-          </div>
-        )}
-
-        {item.blockType !== 'question' && !item.body && !item.videoUrl && !item.imageUrl && (
-          <p className="text-xs text-brand-text-muted italic">No content available for this block.</p>
-        )}
-
-        {item.rationale && (
-          <p className="text-[10px] text-brand-text-muted italic">{item.rationale}</p>
-        )}
-      </div>
-
-      {/* Footer — Mark Complete gate */}
-      {!done && (
-        <div className="px-4 pb-4 space-y-2">
-          {isInternalVideo && !videoEnded && (
-            <p className="flex items-center gap-1.5 text-[11px] text-brand-text-muted">
-              <Lock className="w-3 h-3 shrink-0" /> Finish watching the video to unlock completion.
-            </p>
+          {item.blockType === 'image' && item.imageUrl && (
+            <img src={item.imageUrl} alt={item.title} className="max-w-full rounded-[10px]" />
           )}
-          {isInternalQuestion && !questionsSubmitted && (
-            <p className="flex items-center gap-1.5 text-[11px] text-brand-text-muted">
-              <Lock className="w-3 h-3 shrink-0" /> Submit your answer to unlock completion.
-            </p>
+
+          {isInternalQuestion && (
+            <>
+              {item.body && <RichContent content={item.body} className={journeyProse} />}
+              <ReflectionQuestions
+                questions={item.questions ?? []}
+                logTag="both-assistant"
+                onSubmitted={() => {
+                  setQuestionsSubmitted(true)
+                  void doComplete()
+                }}
+              />
+            </>
           )}
-          {!isInternalQuestion && (
-            <button
-              type="button"
-              onClick={() => void doComplete()}
-              disabled={completing}
-              className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              {completing ? 'Marking complete…' : 'Mark Complete'}
-            </button>
+
+          {item.blockType !== 'question' && !item.body && !item.videoUrl && !item.imageUrl && (
+            <p className="text-sm text-ui-muted">No content available for this block.</p>
           )}
         </div>
-      )}
-      {done && (
-        <div className="px-4 pb-4">
-          <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <p className="text-[11px] font-semibold text-emerald-700">Completed!</p>
-          </div>
-        </div>
-      )}
-    </div>
+      </JourneyCard>
+      {!done && <FollowUpChips onSend={sendMessage} />}
+    </>
   )
 }
 
-// ── Milestone grid ─────────────────────────────────────────────────────────────
+// ── Journey mapping ────────────────────────────────────────────────────────────
+//
+// One derivation feeds the journey panel, the phone strip and the in-chat
+// milestone list.
 
-function BothMilestoneGrid({
-  milestones, onStart,
-}: {
-  milestones: BothMilestone[]
-  onStart: (milestoneId: string, title: string) => void
-}) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-      {milestones.map((m, idx) => {
-        const completedContent = m.content.filter((c) =>
-          (c.itemType === 'external' ? c.progress?.status : c.blockProgress?.status) === 'completed'
-        ).length
-        const totalContent = m.content.length
-        const pretestTotal = m.hasPretest ? 1 : 0
-        const pretestDone = m.pretestCompleted ? 1 : 0
-        const posttestDone = m.quiz?.passed ? 1 : 0
-        const totalItems = totalContent + pretestTotal + 1
-        const completedItems = completedContent + pretestDone + posttestDone
-        const pct = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
-        return (
-          <button
-            key={m.milestoneId}
-            type="button"
-            disabled={!m.unlocked}
-            onClick={() => m.unlocked && onStart(m.milestoneId, m.title)}
-            className={cn(
-              'group flex flex-col text-left rounded-xl border border-brand-surface-2 bg-[#fdf5f9] overflow-hidden transition-all',
-              m.unlocked ? 'cursor-pointer shadow-sm hover:border-brand-primary/50 hover:shadow-md' : 'cursor-not-allowed opacity-60',
-            )}
-            style={{ borderTop: '3px solid var(--color-brand-primary)' }}
-          >
-            <div className="flex flex-col flex-1 px-3.5 pt-3 pb-3">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-semibold text-brand-text-primary line-clamp-2 leading-snug">{m.title}</p>
-                {m.completed ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                ) : !m.unlocked ? (
-                  <Lock className="w-4 h-4 text-brand-text-muted flex-shrink-0 mt-0.5" />
-                ) : (
-                  <span
-                    className="text-[9px] font-bold text-white px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap"
-                    style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-                  >
-                    {m.pretestCompleted && completedContent > 0 ? 'Continue' : m.pretestCompleted ? 'Start' : 'Knowledge check first'}
-                  </span>
-                )}
-              </div>
-              <p className="text-[10px] text-brand-text-muted mt-1">Milestone {idx + 1}</p>
-              {m.pretestCompleted && totalItems > 0 && (
-                <div className="mt-2.5 flex items-center gap-2">
-                  <div className="flex-1 h-1.5 rounded-full bg-brand-surface-2 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{ width: `${pct}%`, background: 'linear-gradient(90deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-                    />
-                  </div>
-                  <span className="text-[10px] font-semibold text-brand-text-muted shrink-0">{completedItems}/{totalItems}</span>
-                </div>
-              )}
-            </div>
-          </button>
-        )
-      })}
-    </div>
-  )
+function currentBothId(milestones: BothMilestone[], activeMilestoneId?: string | null): string | null {
+  // "Now" follows the milestone the learner has open in this session; before
+  // anything is opened it falls back to the first unlocked, unfinished one.
+  const activeOk =
+    activeMilestoneId != null &&
+    milestones.some((m) => m.milestoneId === activeMilestoneId && m.unlocked && !m.completed)
+  return activeOk ? activeMilestoneId! : (milestones.find((m) => m.unlocked && !m.completed)?.milestoneId ?? null)
+}
+
+function sourceSplit(items: BothContentItem[]) {
+  const smeep = items.filter((c) => c.itemType === 'internal').length
+  return { smeep, curated: items.length - smeep }
+}
+
+function buildBothItems(
+  milestones: BothMilestone[],
+  filterByStyle: (items: BothContentItem[]) => BothContentItem[],
+  activeMilestoneId?: string | null,
+  checkLabel = 'Pre-test',
+): PanelItem[] {
+  const currentId = currentBothId(milestones, activeMilestoneId)
+
+  return milestones.map((m, i) => {
+    let state: PanelItem['state']
+    if (m.completed) state = 'done'
+    else if (!m.unlocked) state = 'locked'
+    else if (m.milestoneId === currentId) state = 'current'
+    else state = 'ready'
+
+    const content = filterByStyle(m.content)
+    const doneContent = content.filter(itemDone).length
+    const allContentDone = content.length > 0 && doneContent === content.length
+    const split = sourceSplit(content)
+
+    let steps: PanelStep[] | undefined
+    if (state === 'current') {
+      steps = []
+      if (m.hasPretest) {
+        steps.push({ key: 'pretest', label: checkLabel, state: m.pretestCompleted ? 'done' : 'now' })
+      }
+      steps.push({
+        key: 'content',
+        label: 'Content',
+        value: content.length > 0 ? `${doneContent} of ${content.length}` : undefined,
+        state: !m.pretestCompleted && m.hasPretest ? 'todo' : allContentDone ? 'done' : 'now',
+      })
+      steps.push({
+        key: 'quiz',
+        label: 'Quiz',
+        value: m.quiz?.passed ? 'Passed' : '70% to pass',
+        state: m.quiz?.passed ? 'done' : m.quizAvailable ? 'now' : 'todo',
+      })
+    }
+
+    const status =
+      state === 'done'
+        ? m.quiz
+          ? `Completed, quiz ${m.quiz.score}/${m.quiz.total}`
+          : 'Completed'
+        : state === 'locked'
+          ? m.hasPretest
+            ? `Starts with a ${checkLabel.toLowerCase()}`
+            : `Locked until milestone ${i} is done`
+          : state === 'current'
+            ? m.pretestCompleted || doneContent > 0
+              ? 'In progress'
+              : 'Up next'
+            : 'Ready'
+
+    return {
+      id: m.milestoneId,
+      title: m.title,
+      state,
+      status,
+      detail: content.length > 0 ? `${split.smeep} AI Amplify, ${split.curated} curated` : undefined,
+      steps,
+      stripLabel: `${i + 1}. ${m.title}`,
+      stripCount: state === 'current' && content.length > 0 && m.pretestCompleted ? `${doneContent} of ${content.length}` : undefined,
+    }
+  })
+}
+
+function bothRows(items: BothContentItem[], locked: boolean): ContentRowData[] {
+  return items.map((c) => {
+    const internal = c.itemType === 'internal'
+    const kind: ContentRowData['kind'] = internal
+      ? c.blockType === 'video'
+        ? 'smeep-video'
+        : c.blockType === 'image'
+          ? 'smeep-image'
+          : c.blockType === 'question'
+            ? 'smeep-question'
+            : 'smeep-text'
+      : c.type === 'youtube'
+        ? 'video'
+        : 'article'
+    const duration = formatDuration(c.durationSeconds)
+    const meta = internal
+      ? `AI Amplify course block, ${internalKind(c.blockType).label.toLowerCase()}`
+      : `Curated ${c.type === 'youtube' ? 'video' : 'article'}${duration ? `, ${duration}` : ''}`
+    return {
+      id: c.id,
+      title: c.title,
+      kind,
+      meta,
+      note: locked ? c.rationale : null,
+      done: itemDone(c),
+      locked: locked && !itemDone(c),
+    }
+  })
+}
+
+const STYLE_LABEL: Record<string, string> = {
+  visual: 'videos',
+  reading: 'reading',
+  mixed: 'mix of videos and reading',
+}
+const LEVEL_LABEL: Record<string, string> = {
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
 interface Props {
   bothPath: BothPathResponse
-  onPathRefresh: () => void
+  onPathRefresh: () => void | Promise<void>
+  agentId?: string
+  systemPrompt?: string | null
+  headerBg?: string
+  headerTitle?: string
+  headerSubtitle?: (milestoneCount: number) => string
+  chatPlaceholder?: string
+  welcomeMessage?: string
+  emptyStateIconBg?: string
+  emptyStateGreeting?: string
+  emptyStateNoContentNotice?: string
+  /** Per-message assistant avatar in the chat bubbles/typing cursor. Undefined keeps the existing AI Amplify avatar. */
+  assistantAvatar?: ReactNode
+  /** Rich page title; falls back to `headerTitle`. */
+  headerTitleNode?: ReactNode
+  /** Element before the title in the header bar. */
+  headerLeading?: ReactNode
+  /** Extra content under the journey panel. */
+  panelFooter?: ReactNode
+  /** What the guide says first, before the conversation starts. */
+  introLine?: ReactNode
 }
 
-export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props) {
+export function BothEmbeddedLearningAssistant({
+  bothPath,
+  onPathRefresh,
+  agentId = 'chatbot',
+  systemPrompt = BOTH_DELIVERY_INSTRUCTIONS,
+  headerTitle = 'Blended Learning',
+  headerSubtitle = (count) => `${count} milestone${count !== 1 ? 's' : ''}, AI Amplify courses plus Content on Demand`,
+  chatPlaceholder = 'Ask Anna about your path',
+  welcomeMessage = "Hi, I'm Anna. Let's walk through your personalised learning path together.",
+  emptyStateNoContentNotice = 'No AI Amplify content matched your goals, so this path uses external resources only.',
+  assistantAvatar,
+  headerTitleNode,
+  headerLeading,
+  panelFooter,
+  introLine,
+}: Props) {
   const { copilotkit } = useCopilotKit()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const agentRef = useRef<any>(null)
@@ -613,8 +497,18 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
   const bothPathRef = useRef(bothPath)
   bothPathRef.current = bothPath
 
+  // The chat input reads this module-level ref since custom `input` renderers don't
+  // receive `labels.chatInputPlaceholder`.
+  chatPlaceholderRef.current = chatPlaceholder
+  useEffect(() => () => { chatPlaceholderRef.current = null }, [])
+
+  // Anna speaks in the studio voice: prose answers, hidden driver messages.
+  const AssistantMessage = SanaAssistantMessage
+  const UserMessage = SanaUserMessage
+
+
   const { agent } = useAgent({
-    agentId: BOTH_DELIVERY_AGENT,
+    agentId,
     threadId,
     updates: [UseAgentUpdate.OnMessagesChanged, UseAgentUpdate.OnRunStatusChanged],
   })
@@ -630,10 +524,19 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
     if (hasConversation) setShowEmptyState(false)
   }, [hasConversation])
 
+  // Visible failure state for runs (backend down / network drop) — retry
+  // re-runs the agent; the user's message is already in the local thread.
+  const [runFailed, setRunFailed] = useSanaRunError(copilotkit, agent)
+  const retryRun = useCallback(() => {
+    setRunFailed(false)
+    void copilotkit.runAgent({ agent: agentRef.current }).catch(() => setRunFailed(true))
+  }, [copilotkit, setRunFailed])
+
   const runChainRef = useRef<Promise<void>>(Promise.resolve())
   const sendMessage = useCallback(
     (text: string) => {
       if (!text.trim()) return
+      setShowEmptyState(false)
       runChainRef.current = runChainRef.current.then(async () => {
         const liveAgent = agentRef.current
         try {
@@ -666,7 +569,6 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
     try { agentAny.setMessages?.([]) } catch { /* noop */ }
     setThreadId(makeUuid())
     setShowEmptyState(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentAny, copilotkit])
 
   // Both path summary context
@@ -688,15 +590,15 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
 
   const filterByStyle = (items: BothContentItem[]) =>
     items.filter((c) => {
-      if (learningStyle === 'visual') {
-        if (c.itemType === 'external') return c.type === 'youtube'
-        if (c.itemType === 'internal') return c.blockType === 'video' || c.blockType === 'image'
+      // Same rule the server uses for what counts towards completion.
+      if (c.itemType === 'external') {
+        if (learningStyle === 'visual') return c.type === 'youtube'
+        if (learningStyle === 'reading') return c.type === 'article'
         return true
       }
-      if (learningStyle === 'reading') {
-        if (c.itemType === 'external') return c.type === 'article'
-        if (c.itemType === 'internal') return c.blockType === 'text'
-        return true
+      if (c.itemType === 'internal') {
+        if (learningStyle === 'visual') return c.blockType === 'video' || c.blockType === 'image'
+        if (learningStyle === 'reading') return c.blockType === 'text'
       }
       return true
     })
@@ -716,7 +618,8 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
       }
     : null
 
-  useAgentContext({ description: '__system_prompt__', value: BOTH_DELIVERY_INSTRUCTIONS })
+  // Swaps the description (never skips the hook, to keep hook order stable) so a null systemPrompt never registers a competing __system_prompt__.
+  useAgentContext({ description: systemPrompt !== null ? '__system_prompt__' : '__system_prompt_disabled__', value: systemPrompt ?? '' })
   useAgentContext({ description: '__both_learning_path__', value: JSON.stringify(pathSummary) })
   useAgentContext({ description: '__current_both_milestone__', value: currentMilestoneContext ? JSON.stringify(currentMilestoneContext) : 'No milestone selected yet.' })
 
@@ -724,16 +627,27 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
 
   useFrontendTool({
     name: 'showBothMilestones',
-    description: 'Show the user their Both learning path milestone overview. Each card is clickable to start that milestone.',
+    description: 'Show the user their Blended Learning path milestone overview. Each card is clickable to start that milestone.',
     parameters: z.object({}),
     render: ({ status }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const bp = bothPathRef.current
       return (
-        <div className="my-2 space-y-2">
-          <p className="text-xs font-semibold text-brand-text-secondary mb-1">Your Learning Path · tap a milestone to begin</p>
-          <BothMilestoneGrid milestones={bp.milestones} onStart={startMilestone} />
-        </div>
+        <JourneyCard
+          tag={<CardTag icon={Route}>Your milestones</CardTag>}
+          meta="Pick one to begin. A quick pre-test comes first."
+        >
+          <div className="-mx-2 flex flex-col gap-2 pb-1">
+            <JourneyPanel
+              count={`${bp.milestones.length} milestone${bp.milestones.length !== 1 ? 's' : ''}`}
+              items={buildBothItems(bp.milestones, filterByStyle, null, 'Pre-test')}
+              onSelect={(id) => {
+                const m = bp.milestones.find((ms) => ms.milestoneId === id)
+                if (m) startMilestone(m.milestoneId, m.title)
+              }}
+            />
+          </div>
+        </JourneyCard>
       )
     },
     handler: async () => {
@@ -750,23 +664,31 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
     description: 'Show the pretest knowledge check inline for a milestone. Only call this when pretestCompleted=false.',
     parameters: z.object({ milestoneId: z.string() }),
     render: ({ status, args }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const bp = bothPathRef.current
       const m = bp.milestones.find((ms) => ms.milestoneId === args.milestoneId)
       if (!m) return <></>
       return (
-        <BothMilestonePretestCard
-          milestoneId={m.milestoneId}
-          milestoneTitle={m.title}
-          pathId={bp.path.id}
-          onComplete={async () => {
-            pretestJustCompletedRef.current.add(m.milestoneId)
-            setShowEmptyState(false)
-            await onPathRefresh()
-            await new Promise<void>((resolve) => { requestAnimationFrame(() => resolve()) })
-            sendMessage(`Start learning "${m.title}" (id: ${m.milestoneId}).`)
-          }}
-        />
+        <>
+          <BothMilestonePretestCard
+            label={'Pre-test'}
+            milestoneId={m.milestoneId}
+            milestoneTitle={m.title}
+            pathId={bp.path.id}
+            onStalePath={onPathRefresh}
+            onComplete={async () => {
+              pretestJustCompletedRef.current.add(m.milestoneId)
+              setShowEmptyState(false)
+              await onPathRefresh()
+              // One tick so the refreshed path state lands before the agent
+              // call. setTimeout, NOT requestAnimationFrame: rAF never fires in
+              // a hidden/background tab, which hung this await forever and
+              // silently swallowed the "Start learning" send.
+              await new Promise<void>((resolve) => { setTimeout(resolve, 32) })
+              sendMessage(`Start learning "${m.title}" (id: ${m.milestoneId}).`)
+            }}
+          />
+        </>
       )
     },
     handler: async ({ milestoneId }) => {
@@ -785,7 +707,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
     description: 'Show learning content or final quiz inline for a milestone. Only call this when pretestCompleted=true.',
     parameters: z.object({ milestoneId: z.string() }),
     render: ({ status, args }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const bp = bothPathRef.current
       const m = bp.milestones.find((ms) => ms.milestoneId === args.milestoneId)
       if (!m) return <></>
@@ -802,7 +724,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
             pathId={bp.path.id}
             onPass={async () => {
               await onPathRefresh()
-              sendMessage(`I just passed the quiz for "${m.title}". Show my updated learning path.`)
+              sendMessage(`I just passed the quiz for "${m.title}". Congratulate me in one short sentence, then show my updated learning path.`)
             }}
           />
         )
@@ -814,23 +736,20 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
 
       if (!first) {
         return (
-          <div className="my-2 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm text-brand-text-secondary">
-            Preparing your content…{' '}
-            <button
-              type="button"
-              onClick={() => onPathRefresh()}
-              className="font-semibold underline"
-              style={{ color: 'var(--color-brand-primary)' }}
-            >
+          <ThreadNotice>
+            Preparing your content.{' '}
+            <button type="button" onClick={() => onPathRefresh()} className="font-semibold text-ui-brand-text underline">
               Refresh
             </button>
-          </div>
+          </ThreadNotice>
         )
       }
       const firstIdx = filteredContent.indexOf(first)
       const nextItem = filteredContent[firstIdx + 1] ?? null
       return (
         <BothContentCard
+          position={firstIdx + 1}
+          total={filteredContent.length}
           item={first}
           pathId={bp.path.id}
           nextItemId={nextItem?.id ?? null}
@@ -856,7 +775,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
       const first = filteredContent.find((c) =>
         (c.itemType === 'external' ? c.progress?.status : c.blockProgress?.status) !== 'completed'
       ) ?? filteredContent[0]
-      return `Showing content "${first?.title ?? 'n/a'}" in "${m.title}". The content card handles completion and advancing — do nothing else.`
+      return `Showing content "${first?.title ?? 'n/a'}" in "${m.title}". The content card is already on screen — your turn is over. Do NOT call any other tool now; output nothing.`
     },
   })
 
@@ -867,7 +786,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
     description: 'Render one specific Both content item (YouTube video, article, or internal learning block).',
     parameters: z.object({ contentId: z.string() }),
     render: ({ status, args }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const bp = bothPathRef.current
       for (const m of bp.milestones) {
         const item = m.content.find((c) => c.id === args.contentId)
@@ -876,6 +795,8 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
           const nextItem = m.content[itemIdx + 1] ?? null
           return (
             <BothContentCard
+              position={itemIdx + 1}
+              total={m.content.length}
               item={item}
               pathId={bp.path.id}
               nextItemId={nextItem?.id ?? null}
@@ -894,7 +815,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
       for (const m of bp.milestones) {
         const item = m.content.find((c) => c.id === contentId)
         if (item) {
-          return `Showing "${item.title}" (${item.itemType}). The content card handles completion and advancing — do nothing else.`
+          return `Showing "${item.title}" (${item.itemType}). The content card is already on screen — your turn is over. Do NOT call any other tool now; output nothing.`
         }
       }
       return 'Content item not found.'
@@ -908,10 +829,15 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
     description: 'Show the posttest quiz inline for a milestone after all content is complete.',
     parameters: z.object({ milestoneId: z.string() }),
     render: ({ status, args }) => {
-      if (status === ToolCallStatus.InProgress) return <CardSkeleton />
+      if (status === ToolCallStatus.InProgress) return <JourneyCardSkeleton />
       const bp = bothPathRef.current
       const m = bp.milestones.find((ms) => ms.milestoneId === args.milestoneId)
       if (!m) return <></>
+      if (!m.quizAvailable && !m.completed) {
+        return (
+          <ThreadNotice>Finish the remaining items in &ldquo;{m.title}&rdquo; before the quiz unlocks.</ThreadNotice>
+        )
+      }
       return (
         <BothMilestoneQuizCard
           milestoneId={m.milestoneId}
@@ -919,7 +845,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
           pathId={bp.path.id}
           onPass={async () => {
             await onPathRefresh()
-            sendMessage(`I just passed the quiz for "${m.title}". Show my updated learning path.`)
+            sendMessage(`I just passed the quiz for "${m.title}". Congratulate me in one short sentence, then show my updated learning path.`)
           }}
         />
       )
@@ -928,6 +854,9 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
       const bp = bothPathRef.current
       const m = bp.milestones.find((ms) => ms.milestoneId === milestoneId)
       if (!m) return 'Milestone not found.'
+      if (!m.quizAvailable && !m.completed) {
+        return `The quiz for "${m.title}" is not available yet — finish the remaining content first.`
+      }
       return `Showing posttest quiz inline for "${m.title}".`
     },
   })
@@ -937,7 +866,7 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
   const handleDeletePath = async () => {
     setDeleteLoading(true)
     try {
-      await apiFetch('/api/lms/both/path', { method: 'DELETE' })
+      await deleteBothPath()
       setShowDeleteDialog(false)
       onPathRefresh()
     } catch (err) {
@@ -951,97 +880,181 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
 
   const noInternalContent = bothPath.path.internalBlockCount === 0
 
+  const items = buildBothItems(bothPath.milestones, filterByStyle, activeMilestoneId, 'Pre-test')
+  const doneCount = items.filter((m) => m.state === 'done').length
+  const milestoneCount = bothPath.milestones.length
+  const allItems = bothPath.milestones.flatMap((m) => filterByStyle(m.content))
+  const allDone = allItems.filter(itemDone).length
+  const split = sourceSplit(allItems)
+  const selectFromJourney = useCallback(
+    (id: string) => {
+      const m = bothPathRef.current.milestones.find((ms) => ms.milestoneId === id)
+      if (m) startMilestone(m.milestoneId, m.title)
+    },
+    [startMilestone],
+  )
+
+  const [railOpen, toggleRail] = useJourneyRail()
+  const firstName = (getUser()?.fullName ?? '').trim().split(/\s+/)[0]
+  const profile = bothPath.path.discoveryProfile
+  const currentId = currentBothId(bothPath.milestones, activeMilestoneId)
+  const current = bothPath.milestones.find((m) => m.milestoneId === currentId)
+  const currentIndex = current ? bothPath.milestones.indexOf(current) : -1
+  const currentContent = current ? filterByStyle(current.content) : []
+  const currentDone = currentContent.filter(itemDone).length
+  const needsCheck = !!current && current.hasPretest && !current.pretestCompleted
+  const checkName = 'pre-test'
+  const guideAvatar = assistantAvatar
+
   return (
-    <>
-      <div className="smeep-copilot flex flex-col h-full overflow-hidden">
-        <div
-          className="flex items-center gap-3 px-4 py-3 border-b border-white/10 flex-shrink-0"
-          style={{ background: 'linear-gradient(120deg, #1A0A12 0%, #2d0f20 100%)' }}
-        >
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/10">
-            <BookOpen className="w-4 h-4 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white leading-tight">Learning Path</p>
-            <p className="text-[10px] text-white/60 leading-tight">
-              {bothPath.milestones.length} milestone{bothPath.milestones.length !== 1 ? 's' : ''} · Internal + External content
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="New chat"
-            onClick={handleResetChat}
-            disabled={!hasConversation}
-            className="inline-flex items-center justify-center w-8 h-8 cursor-pointer rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            aria-label="Refresh path"
-            onClick={onPathRefresh}
-            className="inline-flex items-center justify-center w-8 h-8 cursor-pointer rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            aria-label="Delete learning path"
-            title="Delete learning path"
-            onClick={() => setShowDeleteDialog(true)}
-            className="inline-flex items-center justify-center gap-1.5 h-8 px-2 cursor-pointer rounded-full text-white/60 hover:text-white hover:bg-white/15 transition-colors text-[10px] font-semibold"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Delete learning path</span>
-          </button>
-        </div>
+    <JourneyCanvas>
+      <JourneyHeader
+        leading={headerLeading}
+        title={headerTitleNode ?? headerTitle}
+        subtitle={headerSubtitle(milestoneCount)}
+        progress={{ done: doneCount, total: milestoneCount }}
+        secondaryActions={
+          <>
+            <HeaderIconButton label="New chat" onClick={handleResetChat} disabled={!hasConversation}>
+              <MessageSquarePlus className="h-4 w-4" aria-hidden />
+            </HeaderIconButton>
+            <HeaderIconButton label="Refresh path" onClick={onPathRefresh}>
+              <RefreshCw className="h-4 w-4" aria-hidden />
+            </HeaderIconButton>
+            <HeaderIconButton label="Delete learning path" onClick={() => setShowDeleteDialog(true)}>
+              <Trash2 className="h-4 w-4" aria-hidden />
+            </HeaderIconButton>
+            <HeaderIconButton
+              label={railOpen ? 'Hide your journey' : 'Show your journey'}
+              aria-pressed={railOpen}
+              onClick={toggleRail}
+              className="hidden xl:inline-flex"
+            >
+              <PanelRight className="h-4 w-4" aria-hidden />
+            </HeaderIconButton>
+          </>
+        }
+      />
 
-        <div className="relative flex-1 overflow-hidden smeep-assistant-chat">
-          <CopilotChat
-            agentId={BOTH_DELIVERY_AGENT}
-            threadId={threadId}
-            messageView={{
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              assistantMessage: SmeepAssistantMessage as any,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              userMessage: SmeepUserMessage as any,
-            }}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            input={SmeepChatInput as any}
-            labels={{
-              chatInputPlaceholder: 'Ask Anna about your learning path…',
-              welcomeMessageText: "Hi! I'm Anna 👋\nLet's walk through your personalised learning path together.",
-            }}
+      <MilestoneStrip items={items} onSelect={selectFromJourney} />
+
+      {runFailed && <SanaConnectionNotice onRetry={retryRun} />}
+
+      <JourneyBody
+        panelOpen={railOpen}
+        panel={
+          <JourneyPanel
+            count={`${milestoneCount} milestone${milestoneCount !== 1 ? 's' : ''}`}
+            progress={
+              allItems.length > 0
+                ? { value: (allDone / allItems.length) * 100, label: `${allDone} of ${allItems.length} items` }
+                : { value: milestoneCount ? (doneCount / milestoneCount) * 100 : 0, label: `${doneCount} of ${milestoneCount} done` }
+            }
+            items={items}
+            onSelect={selectFromJourney}
+            footer={
+              <>
+                <PanelNote title="How each milestone works">
+                  A pre-test first, then AI Amplify course blocks mixed with curated videos and articles. Pass the quiz at 70% to unlock the next one.
+                </PanelNote>
+                {panelFooter}
+              </>
+            }
           />
+        }
+      >
+        <SanaReplyActionsProvider reportSurface="blended">
+        <CopilotChat
+          agentId={agentId}
+          threadId={threadId}
+          messageView={{
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            assistantMessage: AssistantMessage as any,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            userMessage: UserMessage as any,
+          }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          input={SanaChatInput as any}
+          labels={{
+            chatInputPlaceholder: chatPlaceholder,
+            welcomeMessageText: welcomeMessage,
+          }}
+        />
+        </SanaReplyActionsProvider>
 
-          {showEmptyState && (
-            <div className="absolute inset-0 z-10 flex flex-col bg-white overflow-y-auto">
-              {noInternalContent && (
-                <div className="mx-5 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
-                  <p className="text-[11px] text-amber-700">No AI Amplify content matched your goals — showing external resources only.</p>
-                </div>
-              )}
-              <div className="px-5 pt-6 pb-3">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center"
-                    style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-                  >
-                    <Sparkles className="w-4 h-4 text-white" />
+        {showEmptyState && (
+          <JourneyIntro footer={<div className="h-[112px] shrink-0" aria-hidden />}>
+            {noInternalContent && emptyStateNoContentNotice && (
+              <p className={cn('rounded-[10px] border border-ui-line bg-ui-surface px-3.5 py-2.5 text-[13px] text-ui-muted', leadIndent)}>
+                {emptyStateNoContentNotice}
+              </p>
+            )}
+            <SanaLine avatar={guideAvatar}>
+              {introLine ??
+                `${firstName ? `Hi ${firstName}. ` : ''}Your Blended Learning path mixes units from AI Amplify courses with videos and articles I picked from the web for your goal.`}
+            </SanaLine>
+
+            {profile && (
+              <AskedForCard
+                aside={[
+                  LEVEL_LABEL[profile.experienceLevel] ?? profile.experienceLevel,
+                  STYLE_LABEL[profile.learningStyle] ?? profile.learningStyle,
+                  `${milestoneCount} milestones`,
+                ].join(', ')}
+                goal={profile.goals}
+                topics={profile.topics}
+                facts={[]}
+              >
+                {allItems.length > 0 && (
+                  <div className="flex flex-col gap-2 border-t border-ui-line pt-3">
+                    <span className="text-[13px] font-semibold text-ui-text">Your path blends two sources</span>
+                    <div className="flex h-2 gap-0.5 overflow-hidden rounded-full" aria-hidden>
+                      <span className="h-full bg-ui-brand" style={{ width: `${(split.smeep / allItems.length) * 100}%` }} />
+                      <span className="h-full flex-1 rounded-e-full border border-ui-line bg-ui-surface" />
+                    </div>
+                    <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-ui-text">
+                      <span className="flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-[3px] bg-ui-brand" aria-hidden />
+                        <strong className="font-semibold">{split.smeep}</strong> blocks from AI Amplify courses
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-[3px] border border-ui-muted" aria-hidden />
+                        <strong className="font-semibold">{split.curated}</strong> curated videos and articles
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-base font-black text-brand-text-primary">Hi! I&apos;m Anna 👋</p>
-                </div>
-                <p className="text-xs text-brand-text-secondary leading-relaxed">
-                  Here are your personalised milestones. Click a milestone to start — you&apos;ll answer a quick knowledge-check first, then dive into curated content.
-                </p>
-              </div>
-              <div className="px-5 pb-6">
-                <BothMilestoneGrid milestones={bothPath.milestones} onStart={startMilestone} />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+                )}
+              </AskedForCard>
+            )}
+
+            {current ? (
+              <>
+                {(currentDone > 0 || needsCheck) && (
+                  <SanaLine avatar={guideAvatar}>
+                    {needsCheck
+                      ? `Milestone ${currentIndex + 1} is ${current.title}. A short ${checkName} comes first so we can measure how much you improve.`
+                      : `Let's pick up ${current.title} where you left off.`}
+                  </SanaLine>
+                )}
+                <LearnerLine onClick={() => startMilestone(current.milestoneId, current.title)}>
+                  {currentDone > 0 ? `Continue milestone ${currentIndex + 1}` : `Start milestone ${currentIndex + 1}`}
+                </LearnerLine>
+                <UpNextCard
+                  heading={needsCheck ? `Unlocks after the ${checkName}` : `In ${current.title}`}
+                  locked={needsCheck}
+                  rows={bothRows(currentContent, needsCheck)}
+                />
+              </>
+            ) : (
+              <SanaLine avatar={guideAvatar}>
+                Every milestone is complete.{' '}
+                To learn something new, delete this path and I'll build a fresh one.
+              </SanaLine>
+            )}
+          </JourneyIntro>
+        )}
+      </JourneyBody>
+
       <RemoveLearningPathDialog
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
@@ -1049,6 +1062,6 @@ export function BothEmbeddedLearningAssistant({ bothPath, onPathRefresh }: Props
         loading={deleteLoading}
         includeQuestionnaireNote={false}
       />
-    </>
+    </JourneyCanvas>
   )
 }

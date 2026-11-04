@@ -1,6 +1,7 @@
 import { Agent } from 'undici'
 import jwt from 'jsonwebtoken'
 import { AppError } from '../../utils/app-error'
+import { SERVER_CLAIMS } from '../serviceTokenClaims'
 
 // Both path builder can take up to 7 min (extra selectInternalBlocks step adds LLM calls).
 const aiDispatcher = new Agent({ headersTimeout: 420_000, bodyTimeout: 420_000 })
@@ -14,7 +15,7 @@ function getAiBaseUrl(): string {
 function mintServiceToken(userId: string): string {
   const secret = process.env['COPILOT_SERVICE_JWT_SECRET']
   if (!secret) throw new AppError('AI backend is not configured', 503, 'AI_NOT_CONFIGURED')
-  return jwt.sign({ platformId: 'ai-amplify', userId }, secret, { algorithm: 'HS256', expiresIn: 300 })
+  return jwt.sign({ platformId: 'ai-amplify', userId, ...SERVER_CLAIMS }, secret, { algorithm: 'HS256', expiresIn: 300 })
 }
 
 /**

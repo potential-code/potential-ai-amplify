@@ -4,8 +4,9 @@ import {
   bothMilestoneAssessments, bothUserQuizResults, bothUserItemProgress,
   courses, modules, units, learningBlocks, blockQuestions,
 } from '../../db/schema'
-import { eq, and, desc, inArray, gt } from 'drizzle-orm'
+import { eq, and, desc, inArray, gt, sql } from 'drizzle-orm'
 import { AppError } from '../../utils/app-error'
+import { recordLearningStep } from '../streak.service'
 import { callBothPathBuilder, type BothPathBuilderInput, type BlockCatalogItem } from '../learning/bothAiClient'
 
 const PASS_THRESHOLD = 0.7
@@ -42,7 +43,7 @@ export type BothContentItem = {
   youtubeVideoId?: string | null
   durationSeconds?: number | null
   articleText?: string | null
-  progress?: { status: string; videoWatchPct: number | null } | null
+  progress?: { status: string; videoWatchPct: number | null; videoPositionSec?: number | null } | null
   // ── Internal block fields ────────────────────────────────────────────────
   blockId?: string | null
   blockType?: string | null
@@ -54,7 +55,7 @@ export type BothContentItem = {
     id: string; prompt: string; kind: string; format: string
     options?: string[] | null; correctIndex?: number | null; order: number
   }> | null
-  blockProgress?: { status: string; videoWatchPct: number | null } | null
+  blockProgress?: { status: string; videoWatchPct: number | null; videoPositionSec?: number | null } | null
 }
 
 // ── Block catalog helper ──────────────────────────────────────────────────────
@@ -387,7 +388,7 @@ export async function getBothPath(userId: string) {
               youtubeVideoId: r.pool.youtubeVideoId,
               durationSeconds: r.pool.durationSeconds,
               articleText: r.pool.articleText,
-              progress: prog ? { status: prog.status, videoWatchPct: prog.videoWatchPct } : null,
+              progress: prog ? { status: prog.status, videoWatchPct: prog.videoWatchPct, videoPositionSec: prog.videoPositionSec } : null,
             }
           })
 
@@ -422,7 +423,7 @@ export async function getBothPath(userId: string) {
                   correctIndex: null,
                   order: q.order,
                 })),
-              blockProgress: prog ? { status: prog.status, videoWatchPct: prog.videoWatchPct } : null,
+              blockProgress: prog ? { status: prog.status, videoWatchPct: prog.videoWatchPct, videoPositionSec: prog.videoPositionSec } : null,
             }
           })
 
@@ -476,6 +477,37 @@ export async function getBothPath(userId: string) {
 }
 
 /**
+ * Saves where the learner is in a Blended item's video, so they resume there
+ * on any device. Watched % only goes up; a completed item stays completed.
+ * Returns null when the path isn't the learner's own.
+ */
+export async function saveVideoPosition(
+  userId: string,
+  itemType: 'external' | 'internal',
+  itemId: string,
+  pathId: string,
+  milestoneId: string,
+  positionSec: number,
+  watchPct: number,
+) {
+  const [path] = await db.select({ id: bothUserPaths.id }).from(bothUserPaths)
+    .where(and(eq(bothUserPaths.id, pathId), eq(bothUserPaths.userId, userId))).limit(1)
+  if (!path) return null
+  const [row] = await db.insert(bothUserItemProgress)
+    .values({ userId, itemType, itemId, bothUserPathId: pathId, milestoneId, status: 'in_progress', videoPositionSec: positionSec, videoWatchPct: watchPct })
+    .onConflictDoUpdate({
+      target: [bothUserItemProgress.userId, bothUserItemProgress.itemType, bothUserItemProgress.itemId, bothUserItemProgress.bothUserPathId],
+      set: {
+        videoPositionSec: positionSec,
+        videoWatchPct: sql`greatest(coalesce(${bothUserItemProgress.videoWatchPct}, 0), ${watchPct})`,
+        status: sql`case when ${bothUserItemProgress.status} = 'not_started' then 'in_progress'::both_item_progress_status else ${bothUserItemProgress.status} end`,
+      },
+    })
+    .returning({ videoPositionSec: bothUserItemProgress.videoPositionSec, videoWatchPct: bothUserItemProgress.videoWatchPct })
+  return row ?? null
+}
+
+/**
  * Marks an item (external or internal) as completed, or updates video progress.
  * Uses an upsert so duplicate calls are safe.
  *
@@ -503,6 +535,15 @@ export async function completeItem(
       .where(and(eq(bothPathContentRefs.bothUserPathId, pathId), eq(bothPathContentRefs.contentPoolId, itemId), eq(bothPathContentRefs.milestoneId, milestoneId))).limit(1)
   if (!ref) throw new AppError('This item is not in your learning path', 404, 'ITEM_NOT_IN_PATH')
 
+  const [before] = await db.select({ status: bothUserItemProgress.status }).from(bothUserItemProgress)
+    .where(and(
+      eq(bothUserItemProgress.userId, userId),
+      eq(bothUserItemProgress.itemType, itemType),
+      eq(bothUserItemProgress.itemId, itemId),
+      eq(bothUserItemProgress.bothUserPathId, pathId),
+    )).limit(1)
+  const isNewCompletion = before?.status !== 'completed'
+
   await db.insert(bothUserItemProgress).values({
     userId,
     itemType,
@@ -520,6 +561,8 @@ export async function completeItem(
       completedAt: new Date(),
     },
   })
+  // Streak: each newly completed item is one learning step.
+  if (isNewCompletion) await recordLearningStep(userId)
 }
 
 /**
@@ -586,6 +629,7 @@ export async function submitPretest(userId: string, pathId: string, milestoneId:
     answers,
   })
 
+  await recordLearningStep(userId)
   return { score, total: questions.length }
 }
 
@@ -652,6 +696,7 @@ export async function submitQuiz(userId: string, pathId: string, milestoneId: st
     attemptNumber: prevAttempts.length + 1,
     answers,
   })
+  await recordLearningStep(userId)
 
   // If this attempt passed, check if all milestones are now complete → flip path to 'completed'.
   if (passed) {

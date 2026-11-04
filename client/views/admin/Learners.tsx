@@ -1,22 +1,16 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
-import {
-  Loader2,
-  AlertCircle,
-  GraduationCap,
-  RotateCcw,
-  RefreshCw,
-  Eraser,
-  Search,
-} from 'lucide-react'
+import { AlertCircle, Eraser, GraduationCap, Loader2, RefreshCw, RotateCcw, type LucideIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { AdminLayout } from '@/components/admin/AdminLayout'
-import { PageHeader } from '@/components/dashboard/widgets/PageHeader'
+import { Avatar, Button, EmptyState, FilterChips, PageHeader, Skeleton } from '@/components/kit'
+import { IconButton, Pill, SearchInput, TableCard, adminTableClass, fmtDate } from '@/components/admin/ui'
 import { ConfirmDialog } from '@/components/admin/widgets/ConfirmDialog'
 import { apiFetch } from '@/lib/api'
+import { cn } from '@/lib/utils'
+import { ExportMenu } from '@/components/admin/ExportMenu'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -38,6 +32,7 @@ interface Learner {
 }
 
 type PendingAction = 'reset-progress' | 'regenerate-path' | 'reset-path'
+type StatusFilter = 'all' | 'active' | 'onboarded' | 'not-started'
 
 interface PendingConfirm {
   userId: string
@@ -48,46 +43,82 @@ interface PendingConfirm {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function dicebearAvatar(fullName: string): string {
-  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}&backgroundColor=652d90&fontSize=42&radius=50`
+function pathStatus(l: Learner): Exclude<StatusFilter, 'all'> {
+  if (l.hasActivePath) return 'active'
+  if (l.hasQuestionnaire) return 'onboarded'
+  return 'not-started'
 }
 
 function formatRelativeDate(iso: string | null): string {
-  if (!iso) return '—'
+  if (!iso) return 'Never'
   const date = new Date(iso)
-  const now = Date.now()
-  const diffMs = now - date.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  if (diffDays === 0) return 'Today'
+  const diffDays = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays <= 0) return 'Today'
   if (diffDays === 1) return 'Yesterday'
   if (diffDays < 7) return `${diffDays}d ago`
   if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`
-  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  return fmtDate(date)
+}
+
+const ACTIONS: Record<
+  PendingAction,
+  { title: string; message: string; confirmLabel: string; panelText: string; icon: LucideIcon; tone: 'danger' | 'primary' }
+> = {
+  'reset-progress': {
+    title: 'Reset progress',
+    message: "This clears all of this learner's course/block progress. Their learning path stays. This cannot be undone.",
+    confirmLabel: 'Reset progress',
+    panelText: "Clears all of this learner's course and block progress. Their learning path stays. This cannot be undone.",
+    icon: RotateCcw,
+    tone: 'danger',
+  },
+  'regenerate-path': {
+    title: 'Regenerate learning path',
+    message: "This rebuilds the learner's path from their existing answers and archives the current path.",
+    confirmLabel: 'Regenerate',
+    panelText: "Rebuilds the learner's path from their existing answers and archives the current path.",
+    icon: RefreshCw,
+    tone: 'primary',
+  },
+  'reset-path': {
+    title: 'Reset learning path',
+    message:
+      "This deletes the learner's path AND their initial form answers, returning them to onboarding. This cannot be undone.",
+    confirmLabel: 'Reset path',
+    panelText: "Deletes the learner's path and their initial form answers, returning them to onboarding. This cannot be undone.",
+    icon: Eraser,
+    tone: 'danger',
+  },
+}
+
+const ACTION_ORDER: PendingAction[] = ['reset-progress', 'regenerate-path', 'reset-path']
+const ACTION_BUTTON: Record<PendingAction, string> = {
+  'reset-progress': 'Reset progress',
+  'regenerate-path': 'Regenerate',
+  'reset-path': 'Reset path',
 }
 
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function PathStatusBadge({ learner }: { learner: Learner }) {
-  if (learner.hasActivePath) {
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-        Active path
-      </span>
-    )
-  }
-  if (learner.hasQuestionnaire) {
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-surface-2 text-brand-text-secondary">
-        Onboarded
-      </span>
-    )
+function PathStatusPill({ learner }: { learner: Learner }) {
+  const s = pathStatus(learner)
+  if (s === 'active') return <Pill tone="brand" dot>Active path</Pill>
+  if (s === 'onboarded') return <Pill tone="neutral">Onboarded</Pill>
+  return <Pill tone="line">Not started</Pill>
+}
+
+function ProgressText({ learner }: { learner: Learner }) {
+  if (learner.blocksCompleted === 0 && learner.blocksInProgress === 0) {
+    return <span className="text-ui-muted">No progress</span>
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-400">
-      Not started
-    </span>
+    <>
+      <strong className="font-semibold text-ui-text">{learner.blocksCompleted}</strong>{' '}
+      <span className="text-ui-muted">{learner.blocksCompleted === 1 ? 'block done' : 'blocks done'}</span>
+      {learner.blocksInProgress > 0 && <span className="text-ui-muted">, {learner.blocksInProgress} in progress</span>}
+    </>
   )
 }
 
@@ -98,25 +129,38 @@ function PathStatusBadge({ learner }: { learner: Learner }) {
 export default function LearnersView() {
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
+  const [status, setStatus] = useState<StatusFilter>('all')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null)
   const [pendingId, setPendingId] = useState<string | null>(null)
 
   const { data: learners = [], isLoading, isError } = useQuery<Learner[]>({
     queryKey: ['admin', 'learners'],
     queryFn: () =>
-      apiFetch<{ success: boolean; data: Learner[] }>('/api/lms/learning/admin/learners').then(
-        (r) => r.data,
-      ),
+      apiFetch<{ success: boolean; data: Learner[] }>('/api/lms/learning/admin/learners').then((r) => r.data),
   })
+
+  const counts = useMemo(() => {
+    const c = { all: learners.length, active: 0, onboarded: 0, 'not-started': 0 }
+    for (const l of learners) c[pathStatus(l)]++
+    return c
+  }, [learners])
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) return learners
     return learners.filter(
       (l) =>
-        l.fullName.toLowerCase().includes(q) || l.email.toLowerCase().includes(q),
+        (status === 'all' || pathStatus(l) === status) &&
+        (!q || l.fullName.toLowerCase().includes(q) || l.email.toLowerCase().includes(q)),
     )
-  }, [learners, search])
+  }, [learners, search, status])
+
+  // Keep a learner selected for the detail panel: the clicked one while it is
+  // visible, otherwise the first row of the current list.
+  const selected = filtered.find((l) => l.id === selectedId) ?? filtered[0] ?? null
+  useEffect(() => {
+    if (selected && selected.id !== selectedId) setSelectedId(selected.id)
+  }, [selected, selectedId])
 
   const resetProgressMutation = useMutation({
     mutationFn: (userId: string) =>
@@ -125,14 +169,14 @@ export default function LearnersView() {
         { method: 'POST' },
       ),
     onSuccess: (data, userId) => {
-      toast.success(`Progress reset — ${data.data.cleared} block(s) cleared`)
+      toast.success(`Progress reset, ${data.data.cleared} block(s) cleared`)
       qc.invalidateQueries({ queryKey: ['admin', 'learners'] })
-      if (pendingId === userId) setPendingId(null)
+      setPendingId((p) => (p === userId ? null : p))
     },
     onError: (err: unknown, userId) => {
       const body = err as { error?: string } | null
       toast.error(body?.error ?? 'Failed to reset progress')
-      if (pendingId === userId) setPendingId(null)
+      setPendingId((p) => (p === userId ? null : p))
     },
   })
 
@@ -142,16 +186,16 @@ export default function LearnersView() {
     onSuccess: (_data, userId) => {
       toast.success('Learning path regenerated')
       qc.invalidateQueries({ queryKey: ['admin', 'learners'] })
-      if (pendingId === userId) setPendingId(null)
+      setPendingId((p) => (p === userId ? null : p))
     },
     onError: (err: unknown, userId) => {
       const body = err as { error?: string; status?: number } | null
-      if ((body as { status?: number })?.status === 400 || (body as { error?: string })?.error?.toLowerCase().includes('answer')) {
+      if (body?.status === 400 || body?.error?.toLowerCase().includes('answer')) {
         toast.error("Learner hasn't completed the intake form")
       } else {
         toast.error(body?.error ?? 'Failed to regenerate learning path')
       }
-      if (pendingId === userId) setPendingId(null)
+      setPendingId((p) => (p === userId ? null : p))
     },
   })
 
@@ -161,17 +205,23 @@ export default function LearnersView() {
     onSuccess: (_data, userId) => {
       toast.success('Learning path and form answers reset')
       qc.invalidateQueries({ queryKey: ['admin', 'learners'] })
-      if (pendingId === userId) setPendingId(null)
+      setPendingId((p) => (p === userId ? null : p))
     },
     onError: (err: unknown, userId) => {
       const body = err as { error?: string } | null
       toast.error(body?.error ?? 'Failed to reset learning path')
-      if (pendingId === userId) setPendingId(null)
+      setPendingId((p) => (p === userId ? null : p))
     },
   })
 
-  function isRowPending(userId: string): boolean {
-    return pendingId === userId
+  const mutationFor: Record<PendingAction, { variables?: string }> = {
+    'reset-progress': resetProgressMutation,
+    'regenerate-path': regeneratePathMutation,
+    'reset-path': resetPathMutation,
+  }
+
+  function isRunning(userId: string, action: PendingAction) {
+    return pendingId === userId && mutationFor[action].variables === userId
   }
 
   function handleConfirm() {
@@ -184,221 +234,195 @@ export default function LearnersView() {
     else if (action === 'reset-path') resetPathMutation.mutate(userId)
   }
 
-  const confirmConfig: Record<PendingAction, { title: string; message: string; confirmLabel: string }> = {
-    'reset-progress': {
-      title: 'Reset progress',
-      message:
-        "This clears all of this learner's course/block progress. Their learning path stays. This cannot be undone.",
-      confirmLabel: 'Reset progress',
-    },
-    'regenerate-path': {
-      title: 'Regenerate learning path',
-      message:
-        "This rebuilds the learner's path from their existing answers and archives the current path.",
-      confirmLabel: 'Regenerate',
-    },
-    'reset-path': {
-      title: 'Reset learning path',
-      message:
-        "This deletes the learner's path AND their initial form answers, returning them to onboarding. This cannot be undone.",
-      confirmLabel: 'Reset path',
-    },
-  }
-
-  const activeConfig = pendingConfirm ? confirmConfig[pendingConfirm.action] : null
+  const activeConfig = pendingConfirm ? ACTIONS[pendingConfirm.action] : null
+  const filterOptions: { value: StatusFilter; label: string; count: number }[] = [
+    { value: 'all', label: 'All', count: counts.all },
+    { value: 'active', label: 'Active path', count: counts.active },
+    { value: 'onboarded', label: 'Onboarded', count: counts.onboarded },
+    { value: 'not-started', label: 'Not started', count: counts['not-started'] },
+  ]
 
   return (
     <AdminLayout>
-      <PageHeader
-        eyebrow="Admin"
-        title="Learners"
-        subtitle="Manage learners' AI learning paths and progress."
-      />
-
-      {/* Search */}
-      <div className="mb-5 relative w-full max-w-xs">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-brand-text-muted pointer-events-none" />
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email…"
-          className="admin-input pl-8 w-full"
+      <div className="flex flex-col gap-5">
+        <PageHeader
+          title="Learners"
+          subtitle="Manage learners’ AI learning paths and progress."
+          className="mb-0"
+          actions={<ExportMenu datasets={['learners', 'course-progress', 'learning-gain', 'certificates']} />}
         />
-      </div>
 
-      {/* Table card */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-        className="rounded-2xl border border-brand-surface-2 bg-white shadow-sm overflow-hidden"
-      >
-        {isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-8 h-8 text-brand-primary/40 animate-spin" />
-          </div>
-        ) : isError ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2 text-brand-text-secondary">
-            <AlertCircle className="w-8 h-8 text-rose-400" />
-            <p className="text-sm">Failed to load learners</p>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2 text-brand-text-secondary">
-            <GraduationCap className="w-8 h-8 opacity-30" />
-            <p className="text-sm">
-              {search ? 'No learners match your search.' : 'No learners yet.'}
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-brand-surface-2 bg-brand-surface/50">
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-brand-text-secondary uppercase tracking-wider">
-                    Learner
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-brand-text-secondary uppercase tracking-wider">
-                    Country
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-brand-text-secondary uppercase tracking-wider">
-                    Path status
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-brand-text-secondary uppercase tracking-wider">
-                    Progress
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-brand-text-secondary uppercase tracking-wider">
-                    Last active
-                  </th>
-                  <th className="px-5 py-3 text-center text-xs font-semibold text-brand-text-secondary uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-brand-surface-2">
-                {filtered.map((learner) => {
-                  const avatar = learner.avatarUrl ?? dicebearAvatar(learner.fullName)
-                  const rowPending = isRowPending(learner.id)
+        {/* Toolbar */}
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <FilterChips<StatusFilter> label="Filter by path status" options={filterOptions} active={status} onChange={setStatus} className="min-w-0" />
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search by name or email"
+            label="Search learners"
+            className="md:w-[280px] md:shrink-0"
+          />
+        </div>
 
-                  return (
-                    <tr key={learner.id} className="hover:bg-brand-surface/30 transition-colors">
-                      {/* Learner */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={avatar}
-                            alt={learner.fullName}
-                            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                          />
-                          <div className="min-w-0">
-                            <p className="font-medium text-brand-text-primary truncate">
-                              {learner.fullName}
-                            </p>
-                            <p className="text-xs text-brand-text-muted truncate">{learner.email}</p>
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <TableCard
+            footer={
+              !isLoading && !isError && filtered.length > 0
+                ? filtered.length === learners.length
+                  ? `${learners.length} ${learners.length === 1 ? 'learner' : 'learners'}`
+                  : `${filtered.length} of ${learners.length} learners`
+                : undefined
+            }
+          >
+            {isLoading ? (
+              <div className="flex flex-col gap-3 p-5" aria-label="Loading learners">
+                {Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-10" />)}
+              </div>
+            ) : isError ? (
+              <EmptyState icon={AlertCircle} title="Failed to load learners" body="Refresh the page to try again." />
+            ) : filtered.length === 0 ? (
+              <EmptyState
+                icon={GraduationCap}
+                title={search || status !== 'all' ? 'No learners match' : 'No learners yet'}
+                body={search || status !== 'all' ? 'Try another search or filter.' : 'Learners appear here once they sign up.'}
+              />
+            ) : (
+              <table className={cn(adminTableClass, 'min-w-[640px]')}>
+                <thead>
+                  <tr>
+                    <th scope="col">Learner</th>
+                    <th scope="col" className="hidden min-[1560px]:table-cell">Country</th>
+                    <th scope="col">Path status</th>
+                    <th scope="col">Progress</th>
+                    <th scope="col">Last active</th>
+                    <th scope="col" className="!text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((learner) => {
+                    const rowPending = pendingId === learner.id
+                    const isSelected = selected?.id === learner.id
+                    return (
+                      <tr
+                        key={learner.id}
+                        data-selected={isSelected || undefined}
+                        onClick={() => setSelectedId(learner.id)}
+                        className={cn('cursor-pointer', isSelected && '!bg-ui-brand-soft')}
+                      >
+                        <td>
+                          <div className="flex min-w-0 items-center gap-2.5">
+                            <Avatar name={learner.fullName} src={learner.avatarUrl} size={32} />
+                            <div className="flex min-w-0 flex-col">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setSelectedId(learner.id)
+                                }}
+                                aria-pressed={isSelected}
+                                className="truncate text-left font-semibold text-ui-text hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-brand"
+                              >
+                                {learner.fullName}
+                              </button>
+                              <span className="truncate text-xs text-ui-muted">{learner.email}</span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
+                        <td className="hidden text-ui-muted min-[1560px]:table-cell">{learner.country ?? 'Not set'}</td>
+                        <td>
+                          <PathStatusPill learner={learner} />
+                        </td>
+                        <td className="whitespace-nowrap text-[13px]">
+                          <ProgressText learner={learner} />
+                        </td>
+                        <td className="whitespace-nowrap text-[13px] text-ui-muted">{formatRelativeDate(learner.lastActiveAt)}</td>
+                        <td>
+                          <div className="flex justify-end gap-0.5" onClick={(e) => e.stopPropagation()}>
+                            {ACTION_ORDER.map((action) => {
+                              const running = isRunning(learner.id, action)
+                              const noIntake = action === 'regenerate-path' && !learner.hasQuestionnaire
+                              return (
+                                <IconButton
+                                  key={action}
+                                  icon={running ? Loader2 : ACTIONS[action].icon}
+                                  label={`${ACTIONS[action].title} for ${learner.fullName}`}
+                                  title={noIntake ? 'No intake form responses to regenerate from' : ACTIONS[action].title}
+                                  tone={action === 'reset-path' ? 'danger' : 'default'}
+                                  disabled={rowPending || noIntake}
+                                  className={cn(running && '[&_svg]:animate-spin')}
+                                  onClick={() => setPendingConfirm({ userId: learner.id, action })}
+                                />
+                              )
+                            })}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          </TableCard>
 
-                      {/* Country */}
-                      <td className="px-5 py-3.5 text-brand-text-secondary">
-                        {learner.country ?? <span className="text-brand-text-secondary/40">—</span>}
-                      </td>
-
-                      {/* Path status */}
-                      <td className="px-5 py-3.5">
-                        <PathStatusBadge learner={learner} />
-                      </td>
-
-                      {/* Progress */}
-                      <td className="px-5 py-3.5 text-brand-text-secondary text-xs">
-                        {learner.blocksCompleted > 0 || learner.blocksInProgress > 0 ? (
-                          <>
-                            <span className="font-medium text-brand-text-primary">
-                              {learner.blocksCompleted} done
-                            </span>
-                            {learner.blocksInProgress > 0 && (
-                              <span className="text-brand-text-muted">
-                                {' '}· {learner.blocksInProgress} in progress
-                              </span>
-                            )}
-                          </>
-                        ) : (
-                          <span className="text-brand-text-secondary/40">—</span>
-                        )}
-                      </td>
-
-                      {/* Last active */}
-                      <td className="px-5 py-3.5 text-brand-text-secondary text-xs">
-                        {formatRelativeDate(learner.lastActiveAt)}
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center justify-center gap-1">
-                          {/* Reset progress */}
-                          <button
-                            onClick={() =>
-                              setPendingConfirm({ userId: learner.id, action: 'reset-progress' })
-                            }
-                            disabled={rowPending}
-                            className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-text-muted hover:bg-brand-primary hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            title="Reset progress"
-                            aria-label="Reset progress"
-                          >
-                            {rowPending && resetProgressMutation.variables === learner.id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <RotateCcw className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-
-                          {/* Regenerate learning path */}
-                          <button
-                            onClick={() =>
-                              setPendingConfirm({ userId: learner.id, action: 'regenerate-path' })
-                            }
-                            disabled={rowPending || !learner.hasQuestionnaire}
-                            className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-text-muted hover:bg-brand-primary hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            title={
-                              learner.hasQuestionnaire
-                                ? 'Regenerate learning path'
-                                : 'No intake form responses to regenerate from'
-                            }
-                            aria-label="Regenerate learning path"
-                          >
-                            {rowPending && regeneratePathMutation.variables === learner.id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <RefreshCw className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-
-                          {/* Reset learning path (destructive) */}
-                          <button
-                            onClick={() =>
-                              setPendingConfirm({ userId: learner.id, action: 'reset-path' })
-                            }
-                            disabled={rowPending}
-                            className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-text-muted hover:bg-rose-500 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            title="Reset learning path"
-                            aria-label="Reset learning path"
-                          >
-                            {rowPending && resetPathMutation.variables === learner.id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Eraser className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </motion.div>
+          {/* Detail panel for the selected learner */}
+          {selected && !isLoading && !isError && (
+            <aside aria-labelledby="learner-detail-name" className="rounded-[14px] border border-ui-line bg-ui-surface px-5 pb-1.5 pt-[18px]">
+              <div className="flex items-center gap-3">
+                <Avatar name={selected.fullName} src={selected.avatarUrl} size={44} />
+                <div className="min-w-0">
+                  <h2 id="learner-detail-name" className="truncate text-base font-semibold text-ui-text">{selected.fullName}</h2>
+                  <p className="truncate text-[13px] text-ui-muted">{selected.email}</p>
+                </div>
+              </div>
+              <dl className="my-4 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-[13px]">
+                <dt className="text-ui-muted">Path status</dt>
+                <dd><PathStatusPill learner={selected} /></dd>
+                <dt className="text-ui-muted">Path generated</dt>
+                <dd className="text-ui-text">{selected.pathGeneratedAt ? fmtDate(selected.pathGeneratedAt) : 'Not generated'}</dd>
+                <dt className="text-ui-muted">Intake form</dt>
+                <dd className="text-ui-text">{selected.hasQuestionnaire ? 'Completed' : 'Not completed'}</dd>
+                <dt className="text-ui-muted">Blocks done</dt>
+                <dd className="text-ui-text">
+                  {selected.blocksCompleted} done, {selected.blocksInProgress} in progress
+                </dd>
+                <dt className="text-ui-muted">Country</dt>
+                <dd className="text-ui-text">{selected.country ?? 'Not set'}</dd>
+                <dt className="text-ui-muted">Last active</dt>
+                <dd className="text-ui-text">{selected.lastActiveAt ? fmtDate(selected.lastActiveAt) : 'Never'}</dd>
+                <dt className="text-ui-muted">Joined</dt>
+                <dd className="text-ui-text">{fmtDate(selected.createdAt)}</dd>
+              </dl>
+              {ACTION_ORDER.map((action) => {
+                const cfg = ACTIONS[action]
+                const Icon = cfg.icon
+                const running = isRunning(selected.id, action)
+                const noIntake = action === 'regenerate-path' && !selected.hasQuestionnaire
+                return (
+                  <div key={action} className="flex flex-col gap-2 border-t border-ui-line py-3.5">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-ui-text">
+                      <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />
+                      {cfg.title}
+                    </h3>
+                    <p className="text-[13px] leading-normal text-ui-muted">
+                      {noIntake ? 'Not available: this learner has no intake form responses to regenerate from.' : cfg.panelText}
+                    </p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="self-start"
+                      disabled={pendingId === selected.id || noIntake}
+                      onClick={() => setPendingConfirm({ userId: selected.id, action })}
+                    >
+                      {running && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />}
+                      {ACTION_BUTTON[action]}
+                    </Button>
+                  </div>
+                )
+              })}
+            </aside>
+          )}
+        </div>
+      </div>
 
       {/* Confirm dialog */}
       <ConfirmDialog
@@ -406,6 +430,7 @@ export default function LearnersView() {
         title={activeConfig?.title ?? ''}
         message={activeConfig?.message ?? ''}
         confirmLabel={activeConfig?.confirmLabel}
+        tone={activeConfig?.tone}
         onConfirm={handleConfirm}
         onCancel={() => setPendingConfirm(null)}
       />

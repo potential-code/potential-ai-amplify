@@ -4,6 +4,7 @@ import { z } from "zod";
 import { validate } from "../middleware/validate";
 import { authenticate } from "../middleware/authenticate";
 import { requireRole } from "../middleware/require-role";
+import { perUser, HOUR } from "../middleware/limits";
 import {
   listMentors,
   listMentorsPublic,
@@ -38,7 +39,8 @@ router.get("/mentors/:id/availability", authenticate, getMentorAvailabilityHandl
 // ---------------------------------------------------------------------------
 
 /** POST /api/sessions — book a slot (SME only) */
-router.post("/sessions", authenticate, requireRole("sme"), validate(bookSessionDto), postBookSession);
+// Each booking emails the mentor; cap how fast one learner can book.
+router.post("/sessions", authenticate, requireRole("sme"), perUser("book-session", HOUR, 20), validate(bookSessionDto), postBookSession);
 
 /** GET /api/sessions — list the authenticated SME's sessions */
 router.get("/sessions", authenticate, requireRole("sme"), getSmeSessionsHandler);

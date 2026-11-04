@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { btn } from '@/components/kit'
+import { cn } from '@/lib/utils'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 
 interface RemoveLearningPathDialogProps {
@@ -36,40 +37,36 @@ export function RemoveLearningPathDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
       onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose() }}
     >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 12 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 12 }}
-        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6"
+      <div
+        className="w-full max-w-sm rounded-[14px] border border-ui-line bg-ui-surface p-6 text-ui-text shadow-ui"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="remove-path-title"
         aria-describedby="remove-path-message"
       >
-        <div className="flex items-start gap-3 mb-4">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 bg-rose-100">
-            <AlertTriangle className="w-4 h-4 text-rose-600" />
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 bg-ui-danger-soft">
+            <AlertTriangle className="w-4 h-4 text-ui-danger" aria-hidden />
           </div>
           <div>
-            <h2 id="remove-path-title" className="text-sm font-bold text-brand-text-primary leading-snug">
+            <h2 id="remove-path-title" className="text-base font-semibold leading-snug text-ui-text">
               Delete learning path?
             </h2>
-            <p id="remove-path-message" className="text-xs text-brand-text-muted mt-1 leading-relaxed">
+            <p id="remove-path-message" className="mt-1 text-sm leading-relaxed text-ui-muted">
               {body}
             </p>
           </div>
         </div>
 
-        <div className="flex gap-2 justify-end">
+        <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 rounded-xl bg-brand-surface text-brand-text-secondary text-xs font-bold hover:bg-brand-surface-2 transition-colors border border-brand-surface-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={btn({ variant: 'secondary', size: 'md' })}
           >
             Cancel
           </button>
@@ -77,13 +74,13 @@ export function RemoveLearningPathDialog({
             type="button"
             onClick={() => void onConfirm()}
             disabled={loading}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className={cn(btn({ variant: 'danger', size: 'md' }))}
           >
-            {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
             Delete
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }

@@ -21,15 +21,15 @@ export function RichContent({ content, className }: Props) {
 
   const base = cn(
     'prose prose-sm max-w-none',
-    'prose-headings:text-brand-text-primary prose-headings:font-black',
-    'prose-p:text-brand-text-primary prose-p:leading-relaxed',
-    'prose-strong:text-brand-text-primary prose-strong:font-bold',
-    'prose-em:text-brand-text-muted',
-    'prose-a:text-brand-primary prose-a:no-underline hover:prose-a:underline',
-    'prose-ul:text-brand-text-muted prose-ol:text-brand-text-muted',
-    'prose-li:marker:text-brand-primary',
-    'prose-blockquote:border-brand-primary prose-blockquote:text-brand-text-muted',
-    'prose-code:text-brand-primary prose-code:bg-brand-surface-2 prose-code:rounded prose-code:px-1',
+    'prose-headings:text-ui-text prose-headings:font-semibold',
+    'prose-p:text-ui-text prose-p:leading-relaxed',
+    'prose-strong:text-ui-text prose-strong:font-bold',
+    'prose-em:text-ui-muted',
+    'prose-a:text-ui-brand-text prose-a:no-underline hover:prose-a:underline',
+    'prose-ul:text-ui-muted prose-ol:text-ui-muted',
+    'prose-li:marker:text-ui-brand-text',
+    'prose-blockquote:border-ui-brand prose-blockquote:text-ui-muted',
+    'prose-code:text-ui-brand-text prose-code:bg-ui-surface-2 prose-code:rounded prose-code:px-1',
     className,
   )
 
@@ -37,13 +37,15 @@ export function RichContent({ content, className }: Props) {
     return (
       <div
         className={base}
+        // Courses are written in English, Arabic or Urdu: each block takes the direction of its own text.
+        dir="auto"
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
       />
     )
   }
 
   return (
-    <div className={base}>
+    <div className={base} dir="auto">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{

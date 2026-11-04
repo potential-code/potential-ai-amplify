@@ -3,26 +3,31 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { ArrowLeft, Calendar, Clock } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock, Globe, PlayCircle } from 'lucide-react'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { YouTubePlayer } from '@/components/lms/YouTubePlayer'
+import { Card, Chip, EmptyState, Skeleton, btn } from '@/components/kit'
+import { VideoPlayer } from '@/components/media/VideoPlayer'
 import { fetchPublishedEvents, type LiveEvent } from '@/lib/api/liveEvents'
 
-function parseDate(d: string) {
-  const [year = '', monthNum = '', dayRaw = ''] = d.split('-')
-  const month = new Date(`${year}-${monthNum}-01`).toLocaleString('en-US', { month: 'short' })
-  return { month, day: dayRaw.replace(/^0/, ''), year }
+/** "2023-10-24" → "Tuesday, 24 October 2023" (noon UTC so no timezone shifts the day). */
+function longDate(d: string) {
+  return new Date(`${d}T12:00:00Z`).toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
 }
 
-function BackToEvents() {
+function BackLink() {
   return (
     <Link
       href="/dashboard/events"
-      className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary hover:underline"
+      className="inline-flex items-center gap-1.5 self-start rounded text-sm font-semibold text-ui-muted hover:text-ui-text"
     >
-      <ArrowLeft className="w-3.5 h-3.5" />
-      Back to Events
+      <ArrowLeft className="h-4 w-4" aria-hidden />
+      Back to events
     </Link>
   )
 }
@@ -40,93 +45,78 @@ export default function EventRecordingPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="mb-5">
-          <BackToEvents />
-        </div>
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 w-1/3 bg-brand-surface-2 rounded" />
-          <div className="aspect-video w-full bg-brand-surface-2 rounded-2xl" />
-        </div>
-      </DashboardLayout>
-    )
-  }
-
-  const event = !error ? events.find((e) => e.id === params.id) : undefined
-
-  if (error || !event || !event.recordingLink) {
-    return (
-      <DashboardLayout>
-        <div className="mb-5">
-          <BackToEvents />
-        </div>
-        <div className="rounded-2xl border border-brand-surface-2 p-10 text-center">
-          <p className="text-sm font-semibold text-brand-text-primary mb-1">
-            {error ? "Couldn't load this recording." : 'Recording not found.'}
-          </p>
-          <p className="text-sm text-brand-text-muted mb-5">
-            {error
-              ? 'Please try again later.'
-              : "This event either doesn't exist or doesn't have a recording available yet."}
-          </p>
-          <Link
-            href="/dashboard/events"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-bold hover:bg-brand-primary-dark transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Back to Events
-          </Link>
-        </div>
-      </DashboardLayout>
-    )
-  }
-
-  const { month, day, year } = parseDate(event.date)
+  const event = !loading && !error ? events.find((e) => e.id === params.id) : undefined
 
   return (
     <DashboardLayout>
-      <div className="mb-5">
-        <BackToEvents />
-      </div>
+      <div className="mx-auto flex w-full max-w-[960px] flex-col gap-5">
+        <BackLink />
 
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-      >
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brand-primary/10 text-brand-primary text-[10px] font-bold uppercase tracking-wider mb-3">
-          <Calendar className="w-2.5 h-2.5" />
-          {event.type}
-        </span>
-        <h1 className="text-xl sm:text-2xl font-black text-brand-text-primary leading-tight mb-2">
-          {event.title}
-        </h1>
-        <div className="flex flex-wrap gap-4 text-sm text-brand-text-muted mb-5">
-          <span className="flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-brand-primary flex-shrink-0" />
-            {day} {month} {year}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-brand-primary flex-shrink-0" />
-            {event.time}
-          </span>
-        </div>
+        {loading ? (
+          <div className="flex flex-col gap-4" aria-busy="true" aria-label="Loading recording">
+            <Skeleton className="h-8 w-2/3" />
+            <Skeleton className="h-5 w-1/3" />
+            <Skeleton className="aspect-video w-full rounded-[14px]" />
+          </div>
+        ) : error || !event || !event.recordingLink ? (
+          <Card>
+            <EmptyState
+              icon={PlayCircle}
+              title={error ? "We couldn't load this recording" : 'Recording not found'}
+              body={
+                error
+                  ? 'Check your connection and try again in a moment.'
+                  : "This event doesn't have a recording yet. Recordings appear on the Events page once they're ready."
+              }
+              action={
+                <Link href="/dashboard/events" className={btn({ variant: 'secondary' })}>
+                  See all events
+                </Link>
+              }
+            />
+          </Card>
+        ) : (
+          <>
+            <header className="flex flex-col gap-2">
+              <div className="flex flex-wrap gap-1.5">
+                <Chip tone="brand" className="capitalize">
+                  {event.type}
+                </Chip>
+                <Chip>
+                  <PlayCircle className="h-3.5 w-3.5" aria-hidden />
+                  Recording
+                </Chip>
+              </div>
+              <h1 className="text-2xl font-semibold tracking-[-0.02em] text-ui-text sm:text-[28px] sm:leading-tight">{event.title}</h1>
+              <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ui-muted">
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4 shrink-0" aria-hidden />
+                  {longDate(event.date)}
+                </span>
+                {event.time && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 shrink-0" aria-hidden />
+                    {event.time}
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1.5">
+                  <Globe className="h-4 w-4 shrink-0" aria-hidden />
+                  Online
+                </span>
+              </p>
+            </header>
 
-        <div
-          className="rounded-2xl border border-brand-surface-2 bg-white p-3 sm:p-4 overflow-hidden"
-          style={{ boxShadow: '0 16px 64px rgba(26, 10, 18, 0.14), 0 4px 20px rgba(26, 10, 18, 0.08)' }}
-        >
-          <YouTubePlayer videoUrl={event.recordingLink} restrictSeeking={false} />
-        </div>
+            <VideoPlayer url={event.recordingLink} title={event.title} />
 
-        {event.description && (
-          <p className="mt-5 text-sm text-brand-text-muted leading-relaxed max-w-3xl">
-            {event.description}
-          </p>
+            {event.description && (
+              <Card className="p-5">
+                <h2 className="mb-1.5 text-base font-semibold text-ui-text">About this session</h2>
+                <p className="max-w-[70ch] whitespace-pre-line text-[15px] leading-relaxed text-ui-muted">{event.description}</p>
+              </Card>
+            )}
+          </>
         )}
-      </motion.div>
+      </div>
     </DashboardLayout>
   )
 }

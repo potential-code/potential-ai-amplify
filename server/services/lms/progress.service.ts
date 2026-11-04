@@ -7,6 +7,7 @@ import {
 } from '../../db/schema'
 import { eq, and, inArray, sql, gte } from 'drizzle-orm'
 import { AppError } from '../../utils/app-error'
+import { recordLearningStep } from '../streak.service'
 import type { UserLearningBlockProgress, UserUnitProgress, QuestionAnswer } from '../../db/schema'
 
 /**
@@ -26,6 +27,14 @@ export async function updateBlockProgress(
   videoWatchPct?: number,
 ): Promise<UserLearningBlockProgress> {
   const now = new Date()
+
+  // Only a transition into 'completed' counts as a new step for the streak;
+  // re-completing an already-completed block (tutor retries, replays) doesn't.
+  const [before] = status === 'completed'
+    ? await db.select({ status: userLearningBlockProgress.status }).from(userLearningBlockProgress)
+      .where(and(eq(userLearningBlockProgress.userId, userId), eq(userLearningBlockProgress.learningBlockId, blockId)))
+    : []
+
   const updateSet: Partial<typeof userLearningBlockProgress.$inferInsert> = {
     status,
     ...(status === 'completed' ? { completedAt: now } : {}),
@@ -41,6 +50,7 @@ export async function updateBlockProgress(
     .returning()
 
   if (status === 'completed') {
+    if (before?.status !== 'completed') await recordLearningStep(userId)
     await recalculateFromBlock(userId, blockId)
   }
 
@@ -64,17 +74,55 @@ export async function updateBlockProgress(
 }
 
 /**
+ * Saves where a learner is in a block's video (sent every few seconds while
+ * it plays), so they resume there on any device. Watched % only ever goes up,
+ * and a completed block stays completed.
+ *
+ * @param userId      - UUID of the learner.
+ * @param blockId     - UUID of the learning block (must be a video block).
+ * @param positionSec - Current position, in whole seconds.
+ * @param watchPct    - Share of the video actually watched so far, 0-100.
+ */
+export async function saveVideoPosition(
+  userId: string,
+  blockId: string,
+  positionSec: number,
+  watchPct: number,
+): Promise<{ videoPositionSec: number; videoWatchPct: number } | null> {
+  const [block] = await db.select({ type: learningBlocks.type }).from(learningBlocks).where(eq(learningBlocks.id, blockId))
+  if (!block || block.type !== 'video') return null
+
+  const [row] = await db.insert(userLearningBlockProgress)
+    .values({ userId, learningBlockId: blockId, status: 'in_progress', videoPositionSec: positionSec, videoWatchPct: watchPct })
+    .onConflictDoUpdate({
+      target: [userLearningBlockProgress.userId, userLearningBlockProgress.learningBlockId],
+      set: {
+        videoPositionSec: positionSec,
+        videoWatchPct: sql`greatest(coalesce(${userLearningBlockProgress.videoWatchPct}, 0), ${watchPct})`,
+        status: sql`case when ${userLearningBlockProgress.status} = 'not_started' then 'in_progress'::block_progress_status else ${userLearningBlockProgress.status} end`,
+      },
+    })
+    .returning({ videoPositionSec: userLearningBlockProgress.videoPositionSec, videoWatchPct: userLearningBlockProgress.videoWatchPct })
+
+  return row ? { videoPositionSec: row.videoPositionSec ?? 0, videoWatchPct: row.videoWatchPct ?? 0 } : null
+}
+
+/**
  * Upserts unit-level progress for a learner.
  * On completion, triggers module and course recalculation and awards points.
  *
  * @param userId  - UUID of the learner.
  * @param unitId  - UUID of the unit.
  * @param status  - New progress status.
+ * @param opts.recordStep - Count a new completion as a streak step. Only the
+ *   direct learner endpoint sets this; roll-ups from block completion don't,
+ *   because the block itself was already counted.
  */
 export async function updateUnitProgress(
   userId: string,
   unitId: string,
   status: 'not_started' | 'in_progress' | 'completed',
+  opts: { recordStep?: boolean } = {},
 ): Promise<UserUnitProgress> {
   const now = new Date()
 
@@ -101,6 +149,7 @@ export async function updateUnitProgress(
     .returning()
 
   if (status === 'completed') {
+    if (opts.recordStep && !wasAlreadyCompleted) await recordLearningStep(userId)
     const [unit] = await db.select().from(units).where(eq(units.id, unitId))
     if (unit) {
       const [module] = await db.select().from(modules).where(eq(modules.id, unit.moduleId))

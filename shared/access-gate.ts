@@ -1,5 +1,6 @@
 const DEFAULT_USERNAME = "admin";
-const DEFAULT_PASSWORD = "Potential";
+// No default password: without ACCESS_PASSWORD the gate lets nobody through,
+// rather than accepting a password that lives in the source code.
 
 const STATIC_ASSET_EXTENSIONS = [
   ".png",
@@ -52,7 +53,7 @@ export function getExpectedCredentials(
   ) as Record<string, string | undefined>,
 ): ExpectedCredentials {
   const username = env["ACCESS_USERNAME"]?.trim() || DEFAULT_USERNAME;
-  const password = env["ACCESS_PASSWORD"] || DEFAULT_PASSWORD;
+  const password = env["ACCESS_PASSWORD"] || "";
   return { username, password };
 }
 
@@ -110,7 +111,8 @@ export function verifyBasicAuthHeader(
   header: string | null | undefined,
   expected: ExpectedCredentials = getExpectedCredentials(),
 ): boolean {
-  if (!header) return false;
+  // An empty password (ACCESS_PASSWORD unset) matches nothing.
+  if (!header || !expected.password) return false;
   const [scheme, encoded] = header.split(" ");
   if (!scheme || !encoded) return false;
   if (scheme.toLowerCase() !== "basic") return false;

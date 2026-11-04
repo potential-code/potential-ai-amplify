@@ -143,6 +143,8 @@ export const bothUserItemProgress = pgTable('both_user_item_progress', {
   milestoneId: text('milestone_id').notNull(),
   status: bothItemProgressStatusEnum('status').notNull().default('not_started'),
   videoWatchPct: integer('video_watch_pct').default(0),
+  /** Where the learner stopped in this item's video, so they can resume. */
+  videoPositionSec: integer('video_position_sec').default(0),
   completedAt: timestamp('completed_at'),
 }, (table) => [
   unique().on(table.userId, table.itemType, table.itemId, table.bothUserPathId),

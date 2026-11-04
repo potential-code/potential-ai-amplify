@@ -30,7 +30,7 @@ export interface BothContentItem {
   youtubeVideoId?: string | null
   durationSeconds?: number | null
   articleText?: string | null
-  progress?: { status: string; videoWatchPct: number | null } | null
+  progress?: { status: string; videoWatchPct: number | null; videoPositionSec?: number | null } | null
   // internal block fields
   blockId?: string | null
   blockType?: string | null
@@ -39,7 +39,7 @@ export interface BothContentItem {
   imageUrl?: string | null
   transcript?: string | null
   questions?: BlockQuestion[] | null
-  blockProgress?: { status: string; videoWatchPct: number | null } | null
+  blockProgress?: { status: string; videoWatchPct: number | null; videoPositionSec?: number | null } | null
 }
 
 export interface BothMilestone {
@@ -75,20 +75,15 @@ export interface BothAssessment {
 export type BothPretest = BothAssessment
 export type BothQuiz = BothAssessment
 
-const BASE = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'}/api/lms`
+const BASE = `/api/lms`
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem('smeep_token')
-}
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getToken()
   const res = await fetch(`${BASE}${path}`, {
     ...init,
+    credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers ?? {}),
     },
   })
@@ -108,6 +103,21 @@ export async function fetchBothPath(): Promise<BothPathResponse | null> {
 export async function generateBothPath(profile: BothDiscoveryProfile): Promise<{ pathId: string }> {
   return apiFetch('/both/path/generate', { method: 'POST', body: JSON.stringify({ profile }) })
 }
+
+/** Saves the video position; keepalive so it also goes out as the page closes. */
+export function saveBothVideoPosition(
+  itemId: string,
+  args: { pathId: string; itemType: 'external' | 'internal'; milestoneId: string; positionSec: number; watchPct: number },
+) {
+  return fetch(`${BASE}/both/items/${itemId}/video-position`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    keepalive: true,
+    body: JSON.stringify(args),
+  }).catch(() => undefined)
+}
+
 
 export async function completeBothItem(
   itemId: string,
@@ -150,4 +160,9 @@ export async function submitBothMilestoneQuiz(
     method: 'POST',
     body: JSON.stringify({ pathId, answers }),
   })
+}
+
+/** Removes the learner's Blended Learning path so they can build a new one. */
+export async function deleteBothPath(): Promise<void> {
+  await apiFetch('/both/path', { method: 'DELETE' })
 }

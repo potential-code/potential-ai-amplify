@@ -15,10 +15,15 @@ import {
   fetchLearningPath,
   fetchLearningQuestions,
   apiGenerateLearningPath,
+  apiRegenerateLearningPath,
   type ActiveLearningPath,
   type LearningQuestion,
 } from '@/lib/api/lms'
 import { LearningPathGeneratingLoader } from '@/components/shared/LearningPathGeneratingLoader'
+import { JourneyLoading, JourneyMessage, JourneyBuilding } from '@/components/journeys/JourneyStates'
+import { btn } from '@/components/kit'
+import Link from 'next/link'
+import '@/components/learning-ui/sana-studio.css'
 
 // ── CopilotKit URLs ───────────────────────────────────────────────────────────
 
@@ -26,26 +31,6 @@ const AI_BACKEND_URL =
   (process.env.NEXT_PUBLIC_AI_BACKEND_URL as string | undefined)?.replace(/\/$/, '') ||
   'http://localhost:8000'
 const VOICE_RUNTIME_URL = `${AI_BACKEND_URL}/copilotkit-voice`
-
-// ── Skeleton ──────────────────────────────────────────────────────────────────
-
-function PageSkeleton() {
-  return (
-    <div className="space-y-4 animate-pulse">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="rounded-2xl border border-brand-surface-2 bg-white p-6 space-y-3">
-          <div className="h-4 w-1/3 bg-brand-surface-2 rounded" />
-          <div className="h-3 w-2/3 bg-brand-surface-2 rounded" />
-          <div className="space-y-2">
-            {[1, 2, 3].map((j) => (
-              <div key={j} className="h-10 bg-brand-surface rounded-xl" />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 // ── Inner page (inside CopilotKit) ────────────────────────────────────────────
 
@@ -64,6 +49,8 @@ function LearningPageInner() {
   }, [])
 
   const loadPath = useCallback(async () => {
+    // Clear a previous failure first, or Retry keeps showing the old error.
+    setLoadError(null)
     try {
       const result = await fetchLearningPath()
       setPath(result)
@@ -102,11 +89,35 @@ function LearningPageInner() {
     }
   }
 
+  // Re-personalisation: rebuild the path reusing the learner's stored
+  // questionnaire answers, current progress and the LATEST platform setup.
+  // Same full-screen loader as first-time generation.
+  const handleRegenerate = useCallback(async () => {
+    setGenerating(true)
+    try {
+      const newPath = await apiRegenerateLearningPath()
+      setPath(newPath)
+    } finally {
+      setGenerating(false)
+    }
+  }, [])
+
   // Still loading
   if (path === undefined && !loadError) {
     return (
-      <DashboardLayout>
-        <PageSkeleton />
+      <DashboardLayout fullBleed>
+        <JourneyLoading title="Learning Path" />
+      </DashboardLayout>
+    )
+  }
+
+  // Generation or regeneration in flight — full-screen step loader either way.
+  if (generating) {
+    return (
+      <DashboardLayout fullBleed>
+        <JourneyBuilding title="Learning Path" subtitle="Anna is building your path" sanaLine="I'm matching our course catalogue to your answers.">
+          <LearningPathGeneratingLoader />
+        </JourneyBuilding>
       </DashboardLayout>
     )
   }
@@ -114,55 +125,57 @@ function LearningPageInner() {
   // Error state
   if (loadError) {
     return (
-      <DashboardLayout>
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-8 text-center">
-          <p className="text-sm font-semibold text-red-700">{loadError}</p>
-          <button
-            type="button"
-            onClick={loadPath}
-            className="mt-4 rounded-xl px-4 py-2 text-sm font-semibold text-white"
-            style={{ background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }}
-          >
-            Retry
-          </button>
-        </div>
+      <DashboardLayout fullBleed>
+        <JourneyMessage
+          title="Learning Path"
+          heading="We couldn't load your learning path"
+          body={loadError}
+          action={
+            <button type="button" onClick={loadPath} className={btn({ variant: 'primary', size: 'md' })}>
+              Retry
+            </button>
+          }
+        />
       </DashboardLayout>
     )
   }
 
-  // No path yet — show conversational questionnaire or generating loader
+  // No path yet — show the conversational questionnaire
   if (!path) {
-    // Generation is in-flight — show the animated step loader
-    if (generating) {
+    if (questions.length > 0) {
       return (
-        <DashboardLayout>
-          <div
-            className="flex items-center justify-center h-[calc(100vh-7rem)] min-h-[560px] rounded-2xl border border-brand-surface-2 bg-white overflow-hidden"
-            style={{ boxShadow: '0 16px 64px rgba(26, 10, 18, 0.24), 0 4px 20px rgba(26, 10, 18, 0.14)' }}
-          >
-            <LearningPathGeneratingLoader />
-          </div>
+        <DashboardLayout fullBleed>
+          <ConversationalQuestionnaire questions={questions} onGenerate={handleGenerate} />
         </DashboardLayout>
       )
     }
+    // Load finished but no questionnaire exists — the platform-wide learning
+    // setup hasn't been run yet. Without this branch the page showed
+    // skeletons forever on every fresh deployment.
     return (
-      <DashboardLayout>
-        {questions.length > 0 ? (
-          <ConversationalQuestionnaire questions={questions} onGenerate={handleGenerate} />
-        ) : (
-          <PageSkeleton />
-        )}
+      <DashboardLayout fullBleed>
+        <JourneyMessage
+          title="Learning Path"
+          heading="Personalised learning paths aren't ready yet"
+          body="We're still preparing this experience. In the meantime, you can browse and start any course from the Courses page."
+          action={
+            <Link href="/dashboard/courses" className={btn({ variant: 'primary', size: 'md' })}>
+              Browse courses
+            </Link>
+          }
+        />
       </DashboardLayout>
     )
   }
 
   // Has path — show chat
   return (
-    <DashboardLayout>
-      <div className="h-[calc(100vh-7rem)] min-h-[560px] rounded-2xl border border-brand-surface-2 bg-white overflow-hidden" style={{ boxShadow: '0 16px 64px rgba(26, 10, 18, 0.24), 0 4px 20px rgba(26, 10, 18, 0.14)' }}>
+    <DashboardLayout fullBleed>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <EmbeddedLearningAssistant
           path={path}
           onPathRefresh={loadPath}
+          onRegenerate={handleRegenerate}
           threadId={threadId}
           onResetThread={handleResetThread}
         />
@@ -178,8 +191,8 @@ export default function LearningPage() {
 
   if (!copilotReady) {
     return (
-      <DashboardLayout>
-        <div className="h-[calc(100vh-7rem)] min-h-[560px] rounded-2xl border border-brand-surface-2 bg-white shadow-sm animate-pulse" />
+      <DashboardLayout fullBleed>
+        <JourneyLoading title="Learning Path" />
       </DashboardLayout>
     )
   }

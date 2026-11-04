@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { validate } from "../middleware/validate";
 import * as stakeholdersController from "../controllers/stakeholders.controller";
+import { httpUrl } from "../utils/httpUrl";
+import { perIp, HOUR } from "../middleware/limits";
 
 const router: IRouter = Router();
 
@@ -19,7 +21,7 @@ const router: IRouter = Router();
 const expertDto = z.object({
   name: z.string().min(1).max(200).trim(),
   email: z.string().email().toLowerCase(),
-  linkedin: z.string().url().max(500),
+  linkedin: httpUrl(500),
   hourlyRate: z.number().int().min(0).max(10000),
   expertise: z.array(z.string().min(1)).min(1).max(20),
   methods: z.array(z.string().min(1)).min(1).max(10),
@@ -38,7 +40,7 @@ const organisationDto = z.object({
   title: z.string().min(1).max(200).trim(),
   email: z.string().email().toLowerCase(),
   country: z.string().min(1).max(100),
-  website: z.string().url().max(500),
+  website: httpUrl(500),
   phone: z.string().min(1).max(50),
   representing: z.string().min(1).max(500),
   involvement: z.array(z.string().min(1)).min(1).max(10),
@@ -55,9 +57,13 @@ const organisationDto = z.object({
  * POST  /api/stakeholders/organisation  — register as an organisation stakeholder
  */
 
-router.post("/expert", validate(expertDto), stakeholdersController.registerExpert);
+// Public forms: a visitor can apply a few times, not flood the admin queue.
+const applyIp = perIp("stakeholder-apply", HOUR, 10, "Too many applications from this network. Please try again later.");
+
+router.post("/expert", applyIp, validate(expertDto), stakeholdersController.registerExpert);
 router.post(
   "/organisation",
+  applyIp,
   validate(organisationDto),
   stakeholdersController.registerOrganisation,
 );

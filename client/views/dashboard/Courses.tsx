@@ -1,297 +1,233 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { BookOpenCheck, GraduationCap, Search, Loader2, Users } from "lucide-react";
-import { toast } from "sonner";
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { PageHeader } from "@/components/dashboard/widgets/PageHeader";
-import { fetchLearnerCourses, apiEnrollInCourse } from "@/lib/api/lms";
-import { cn } from "@/lib/utils";
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
+import { Search, SearchX } from 'lucide-react'
+import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
+import {
+  Button,
+  Card,
+  Chip,
+  CoverTile,
+  EmptyState,
+  FilterChips,
+  PageHeader,
+  ProgressBar,
+  Skeleton,
+  btn,
+  inputClass,
+} from '@/components/kit'
+import { fetchLearnerCourses } from '@/lib/api/lms'
+import { COURSE_TOPICS, type CourseTopic } from '@/lib/api/redesign'
+import { courseHref, topicIcon, type CourseListItem } from '@/components/learner/courseProgress'
+import { cn } from '@/lib/utils'
 
-import type { LearnerCourse } from "@/lib/api/lms";
+const PAGE = 12
+type Filter = 'all' | 'progress' | 'completed' | 'certificate' | CourseTopic
 
-// The 6 AI-branded flagship seed courses — grouped to the top of the page
-// regardless of enrollment status. There's no "featured" flag on the courses
-// table, so this is a hardcoded title allowlist (case-insensitive exact match).
+// AI Amplify's six flagship AI courses ("The Entrepreneur's Journey") always
+// come first, in programme order. There's no "featured" flag on courses, so
+// this is a title allowlist (case-insensitive exact match).
 const MAIN_COURSE_TITLES = [
-  "AI Fundamentals",
-  "AI Ethics and Data Privacy",
-  "Generative AI, LLMs and Diffusion Models",
-  "AI in Daily Workflows",
-  "Prompt Engineering and AI Troubleshooting",
+  'AI Fundamentals',
+  'AI Ethics and Data Privacy',
+  'Generative AI, LLMs and Diffusion Models',
+  'AI in Daily Workflows',
+  'Prompt Engineering and AI Troubleshooting',
   "AI's Future and Continuous Learning",
-].map((t) => t.toLowerCase());
+].map((t) => t.toLowerCase())
 
-function isMainCourse(title: string): boolean {
-  return MAIN_COURSE_TITLES.includes(title.trim().toLowerCase());
+/** Position in the flagship list, or the list length for every other course. */
+function flagshipOrder(c: CourseListItem) {
+  const i = MAIN_COURSE_TITLES.indexOf(c.title.trim().toLowerCase())
+  return i === -1 ? MAIN_COURSE_TITLES.length : i
 }
 
-function courseCta(c: LearnerCourse): string {
-  if (!c.isEnrolled) return "Start course";
-  return c.progressPercentage === 100 ? "Review" : "Continue";
+/** In progress first, then enrolled but not started, then the catalogue, then finished. */
+function rank(c: CourseListItem) {
+  if (!c.isEnrolled) return 2
+  if (c.progressPercentage >= 100) return 3
+  return c.progressPercentage > 0 ? 0 : 1
 }
 
-function CourseCard({
-  c,
-  i,
-  ctaLabel,
-  isPending,
-  onCta,
-}: {
-  c: LearnerCourse;
-  i: number;
-  ctaLabel: string;
-  isPending: boolean;
-  onCta: () => void;
-}) {
-  const pct = c.progressPercentage;
+function CourseCard({ c }: { c: CourseListItem }) {
+  const pct = Math.round(c.progressPercentage)
+  const units = typeof c.unitCount === 'number' ? `${c.unitCount} units` : (c.category ?? c.difficulty)
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.04 * i, duration: 0.4 }}
-      whileHover={{ y: -6 }}
-      className="group relative overflow-hidden rounded-2xl bg-white border border-brand-surface-2 hover:border-brand-primary/40 hover:shadow-xl transition-all"
-    >
-      <div className="relative aspect-[16/9] overflow-hidden">
-        {c.cover ? (
-          <img
-            src={c.cover}
-            alt={c.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-brand-primary via-brand-primary-dark to-brand-violet flex items-center justify-center">
-            <BookOpenCheck className="w-10 h-10 text-white/70" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-        <span
-          className={cn(
-            "absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm",
-            c.difficulty === "Beginner" && "bg-emerald-500 text-white",
-            c.difficulty === "Intermediate" && "bg-amber-500 text-white",
-            c.difficulty === "Advanced" && "bg-rose-500 text-white",
-          )}
-        >
-          {c.difficulty}
-        </span>
-      </div>
-
-      {c.isEnrolled && (
-        <div className="px-5 pt-3">
-          <div className="flex items-center justify-between text-[10px] font-bold text-brand-text-muted uppercase tracking-wider mb-1.5">
-            <span>Progress</span>
-            <span className="text-brand-primary">{pct}%</span>
-          </div>
-          <div className="h-1.5 rounded-full bg-brand-surface-2 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${pct}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="h-full rounded-full bg-gradient-to-r from-brand-primary via-brand-primary to-brand-primary-dark"
-            />
-          </div>
-        </div>
-      )}
-
-      <div className="p-5 pt-3 flex flex-col gap-2">
-        <h3 className="font-bold text-brand-text-primary leading-snug line-clamp-2">{c.title}</h3>
-        {c.description && (
-          <p className="text-xs text-brand-text-muted line-clamp-2 leading-relaxed">
-            {c.description}
-          </p>
-        )}
-        <div className="flex items-center gap-1 text-[11px] text-brand-text-muted">
-          <Users className="w-3 h-3" />
-          <span>
-            {(c.enrolledCount ?? 0).toLocaleString()} learner
-            {(c.enrolledCount ?? 0) !== 1 ? "s" : ""} enrolled
+    <Link href={courseHref(c.id)} className="group rounded-[14px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-brand">
+      <Card interactive className="flex h-full flex-col overflow-hidden">
+        <CoverTile src={c.cover} title={c.title} icon={topicIcon(c.category)} />
+        <span className="flex flex-1 flex-col gap-2 p-3.5 sm:p-4">
+          <span className="text-[15px] font-semibold leading-snug text-ui-text" dir="auto">{c.title}</span>
+          <span className="flex flex-wrap items-center gap-2 text-[13px] text-ui-muted">
+            {units}
+            {c.enableCertificate && <Chip>Certificate</Chip>}
+            {!c.isEnrolled && (c.enrolledCount ?? 0) > 0 && (
+              <span>
+                {(c.enrolledCount ?? 0).toLocaleString()} learner{c.enrolledCount === 1 ? '' : 's'}
+              </span>
+            )}
           </span>
-        </div>
-        <button
-          onClick={onCta}
-          disabled={isPending}
-          className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white px-4 py-2.5 text-xs font-bold shadow-md shadow-brand-primary/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-primary/40 transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-        >
-          {isPending ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <GraduationCap className="w-3.5 h-3.5" />
+          {c.isEnrolled && (
+            <span className="mt-auto flex items-center gap-2.5 pt-1">
+              <ProgressBar value={pct} className="flex-1" label={`${c.title} progress`} />
+              <span className="text-[13px] font-semibold tabular-nums text-ui-text">{pct >= 100 ? 'Done' : `${pct}%`}</span>
+            </span>
           )}
-          {isPending ? "Enrolling…" : ctaLabel}
-        </button>
-      </div>
-    </motion.article>
-  );
+        </span>
+      </Card>
+    </Link>
+  )
 }
 
 export default function CoursesPage() {
-  const [query, setQuery] = useState("");
-  const [showAllAdditional, setShowAllAdditional] = useState(false);
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const [query, setQuery] = useState('')
+  // Start with the search a link carried in (?q=, e.g. from the 404 page).
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get('q')
+    if (q) setQuery(q)
+  }, [])
+  const [filter, setFilter] = useState<Filter>('all')
+  const [shown, setShown] = useState(PAGE)
 
-  const { data: courses = [], isLoading } = useQuery({
-    queryKey: ["learner-courses"],
-    queryFn: fetchLearnerCourses,
-  });
+  const { data = [], isLoading } = useQuery({ queryKey: ['learner-courses'], queryFn: fetchLearnerCourses })
+  const courses = data as CourseListItem[]
+  const hasTopics = courses.some((c) => 'category' in c)
 
-  const enrollMutation = useMutation({
-    mutationFn: apiEnrollInCourse,
-    onSuccess: (_, courseId) => {
-      queryClient.invalidateQueries({ queryKey: ["learner-courses"] });
-      router.push(`/dashboard/courses/${courseId}`);
-    },
-    onError: () => toast.error("Failed to enroll. Please try again."),
-  });
+  const counts = useMemo(
+    () => ({
+      progress: courses.filter((c) => c.isEnrolled && c.progressPercentage < 100).length,
+      completed: courses.filter((c) => c.isEnrolled && c.progressPercentage >= 100).length,
+      certificate: courses.filter((c) => c.enableCertificate).length,
+    }),
+    [courses],
+  )
 
-  const filtered = courses.filter(
-    (c) => !query || c.title.toLowerCase().includes(query.toLowerCase()),
-  );
-  // "Your Courses" groups by course identity (the 6 flagship AI courses),
-  // not enrollment status — a main course can appear here whether or not
-  // the user has enrolled yet.
-  const yourCourses = filtered
-    .filter((c) => isMainCourse(c.title))
-    .sort((a, b) => {
-      // enrolled + in-progress first, then enrolled-not-started, then completed, then not-enrolled
-      const rank = (c: LearnerCourse) => {
-        if (!c.isEnrolled) return 3;
-        if (c.progressPercentage > 0 && c.progressPercentage < 100) return 0;
-        if (c.progressPercentage === 0) return 1;
-        return 2;
-      };
-      return rank(a) - rank(b);
-    });
-  const additionalCourses = filtered.filter((c) => !isMainCourse(c.title));
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return courses
+      .filter((c) => !q || c.title.toLowerCase().includes(q) || (c.description ?? '').toLowerCase().includes(q) || (c.category ?? '').toLowerCase().includes(q))
+      .filter((c) => {
+        if (filter === 'all') return true
+        if (filter === 'progress') return c.isEnrolled && c.progressPercentage < 100
+        if (filter === 'completed') return c.isEnrolled && c.progressPercentage >= 100
+        if (filter === 'certificate') return c.enableCertificate
+        return c.category === filter
+      })
+      .sort((a, b) => flagshipOrder(a) - flagshipOrder(b) || rank(a) - rank(b) || (rank(a) === 0 ? b.progressPercentage - a.progressPercentage : 0))
+  }, [courses, query, filter])
 
-  const searchBar = (
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-muted" />
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search courses…"
-        className="rounded-xl border border-brand-surface-2 bg-white pl-9 pr-3 py-2 text-sm w-56 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-      />
-    </div>
-  );
+  const options: { value: Filter; label: string; count?: number }[] = [
+    { value: 'all', label: 'All', count: courses.length },
+    { value: 'progress', label: 'In progress', count: counts.progress },
+    ...(counts.completed > 0 ? [{ value: 'completed' as Filter, label: 'Completed', count: counts.completed }] : []),
+    { value: 'certificate', label: 'With certificate', count: counts.certificate },
+    ...(hasTopics ? COURSE_TOPICS.map((t) => ({ value: t as Filter, label: t })) : []),
+  ]
 
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <PageHeader
-          eyebrow="Learning"
-          title="Your"
-          highlight="courses"
-          subtitle="Practical, bite-sized courses to integrate AI into your business — built with global SME experts."
-          actions={searchBar}
-        />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-2xl bg-white border border-brand-surface-2 h-72 animate-pulse"
-            />
-          ))}
-        </div>
-      </DashboardLayout>
-    );
-  }
+  const visible = filtered.slice(0, shown)
+  const more = filtered.length - visible.length
 
   return (
     <DashboardLayout>
       <PageHeader
-        eyebrow="Learning"
-        title="Your"
-        highlight="courses"
-        subtitle="Practical, bite-sized courses to integrate AI into your business — built with global SME experts."
-        actions={searchBar}
+        title="Courses"
+        subtitle={
+          courses.length > 0
+            ? `${courses.length} short courses on AI and running a business. Finish one to earn a certificate.`
+            : 'Short courses for running a business. Finish one to earn a certificate.'
+        }
+        actions={
+          <div className="relative w-full sm:w-[366px]">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-ui-muted" strokeWidth={1.75} aria-hidden />
+            <label htmlFor="course-search" className="sr-only">
+              Search courses
+            </label>
+            <input
+              id="course-search"
+              type="search"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value)
+                setShown(PAGE)
+              }}
+              placeholder="Search by course or skill"
+              className={cn(inputClass, 'h-11 pl-10')}
+            />
+          </div>
+        }
+        className="[&>div:last-child]:w-full sm:[&>div:last-child]:w-auto"
       />
 
-      {filtered.length === 0 && (
-        <p className="text-center text-sm text-brand-text-muted py-12">
-          No courses match your search.
-        </p>
-      )}
+      <div className="mb-6 flex flex-col gap-4 rounded-[14px] bg-ui-brand-soft p-4 sm:flex-row sm:items-center sm:px-5">
+        <div className="flex items-center gap-4">
+          <img src="/images/redesign/anna-avatar-96.png" alt="" className="h-12 w-12 shrink-0 rounded-full object-cover object-top" />
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <h2 className="text-base font-semibold text-ui-text">Not sure where to start?</h2>
+            <p className="text-sm text-ui-muted">Answer a few questions about your business and Anna builds your Learning Path.</p>
+          </div>
+        </div>
+        <Link href="/dashboard#h-path" className={cn(btn(), 'sm:ml-auto')}>
+          Build my path
+        </Link>
+      </div>
 
-      {/* Your Courses — the 6 flagship AI courses, always on top */}
-      {yourCourses.length > 0 && (
-        <section className="mb-10">
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-brand-text-primary">Your Courses</h2>
-            <p className="text-sm text-brand-text-muted mt-0.5">
-              The core AI curriculum — resume where you left off or get started
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {yourCourses.map((c, i) => {
-              const isPending = enrollMutation.isPending && enrollMutation.variables === c.id;
-              return (
-                <CourseCard
-                  key={c.id}
-                  c={c}
-                  i={i}
-                  ctaLabel={courseCta(c)}
-                  isPending={isPending}
-                  onCta={() =>
-                    c.isEnrolled
-                      ? router.push(`/dashboard/courses/${c.id}`)
-                      : enrollMutation.mutate(c.id)
-                  }
-                />
-              );
-            })}
-          </div>
-        </section>
-      )}
+      <FilterChips
+        label="Filter courses"
+        options={options}
+        active={filter}
+        onChange={(v) => {
+          setFilter(v)
+          setShown(PAGE)
+        }}
+        className="mb-5"
+      />
 
-      {/* Additional Courses */}
-      {additionalCourses.length > 0 && (
-        <section>
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-brand-text-primary">Additional Courses</h2>
-            <p className="text-sm text-brand-text-muted mt-0.5">
-              Practical courses built for SME founders — short videos, real insights, instant impact
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(showAllAdditional ? additionalCourses : additionalCourses.slice(0, 3)).map((c, i) => {
-              const isPending = enrollMutation.isPending && enrollMutation.variables === c.id;
-              return (
-                <CourseCard
-                  key={c.id}
-                  c={c}
-                  i={i}
-                  ctaLabel={courseCta(c)}
-                  isPending={isPending}
-                  onCta={() =>
-                    c.isEnrolled
-                      ? router.push(`/dashboard/courses/${c.id}`)
-                      : enrollMutation.mutate(c.id)
-                  }
-                />
-              );
-            })}
-          </div>
-          {additionalCourses.length > 3 && (
-            <div className="mt-6 flex justify-center">
-              <button
-                onClick={() => setShowAllAdditional((v) => !v)}
-                className="inline-flex items-center gap-2 rounded-xl border border-brand-surface-2 bg-white px-5 py-2 text-sm font-semibold text-brand-text-primary hover:border-brand-primary/40 hover:shadow transition-all"
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-64 rounded-[14px]" />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={SearchX}
+            title="No courses match"
+            body={query ? `Nothing matches "${query.trim()}" with this filter.` : 'No courses in this filter yet.'}
+            action={
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setQuery('')
+                  setFilter('all')
+                }}
               >
-                {showAllAdditional
-                  ? `Show less`
-                  : `Load more (${additionalCourses.length - 3} more)`}
-              </button>
+                Show all courses
+              </Button>
+            }
+          />
+        </Card>
+      ) : (
+        <>
+          <p className="sr-only" aria-live="polite">
+            {filtered.length} courses shown
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {visible.map((c) => (
+              <CourseCard key={c.id} c={c} />
+            ))}
+          </div>
+          {more > 0 && (
+            <div className="mt-6 flex justify-center">
+              <Button variant="secondary" size="lg" onClick={() => setShown(filtered.length)}>
+                Show {more} more course{more === 1 ? '' : 's'}
+              </Button>
             </div>
           )}
-        </section>
+        </>
       )}
     </DashboardLayout>
-  );
+  )
 }

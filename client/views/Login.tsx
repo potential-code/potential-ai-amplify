@@ -1,571 +1,368 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, RefreshCw, Loader2, KeyRound } from "lucide-react";
-import { toast } from "sonner";
-import { AuthLayout } from "@/components/auth/AuthLayout";
-import { FloatingField } from "@/components/auth/FloatingField";
-import { setAuth, type User } from "@/lib/auth";
-import { apiFetch } from "@/lib/api";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Clock, KeyRound, Loader2, Lock, Mail } from "lucide-react";
+import { btn } from "@/components/kit";
+import { AuthField, AuthAlert, AuthNote, PasswordToggle } from "@/components/auth/AuthField";
+import { AuthSplit, AuthHeading, AsideChecklist, AsideSana, AsideStats, asideMuted } from "@/components/auth/AuthSplit";
+import { CodeForm, codeErrorMessage } from "@/components/auth/CodeForm";
+import { authClient } from "@/lib/authClient";
+import { clearAuth, getUser, homeFor, refreshUser } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
-// ─── Validators ──────────────────────────────────────────────────────────────
+// Sign in leads with an email code: enter your email, type the 6-digit code
+// we send. A password works too for anyone who has set one, and a forgotten
+// password is reset with a code. Accounts from before the move to Better Auth
+// verify their email once: signing in with a code does it, and a password
+// sign-in asks for a code first.
 
 const validateEmail = (v: string) =>
-  !v
-    ? "Enter your email"
-    : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
-      ? "Enter a valid email address"
-      : null;
+  !v ? "Enter your email" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "Enter a valid email address" : null;
 
-const validatePassword = (v: string) =>
-  !v ? "Enter your password" : v.length < 6 ? "Password must be at least 6 characters" : null;
+type Mode = "email" | "code" | "password" | "verify" | "forgot" | "reset";
 
-// ─── Shared types ─────────────────────────────────────────────────────────────
+type AuthError = { code?: string; status?: number; message?: string } | null | undefined;
 
-interface LoginResponse {
-  success: boolean;
-  data: {
-    token: string;
-    user: User;
-  };
-}
-
-type Mode = "password" | "otp-email" | "otp-code";
-
-// ─── Role-based routing helper ────────────────────────────────────────────────
-
-function routeByRole(role: string, router: ReturnType<typeof useRouter>) {
-  if (role === "admin") {
-    router.push("/admin/dashboard");
-  } else if (role === "mentor") {
-    router.push("/mentor/dashboard");
-  } else {
-    router.push("/dashboard");
-  }
-}
-
-// ─── Primary button (shared visual) ──────────────────────────────────────────
-
-interface PrimaryButtonProps {
-  loading: boolean;
-  loadingLabel: string;
-  label: string;
-  disabled?: boolean;
-}
-
-function PrimaryButton({ loading, loadingLabel, label, disabled }: PrimaryButtonProps) {
+function SubmitButton({ loading, loadingLabel, label, icon }: { loading: boolean; loadingLabel: string; label: string; icon?: React.ReactNode }) {
   return (
-    <motion.button
-      type="submit"
-      disabled={loading || disabled}
-      whileTap={{ scale: 0.98 }}
-      className="relative w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-80 disabled:cursor-wait text-white py-3.5 rounded-xl text-sm font-semibold transition-colors mt-2 shadow-[0_10px_30px_-10px_rgba(101,45,144,0.7)] overflow-hidden"
-    >
-      {loading && (
-        <span
-          aria-hidden
-          className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent"
-          style={{ animation: "shimmer 1.4s linear infinite", backgroundSize: "200% 100%" }}
-        />
-      )}
-      <span className="relative inline-flex items-center gap-2">
-        {loading ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            {loadingLabel}
-          </>
-        ) : (
-          <>
-            {label}
-            <ArrowRight className="w-4 h-4" />
-          </>
-        )}
-      </span>
-    </motion.button>
-  );
-}
-
-// ─── Inline error banner (shared) ─────────────────────────────────────────────
-
-function InlineError({ message, children }: { message: string; children?: React.ReactNode }) {
-  return (
-    <p className="px-3 py-2 rounded-lg bg-rose-50 border border-rose-200 text-[12px] text-rose-600 text-center">
-      {message}
-      {children}
-    </p>
-  );
-}
-
-// ─── Back link ────────────────────────────────────────────────────────────────
-
-function BackLink({ onClick, label }: { onClick: () => void; label: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="text-brand-primary hover:text-brand-primary-dark font-medium transition-colors"
-    >
-      {label}
+    <button type="submit" disabled={loading} aria-busy={loading || undefined} className={cn(btn({ size: "lg" }), "h-11 w-full text-[15px]")}>
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : icon}
+      {loading ? loadingLabel : label}
     </button>
   );
 }
 
-// ─── OTP code input + verify form ─────────────────────────────────────────────
-
-interface OtpCodeFormProps {
-  email: string;
-  onSuccess: (token: string, user: User) => void;
-  onBack: () => void;
-}
-
-function OtpCodeForm({ email, onSuccess, onBack }: OtpCodeFormProps) {
-  const [code, setCode] = useState("");
-  const [verifying, setVerifying] = useState(false);
-  const [resending, setResending] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(60);
-  const [inlineError, setInlineError] = useState<string | null>(null);
-  const [notFound, setNotFound] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Start cooldown on mount (we just sent the code)
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const id = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(id);
-  }, [resendCooldown]);
-
-  function handleCodeChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.value.replace(/\D/g, "").slice(0, 6);
-    setCode(val);
-    if (inlineError) setInlineError(null);
-    if (notFound) setNotFound(false);
-  }
-
-  async function handleVerify(e: React.FormEvent) {
-    e.preventDefault();
-    const trimmed = code.trim();
-    if (trimmed.length !== 6) {
-      setInlineError("Enter the full 6-digit code.");
-      return;
-    }
-    setVerifying(true);
-    setInlineError(null);
-    setNotFound(false);
-    try {
-      const res = await apiFetch<LoginResponse>("/api/auth/login-otp", {
-        method: "POST",
-        body: JSON.stringify({ email, code: trimmed }),
-      });
-      onSuccess(res.data.token, res.data.user);
-    } catch (err: unknown) {
-      const body = err as { error?: { code?: string } };
-      const errCode = body?.error?.code;
-      if (errCode === "INVALID_OTP") {
-        setInlineError("Incorrect or expired code. Try again.");
-      } else if (errCode === "OTP_LOCKED") {
-        setInlineError("Too many attempts — request a new code.");
-      } else if (errCode === "RATE_LIMITED") {
-        setInlineError("Too many requests, please wait a moment.");
-      } else if (errCode === "ACCOUNT_NOT_FOUND") {
-        setNotFound(true);
-      } else {
-        toast.error("Something went wrong", { description: "Please try again." });
-      }
-    } finally {
-      setVerifying(false);
-    }
-  }
-
-  async function handleResend() {
-    if (resendCooldown > 0 || resending) return;
-    setResending(true);
-    setInlineError(null);
-    try {
-      await apiFetch("/api/auth/send-otp", {
-        method: "POST",
-        body: JSON.stringify({ email }),
-      });
-      setCode("");
-      setResendCooldown(60);
-    } catch {
-      setInlineError("Failed to resend code. Please try again.");
-    } finally {
-      setResending(false);
-    }
-  }
-
+function LinkButton({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
   return (
-    <form onSubmit={handleVerify} className="space-y-4">
-      {/* Context */}
-      <p className="text-[13px] text-brand-text-secondary leading-relaxed -mt-1">
-        A 6-digit code was sent to{" "}
-        <span className="font-semibold text-brand-text-primary">{email}</span>. Enter it below.
-      </p>
-
-      {/* Errors */}
-      {notFound && <InlineError message="No account found for this email." />}
-      {inlineError && !notFound && <InlineError message={inlineError} />}
-
-      {/* Code input — single field, numeric, matching card visual language */}
-      <div className="relative rounded-xl border border-brand-surface-2 bg-white transition-all focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20">
-        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-text-secondary/70 pointer-events-none">
-          <KeyRound className="w-4 h-4" />
-        </span>
-        <input
-          ref={inputRef}
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={code}
-          onChange={handleCodeChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && code.trim().length === 6)
-              handleVerify(e as unknown as React.FormEvent);
-          }}
-          disabled={verifying}
-          placeholder="000000"
-          aria-label="6-digit verification code"
-          className="w-full bg-transparent pl-10 pr-4 pt-5 pb-2 text-sm text-brand-text-primary tracking-[0.35em] font-bold placeholder:text-brand-text-secondary/30 placeholder:font-normal placeholder:tracking-[0.35em] focus:outline-none"
-        />
-        {/* Floating label */}
-        <label className="pointer-events-none absolute left-10 top-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-text-secondary">
-          Verification Code
-        </label>
-      </div>
-
-      {/* Verify button */}
-      <PrimaryButton
-        loading={verifying}
-        loadingLabel="Verifying…"
-        label="Verify & Log In"
-        disabled={code.trim().length !== 6}
-      />
-
-      {/* Resend + back links */}
-      <div className="flex items-center justify-between text-xs pt-1">
-        <button
-          type="button"
-          disabled={resendCooldown > 0 || resending}
-          onClick={handleResend}
-          className="flex items-center gap-1.5 text-brand-text-secondary hover:text-brand-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          <RefreshCw className={`w-3 h-3 ${resending ? "animate-spin" : ""}`} />
-          {resendCooldown > 0
-            ? `Resend in ${resendCooldown}s`
-            : resending
-              ? "Sending…"
-              : "Didn't get it? Resend"}
-        </button>
-
-        <BackLink onClick={onBack} label="Back to password login" />
-      </div>
-    </form>
+    <button type="button" onClick={onClick} className="font-semibold text-ui-brand-text hover:underline">
+      {children}
+    </button>
   );
 }
 
-// ─── OTP email capture form ───────────────────────────────────────────────────
-
-interface OtpEmailFormProps {
-  initialEmail: string;
-  onCodeSent: (email: string) => void;
-  onBack: () => void;
-}
-
-function OtpEmailForm({ initialEmail, onCodeSent, onBack }: OtpEmailFormProps) {
-  const [email, setEmail] = useState(initialEmail);
-  const [sending, setSending] = useState(false);
-  const [fieldError, setFieldError] = useState<string | null>(null);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const emailErr = validateEmail(email);
-    if (emailErr) {
-      setFieldError(emailErr);
-      return;
-    }
-    setSending(true);
-    setFieldError(null);
-    try {
-      await apiFetch("/api/auth/send-otp", {
-        method: "POST",
-        body: JSON.stringify({ email }),
-      });
-      onCodeSent(email);
-    } catch (err: unknown) {
-      const body = err as { error?: { message?: string } };
-      setFieldError(body?.error?.message ?? "Failed to send code. Please try again.");
-    } finally {
-      setSending(false);
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <p className="text-[13px] text-brand-text-secondary -mt-1">
-        Enter your email and we'll send you a one-time login code.
-      </p>
-
-      <FloatingField
-        type="email"
-        label="Email Address"
-        autoComplete="email"
-        required
-        value={email}
-        onChange={(e) => {
-          setEmail(e.target.value);
-          setFieldError(null);
-        }}
-        icon={<Mail className="w-4 h-4" />}
-        validator={validateEmail}
-        externalError={fieldError}
-      />
-
-      <PrimaryButton loading={sending} loadingLabel="Sending code…" label="Send Code" />
-
-      <div className="text-xs text-center pt-1">
-        <BackLink onClick={onBack} label="Back to password login" />
-      </div>
-    </form>
-  );
-}
-
-// ─── Password form ────────────────────────────────────────────────────────────
-
-interface PasswordFormProps {
-  onSuccess: (token: string, user: User) => void;
-  onOtpLinkClick: (email: string) => Promise<void>;
-}
-
-function PasswordForm({ onSuccess, onOtpLinkClick }: PasswordFormProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [otpLinkLoading, setOtpLinkLoading] = useState(false);
-  const [fieldError, setFieldError] = useState<string | null>(null);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (validateEmail(email) || validatePassword(password)) return;
-
-    setLoading(true);
-    setFieldError(null);
-
-    try {
-      const {
-        data: { token, user },
-      } = await apiFetch<LoginResponse>("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
-      onSuccess(token, user);
-    } catch (err: unknown) {
-      const body = err as { error?: { message?: string; code?: string } };
-      if (body?.error?.code === "INVALID_CREDENTIALS") {
-        setFieldError("Invalid email or password");
-      } else {
-        toast.error("Something went wrong", { description: "Please try again." });
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleOtpLinkClick() {
-    setOtpLinkLoading(true);
-    try {
-      await onOtpLinkClick(email);
-    } finally {
-      setOtpLinkLoading(false);
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {fieldError && <InlineError message={fieldError} />}
-
-      <FloatingField
-        type="email"
-        label="Email Address"
-        autoComplete="email"
-        required
-        value={email}
-        onChange={(e) => {
-          setEmail(e.target.value);
-          setFieldError(null);
-        }}
-        icon={<Mail className="w-4 h-4" />}
-        validator={validateEmail}
-      />
-      <FloatingField
-        type={showPassword ? "text" : "password"}
-        label="Password"
-        autoComplete="current-password"
-        required
-        value={password}
-        onChange={(e) => {
-          setPassword(e.target.value);
-          setFieldError(null);
-        }}
-        icon={<Lock className="w-4 h-4" />}
-        validator={validatePassword}
-        trailing={
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="p-2 text-brand-text-secondary/70 hover:text-brand-primary transition-colors"
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
-        }
-      />
-
-      <div className="flex items-center justify-between text-xs">
-        <label className="inline-flex items-center gap-2 text-brand-text-secondary cursor-pointer">
-          <input
-            type="checkbox"
-            className="w-3.5 h-3.5 rounded border-brand-surface-2 accent-brand-primary"
-          />
-          Remember me
-        </label>
-        <a
-          href="#"
-          className="text-brand-primary hover:text-brand-primary-dark font-medium transition-colors"
-        >
-          Forgot password?
-        </a>
-      </div>
-
-      <PrimaryButton loading={loading} loadingLabel="Logging in…" label="Log In" />
-
-      {/* OTP alternative */}
-      <p className="text-center text-xs text-brand-text-secondary pt-1">
-        {otpLinkLoading ? (
-          <span className="inline-flex items-center gap-1.5 text-brand-primary">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            Sending code…
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={handleOtpLinkClick}
-            className="text-brand-primary hover:text-brand-primary-dark font-medium transition-colors"
-          >
-            Log in with OTP instead
-          </button>
-        )}
-      </p>
-    </form>
-  );
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+const sendError = (error: AuthError) =>
+  error?.status === 429 ? "Too many requests. Please wait a minute and try again." : "Couldn't send the code. Please try again.";
 
 export default function LoginPage() {
-  const [mode, setMode] = useState<Mode>("password");
-  const [otpEmail, setOtpEmail] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [mode, setMode] = useState<Mode>("email");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [expired, setExpired] = useState(searchParams.get("expired") === "1");
 
-  function handleSuccess(token: string, user: User) {
-    setAuth(token, user);
-    routeByRole(user.role, router);
+  // Arriving here means no session. A cached user left behind means it ended
+  // (expired, or signed out elsewhere): say so, and drop the stale copy.
+  useEffect(() => {
+    if (getUser()) setExpired(true);
+    if (getUser() || searchParams.get("expired") === "1") clearAuth();
+  }, [searchParams]);
+
+  function go(next: Mode) {
+    setError(null);
+    setNotice(null);
+    setMode(next);
   }
 
-  // Called from password form's "Log in with OTP" link.
-  // If email is valid: send OTP immediately then go to otp-code.
-  // If invalid: go to otp-email capture.
-  async function handleOtpLinkClick(emailFromForm: string) {
-    const isValid = !validateEmail(emailFromForm);
-    if (isValid) {
-      // Send OTP now and jump straight to code entry
-      await apiFetch("/api/auth/send-otp", {
-        method: "POST",
-        body: JSON.stringify({ email: emailFromForm }),
-      });
-      setOtpEmail(emailFromForm);
-      setMode("otp-code");
-    } else {
-      // Let user enter their email on the next screen
-      setMode("otp-email");
+  async function finish() {
+    const user = await refreshUser();
+    if (user) router.push(homeFor(user.role));
+    else setError("Signed in, but the session didn't stick. Please try again.");
+  }
+
+  // ── email → code ──
+  async function sendSignInCode(e?: React.FormEvent) {
+    e?.preventDefault();
+    const problem = validateEmail(email);
+    if (problem) return setError(problem);
+    setBusy(true);
+    setError(null);
+    const { error: err } = await authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" });
+    setBusy(false);
+    if (err) return setError(sendError(err));
+    go("code");
+  }
+
+  // ── password ──
+  async function signInWithPassword(e: React.FormEvent) {
+    e.preventDefault();
+    const problem = validateEmail(email) ?? (!password ? "Enter your password" : null);
+    if (problem) return setError(problem);
+    setBusy(true);
+    setError(null);
+    const { error: err } = await authClient.signIn.email({ email, password, rememberMe: remember });
+    setBusy(false);
+    if (!err) return finish();
+    if (err.code === "EMAIL_NOT_VERIFIED") {
+      // Better Auth has just emailed a verification code.
+      setMode("verify");
+      setNotice("We've moved to a new sign-in system. Please confirm your email once with the code we just sent.");
+      return;
     }
+    if (err.status === 429) return setError("Too many sign-in attempts. Please wait a minute and try again.");
+    if (err.code === "INVALID_EMAIL_OR_PASSWORD")
+      return setError("Email or password is incorrect. Try again, or sign in with an email code instead.");
+    setError("Something went wrong. Please try again.");
   }
 
-  function handleCodeSent(email: string) {
-    setOtpEmail(email);
-    setMode("otp-code");
+  // ── forgot → reset ──
+  async function sendResetCode(e?: React.FormEvent) {
+    e?.preventDefault();
+    const problem = validateEmail(email);
+    if (problem) return setError(problem);
+    setBusy(true);
+    setError(null);
+    const { error: err } = await authClient.emailOtp.requestPasswordReset({ email });
+    setBusy(false);
+    if (err) return setError(sendError(err));
+    go("reset");
   }
 
-  const subheadings: Record<Mode, string> = {
-    password: "Continue your AI-powered business journey.",
-    "otp-email": "We'll send a one-time code to your inbox.",
-    "otp-code": "Check your inbox for the 6-digit code.",
+  const subtitles: Record<Mode, string> = {
+    email: "We'll email you a code to sign in. No password needed.",
+    code: "Check your inbox for the 6-digit code.",
+    password: "Sign in with your email and password.",
+    verify: "Confirm your email to continue.",
+    forgot: "We'll email you a code to choose a new password.",
+    reset: "Enter the code and your new password.",
   };
 
+  const emailField = (
+    <AuthField
+      id="si-email"
+      type="email"
+      label="Email address"
+      autoComplete="email"
+      required
+      placeholder="you@company.com"
+      value={email}
+      onChange={(e) => {
+        setEmail(e.target.value.trim());
+        setError(null);
+      }}
+      icon={<Mail />}
+      validator={validateEmail}
+    />
+  );
+
   return (
-    <AuthLayout
-      heading={
-        <>
-          Log in to <span className="text-gradient-brand">AI Amplify</span>
-        </>
-      }
-      subheading={subheadings[mode]}
+    <AuthSplit
+      topPrompt={{ text: "Have an invite?", ctaLabel: "Create your account", ctaHref: "/sign-up" }}
+      asideLabel="About AI Amplify"
+      aside={<SignInAside />}
+      width={400}
     >
-      <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-7 shadow-[0_20px_60px_-20px_rgba(101,45,144,0.18)]">
-        <AnimatePresence mode="wait" initial={false}>
+      <div className="flex flex-col gap-7">
+        <AuthHeading title="Sign in to AI Amplify" subtitle={subtitles[mode]} />
+
+        <div className="flex flex-col gap-4">
+          {expired && mode === "email" && (
+            <AuthNote icon={<Clock />}>Your session has ended. Please sign in again to continue.</AuthNote>
+          )}
+          {notice && <AuthNote>{notice}</AuthNote>}
+
+          {mode === "email" && (
+            <form onSubmit={sendSignInCode} className="flex flex-col gap-4" noValidate>
+              {emailField}
+              {error && <AuthAlert id="si-err">{error}</AuthAlert>}
+              <SubmitButton loading={busy} loadingLabel="Sending code" label="Email me a sign-in code" icon={<KeyRound className="h-[18px] w-[18px]" aria-hidden />} />
+              <p className="text-center text-[13px] text-ui-muted">
+                Have a password? <LinkButton onClick={() => go("password")}>Sign in with password</LinkButton>
+              </p>
+            </form>
+          )}
+
+          {mode === "code" && (
+            <CodeForm
+              email={email}
+              intro={
+                <>
+                  If <strong className="font-semibold">{email}</strong> has an AI Amplify account, we sent it a 6-digit code.
+                  No email after a minute? Check spam, or{" "}
+                  <Link href="/sign-up" className="font-semibold text-ui-brand-text hover:underline">
+                    sign up with your invite code
+                  </Link>
+                  .
+                </>
+              }
+              submitLabel="Sign in"
+              submittingLabel="Signing in"
+              onSubmit={async (otp) => {
+                const { error: err } = await authClient.signIn.emailOtp({ email, otp });
+                if (err) return codeErrorMessage(err);
+                await finish();
+                return null;
+              }}
+              onResend={async () => {
+                const { error: err } = await authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" });
+                return err ? sendError(err) : null;
+              }}
+              onBack={() => go("email")}
+              backLabel="Use a different email"
+            />
+          )}
+
           {mode === "password" && (
-            <motion.div
-              key="password"
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -16 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <PasswordForm onSuccess={handleSuccess} onOtpLinkClick={handleOtpLinkClick} />
-            </motion.div>
+            <form onSubmit={signInWithPassword} className="flex flex-col gap-4" noValidate>
+              {emailField}
+              <AuthField
+                id="si-pass"
+                type={showPassword ? "text" : "password"}
+                label="Password"
+                labelAside={
+                  <button type="button" onClick={() => go("forgot")} className="text-[13px] font-semibold text-ui-brand-text hover:underline">
+                    Forgot password?
+                  </button>
+                }
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError(null);
+                }}
+                icon={<Lock />}
+                trailing={<PasswordToggle shown={showPassword} onToggle={() => setShowPassword(!showPassword)} />}
+              />
+              <label className="inline-flex cursor-pointer items-center gap-2 self-start text-sm text-ui-text">
+                <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 accent-ui-brand" />
+                Remember me
+              </label>
+              {error && <AuthAlert id="si-err">{error}</AuthAlert>}
+              <SubmitButton loading={busy} loadingLabel="Signing in" label="Sign in" />
+              <p className="text-center text-[13px] text-ui-muted">
+                <LinkButton onClick={() => go("email")}>Sign in with an email code instead</LinkButton>
+              </p>
+            </form>
           )}
 
-          {mode === "otp-email" && (
-            <motion.div
-              key="otp-email"
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -16 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <OtpEmailForm
-                initialEmail=""
-                onCodeSent={handleCodeSent}
-                onBack={() => setMode("password")}
-              />
-            </motion.div>
+          {mode === "verify" && (
+            <CodeForm
+              email={email}
+              submitLabel="Confirm and sign in"
+              submittingLabel="Confirming"
+              onSubmit={async (otp) => {
+                const { error: err } = await authClient.emailOtp.verifyEmail({ email, otp });
+                if (err) return codeErrorMessage(err);
+                await finish();
+                return null;
+              }}
+              onResend={async () => {
+                const { error: err } = await authClient.emailOtp.sendVerificationOtp({ email, type: "email-verification" });
+                return err ? sendError(err) : null;
+              }}
+              onBack={() => go("password")}
+              backLabel="Back to sign in"
+            />
           )}
 
-          {mode === "otp-code" && (
-            <motion.div
-              key="otp-code"
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -16 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <OtpCodeForm
-                email={otpEmail}
-                onSuccess={handleSuccess}
-                onBack={() => setMode("password")}
-              />
-            </motion.div>
+          {mode === "forgot" && (
+            <form onSubmit={sendResetCode} className="flex flex-col gap-4" noValidate>
+              {emailField}
+              {error && <AuthAlert id="si-err">{error}</AuthAlert>}
+              <SubmitButton loading={busy} loadingLabel="Sending code" label="Email me a reset code" />
+              <p className="text-center text-[13px] text-ui-muted">
+                <LinkButton onClick={() => go("password")}>Back to sign in</LinkButton>
+              </p>
+            </form>
           )}
-        </AnimatePresence>
+
+          {mode === "reset" && (
+            <CodeForm
+              email={email}
+              intro={
+                <>
+                  If <strong className="font-semibold">{email}</strong> has an AI Amplify account, we sent it a 6-digit code. Enter it with your new password.
+                </>
+              }
+              submitLabel="Set new password and sign in"
+              submittingLabel="Saving"
+              canSubmit={newPassword.length >= 8}
+              onSubmit={async (otp) => {
+                const { error: err } = await authClient.emailOtp.resetPassword({ email, otp, password: newPassword });
+                if (err) return err.code === "PASSWORD_TOO_SHORT" ? "Use at least 8 characters." : codeErrorMessage(err);
+                const signedIn = await authClient.signIn.email({ email, password: newPassword, rememberMe: true });
+                if (signedIn.error) {
+                  go("password");
+                  setNotice("Your password is changed. Sign in with it now.");
+                  return null;
+                }
+                await finish();
+                return null;
+              }}
+              onResend={async () => {
+                const { error: err } = await authClient.emailOtp.requestPasswordReset({ email });
+                return err ? sendError(err) : null;
+              }}
+              onBack={() => go("password")}
+              backLabel="Back to sign in"
+            >
+              <AuthField
+                id="si-new-pass"
+                type={showPassword ? "text" : "password"}
+                label="New password"
+                autoComplete="new-password"
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                icon={<Lock />}
+                help="At least 8 characters."
+                trailing={<PasswordToggle shown={showPassword} onToggle={() => setShowPassword(!showPassword)} />}
+              />
+            </CodeForm>
+          )}
+        </div>
+
+        <p className="text-sm text-ui-muted">
+          Don&apos;t have an account?{" "}
+          <Link href="/sign-up" className="font-semibold text-ui-brand-text hover:underline">
+            Sign up with your invite code
+          </Link>
+        </p>
       </div>
-    </AuthLayout>
+    </AuthSplit>
+  );
+}
+
+function SignInAside() {
+  return (
+    <>
+      <div className="flex max-w-[460px] flex-col gap-4">
+        <h2 className="text-[36px] font-semibold leading-[1.1] tracking-[-0.03em]">
+          Amplify your business with AI.
+        </h2>
+        <p className={cn("text-base leading-[1.6]", asideMuted)}>
+          Work smarter, grow faster. AI courses, AI and human mentors, live events and AI tools, by Potential.
+        </p>
+      </div>
+      <AsideChecklist
+        items={[
+          "Six core AI courses with certificates",
+          "24/7 AI mentors for SMEs",
+          "Live events, with recordings",
+          "AI tools for your business, many with a free trial",
+        ]}
+      />
+      <img
+        src="/images/redesign/hero.png"
+        alt=""
+        className="block h-[200px] w-full rounded-[14px] object-cover object-[60%_40%] opacity-[0.92]"
+      />
+      <div className="mt-auto flex max-w-[460px] flex-col gap-3.5">
+        <AsideSana>
+          Welcome back. Once you&apos;re in, I&apos;ll pick up where you left off: your next unit, your mentor
+          sessions and your points.
+        </AsideSana>
+        <AsideStats />
+      </div>
+    </>
   );
 }

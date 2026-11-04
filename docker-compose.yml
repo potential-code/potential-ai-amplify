@@ -11,6 +11,12 @@ services:
       PORT: "5000"
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
+      # Signs session cookies; falls back to JWT_SECRET when unset.
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      # The public site URL (sessions are first-party there); defaults to FRONTEND_URL.
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-}
+      # Proxy hops skipped when finding a visitor's IP; defaults to private ranges.
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
       FRONTEND_URL: ${FRONTEND_URL}
       FROM_EMAIL: ${FROM_EMAIL}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
@@ -22,6 +28,18 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       COPILOT_SERVICE_JWT_SECRET: ${COPILOT_SERVICE_JWT_SECRET}
+      # Learner messages (bell, banners, announcement emails): off until the
+      # client signs off. "true" turns them on.
+      LEARNER_NOTIFICATIONS_ENABLED: ${LEARNER_NOTIFICATIONS_ENABLED:-false}
+      # Reminder and booking emails (sessions, events): off until sign-off.
+      REMINDER_EMAILS_ENABLED: ${REMINDER_EMAILS_ENABLED:-false}
+      # Zoom meetings for live events (Server-to-Server OAuth). Without them,
+      # admins can still use another link or an in-person venue.
+      ZOOM_ACCOUNT_ID: ${ZOOM_ACCOUNT_ID:-}
+      ZOOM_CLIENT_ID: ${ZOOM_CLIENT_ID:-}
+      ZOOM_CLIENT_SECRET: ${ZOOM_CLIENT_SECRET:-}
+      ZOOM_HOST_USER_ID: ${ZOOM_HOST_USER_ID:-}
+      ZOOM_WEBHOOK_SECRET_TOKEN: ${ZOOM_WEBHOOK_SECRET_TOKEN:-}
       NEXT_PUBLIC_AI_BACKEND_URL: ${NEXT_PUBLIC_AI_BACKEND_URL}
     volumes:
       - uploads:/app/uploads
@@ -38,6 +56,9 @@ services:
       context: .
       dockerfile: client/Dockerfile
       args:
+        # The site forwards /api and /uploads to the API at this address, so
+        # the browser only talks to the site and the session cookie is first-party.
+        API_INTERNAL_URL: ${API_INTERNAL_URL:-http://server:5000}
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
         NEXT_PUBLIC_AI_BACKEND_URL: ${NEXT_PUBLIC_AI_BACKEND_URL}
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}

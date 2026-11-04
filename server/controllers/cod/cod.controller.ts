@@ -26,6 +26,19 @@ export async function completeContent(req: Request<{ contentId: string }>, res: 
   } catch (e) { next(e) }
 }
 
+/** PUT /lms/cod/content/:contentId/video-position  { pathId, positionSec, watchPct } */
+export async function saveVideoPosition(req: Request<{ contentId: string }>, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { pathId, positionSec, watchPct } = req.body as { pathId: string; positionSec: number; watchPct: number }
+    const data = await codSvc.saveVideoPosition(req.user!.userId, pathId, req.params.contentId, positionSec, watchPct)
+    if (!data) {
+      res.status(404).json({ success: false, error: { message: 'Path not found', code: 'NOT_FOUND' } })
+      return
+    }
+    res.json({ success: true, data })
+  } catch (e) { next(e) }
+}
+
 export async function getMilestonePretest(req: Request<{ milestoneId: string }>, res: Response, next: NextFunction): Promise<void> {
   try {
     const { pathId } = req.query as { pathId: string }

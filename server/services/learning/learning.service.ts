@@ -449,6 +449,14 @@ export async function generatePath(
 export async function getActivePath(userId: string): Promise<{
   id: string
   basedOnSetupVersion: number
+  /** Latest platform setup version — used with `stale` for refresh nudges. */
+  currentSetupVersion: number
+  /**
+   * True when the path predates the current setup version, i.e. an admin has
+   * re-run the platform setup (new themes/questions) since this path was
+   * generated. The client offers an "Update path" nudge on this flag.
+   */
+  stale: boolean
   generatedAt: Date
   milestones: Array<{
     themeId: string
@@ -488,6 +496,10 @@ export async function getActivePath(userId: string): Promise<{
     .where(and(eq(userLearningPath.userId, userId), eq(userLearningPath.status, 'active')))
     .limit(1)
   if (!path) return null
+
+  // Has the platform setup been regenerated since this path was built? Falls
+  // back to the path's own version so missing data never marks it stale.
+  const currentSetupVersion = (await getLatestSetupVersion()) ?? path.basedOnSetupVersion
 
   // Collect referenced ids across all milestones.
   const blockIds = [...new Set(path.milestones.flatMap(m => m.blocks.map(b => b.blockId)))]
@@ -571,6 +583,8 @@ export async function getActivePath(userId: string): Promise<{
   return {
     id: path.id,
     basedOnSetupVersion: path.basedOnSetupVersion,
+    currentSetupVersion,
+    stale: currentSetupVersion > path.basedOnSetupVersion,
     generatedAt: path.generatedAt,
     milestones,
   }

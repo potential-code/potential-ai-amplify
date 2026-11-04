@@ -1,37 +1,33 @@
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/layout/Footer'
-import { HeroSection } from '@/components/sections/HeroSection'
-import { AboutSection } from '@/components/sections/AboutSection'
-import { JourneySection } from '@/components/sections/JourneySection'
-import { StakeholderSection } from '@/components/sections/StakeholderSection'
-import { CoursesSection } from '@/components/sections/CoursesSection'
-import { LiveEventsSection } from '@/components/sections/LiveEventsSection'
-import { AiMentorsSection } from '@/components/sections/AiMentorsSection'
-import { ChatbotSection } from '@/components/sections/ChatbotSection'
-import { HumanMentorsSection } from '@/components/sections/HumanMentorsSection'
-import { SpecialOffersSection } from '@/components/sections/SpecialOffersSection'
-import { TestimonialsSection } from '@/components/sections/TestimonialsSection'
-import { CtaFinalSection } from '@/components/sections/CtaFinalSection'
+import { LandingHeader } from '@/components/landing/LandingHeader'
+import { LandingHero } from '@/components/landing/LandingHero'
+import { LandingCourses } from '@/components/landing/LandingCourses'
+import { LandingAiMentors, LandingHumanMentors } from '@/components/landing/LandingMentors'
+import { LandingEventsOffers } from '@/components/landing/LandingEventsOffers'
+import { LandingStakeholders } from '@/components/landing/LandingStakeholders'
+import { LandingCommunity } from '@/components/landing/LandingCommunity'
+import { LandingFooter } from '@/components/landing/LandingFooter'
 
+/** Public homepage: About folded into the hero, events and AI tools side by side. */
 export default function Home() {
   return (
-    <>
-      <Navbar />
-      <main>
-        <HeroSection />
-        <AboutSection />
-        <JourneySection />
-        <StakeholderSection />
-        <CoursesSection />
-        <LiveEventsSection />
-        <AiMentorsSection />
-        <ChatbotSection />
-        <HumanMentorsSection />
-        <SpecialOffersSection />
-        <TestimonialsSection />
-        <CtaFinalSection />
+    <div className="flex min-h-screen flex-col bg-ui-bg text-ui-text">
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-[10px] bg-ui-surface px-4 py-2 text-sm font-semibold text-ui-text focus:not-sr-only focus:fixed focus:left-4 focus:top-3"
+      >
+        Skip to content
+      </a>
+      <LandingHeader />
+      <main id="main">
+        <LandingHero />
+        <LandingCourses />
+        <LandingAiMentors />
+        <LandingHumanMentors />
+        <LandingEventsOffers />
+        <LandingStakeholders />
+        <LandingCommunity />
       </main>
-      <Footer />
-    </>
+      <LandingFooter />
+    </div>
   )
 }

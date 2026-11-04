@@ -4,13 +4,15 @@ import { useEffect } from 'react'
 import { fetchCodPath } from '@/lib/api/cod'
 import type { CodPathResponse } from '@/lib/api/cod'
 import { LearningPathGeneratingLoader } from '@/components/shared/LearningPathGeneratingLoader'
+import { JourneyBuilding } from '@/components/journeys/JourneyStates'
 
 interface Props {
   onReady: (path: CodPathResponse) => void
   onFailed: () => void
+  title?: string
 }
 
-export function CodPathBuildingProgress({ onReady, onFailed }: Props) {
+export function CodPathBuildingProgress({ onReady, onFailed, title = 'Content on Demand' }: Props) {
   useEffect(() => {
     const poll = async () => {
       try {
@@ -28,8 +30,12 @@ export function CodPathBuildingProgress({ onReady, onFailed }: Props) {
   }, [onReady, onFailed])
 
   return (
-    <div className="flex items-center justify-center h-full min-h-[400px]">
+    <JourneyBuilding
+      title={title}
+      subtitle="Building your personalised Content on Demand path"
+      sanaLine="I'm curating the best videos and articles for your goals."
+    >
       <LearningPathGeneratingLoader />
-    </div>
+    </JourneyBuilding>
   )
 }

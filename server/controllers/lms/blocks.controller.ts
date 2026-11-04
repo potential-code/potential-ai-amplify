@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as svc from '../../services/lms/blocks.service'
+import * as quizGen from '../../services/lms/quizGenerator.service'
 import { AppError } from '../../utils/app-error'
 
 /**
@@ -55,6 +56,20 @@ export async function update(req: Request<{ blockId: string }>, res: Response, n
       throw new AppError('Not found', 404, 'NOT_FOUND')
     }
     res.json({ success: true, data: b })
+  } catch (e) {
+    next(e)
+  }
+}
+
+/**
+ * POST /lms/admin/quiz/generate
+ * Draft questions for a pre-test or final exam, written from the course's own text.
+ */
+export async function generateQuiz(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { assessmentId, count, format } = req.body as { assessmentId: string; count: number; format: quizGen.QuizFormat }
+    const questions = await quizGen.generateQuizDrafts(req.user!.userId, assessmentId, { count, format })
+    res.json({ success: true, data: { questions } })
   } catch (e) {
     next(e)
   }

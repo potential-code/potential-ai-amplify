@@ -109,6 +109,18 @@ describe("progress is checked by the server", () => {
     const theirs = await api("GET", `/api/lms/learning-blocks/${b.questionBlockId}/answers`, { token: other.token });
     expect(theirs.body.data).toHaveLength(0);
   });
+  it("written answers are capped at 10,000 characters, and choices can't be negative", async () => {
+    const user = await createUser();
+    const course = await createCourse();
+    await enrol(user.id, course.id);
+    const q = course.blocks[0]!.questionIds[0];
+    const ok = await api("POST", `/api/lms/questions/${q}/answer`, { token: user.token, body: { answerData: { openEndedAnswer: "x".repeat(10_000) } } });
+    expect(ok.status).toBe(201);
+    const tooLong = await api("POST", `/api/lms/questions/${q}/answer`, { token: user.token, body: { answerData: { openEndedAnswer: "x".repeat(10_001) } } });
+    expect(tooLong.status).toBe(422);
+    const negative = await api("POST", `/api/lms/questions/${q}/answer`, { token: user.token, body: { answerData: { selectedAnswer: -1 } } });
+    expect(negative.status).toBe(422);
+  });
 });
 
 describe("points", () => {
@@ -178,10 +190,10 @@ describe("certificates", () => {
     expect(again.status).toBe(200);
     expect(again.body.data.id).toBe(certA!.id);
 
-    const dlA = await fetch(`${await startTestServer()}/api/lms/certificates/${certA!.id}/download`, { headers: { Authorization: `Bearer ${a.token}` } });
+    const dlA = await fetch(`${await startTestServer()}/api/lms/certificates/${certA!.id}/download`, { headers: { Cookie: a.token } });
     expect(dlA.status).toBe(200);
     const pngA = Buffer.from(await dlA.arrayBuffer());
-    const dlB = await fetch(`${await startTestServer()}/api/lms/certificates/${certB!.id}/download`, { headers: { Authorization: `Bearer ${b.token}` } });
+    const dlB = await fetch(`${await startTestServer()}/api/lms/certificates/${certB!.id}/download`, { headers: { Cookie: b.token } });
     const pngB = Buffer.from(await dlB.arrayBuffer());
     // Without a working font no text is drawn and both images are identical.
     expect(pngA.equals(pngB)).toBe(false);

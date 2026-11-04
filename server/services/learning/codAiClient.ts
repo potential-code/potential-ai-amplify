@@ -1,6 +1,7 @@
 import { Agent } from 'undici'
 import jwt from 'jsonwebtoken'
 import { AppError } from '../../utils/app-error'
+import { SERVER_CLAIMS } from '../serviceTokenClaims'
 
 // COD path builder can take up to 10 min (20–30 LLM calls on local Ollama); use a generous timeout.
 const aiDispatcher = new Agent({ headersTimeout: 600_000, bodyTimeout: 600_000 })
@@ -14,7 +15,7 @@ function getAiBaseUrl(): string {
 function mintServiceToken(userId: string): string {
   const secret = process.env['COPILOT_SERVICE_JWT_SECRET']
   if (!secret) throw new AppError('AI backend is not configured', 503, 'AI_NOT_CONFIGURED')
-  return jwt.sign({ platformId: 'ai-amplify', userId }, secret, { algorithm: 'HS256', expiresIn: 300 })
+  return jwt.sign({ platformId: 'ai-amplify', userId, ...SERVER_CLAIMS }, secret, { algorithm: 'HS256', expiresIn: 300 })
 }
 
 async function postToAi<T>(path: string, userId: string, body: unknown): Promise<T> {

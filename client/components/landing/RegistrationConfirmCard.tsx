@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Check, Loader2, Pencil, Sparkles } from "lucide-react";
+import { Check, Loader2, Pencil } from "lucide-react";
+import { LEGAL_LINKS } from "@/lib/constants/navigation";
 
 const FIELD_LABELS: Record<string, string> = {
-  fullName: "Name",
+  fullName: "Full name",
   email: "Email",
   country: "Country",
-  couponCode: "Invite Code",
+  couponCode: "Invite code",
 };
 
 // ---------------------------------------------------------------------------
@@ -47,7 +48,7 @@ function countryFlag(code: string): string {
 // ---------------------------------------------------------------------------
 
 function Divider() {
-  return <div className="mx-4" style={{ height: "1px", background: "rgba(255,255,255,0.08)" }} />;
+  return <div className="h-px bg-ui-line" />;
 }
 
 interface RowProps {
@@ -60,20 +61,17 @@ interface RowProps {
 
 function DataRow({ label, value, field, disabled, onEdit }: RowProps) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3">
-      <span className="text-xs font-semibold uppercase tracking-wider w-24 flex-shrink-0 text-[#652d90]/80">
-        {label}
-      </span>
-      <span className="flex-1 text-sm font-medium truncate text-white/90">{value}</span>
+    <div className="grid grid-cols-[92px_minmax(0,1fr)_auto] items-center gap-2 py-2 pl-3 pr-1.5">
+      <span className="text-xs text-ui-muted">{label}</span>
+      <span className="truncate text-sm font-medium text-ui-text">{value || "None"}</span>
       <button
         type="button"
         disabled={disabled}
         onClick={() => onEdit(field)}
-        className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-[#652d90]/60 hover:text-[#652d90] hover:bg-white/5"
-        style={{ background: "rgba(101,45,144,0.20)" }}
-        aria-label={`Edit ${label}`}
+        className="inline-flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-lg text-ui-muted transition-colors hover:bg-ui-surface-2 hover:text-ui-text disabled:cursor-not-allowed disabled:opacity-40"
+        aria-label={`Edit ${label.toLowerCase()}`}
       >
-        <Pencil className="w-3.5 h-3.5" />
+        <Pencil className="h-[15px] w-[15px]" aria-hidden />
       </button>
     </div>
   );
@@ -118,47 +116,29 @@ export function RegistrationConfirmCard({
       : (data.countryName ?? data.country ?? "");
 
   return (
-    <div
-      className="my-2 rounded-xl overflow-hidden border"
-      style={{
-        background: "rgba(20, 10, 16, 0.90)",
-        borderColor: "rgba(255,255,255,0.10)",
-        maxWidth: "380px",
-      }}
-    >
-      {/* ------------------------------------------------------------------ */}
-      {/* Header                                                               */}
-      {/* ------------------------------------------------------------------ */}
-      <div
-        className="flex items-center gap-2 px-4 py-3"
-        style={{ background: "linear-gradient(120deg,#652d90,#4a2168)" }}
-      >
-        <Sparkles className="w-4 h-4 text-white/80 flex-shrink-0" />
-        <span className="text-sm font-semibold text-white tracking-wide">
-          ✦ Review Your Details
-        </span>
+    <div className="my-2 w-full max-w-[380px] overflow-hidden rounded-[14px] border border-ui-line bg-ui-surface text-ui-text">
+      <div className="border-b border-ui-line px-4 py-3">
+        <span className="text-sm font-semibold">Confirm your details</span>
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Complete state                                                        */}
-      {/* ------------------------------------------------------------------ */}
       {status === "complete" ? (
         <div className="flex items-center gap-3 px-4 py-4">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-white/10">
+          <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ui-brand-soft text-ui-brand-text">
             {completedAction?.type === "edit" ? (
-              <Pencil className="w-4 h-4 text-[#652d90]" strokeWidth={2.5} />
+              <Pencil className="h-4 w-4" aria-hidden />
             ) : (
-              <Check className="w-4 h-4 text-[#652d90]" strokeWidth={2.5} />
+              <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden />
             )}
-          </div>
-          <span className="text-sm font-medium text-white/90">
+          </span>
+          <span className="text-sm font-medium">
             {completedAction?.type === "edit"
-              ? `Updating your ${FIELD_LABELS[completedAction.field] ?? completedAction.field}…`
-              : "Registration submitted!"}
+              ? `Updating your ${(FIELD_LABELS[completedAction.field] ?? completedAction.field).toLowerCase()}`
+              : "Registration submitted"}
           </span>
         </div>
       ) : (
-        <>
+        <div className="flex flex-col gap-3 p-3">
+          <div className="overflow-hidden rounded-[10px] border border-ui-line">
           {/* -------------------------------------------------------------- */}
           {/* Data rows                                                        */}
           {/* -------------------------------------------------------------- */}
@@ -166,7 +146,7 @@ export function RegistrationConfirmCard({
           {data.fullName !== undefined && (
             <>
               <DataRow
-                label="Full Name"
+                label="Full name"
                 value={data.fullName}
                 field="fullName"
                 disabled={isDisabled}
@@ -204,7 +184,7 @@ export function RegistrationConfirmCard({
 
           {data.couponCode !== undefined && (
             <DataRow
-              label="Invite Code"
+              label="Invite code"
               value={data.couponCode}
               field="couponCode"
               disabled={isDisabled}
@@ -212,32 +192,34 @@ export function RegistrationConfirmCard({
             />
           )}
 
-          {/* -------------------------------------------------------------- */}
-          {/* Footer                                                           */}
-          {/* -------------------------------------------------------------- */}
-          <div className="px-4 pb-4 pt-3 space-y-3">
-            <p className="text-xs text-center leading-relaxed text-white/35">
-              By clicking Confirm &amp; Register you agree to our Terms &amp; Conditions
-            </p>
-
-            <button
-              type="button"
-              disabled={isDisabled}
-              onClick={handleConfirm}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: "linear-gradient(120deg,#652d90,#4a2168)" }}
-            >
-              {showSpinner ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Registering…</span>
-                </>
-              ) : (
-                "Confirm & Register"
-              )}
-            </button>
           </div>
-        </>
+          <p className="text-xs leading-normal text-ui-muted">
+            By clicking Confirm and register you agree to our{" "}
+            <a href={LEGAL_LINKS.terms} target="_blank" rel="noopener noreferrer" className="font-semibold text-ui-brand-text hover:underline">
+              Terms of Use
+            </a>{" "}
+            and{" "}
+            <a href={LEGAL_LINKS.privacy} target="_blank" rel="noopener noreferrer" className="font-semibold text-ui-brand-text hover:underline">
+              Privacy Policy
+            </a>
+            .
+          </p>
+          <button
+            type="button"
+            disabled={isDisabled}
+            onClick={handleConfirm}
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[10px] bg-ui-brand text-sm font-semibold text-white transition-colors hover:bg-ui-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {showSpinner ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                <span>Registering</span>
+              </>
+            ) : (
+              "Confirm and register"
+            )}
+          </button>
+        </div>
       )}
     </div>
   );

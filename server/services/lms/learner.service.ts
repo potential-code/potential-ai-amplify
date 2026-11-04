@@ -58,10 +58,27 @@ export async function getPublishedCourses(userId: string) {
 export async function getLearnerCourse(userId: string, courseId: string) {
   const [enrollment] = await db.select().from(courseEnrollments)
     .where(and(eq(courseEnrollments.userId, userId), eq(courseEnrollments.courseId, courseId)))
-  if (!enrollment) throw new Error('NOT_ENROLLED')
+  if (!enrollment) {
+    // Not enrolled: return a header-only preview of a published course so the
+    // client can offer enrollment (its enroll screen keys on isEnrolled=false)
+    // instead of a 403 it could only render as an error. Unpublished courses
+    // stay invisible to non-enrolled learners.
+    const [course] = await db.select().from(courses).where(eq(courses.id, courseId))
+    if (!course || course.status !== 'published') throw new Error('COURSE_NOT_FOUND')
+    return {
+      ...course,
+      isEnrolled: false,
+      progressPercentage: 0,
+      modules: [],
+      preAssessment: null,
+      postAssessment: null,
+      courseProgress: null,
+      preview: await getCoursePreview(courseId),
+    }
+  }
 
   const [course] = await db.select().from(courses).where(eq(courses.id, courseId))
-  if (!course) throw new Error('NOT_ENROLLED')
+  if (!course) throw new Error('COURSE_NOT_FOUND')
 
   const courseModules = await db.select().from(modules)
     .where(eq(modules.courseId, courseId)).orderBy(asc(modules.order))
@@ -274,5 +291,47 @@ export async function computeLockStatus(userId: string, courseData: {
 
   if (courseData.postAssessment) {
     courseData.postAssessment.isLocked = !allPreviousComplete
+  }
+}
+
+/**
+ * What a learner sees before starting a course: the outline (unit titles and
+ * what each unit holds), whether there is a pre-test and a final exam, and how
+ * many learners have taken it. Titles and counts only, never lesson content.
+ */
+async function getCoursePreview(courseId: string) {
+  const unitRows = (await db.execute(sql`
+    SELECT u.title, u.description,
+      count(b.id) FILTER (WHERE b.type = 'video')::int AS videos,
+      count(b.id) FILTER (WHERE b.type IN ('text', 'image'))::int AS readings,
+      count(b.id) FILTER (WHERE b.type = 'question')::int AS activities,
+      count(b.id)::int AS lessons
+    FROM modules m
+    JOIN units u ON u.module_id = m.id
+    LEFT JOIN learning_blocks b ON b.unit_id = u.id
+    WHERE m.course_id = ${courseId}
+    GROUP BY m."order", u."order", u.id, u.title, u.description
+    ORDER BY m."order", u."order"
+  `)).rows as { title: string; description: string | null; videos: number; readings: number; activities: number; lessons: number }[]
+
+  const assessmentRows = await db.select({ type: assessments.assessmentType, title: assessments.title })
+    .from(assessments).where(eq(assessments.courseId, courseId))
+  const [{ learners }] = await db.select({ learners: count() }).from(courseEnrollments)
+    .where(eq(courseEnrollments.courseId, courseId))
+
+  const total = (k: 'videos' | 'readings' | 'activities' | 'lessons') => unitRows.reduce((n, u) => n + Number(u[k] ?? 0), 0)
+  return {
+    units: unitRows.map((u) => ({
+      title: u.title,
+      description: u.description,
+      lessons: Number(u.lessons),
+      videos: Number(u.videos),
+      readings: Number(u.readings),
+      activities: Number(u.activities),
+    })),
+    totals: { units: unitRows.length, lessons: total('lessons'), videos: total('videos'), readings: total('readings'), activities: total('activities') },
+    hasPreTest: assessmentRows.some((a) => a.type === 'pre'),
+    hasFinalExam: assessmentRows.some((a) => a.type === 'post'),
+    learners: Number(learners),
   }
 }

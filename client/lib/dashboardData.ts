@@ -366,7 +366,7 @@ export const FAQS: FaqItem[] = [
   { q: 'How much does AI Amplify cost?', a: 'AI Amplify is a paid program. Contact our team for current pricing and registration details.' },
   { q: 'How do I book a session with a human mentor?', a: 'Open Human Mentors, choose a mentor that fits your needs, and click Book Session. We will email you a calendar invite.' },
   { q: 'What can the Anna chatbot do?', a: 'Anna is your AI Business Assistant — she can draft a business plan, marketing plan, product proposal, generate business ideas, and answer AI Amplify-related questions tailored to your business.' },
-  { q: 'How are certificates issued?', a: 'You earn a certificate automatically when you complete all units in a course. They appear under Certifications on your Profile and can be downloaded as PDF.' },
+  { q: 'How are certificates issued?', a: 'You earn a certificate automatically when you finish a course and pass its final exam (if it has one). It appears on your Certificates page, where you can download it as an image.' },
   { q: 'Can I redeem multiple partner offers?', a: 'Yes — most offers can be stacked. Some have eligibility restrictions which are listed on the offer details page.' },
   { q: 'How do I delete my account?', a: 'Email us at info@potential.com from your registered address and we will remove your account within 7 working days.' },
 ]

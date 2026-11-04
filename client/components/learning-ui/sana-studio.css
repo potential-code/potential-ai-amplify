@@ -1,0 +1,558 @@
+/* ── Anna Studio ──────────────────────────────────────────────────────────────
+ *
+ * Shared styles for every Anna / AI mentor conversation (Ask Anna, Multi
+ * Learning, the AI Examiner, the learning journeys, AI mentor chat).
+ *
+ * Redesign (2026-10): the conversation follows the app's modern LMS system.
+ * Anna speaks in bordered surface bubbles beside her portrait, the learner in
+ * solid magenta bubbles, lesson content arrives as flat cards, and there is
+ * exactly one magenta action at a time. Every colour maps onto the app's
+ * `--ui-*` tokens (globals.css), so light and dark mode both work; the
+ * `--sana-*` names stay as aliases because the journey cards reference them.
+ *
+ * Failure states use amber, never red: a wrong answer is a signpost, not an
+ * alarm.
+ */
+
+.sana-studio {
+  --sana-ink: var(--ui-text);
+  --sana-ink-2: var(--ui-text);
+  --sana-ink-3: var(--ui-muted);
+  --sana-line: var(--ui-line);
+  --sana-card: var(--ui-surface);
+  --sana-past: var(--ui-surface-2);
+  --sana-desk: var(--ui-bg);
+  --sana-desk-2: var(--ui-surface-2);
+  --sana-accent: var(--ui-brand);
+  --sana-accent-dark: var(--ui-brand-hover);
+  --sana-accent-soft: var(--ui-brand-soft);
+  --sana-good: var(--ui-ok);
+  --sana-good-bg: var(--ui-ok-soft);
+  --sana-warn: #87490f;
+  --sana-warn-bg: #fbefe2;
+  /* Thread + composer column width: ONE width for every Anna/mentor chat, so
+     the conversation feels the same wherever she appears. */
+  --sana-thread-max: 776px;
+  color: var(--ui-text);
+}
+.dark .sana-studio {
+  --sana-warn: #f2b36f;
+  --sana-warn-bg: #2a1d10;
+}
+
+/* Kept for compatibility: every surface gets the same column. */
+.sana-studio.sana-studio--wide {
+  --sana-thread-max: 776px;
+}
+
+/* ── Ambient backdrop: retired in the redesign (no glows). Kept as an empty
+      layer so existing markup stays valid. ─────────────────────────────────── */
+
+.sana-studio .sana-ambient {
+  display: none;
+}
+
+/* ── Lesson cards ───────────────────────────────────────────────────────────── */
+
+.sana-studio .sana-insert {
+  position: relative;
+  isolation: isolate;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-line);
+  border-radius: 14px;
+  box-shadow: var(--ui-shadow);
+}
+.sana-studio .sana-insert[data-latest="true"] {
+  animation: sana-fadeup 240ms ease both;
+}
+
+/* Kind line: "Video, Unit 2" under the card title, never an eyebrow. */
+.sana-studio .sana-kind {
+  font-size: 13px;
+  color: var(--ui-muted);
+}
+
+/* ── One accent action at a time ────────────────────────────────────────────── */
+
+.sana-studio .sana-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #fff;
+  background: var(--ui-brand);
+  transition: background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+.sana-studio .sana-next:hover:not(:disabled) {
+  background: var(--ui-brand-hover);
+}
+.sana-studio .sana-next:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.sana-studio .sana-next:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* A gated action is drawn quiet until it can actually be taken. As a real
+   button (quiz Previous / Next, Try again) it reads as a secondary button. */
+.sana-studio .sana-quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ui-muted);
+  background: var(--ui-surface-2);
+  border: 1px solid var(--ui-line);
+  cursor: not-allowed;
+}
+.sana-studio button.sana-quiet:not(:disabled) {
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.sana-studio button.sana-quiet:not(:disabled):hover {
+  background: var(--ui-surface-2);
+}
+.sana-studio .sana-next:focus-visible,
+.sana-studio .sana-quiet:focus-visible,
+.sana-studio .sana-chip:focus-visible {
+  outline: 2px solid var(--ui-brand);
+  outline-offset: 2px;
+}
+
+/* ── Receipts: a finished step folds into one quiet line ────────────────────── */
+
+.sana-studio .sana-receipt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px dashed var(--ui-line);
+  border-radius: 10px;
+  background: var(--ui-surface-2);
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--ui-text);
+}
+
+/* ── Milestone marks: done = filled, current = ring, locked = hairline ──────── */
+
+.sana-studio .sana-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1.5px solid var(--ui-line);
+  color: var(--ui-muted);
+  background: var(--ui-surface);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.sana-studio .sana-mark[data-state="done"] {
+  background: var(--ui-ok-soft);
+  border-color: transparent;
+  color: var(--ui-ok);
+}
+.sana-studio .sana-mark[data-state="current"] {
+  background: var(--ui-brand);
+  border-color: var(--ui-brand);
+  color: #fff;
+}
+.sana-studio .sana-mark[data-state="locked"] {
+  color: var(--ui-muted);
+  opacity: 0.6;
+}
+
+/* Connector between marks in the itinerary list. */
+.sana-studio .sana-connector {
+  width: 2px;
+  flex: 1;
+  min-height: 10px;
+  margin-inline-start: 10px;
+  border-radius: 999px;
+  background: var(--ui-line);
+}
+.sana-studio .sana-connector[data-done="true"] {
+  background: var(--ui-ok);
+  opacity: 0.45;
+}
+
+/* ── Suggestion chips (starter + follow-up) ─────────────────────────────────── */
+
+.sana-studio .sana-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--ui-line);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: start;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+}
+.sana-studio .sana-chip:hover:not(:disabled) {
+  background: var(--ui-surface-2);
+}
+.sana-studio .sana-chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Composer strip ─────────────────────────────────────────────────────────── */
+
+.sana-studio .sana-composer {
+  background: var(--sana-desk, var(--ui-bg));
+  /* CopilotChat docks its input slot inside a pointer-events:none positioning
+     layer and expects the input component to restore them (its default input
+     does). Ours must too, or the whole composer is untypeable. */
+  pointer-events: auto;
+}
+.sana-studio .sana-composer-box {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  border: 1px solid var(--ui-line);
+  border-radius: 14px;
+  padding: 6px;
+  padding-inline-start: 14px;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow);
+  transition: border-color 0.15s ease;
+}
+.sana-studio .sana-composer-box:focus-within {
+  border-color: var(--ui-brand);
+}
+.sana-studio .sana-composer-box textarea {
+  font-size: 15px;
+  line-height: 24px;
+  padding: 8px 0;
+  min-height: 40px;
+  max-height: 140px;
+  color: var(--ui-text);
+}
+.sana-studio .sana-composer-box textarea::placeholder {
+  color: var(--ui-muted);
+}
+/* A long placeholder stays on one line on phones instead of showing half a
+   second line. */
+.sana-studio .sana-composer-box textarea:placeholder-shown {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 40px square buttons inside the composer: secondary (mic) and primary (send). */
+.sana-studio .sana-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 10px;
+  border: 1px solid var(--ui-line);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+.sana-studio .sana-icon-btn:hover:not(:disabled) {
+  background: var(--ui-surface-2);
+}
+.sana-studio .sana-icon-btn[aria-pressed="true"] {
+  background: var(--ui-brand-soft);
+  border-color: transparent;
+  color: var(--ui-brand-text);
+}
+.sana-studio .sana-icon-btn--primary {
+  border-color: transparent;
+  background: var(--ui-brand);
+  color: #fff;
+}
+.sana-studio .sana-icon-btn--primary:hover:not(:disabled) {
+  background: var(--ui-brand-hover);
+}
+.sana-studio .sana-icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.sana-studio .sana-icon-btn:focus-visible {
+  outline: 2px solid var(--ui-brand);
+  outline-offset: 2px;
+}
+
+/* ── Chat bubbles ───────────────────────────────────────────────────────────── */
+
+.sana-studio .sana-bubble {
+  min-width: 0;
+  max-width: 600px;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-line);
+  border-radius: 4px 16px 16px 16px;
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ui-text);
+  overflow-wrap: anywhere;
+}
+[dir="rtl"] .sana-studio .sana-bubble,
+.sana-studio[dir="rtl"] .sana-bubble,
+.sana-studio [dir="rtl"] .sana-bubble {
+  border-radius: 16px 4px 16px 16px;
+}
+.sana-studio .sana-bubble a {
+  color: var(--ui-brand-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sana-studio .sana-bubble-user {
+  max-width: min(78%, 560px);
+  background: var(--ui-brand);
+  color: #fff;
+  border-radius: 16px 4px 16px 16px;
+  padding: 10px 14px;
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+[dir="rtl"] .sana-studio .sana-bubble-user,
+.sana-studio[dir="rtl"] .sana-bubble-user,
+.sana-studio [dir="rtl"] .sana-bubble-user {
+  border-radius: 4px 16px 16px 16px;
+}
+/* Cards and chips line up with Anna's bubble (portrait 32px + 10px gap). */
+.sana-studio .sana-lead {
+  padding-inline-start: 42px;
+}
+@media (max-width: 639px) {
+  .sana-studio .sana-lead {
+    padding-inline-start: 0;
+  }
+}
+
+/* ── Result bands: green for pass, amber for "not yet" ─────────────────────── */
+
+.sana-studio .sana-band-good {
+  background: var(--ui-ok-soft);
+  color: var(--ui-ok);
+  border: 1px solid color-mix(in srgb, var(--ui-ok) 25%, transparent);
+  border-radius: 10px;
+}
+.sana-studio .sana-band-warn {
+  background: var(--sana-warn-bg);
+  color: var(--sana-warn);
+  border: 1px solid color-mix(in srgb, var(--sana-warn) 25%, transparent);
+  border-radius: 10px;
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────────────── */
+
+@keyframes sana-fadeup {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+/* Retired effects, kept as no-op names for any markup that still refers to
+   them. */
+@keyframes sana-settle { from { opacity: 0.6; } to { opacity: 1; } }
+@keyframes sana-blob { from { transform: none; } to { transform: none; } }
+@keyframes sana-float { from { transform: none; } to { transform: none; } }
+@keyframes sana-orb-spin { from { transform: translate(-50%, -50%); } to { transform: translate(-50%, -50%); } }
+@keyframes sana-pulse-soft { from { opacity: 1; } to { opacity: 1; } }
+
+/* ── Questionnaire answer-control indent: aligns controls under Anna's bubble
+     in the chat flow; the centred intro overlay cancels it. ─────────────────── */
+
+.sana-studio .sana-qa-indent {
+  padding-inline-start: 42px;
+}
+.sana-studio .sana-qa-center .sana-qa-indent {
+  padding-inline-start: 0;
+}
+
+/* ── CopilotKit surface overrides: let the canvas show through the chat ────── */
+
+.sana-studio.smeep-copilot {
+  box-shadow: none;
+  --background: transparent;
+  --copilot-kit-background-color: transparent;
+}
+.sana-studio.smeep-copilot [data-copilotkit],
+.sana-studio .smeep-assistant-chat,
+.sana-studio .copilotKitChat,
+.sana-studio .copilotKitChatBody,
+.sana-studio .copilotKitMessages,
+.sana-studio .smeep-assistant-chat [data-testid="copilot-scroll-content"] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+/* Centre the thread as one readable column. The bottom padding must clear the
+   composer, which CopilotChat docks OVER the scroll area; without it the last
+   card sits partly hidden behind the input at full scroll. */
+.sana-studio .smeep-assistant-chat [data-testid="copilot-scroll-content"] {
+  padding: 28px 32px 132px !important;
+}
+@media (max-width: 639px) {
+  .sana-studio .smeep-assistant-chat [data-testid="copilot-scroll-content"] {
+    padding: 16px 16px 124px !important;
+  }
+}
+.sana-studio .smeep-assistant-chat [data-testid="copilot-scroll-content"] > div {
+  max-width: var(--sana-thread-max, 776px) !important;
+  margin-inline: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sana-studio .sana-insert[data-latest="true"] {
+    animation: none;
+  }
+}
+
+/* CopilotKit's v2 stylesheet resets `[data-copilotkit] button` to a
+   transparent background OUTSIDE any cascade layer, so it beats Tailwind's
+   layered `bg-*` utilities on every button rendered inside the chat (cards,
+   chips, kit buttons). Restore the ui-token backgrounds there. */
+.sana-studio [data-copilotkit] button.bg-ui-brand { background-color: var(--ui-brand); }
+.sana-studio [data-copilotkit] button.bg-ui-brand:hover:not(:disabled) { background-color: var(--ui-brand-hover); }
+.sana-studio [data-copilotkit] button.bg-ui-surface { background-color: var(--ui-surface); }
+.sana-studio [data-copilotkit] button.bg-ui-surface-2 { background-color: var(--ui-surface-2); }
+.sana-studio [data-copilotkit] button.bg-ui-brand-soft { background-color: var(--ui-brand-soft); }
+.sana-studio [data-copilotkit] button.bg-ui-bg { background-color: var(--ui-bg); }
+.sana-studio [data-copilotkit] button.hover\:bg-ui-surface-2:hover:not(:disabled) { background-color: var(--ui-surface-2); }
+.sana-studio [data-copilotkit] button.hover\:bg-ui-brand-hover:hover:not(:disabled) { background-color: var(--ui-brand-hover); }
+.sana-studio [data-copilotkit] button.rounded-\[10px\] { border-radius: 10px; }
+.sana-studio [data-copilotkit] button.rounded-full { border-radius: 999px; }
+.sana-studio [data-copilotkit] button.rounded-lg { border-radius: 8px; }
+.sana-studio [data-copilotkit] button.text-white { color: #fff; }
+.sana-studio [data-copilotkit] button.text-ui-text { color: var(--ui-text); }
+.sana-studio [data-copilotkit] button.text-ui-muted { color: var(--ui-muted); }
+.sana-studio [data-copilotkit] button.text-ui-brand-text { color: var(--ui-brand-text); }
+/* …and its `font: inherit` reset beats layered text-size / weight utilities. */
+.sana-studio [data-copilotkit] button.text-xs { font-size: 12px; line-height: 16px; }
+.sana-studio [data-copilotkit] button.text-sm { font-size: 14px; line-height: 20px; }
+.sana-studio [data-copilotkit] button.text-\[11px\] { font-size: 11px; }
+.sana-studio [data-copilotkit] button.text-\[12px\] { font-size: 12px; }
+.sana-studio [data-copilotkit] button.text-\[13px\] { font-size: 13px; }
+.sana-studio [data-copilotkit] button.text-\[14px\] { font-size: 14px; }
+.sana-studio [data-copilotkit] button.font-medium { font-weight: 500; }
+.sana-studio [data-copilotkit] button.font-semibold { font-weight: 600; }
+
+/* ── Reply actions (every Anna chat, after the Potential embed) ───── */
+.sana-studio .sana-reply-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 4px;
+  margin-inline-start: -8px;
+}
+.sana-studio .sana-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--ui-muted);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.sana-studio .sana-action:hover:not(:disabled) {
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+}
+.sana-studio .sana-action.is-on {
+  background: var(--ui-brand-soft);
+  color: var(--ui-brand-text);
+}
+.sana-studio .sana-action:disabled {
+  opacity: 0.4;
+}
+.sana-studio .sana-action:focus-visible {
+  outline: 2px solid var(--ui-brand);
+  outline-offset: 1px;
+}
+
+/* ── Shared documents (Ask Anna): the chip in the composer and on sent messages ── */
+.sana-studio .sana-attachment {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 360px;
+  margin-bottom: 8px;
+  padding: 8px 8px 8px 10px;
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  animation: sana-fadeup 0.2s ease both;
+}
+.sana-studio .sana-attachment-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--ui-brand-soft);
+  color: var(--ui-brand-text);
+}
+.sana-studio .sana-attachment--error {
+  border-color: color-mix(in srgb, var(--ui-danger) 40%, transparent);
+}
+.sana-studio .sana-attachment--error .sana-attachment-icon {
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger);
+}
+.sana-studio .sana-attachment-remove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--ui-muted);
+}
+.sana-studio .sana-attachment-remove:hover {
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+}
+
+.sana-studio .sana-sent-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(78%, 360px);
+  padding: 8px 12px;
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 500;
+}
+.sana-studio .sana-sent-file svg {
+  color: var(--ui-brand-text);
+}

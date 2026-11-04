@@ -1,6 +1,7 @@
 import { app } from "./app";
 import { logger } from "./config/logger";
 import { refreshOutdatedCertificates } from "./services/lms/certificate.service";
+import { startReminders } from "./services/reminders.service";
 
 const rawPort = process.env["PORT"];
 
@@ -33,3 +34,8 @@ server.headersTimeout = 66_000;
 // Certificates drawn before the current renderer (the blank-text ones from
 // before the font fix) are drawn again, in the background.
 void refreshOutdatedCertificates();
+
+// Session reminders and course nudges, every 15 minutes (in-app; emails only
+// with REMINDER_EMAILS_ENABLED=true; learners only with
+// LEARNER_NOTIFICATIONS_ENABLED=true).
+startReminders();

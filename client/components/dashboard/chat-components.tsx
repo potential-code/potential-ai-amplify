@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback, useContext } from 'react'
+import { useState, useRef, useEffect, useCallback, useContext, type ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type {
@@ -30,6 +30,9 @@ export const onPillClickRef: { current: ((text: string) => void) | null } = { cu
 // V2: onSubmitMessage from CopilotChatInput. Pill clicks use this ref so they
 // go through the same submission path as typed messages.
 export const copilotSendRef: { current: ((text: string) => void) | null } = { current: null }
+// Custom `input` renderers bypass CopilotChat's `labels.chatInputPlaceholder`, so callers that
+// need a non-default placeholder (e.g. Tokenando) write it here instead. null = use the default below.
+export const chatPlaceholderRef: { current: string | null } = { current: null }
 
 // When a new pill set mounts it calls this to disable the previous set.
 let disablePreviousPills: (() => void) | null = null
@@ -100,21 +103,46 @@ export function parseAssistantPills(content: string): ParsedMessage {
   const proseLines = lines.slice(0, preIdx)
   while (proseLines.length > 0 && proseLines[proseLines.length - 1].trim() === '') proseLines.pop()
 
-  return { prose: proseLines.join('\n'), pills: items.map(it => it.text), label, multiSelect, isSuggest: false }
+  // Defensive cleanup: a sloppy model sometimes emits the question + options
+  // block twice in one message. The trailing block became the pills above;
+  // strip any earlier sentinel blocks (sentinel line + its numbered list)
+  // still embedded in the prose, then drop a line that exactly repeats the
+  // previous kept line (the duplicated question the stripping exposes).
+  const cleaned: string[] = []
+  let li = 0
+  while (li < proseLines.length) {
+    if (OPTIONS_SENTINEL_RE.test(proseLines[li].trim())) {
+      li++
+      while (li < proseLines.length && (proseLines[li].trim() === '' || /^\d+\.\s+/.test(proseLines[li].trim()))) li++
+      continue
+    }
+    const trimmed = proseLines[li].trim()
+    const prevKept = [...cleaned].reverse().find((l) => l.trim() !== '')
+    if (trimmed !== '' && prevKept?.trim() === trimmed) { li++; continue }
+    cleaned.push(proseLines[li])
+    li++
+  }
+  while (cleaned.length > 0 && cleaned[cleaned.length - 1].trim() === '') cleaned.pop()
+
+  return { prose: cleaned.join('\n'), pills: items.map(it => it.text), label, multiSelect, isSuggest: false }
 }
 
 // ─── SmeepTypingCursor ───────────────────────────────────────────────────────
 
-export function SmeepTypingCursor() {
+const DEFAULT_ASSISTANT_AVATAR = (
+  <img
+    src="/images/redesign/anna-avatar-96.png"
+    alt="Anna"
+    className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0"
+  />
+)
+
+export function SmeepTypingCursor({ avatar = DEFAULT_ASSISTANT_AVATAR }: { avatar?: ReactNode }) {
   return (
     <div className="flex gap-2 items-end mb-3">
-      <img
-        src="/images/redesign/anna-avatar-96.png"
-        alt="Anna"
-        className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0"
-      />
+      {avatar}
       <div
-        className="smeep-typing-bubble px-4 py-3 bg-white border border-[#f7e8f0] flex items-center gap-1.5"
+        className="smeep-typing-bubble px-4 py-3 bg-white border border-[#F1ECFA] flex items-center gap-1.5"
         style={{ borderRadius: '14px 14px 14px 0' }}
       >
         {[0, 1, 2].map((i) => (
@@ -133,7 +161,11 @@ export function SmeepTypingCursor() {
 
 // ─── SmeepAssistantMessage ────────────────────────────────────────────────────
 
-export function SmeepAssistantMessage({ message, messages }: CopilotChatAssistantMessageProps) {
+export function SmeepAssistantMessage({
+  message,
+  messages,
+  avatar = DEFAULT_ASSISTANT_AVATAR,
+}: CopilotChatAssistantMessageProps & { avatar?: ReactNode }) {
   const m = message as { name?: string; content?: unknown; toolCalls?: unknown[] } | undefined
 
   // ── Derive content + pills before any hook so all hooks are unconditional ──
@@ -196,13 +228,9 @@ export function SmeepAssistantMessage({ message, messages }: CopilotChatAssistan
     return (
       <>
         <div className="flex gap-2 items-end mb-3">
-          <img
-            src="/images/redesign/anna-avatar-96.png"
-            alt="Anna"
-            className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0"
-          />
+          {avatar}
           <div
-            className="smeep-bot-bubble relative px-3 pt-2 pb-6 text-[13px] text-[#1A0A12] leading-relaxed bg-white border border-[#f7e8f0]"
+            className="smeep-bot-bubble relative px-3 pt-2 pb-6 text-[13px] text-[#1A0A12] leading-relaxed bg-white border border-[#F1ECFA]"
             style={{ borderRadius: '14px 14px 14px 0', maxWidth: '85%' }}
           >
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
@@ -213,7 +241,7 @@ export function SmeepAssistantMessage({ message, messages }: CopilotChatAssistan
                 timerRef.current = setTimeout(() => setCopied(false), 3000)
               })}
               aria-label={copied ? 'Copied' : 'Copy message'}
-              className="absolute bottom-1.5 right-2 flex items-center gap-1 transition-colors"
+              className="absolute bottom-1.5 end-2 flex items-center gap-1 transition-colors"
               style={{ color: copied ? 'var(--color-brand-primary)' : 'rgba(107,114,128,0.5)' }}
             >
               {copied ? <Check size={11} strokeWidth={2.5} /> : <Copy size={11} strokeWidth={2} />}
@@ -257,15 +285,11 @@ export function SmeepAssistantMessage({ message, messages }: CopilotChatAssistan
   return (
     <>
       <div className="flex gap-2 items-start mb-3">
-        <img
-          src="/images/redesign/anna-avatar-96.png"
-          alt="Anna"
-          className="w-7 h-7 rounded-full object-cover object-top flex-shrink-0 mt-0.5"
-        />
+        <div className="mt-0.5 flex-shrink-0">{avatar}</div>
         <div className="min-w-0" style={{ maxWidth: '85%' }}>
           {prose && (
             <div
-              className="smeep-bot-bubble relative px-3 pt-2 pb-6 text-[13px] text-[#1A0A12] leading-relaxed bg-white border border-[#f7e8f0] mb-3"
+              className="smeep-bot-bubble relative px-3 pt-2 pb-6 text-[13px] text-[#1A0A12] leading-relaxed bg-white border border-[#F1ECFA] mb-3"
               style={{ borderRadius: '14px 14px 14px 0' }}
             >
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{prose}</ReactMarkdown>
@@ -276,7 +300,7 @@ export function SmeepAssistantMessage({ message, messages }: CopilotChatAssistan
                   timerRef.current = setTimeout(() => setCopied(false), 3000)
                 })}
                 aria-label={copied ? 'Copied' : 'Copy message'}
-                className="absolute bottom-1.5 right-2 flex items-center gap-1 transition-colors"
+                className="absolute bottom-1.5 end-2 flex items-center gap-1 transition-colors"
                 style={{ color: copied ? 'var(--color-brand-primary)' : 'rgba(107,114,128,0.5)' }}
               >
                 {copied ? <Check size={11} strokeWidth={2.5} /> : <Copy size={11} strokeWidth={2} />}
@@ -345,7 +369,23 @@ export function SmeepAssistantMessage({ message, messages }: CopilotChatAssistan
 
 // ─── SmeepUserMessage ─────────────────────────────────────────────────────────
 
-export function SmeepUserMessage({ message }: CopilotChatUserMessageProps) {
+// Tokenando's "as user" driver messages (e.g. "Display content (id: ...)") still need to be sent, just not rendered — patterns are exact so real learner text never matches.
+const SYNTHETIC_DRIVER_MESSAGE_PATTERNS = [
+  /^Display content \(id: .+\)$/,
+  /^All content done in milestone ".+" \(id: .+\)\. Show the next step\.$/,
+  /^Start learning ".+" \(id: .+\)\.$/,
+  /^Start milestone ".+" \(id: .+\)\.$/,
+]
+
+export function isSyntheticDriverMessage(text: string): boolean {
+  const trimmed = text.trim()
+  return SYNTHETIC_DRIVER_MESSAGE_PATTERNS.some((re) => re.test(trimmed))
+}
+
+export function SmeepUserMessage({
+  message,
+  suppressSyntheticDriverMessages,
+}: CopilotChatUserMessageProps & { suppressSyntheticDriverMessages?: boolean }) {
   const user = getUser()
   const initial = (user?.fullName ?? user?.email ?? 'U')[0].toUpperCase()
   const raw = message.content
@@ -354,6 +394,8 @@ export function SmeepUserMessage({ message }: CopilotChatUserMessageProps) {
     : Array.isArray(raw)
       ? raw.map((p: { type?: string; text?: string }) => p?.type === 'text' ? (p.text ?? '') : '').join('')
       : ''
+
+  if (suppressSyntheticDriverMessages && isSyntheticDriverMessage(text)) return null
 
   return (
     <motion.div
@@ -372,7 +414,7 @@ export function SmeepUserMessage({ message }: CopilotChatUserMessageProps) {
         {initial}
       </motion.div>
       <motion.div
-        className="px-3 py-2 text-[13px] text-white leading-relaxed whitespace-pre-wrap"
+        className="smeep-user-bubble px-3 py-2 text-[13px] text-white leading-relaxed whitespace-pre-wrap"
         style={{
           background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)',
           borderRadius: '14px 14px 0 14px',
@@ -391,7 +433,12 @@ export function SmeepUserMessage({ message }: CopilotChatUserMessageProps) {
 
 // ─── SmeepChatInput ───────────────────────────────────────────────────────────
 
-export function SmeepChatInput({ isRunning, onSubmitMessage, onStop }: CopilotChatInputProps) {
+export function SmeepChatInput({
+  isRunning,
+  onSubmitMessage,
+  onStop,
+  placeholder,
+}: CopilotChatInputProps & { placeholder?: string }) {
   const [value, setValue] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -437,13 +484,13 @@ export function SmeepChatInput({ isRunning, onSubmitMessage, onStop }: CopilotCh
 
   return (
     <div className="px-3 pb-3 pt-2" style={{ pointerEvents: 'auto' }}>
-      <div className="smeep-chat-input-wrap flex items-end gap-2 px-3 py-2 bg-[#FDF5F9] border border-[#f7e8f0] rounded-2xl">
+      <div className="smeep-chat-input-wrap flex items-end gap-2 px-3 py-2 bg-[#F9F9FF] border border-[#F1ECFA] rounded-2xl">
         <textarea
           ref={textareaRef}
           value={value}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Ask me anything…"
+          placeholder={placeholder ?? chatPlaceholderRef.current ?? 'Ask me anything…'}
           rows={1}
           className="smeep-chat-textarea flex-1 bg-transparent outline-none resize-none text-[13px] text-[#1A0A12] leading-snug placeholder:text-[#6B7280]/75 min-w-0"
           style={{ minHeight: '20px', maxHeight: '120px', fontFamily: 'inherit' }}
@@ -456,7 +503,7 @@ export function SmeepChatInput({ isRunning, onSubmitMessage, onStop }: CopilotCh
           style={
             canAct
               ? { background: 'linear-gradient(120deg, var(--color-brand-primary) 0%, var(--color-brand-primary-dark) 100%)' }
-              : { background: 'var(--smeep-btn-idle-bg, #f7e8f0)' }
+              : { background: 'var(--smeep-btn-idle-bg, #F1ECFA)' }
           }
         >
           {isRunning ? (

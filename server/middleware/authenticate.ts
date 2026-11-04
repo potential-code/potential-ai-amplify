@@ -1,13 +1,12 @@
 import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { db } from "../db";
-import { users } from "../db/schema";
+import { fromNodeHeaders } from "better-auth/node";
 import { eq } from "drizzle-orm";
 
-/**
- * Shape attached to `req.user` after successful JWT verification.
- * Uses camelCase to match the JWT payload produced by auth.service.ts.
- */
+import { auth } from "../auth";
+import { db } from "../db";
+import { users } from "../db/schema";
+
+/** Shape attached to `req.user` once the request's session is confirmed. */
 export interface AuthUser {
   userId: string;
   role: string;
@@ -17,6 +16,7 @@ export interface AuthUser {
 // casting. Declaration merging lives in the same file to keep it co-located
 // with the middleware that sets it.
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- Express's own type augmentation point
   namespace Express {
     interface Request {
       user?: AuthUser;
@@ -25,56 +25,39 @@ declare global {
 }
 
 /**
- * JWT authentication middleware.
+ * Session authentication middleware.
  *
- * Reads `Authorization: Bearer <token>` from the request header, verifies the
- * token with JWT_SECRET, and attaches `{ userId, role }` to `req.user`.
- *
- * Responds with 401 if the header is missing, malformed, or the token is
- * invalid / expired. Call `next()` only on success.
+ * Reads the Better Auth session from the request's cookie and attaches
+ * `{ userId, role }` to `req.user`. Responds 401 when there is no valid
+ * session. Only verified accounts ever hold a session.
  */
-export function authenticate(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
-  const jwtSecret = process.env["JWT_SECRET"];
-  if (!jwtSecret) {
-    // Startup check in index.ts should prevent this, but guard here too.
-    res.status(500).json({ error: "server_misconfiguration" });
-    return;
-  }
-
-  const authHeader = req.headers["authorization"];
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ error: "unauthorized" });
-    return;
-  }
-
-  const token = authHeader.slice(7); // strip "Bearer "
-
+export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
+  let session: Awaited<ReturnType<typeof auth.api.getSession>>;
   try {
-    const payload = jwt.verify(token, jwtSecret, { algorithms: ["HS256"] }) as {
-      userId?: unknown;
-      role?: unknown;
-      purpose?: unknown;
-    };
-    // Only sign-in tokens authenticate. Other tokens signed with the same
-    // secret (the short-lived "email verified" token from /verify-otp) carry a
-    // purpose and no user, and must never pass as a session.
-    if (payload.purpose !== undefined || typeof payload.userId !== "string" || typeof payload.role !== "string") {
-      res.status(401).json({ error: "unauthorized" });
-      return;
-    }
-    req.user = { userId: payload.userId, role: payload.role };
-    // Fire-and-forget: update lastActiveAt without blocking the request
-    db.update(users)
-      .set({ lastActiveAt: new Date() })
-      .where(eq(users.id, payload.userId))
-      .catch(() => {}); // silently ignore DB errors — never block auth
-    next();
+    session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
   } catch {
-    // jwt.verify throws on expired or invalid tokens — return 401 in all cases.
-    res.status(401).json({ error: "unauthorized" });
+    session = null;
   }
+  // Partner logins can be removed by an admin at any moment; don't let the
+  // 5-minute cookie cache keep a removed partner in. Confirm with the database.
+  if (session?.user.role === "partner") {
+    try {
+      session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers), query: { disableCookieCache: true } });
+    } catch {
+      session = null;
+    }
+  }
+  if (!session) {
+    res.status(401).json({ success: false, error: { message: "Please sign in to continue.", code: "UNAUTHORIZED" } });
+    return;
+  }
+
+  req.user = { userId: session.user.id, role: session.user.role ?? "sme" };
+
+  // Fire-and-forget: update lastActiveAt without blocking the request.
+  db.update(users)
+    .set({ lastActiveAt: new Date() })
+    .where(eq(users.id, session.user.id))
+    .catch(() => {});
+  next();
 }
