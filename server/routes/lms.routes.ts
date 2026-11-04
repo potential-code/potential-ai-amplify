@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { authenticate } from '../middleware/authenticate'
 import { requireRole } from '../middleware/require-role'
 import { validate } from '../middleware/validate'
+import { perUser, capped, HOUR } from '../middleware/limits'
+import { oneAtATime } from '../middleware/oneAtATime'
 import * as courses from '../controllers/lms/courses.controller'
 import * as modulesCtrl from '../controllers/lms/modules.controller'
 import * as unitsCtrl from '../controllers/lms/units.controller'
@@ -246,8 +248,11 @@ learnerRouter.get('/courses/:courseId', learner.getLearnerCourse)
 learnerRouter.post('/courses/:courseId/enroll', learner.enrollInCourse)
 
 // Progress
-learnerRouter.post('/learning-blocks/:blockId/progress', validate(blockProgressDto), learner.updateBlockProgress)
-learnerRouter.post('/units/:unitId/progress', validate(unitProgressDto), learner.updateUnitProgress)
+// Progress is a claim the server checks (progress.service.ts); this bounds how fast it can be made.
+const progressLimit = perUser('learner-progress', HOUR, 300)
+learnerRouter.post('/learning-blocks/:blockId/progress', progressLimit, validate(blockProgressDto), learner.updateBlockProgress)
+learnerRouter.post('/units/:unitId/progress', progressLimit, validate(unitProgressDto), learner.updateUnitProgress)
+learnerRouter.get('/learning-blocks/:blockId/answers', learner.getBlockAnswers)
 learnerRouter.post('/questions/:questionId/answer', validate(questionAnswerDto), learner.saveQuestionAnswer)
 
 // Action plan
@@ -290,8 +295,11 @@ learningRouter.post('/admin/learners/:userId/reset-path', authenticate, requireR
 
 // Learner (Graph B: per-user path)
 learningRouter.get('/questions', authenticate, learning.listQuestions)
-learningRouter.post('/path/generate', authenticate, validate(generateLearningPathDto), learning.generatePath)
-learningRouter.post('/path/regenerate', authenticate, validate(regenerateLearningPathDto), learning.regeneratePath)
+// AI path builds are expensive: one at a time per learner, 5 an hour, 15 a day
+// (shared by generate and regenerate).
+const learningPathBuild = [oneAtATime('learning-path'), ...capped('learning-path', 5, HOUR, 15)]
+learningRouter.post('/path/generate', authenticate, ...learningPathBuild, validate(generateLearningPathDto), learning.generatePath)
+learningRouter.post('/path/regenerate', authenticate, ...learningPathBuild, validate(regenerateLearningPathDto), learning.regeneratePath)
 learningRouter.get('/path', authenticate, learning.getPath)
 learningRouter.delete('/path', authenticate, learning.deletePath)
 learningRouter.post('/blocks/:blockId/complete', authenticate, learning.completeBlock)
@@ -331,7 +339,8 @@ const submitAnswersDto = z.object({
 
 router.get('/cod/path', authenticate, cod.getCodPath)
 router.delete('/cod/path', authenticate, cod.deleteCodPath)
-router.post('/cod/path/generate', authenticate, validate(generateCodPathDto), cod.generateCodPath)
+// One build at a time is enforced in the service (a path still 'building'); these cap the rate.
+router.post('/cod/path/generate', authenticate, ...capped('cod-path', 5, HOUR, 15), validate(generateCodPathDto), cod.generateCodPath)
 router.post('/cod/content/:contentId/complete', authenticate, validate(completeContentDto), cod.completeContent)
 router.get('/cod/milestones/:milestoneId/pretest', authenticate, cod.getMilestonePretest)
 router.post('/cod/milestones/:milestoneId/pretest/submit', authenticate, validate(submitAnswersDto), cod.submitPretest)
@@ -377,7 +386,7 @@ const submitBothAnswersDto = z.object({
 
 router.get('/both/path', authenticate, both.getBothPath)
 router.delete('/both/path', authenticate, both.deleteBothPath)
-router.post('/both/path/generate', authenticate, validate(generateBothPathDto), both.generateBothPath)
+router.post('/both/path/generate', authenticate, ...capped('both-path', 5, HOUR, 15), validate(generateBothPathDto), both.generateBothPath)
 router.post('/both/items/:itemId/complete', authenticate, validate(completeItemDto), both.completeItem)
 router.get('/both/milestones/:milestoneId/pretest', authenticate, both.getMilestonePretest)
 router.post('/both/milestones/:milestoneId/pretest/submit', authenticate, validate(submitBothAnswersDto), both.submitPretest)

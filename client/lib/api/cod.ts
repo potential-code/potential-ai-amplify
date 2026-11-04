@@ -44,7 +44,7 @@ export interface CodPathResponse {
 export interface CodAssessment {
   milestoneId: string
   milestoneTitle: string
-  questions: Array<{ question: string; options: [string, string, string, string]; explanation: string }>
+  questions: Array<{ question: string; options: [string, string, string, string] }>
 }
 
 export type CodPretest = CodAssessment

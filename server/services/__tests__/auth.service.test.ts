@@ -346,7 +346,9 @@ describe("registerUser (OTP / passwordless mode)", () => {
 
     // 1) email-availability SELECT -> empty (available)
     selectResults.push([]);
-    // 2) insert ... returning -> the created user
+    // 2) invite-code SELECT ... FOR UPDATE -> an active code
+    selectResults.push([{ id: "invite-1", code: "INVITE1", status: "active" }]);
+    // 3) insert ... returning -> the created user
     returningResults.push([
       { id: "user-uuid-1", fullName: "New SME", email, role: "sme", country: "US" },
     ]);
@@ -355,6 +357,7 @@ describe("registerUser (OTP / passwordless mode)", () => {
       fullName: "New SME",
       email,
       country: "US",
+      couponCode: "INVITE1",
       verifiedToken: token,
     });
 
@@ -381,7 +384,7 @@ describe("registerUser (OTP / passwordless mode)", () => {
     selectResults.push([]); // email available
 
     await expectAppError(
-      () => registerUser({ fullName: "X", email, country: "US", verifiedToken: forged }),
+      () => registerUser({ fullName: "X", email, country: "US", couponCode: "INVITE1", verifiedToken: forged }),
       "EMAIL_NOT_VERIFIED",
       400,
     );
@@ -397,6 +400,7 @@ describe("registerUser (OTP / passwordless mode)", () => {
           fullName: "Y",
           email: "mismatch@example.com",
           country: "US",
+          couponCode: "INVITE1",
           verifiedToken: token,
         }),
       "EMAIL_NOT_VERIFIED",
@@ -410,7 +414,7 @@ describe("registerUser (OTP / passwordless mode)", () => {
     selectResults.push([]); // email available
 
     await expectAppError(
-      () => registerUser({ fullName: "Z", email, country: "US", verifiedToken: token }),
+      () => registerUser({ fullName: "Z", email, country: "US", couponCode: "INVITE1", verifiedToken: token }),
       "EMAIL_NOT_VERIFIED",
       400,
     );
@@ -425,18 +429,18 @@ describe("registerUser (OTP / passwordless mode)", () => {
     selectResults.push([]); // email available
 
     await expectAppError(
-      () => registerUser({ fullName: "E", email, country: "US", verifiedToken: token }),
+      () => registerUser({ fullName: "E", email, country: "US", couponCode: "INVITE1", verifiedToken: token }),
       "EMAIL_NOT_VERIFIED",
       400,
     );
   });
 
-  it("throws VALIDATION_ERROR (400) when neither password nor verifiedToken is supplied", async () => {
+  it("throws EMAIL_NOT_VERIFIED (400) for a password sign-up with no proof of the email", async () => {
     selectResults.push([]); // email available
 
     await expectAppError(
-      () => registerUser({ fullName: "No Creds", email: "nc@example.com", country: "US" }),
-      "VALIDATION_ERROR",
+      () => registerUser({ fullName: "No Proof", email: "nc@example.com", country: "US", password: "a-long-password", couponCode: "INVITE1", verifiedToken: "" }),
+      "EMAIL_NOT_VERIFIED",
       400,
     );
   });
@@ -450,6 +454,7 @@ describe("registerUser (OTP / passwordless mode)", () => {
           fullName: "Dup",
           email: "dup@example.com",
           country: "US",
+          couponCode: "INVITE1",
           verifiedToken: makeVerifiedToken("dup@example.com"),
         }),
       "EMAIL_EXISTS",

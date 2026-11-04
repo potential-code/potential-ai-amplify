@@ -176,6 +176,13 @@
       "when": 1783066250885,
       "tag": "0024_goofy_mockingbird",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793783147522,
+      "tag": "0025_points_ledger",
+      "breakpoints": true
     }
   ]
 }

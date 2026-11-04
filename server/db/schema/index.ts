@@ -23,3 +23,4 @@ export * from "./offerRedemptions";
 export * from "./learning";
 export * from "./codLearningPath";
 export * from "./bothLearningPath";
+export * from "./pointsEvents";

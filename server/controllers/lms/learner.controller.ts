@@ -90,6 +90,9 @@ export async function updateBlockProgress(
       status: 'not_started' | 'in_progress' | 'completed'
       videoWatchPct?: number
     }
+    // Progress is a claim the server checks (progress.service.ts).
+    if (status === 'completed') await progressSvc.assertBlockCompletable(req.user!.userId, req.params.blockId)
+    else await progressSvc.assertBlockAvailable(req.user!.userId, req.params.blockId)
     const data = await progressSvc.updateBlockProgress(req.user!.userId, req.params.blockId, status, videoWatchPct)
     res.json({ success: true, data })
   } catch (e) {
@@ -109,6 +112,8 @@ export async function updateUnitProgress(
 ): Promise<void> {
   try {
     const { status } = req.body as { status: 'not_started' | 'in_progress' | 'completed' }
+    if (status === 'completed') await progressSvc.assertUnitCompletable(req.user!.userId, req.params.unitId)
+    else await progressSvc.assertUnitAvailableFor(req.user!.userId, req.params.unitId)
     const data = await progressSvc.updateUnitProgress(req.user!.userId, req.params.unitId, status)
     res.json({ success: true, data })
   } catch (e) {
@@ -130,8 +135,23 @@ export async function saveQuestionAnswer(
     const { answerData } = req.body as {
       answerData: { selectedAnswer?: number; openEndedAnswer?: string }
     }
+    await progressSvc.assertQuestionAnswerable(req.user!.userId, req.params.questionId)
     const data = await progressSvc.saveQuestionAnswer(req.user!.userId, req.params.questionId, answerData)
     res.status(201).json({ success: true, data })
+  } catch (e) {
+    next(e)
+  }
+}
+
+/** GET /lms/learning-blocks/:blockId/answers — the learner's own answers to that block's questions. */
+export async function getBlockAnswers(
+  req: Request<{ blockId: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const data = await progressSvc.getBlockAnswers(req.user!.userId, req.params.blockId)
+    res.json({ success: true, data })
   } catch (e) {
     next(e)
   }
@@ -279,7 +299,30 @@ export async function issueCertificate(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const data = await certSvc.issueCertificate(req.user!.userId, req.params.courseId)
+    // A certificate is earned: the same checks as the automatic one
+    // (enrolled, 100% progress, final exam passed). Asking again for one
+    // already issued returns it.
+    const userId = req.user!.userId
+    const { canIssue, reason } = await certSvc.canIssueCertificate(userId, req.params.courseId)
+    if (!canIssue) {
+      if (reason === 'ALREADY_ISSUED') {
+        const [existing] = await db.select().from(courseCertificates)
+          .where(and(eq(courseCertificates.userId, userId), eq(courseCertificates.courseId, req.params.courseId)))
+        res.json({ success: true, data: existing ?? null })
+        return
+      }
+      const messages: Record<string, [number, string]> = {
+        COURSE_NOT_FOUND: [404, 'Course not found'],
+        CERTIFICATE_DISABLED: [409, "This course doesn't award a certificate"],
+        NOT_ENROLLED: [403, 'Enrol in this course first'],
+        PROGRESS_INCOMPLETE: [409, 'Finish the course to earn your certificate'],
+        POST_ASSESSMENT_NOT_PASSED: [409, 'Pass the final exam to earn your certificate'],
+        POST_ASSESSMENT_NOT_ATTEMPTED: [409, 'Take the final exam to earn your certificate'],
+      }
+      const [status, message] = messages[reason ?? ''] ?? [409, 'Certificate not available yet']
+      throw new AppError(message, status, reason ?? 'CERTIFICATE_NOT_AVAILABLE')
+    }
+    const data = await certSvc.issueCertificate(userId, req.params.courseId)
     res.status(201).json({ success: true, data })
   } catch (e) {
     next(e)
@@ -314,7 +357,7 @@ export async function downloadCertificate(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const buffer = await certSvc.getCertificateFile(req.params.id)
+    const buffer = await certSvc.getCertificateFile(req.params.id, { userId: req.user!.userId, role: req.user!.role })
     res.setHeader('Content-Type', 'image/png')
     res.setHeader('Content-Disposition', `attachment; filename="certificate-${req.params.id}.png"`)
     res.send(buffer)

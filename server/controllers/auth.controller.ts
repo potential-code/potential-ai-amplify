@@ -85,8 +85,8 @@ export async function register(req: Request, res: Response, next: NextFunction):
       email: string;
       password?: string;
       country: string;
-      couponCode?: string;
-      verifiedToken?: string;
+      couponCode: string;
+      verifiedToken: string;
     };
 
     const result = await authService.registerUser({

@@ -297,7 +297,13 @@ export async function getCourseCompletionRates(range: AnalyticsRange = "12m"): P
       courseId: courses.id,
       courseTitle: courses.title,
       totalEnrolled: sql<number>`CAST(COUNT(${courseEnrollments.id}) AS INT)`,
-      completed: sql<number>`CAST(COUNT(CASE WHEN ${courseEnrollments.status} = 'completed' AND ${courseEnrollments.completedAt} >= ${since} THEN 1 END) AS INT)`,
+      // Completion comes from real progress (enrolment status is never set to
+      // 'completed', so counting it always gave 0).
+      completed: sql<number>`CAST(COUNT(CASE WHEN EXISTS (
+        SELECT 1 FROM user_course_progress p
+        WHERE p.user_id = ${courseEnrollments.userId} AND p.course_id = ${courses.id}
+          AND p.progress_percentage >= 100 AND p.completed_at >= ${since}
+      ) THEN 1 END) AS INT)`,
     })
     .from(courses)
     .innerJoin(courseEnrollments, eq(courseEnrollments.courseId, courses.id))
@@ -347,7 +353,12 @@ export async function getCoursePerformance(): Promise<CoursePerformanceRow[]> {
       courseId: courses.id,
       title: courses.title,
       enrolled: sql<number>`CAST(COUNT(DISTINCT ${courseEnrollments.userId}) AS INT)`,
-      completed: sql<number>`CAST(COUNT(DISTINCT CASE WHEN ${courseEnrollments.status} = 'completed' THEN ${courseEnrollments.userId} END) AS INT)`,
+      // From real progress; enrolment status is never set to 'completed'.
+      completed: sql<number>`CAST(COUNT(DISTINCT CASE WHEN EXISTS (
+        SELECT 1 FROM user_course_progress p
+        WHERE p.user_id = ${courseEnrollments.userId} AND p.course_id = ${courses.id}
+          AND p.progress_percentage >= 100
+      ) THEN ${courseEnrollments.userId} END) AS INT)`,
       certificates: sql<number>`CAST(COUNT(DISTINCT ${courseCertificates.id}) AS INT)`,
     })
     .from(courses)

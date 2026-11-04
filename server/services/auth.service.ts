@@ -140,8 +140,8 @@ export async function registerUser(data: {
   email: string;
   password?: string;
   country: string;
-  couponCode?: string;
-  verifiedToken?: string;
+  couponCode: string;
+  verifiedToken: string;
 }): Promise<AuthResult> {
   const { fullName, email, password, country, couponCode, verifiedToken } = data;
 
@@ -156,29 +156,23 @@ export async function registerUser(data: {
     throw new AppError("An account with this email already exists", 409, "EMAIL_EXISTS");
   }
 
-  // --- 2. Resolve the password hash based on registration mode --------------
-  // OTP mode wins when a verifiedToken is present: verify it, assert it was
-  // minted for THIS email with the email-verified purpose, then create the
-  // account with no password (passwordHash = null). Otherwise fall back to
-  // password mode and hash the supplied password. If neither is present the
-  // request is invalid.
-  let passwordHash: string | null;
-  if (verifiedToken) {
-    assertEmailVerified(verifiedToken, email);
-    passwordHash = null; // OTP-only account — password set later from dashboard.
-  } else if (password) {
-    passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
-  } else {
-    throw new AppError("Password or verified email required", 400, "VALIDATION_ERROR");
-  }
+  // --- 2. Prove the email, then resolve the password ------------------------
+  // Every sign-up proves the email first: the verifiedToken from /verify-otp
+  // must have been minted for THIS email. Without it, anyone could register
+  // someone else's address with their own password before that person joins.
+  // The password is optional; without one the account signs in by email code.
+  assertEmailVerified(verifiedToken, email);
+  const passwordHash: string | null = password ? await bcrypt.hash(password, BCRYPT_ROUNDS) : null;
 
   // --- 3. Insert user + atomically validate and redeem coupon in a transaction
   const newUser = await db.transaction(async (tx) => {
     // 3a. Lock the invite code row before reading its status.
     //     SELECT FOR UPDATE prevents two concurrent registrations from both
     //     seeing "active" before either commits the "used" update (TOCTOU fix).
+    // Registration is invite-only: the code is required and checked here, on
+    // the server, not only by the sign-up page.
     let inviteCode: typeof inviteCodes.$inferSelect | undefined;
-    if (couponCode) {
+    {
       const locked = await tx.execute(
         sql`SELECT * FROM invite_codes WHERE code = ${couponCode} FOR UPDATE`,
       );

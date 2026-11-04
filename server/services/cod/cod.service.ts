@@ -3,17 +3,41 @@ import {
   codContentPool, codUserPaths, codPathContentRefs,
   codMilestoneAssessments, codUserQuizResults, codUserContentProgress,
 } from '../../db/schema'
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, desc, gt } from 'drizzle-orm'
 import { AppError } from '../../utils/app-error'
 import { callCodPathBuilder, type CodPathBuilderInput } from '../learning/codAiClient'
 
 const PASS_THRESHOLD = 0.7
+
+/**
+ * Every call that names a path checks it belongs to the signed-in learner;
+ * path ids come from the browser and must never reach someone else's path.
+ */
+async function assertOwnsPath(userId: string, pathId: string): Promise<void> {
+  const [row] = await db.select({ id: codUserPaths.id }).from(codUserPaths)
+    .where(and(eq(codUserPaths.id, pathId), eq(codUserPaths.userId, userId))).limit(1)
+  if (!row) throw new AppError('Learning path not found', 404, 'PATH_NOT_FOUND')
+}
 
 /** Creates a 'building' path row and triggers async AI path generation. */
 export async function initiateCodPath(
   userId: string,
   profile: CodPathBuilderInput['profile'],
 ): Promise<{ pathId: string }> {
+  // One build at a time per learner: each starts an AI job of up to ten
+  // minutes. A build older than 15 minutes is treated as dead (e.g. the server
+  // restarted mid-build), so a learner is never stuck.
+  const [building] = await db.select({ id: codUserPaths.id }).from(codUserPaths)
+    .where(and(
+      eq(codUserPaths.userId, userId),
+      eq(codUserPaths.status, 'building'),
+      gt(codUserPaths.createdAt, new Date(Date.now() - 15 * 60 * 1000)),
+    ))
+    .limit(1)
+  if (building) {
+    throw new AppError('Your learning path is already being built. Please wait for it to finish.', 409, 'PATH_BUILDING')
+  }
+
   const [path] = await db.insert(codUserPaths).values({
     userId,
     discoveryProfile: profile,
@@ -201,6 +225,10 @@ export async function getCodPath(userId: string) {
 
 /** Marks a content item complete (or updates video progress). */
 export async function completeContent(userId: string, pathId: string, contentPoolId: string, videoWatchPct?: number) {
+  await assertOwnsPath(userId, pathId)
+  const [ref] = await db.select({ id: codPathContentRefs.id }).from(codPathContentRefs)
+    .where(and(eq(codPathContentRefs.codUserPathId, pathId), eq(codPathContentRefs.contentPoolId, contentPoolId))).limit(1)
+  if (!ref) throw new AppError('This content is not in your learning path', 404, 'CONTENT_NOT_IN_PATH')
   const [existing] = await db.select().from(codUserContentProgress)
     .where(and(
       eq(codUserContentProgress.userId, userId),
@@ -226,6 +254,7 @@ export async function completeContent(userId: string, pathId: string, contentPoo
 
 /** Returns pretest questions for a milestone (no correct answers in response). */
 export async function getMilestonePretest(userId: string, pathId: string, milestoneId: string) {
+  await assertOwnsPath(userId, pathId)
   const [assessment] = await db.select().from(codMilestoneAssessments)
     .where(and(eq(codMilestoneAssessments.codUserPathId, pathId), eq(codMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)
@@ -233,13 +262,14 @@ export async function getMilestonePretest(userId: string, pathId: string, milest
   if (!assessment) throw new AppError('Assessment not found', 404, 'ASSESSMENT_NOT_FOUND')
 
   const questions = (assessment.pretestQuestions as Array<{ question: string; options: string[]; correctIndex: number; explanation: string }> ?? [])
-    .map(({ correctIndex: _ci, ...q }) => q)
+    .map(({ correctIndex: _ci, explanation: _ex, ...q }) => q) // answers and explanations stay on the server
 
   return { milestoneId, milestoneTitle: assessment.milestoneTitle, questions }
 }
 
 /** Submits pretest answers — no pass/fail gate, records the snapshot. */
 export async function submitPretest(userId: string, pathId: string, milestoneId: string, answers: number[]) {
+  await assertOwnsPath(userId, pathId)
   const [assessment] = await db.select().from(codMilestoneAssessments)
     .where(and(eq(codMilestoneAssessments.codUserPathId, pathId), eq(codMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)
@@ -274,6 +304,7 @@ export async function submitPretest(userId: string, pathId: string, milestoneId:
 
 /** Returns posttest questions for a milestone (no correct answers in response). */
 export async function getMilestoneQuiz(userId: string, pathId: string, milestoneId: string) {
+  await assertOwnsPath(userId, pathId)
   const [assessment] = await db.select().from(codMilestoneAssessments)
     .where(and(eq(codMilestoneAssessments.codUserPathId, pathId), eq(codMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)
@@ -281,13 +312,14 @@ export async function getMilestoneQuiz(userId: string, pathId: string, milestone
   if (!assessment) throw new AppError('Quiz not found', 404, 'QUIZ_NOT_FOUND')
 
   const questions = (assessment.questions as Array<{ question: string; options: string[]; correctIndex: number; explanation: string }>)
-    .map(({ correctIndex: _ci, ...q }) => q)
+    .map(({ correctIndex: _ci, explanation: _ex, ...q }) => q) // answers and explanations stay on the server
 
   return { milestoneId, milestoneTitle: assessment.milestoneTitle, questions }
 }
 
 /** Submits posttest answers, calculates score, stores result, gates milestone. */
 export async function submitQuiz(userId: string, pathId: string, milestoneId: string, answers: number[]) {
+  await assertOwnsPath(userId, pathId)
   const [assessment] = await db.select().from(codMilestoneAssessments)
     .where(and(eq(codMilestoneAssessments.codUserPathId, pathId), eq(codMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)

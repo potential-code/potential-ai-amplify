@@ -61,6 +61,7 @@
     "server/node_modules",
     "server/dist",
     "server/db/seed",
-    "server/**/__tests__/**"
+    "server/**/__tests__/**",
+    "server/tests/**"
   ]
 }

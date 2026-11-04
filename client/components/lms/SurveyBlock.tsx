@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { apiSaveQuestionAnswer, apiUpdateBlockProgress, type BlockQuestion, type LearnerBlock } from '@/lib/api/lms'
 import { cn } from '@/lib/utils'
+import { useSavedAnswers } from './useSavedAnswers'
 
 type Props = {
   block: LearnerBlock
@@ -15,7 +16,7 @@ type Props = {
 
 type Answers = Record<string, number | string>
 
-function QuestionItem({
+export function QuestionItem({
   question,
   answer,
   submitted,
@@ -108,11 +109,23 @@ export function SurveyBlock({ block, onCompleted }: Props) {
 
   const [answers, setAnswers] = useState<Answers>({})
   const [submitted, setSubmitted] = useState(isAlreadyCompleted)
+  const saved = useSavedAnswers(block.id)
 
+  // Reset only when the learner moves to another block. Keying this on
+  // completion too wiped the answers the moment they were saved (the course
+  // refetches and the block flips to completed).
   useEffect(() => {
     setAnswers({})
-    setSubmitted(isAlreadyCompleted)
-  }, [block.id, isAlreadyCompleted])
+  }, [block.id])
+
+  useEffect(() => {
+    if (isAlreadyCompleted) setSubmitted(true)
+  }, [isAlreadyCompleted])
+
+  // Answers saved earlier fill the boxes the learner hasn't touched.
+  useEffect(() => {
+    if (saved) setAnswers((prev) => ({ ...saved, ...prev }))
+  }, [saved])
 
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -132,6 +145,7 @@ export function SurveyBlock({ block, onCompleted }: Props) {
     onSuccess: () => {
       setSubmitted(true)
       queryClient.invalidateQueries({ queryKey: ['learner-course'] })
+      queryClient.invalidateQueries({ queryKey: ['block-answers', block.id] })
       onCompleted()
     },
   })

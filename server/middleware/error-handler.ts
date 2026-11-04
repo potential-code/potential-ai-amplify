@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import multer from "multer";
 import { AppError } from "../utils/app-error";
 import { logger } from "../config/logger";
 
@@ -23,6 +24,44 @@ export function errorHandler(
     res.status(err.statusCode).json({
       success: false,
       error: { message: err.message, code: err.code },
+    });
+    return;
+  }
+
+  // Request problems raised by Express's body parser (bad JSON → 400, too
+  // large → 413) and by multer (file too big, wrong field) are the caller's
+  // fault: answer with a clear 4xx instead of "Internal server error".
+  if (err instanceof multer.MulterError) {
+    const tooLarge = err.code === "LIMIT_FILE_SIZE";
+    res.status(tooLarge ? 413 : 400).json({
+      success: false,
+      error: {
+        message: tooLarge ? "That file is too large." : "That upload couldn't be read.",
+        code: tooLarge ? "FILE_TOO_LARGE" : "BAD_UPLOAD",
+      },
+    });
+    return;
+  }
+  if (err instanceof Error && err.message === "FILE_TYPE_NOT_ALLOWED") {
+    res.status(400).json({
+      success: false,
+      error: { message: "That file type isn't allowed.", code: "FILE_TYPE_NOT_ALLOWED" },
+    });
+    return;
+  }
+  const status = (err as { status?: unknown; statusCode?: unknown } | null)?.status ??
+    (err as { statusCode?: unknown } | null)?.statusCode;
+  if (typeof status === "number" && status >= 400 && status < 500) {
+    const type = (err as { type?: unknown }).type;
+    res.status(status).json({
+      success: false,
+      error: {
+        message:
+          type === "entity.parse.failed" ? "The request body isn't valid JSON."
+          : status === 413 ? "The request is too large."
+          : "The request couldn't be processed.",
+        code: type === "entity.parse.failed" ? "INVALID_JSON" : status === 413 ? "PAYLOAD_TOO_LARGE" : "BAD_REQUEST",
+      },
     });
     return;
   }

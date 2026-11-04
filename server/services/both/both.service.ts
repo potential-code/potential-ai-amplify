@@ -4,11 +4,21 @@ import {
   bothMilestoneAssessments, bothUserQuizResults, bothUserItemProgress,
   courses, modules, units, learningBlocks, blockQuestions,
 } from '../../db/schema'
-import { eq, and, desc, inArray } from 'drizzle-orm'
+import { eq, and, desc, inArray, gt } from 'drizzle-orm'
 import { AppError } from '../../utils/app-error'
 import { callBothPathBuilder, type BothPathBuilderInput, type BlockCatalogItem } from '../learning/bothAiClient'
 
 const PASS_THRESHOLD = 0.7
+
+/**
+ * Every call that names a path checks it belongs to the signed-in learner;
+ * path ids come from the browser and must never reach someone else's path.
+ */
+async function assertOwnsPath(userId: string, pathId: string): Promise<void> {
+  const [row] = await db.select({ id: bothUserPaths.id }).from(bothUserPaths)
+    .where(and(eq(bothUserPaths.id, pathId), eq(bothUserPaths.userId, userId))).limit(1)
+  if (!row) throw new AppError('Learning path not found', 404, 'PATH_NOT_FOUND')
+}
 
 // ── Internal types ────────────────────────────────────────────────────────────
 
@@ -116,6 +126,20 @@ export async function initiateBothPath(
   userId: string,
   profile: BothPathBuilderInput['profile'],
 ): Promise<{ pathId: string }> {
+  // One build at a time per learner: each starts an AI job of up to ten
+  // minutes. A build older than 15 minutes is treated as dead (e.g. the server
+  // restarted mid-build), so a learner is never stuck.
+  const [building] = await db.select({ id: bothUserPaths.id }).from(bothUserPaths)
+    .where(and(
+      eq(bothUserPaths.userId, userId),
+      eq(bothUserPaths.status, 'building'),
+      gt(bothUserPaths.createdAt, new Date(Date.now() - 15 * 60 * 1000)),
+    ))
+    .limit(1)
+  if (building) {
+    throw new AppError('Your learning path is already being built. Please wait for it to finish.', 409, 'PATH_BUILDING')
+  }
+
   // Fetch catalog BEFORE creating the path row so failures surface early.
   const blocks = await fetchBlockCatalog()
 
@@ -394,7 +418,8 @@ export async function getBothPath(userId: string) {
                   kind: q.kind,
                   format: q.format,
                   options: q.options,
-                  correctIndex: q.correctIndex,
+                  // Answer keys stay on the server.
+                  correctIndex: null,
                   order: q.order,
                 })),
               blockProgress: prog ? { status: prog.status, videoWatchPct: prog.videoWatchPct } : null,
@@ -469,6 +494,15 @@ export async function completeItem(
   milestoneId: string,
   videoWatchPct?: number,
 ): Promise<void> {
+  await assertOwnsPath(userId, pathId)
+  // The item must be one this path actually contains, in that milestone.
+  const [ref] = itemType === 'internal'
+    ? await db.select({ id: bothPathBlockRefs.id }).from(bothPathBlockRefs)
+      .where(and(eq(bothPathBlockRefs.bothUserPathId, pathId), eq(bothPathBlockRefs.blockId, itemId), eq(bothPathBlockRefs.milestoneId, milestoneId))).limit(1)
+    : await db.select({ id: bothPathContentRefs.id }).from(bothPathContentRefs)
+      .where(and(eq(bothPathContentRefs.bothUserPathId, pathId), eq(bothPathContentRefs.contentPoolId, itemId), eq(bothPathContentRefs.milestoneId, milestoneId))).limit(1)
+  if (!ref) throw new AppError('This item is not in your learning path', 404, 'ITEM_NOT_IN_PATH')
+
   await db.insert(bothUserItemProgress).values({
     userId,
     itemType,
@@ -496,6 +530,7 @@ export async function completeItem(
  * @param milestoneId - Target milestone.
  */
 export async function getMilestonePretest(userId: string, pathId: string, milestoneId: string) {
+  await assertOwnsPath(userId, pathId)
   const [assessment] = await db.select().from(bothMilestoneAssessments)
     .where(and(eq(bothMilestoneAssessments.bothUserPathId, pathId), eq(bothMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)
@@ -503,7 +538,7 @@ export async function getMilestonePretest(userId: string, pathId: string, milest
   if (!assessment) throw new AppError('Assessment not found', 404, 'ASSESSMENT_NOT_FOUND')
 
   const questions = (assessment.pretestQuestions as Array<{ question: string; options: string[]; correctIndex: number; explanation: string }> ?? [])
-    .map(({ correctIndex: _ci, ...q }) => q)
+    .map(({ correctIndex: _ci, explanation: _ex, ...q }) => q) // answers and explanations stay on the server
 
   return { milestoneId, milestoneTitle: assessment.milestoneTitle, questions }
 }
@@ -518,6 +553,7 @@ export async function getMilestonePretest(userId: string, pathId: string, milest
  * @param answers     - Array of answer indices (same length as pretestQuestions).
  */
 export async function submitPretest(userId: string, pathId: string, milestoneId: string, answers: number[]) {
+  await assertOwnsPath(userId, pathId)
   const [assessment] = await db.select().from(bothMilestoneAssessments)
     .where(and(eq(bothMilestoneAssessments.bothUserPathId, pathId), eq(bothMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)
@@ -561,6 +597,7 @@ export async function submitPretest(userId: string, pathId: string, milestoneId:
  * @param milestoneId - Target milestone.
  */
 export async function getMilestoneQuiz(userId: string, pathId: string, milestoneId: string) {
+  await assertOwnsPath(userId, pathId)
   const [assessment] = await db.select().from(bothMilestoneAssessments)
     .where(and(eq(bothMilestoneAssessments.bothUserPathId, pathId), eq(bothMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)
@@ -568,7 +605,7 @@ export async function getMilestoneQuiz(userId: string, pathId: string, milestone
   if (!assessment) throw new AppError('Quiz not found', 404, 'QUIZ_NOT_FOUND')
 
   const questions = (assessment.questions as Array<{ question: string; options: string[]; correctIndex: number; explanation: string }>)
-    .map(({ correctIndex: _ci, ...q }) => q)
+    .map(({ correctIndex: _ci, explanation: _ex, ...q }) => q) // answers and explanations stay on the server
 
   return { milestoneId, milestoneTitle: assessment.milestoneTitle, questions }
 }
@@ -584,6 +621,7 @@ export async function getMilestoneQuiz(userId: string, pathId: string, milestone
  * @returns           - Score, total, and whether the attempt passed.
  */
 export async function submitQuiz(userId: string, pathId: string, milestoneId: string, answers: number[]) {
+  await assertOwnsPath(userId, pathId)
   const [assessment] = await db.select().from(bothMilestoneAssessments)
     .where(and(eq(bothMilestoneAssessments.bothUserPathId, pathId), eq(bothMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)

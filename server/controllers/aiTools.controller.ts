@@ -1,6 +1,12 @@
 import type { Request, Response } from 'express';
 import { generateBusinessDocumentPdf } from '../services/aiTools.service';
 import { sendMail } from '../mail/mailer';
+import { eq } from 'drizzle-orm';
+import { db } from '../db';
+import { users } from '../db/schema';
+
+/** Longest document body accepted (about 15 pages of text). */
+const MAX_CONTENT_CHARS = 40_000;
 
 /** Accepted documentType slugs — validated before processing. */
 const ALLOWED_TYPES = new Set([
@@ -22,22 +28,22 @@ const TYPE_LABELS: Record<string, string> = {
  * POST /api/ai-tools/generate-pdf
  *
  * Generates a branded PDF from AI-produced business document content and
- * emails it to the specified address as an attachment.
+ * emails it to the signed-in user's own account email. It never sends to an
+ * address from the request: that turned the platform's mail domain into a
+ * channel for sending anything to anyone.
  *
  * Request body:
  *   - documentType  {string}  One of the ALLOWED_TYPES slugs.
  *   - title         {string?} Optional document title; falls back to the type label.
  *   - content       {string}  Plain-text body to render into the PDF.
- *   - emailAddress  {string}  Recipient address for the email with the PDF attachment.
  *
  * Responds with `{ success: true, emailSent: true, email }` on success.
  */
 export async function generatePdf(req: Request, res: Response): Promise<void> {
-  const { documentType, title, content, emailAddress } = req.body as {
+  const { documentType, title, content } = req.body as {
     documentType?: string;
     title?: string;
     content?: string;
-    emailAddress?: string;
   };
 
   if (!documentType || !ALLOWED_TYPES.has(documentType)) {
@@ -48,10 +54,17 @@ export async function generatePdf(req: Request, res: Response): Promise<void> {
     res.status(400).json({ error: 'content is required' });
     return;
   }
-  if (!emailAddress || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
-    res.status(400).json({ error: 'Valid emailAddress is required' });
+  if (content.length > MAX_CONTENT_CHARS) {
+    res.status(413).json({ success: false, error: { message: 'That document is too long to send.', code: 'CONTENT_TOO_LONG' } });
     return;
   }
+
+  const [account] = await db.select({ email: users.email }).from(users).where(eq(users.id, req.user!.userId));
+  if (!account) {
+    res.status(401).json({ error: 'unauthorized' });
+    return;
+  }
+  const emailAddress = account.email;
 
   const docTitle =
     typeof title === 'string' && title.trim()

@@ -55,9 +55,17 @@ export function authenticate(
 
   try {
     const payload = jwt.verify(token, jwtSecret, { algorithms: ["HS256"] }) as {
-      userId: string;
-      role: string;
+      userId?: unknown;
+      role?: unknown;
+      purpose?: unknown;
     };
+    // Only sign-in tokens authenticate. Other tokens signed with the same
+    // secret (the short-lived "email verified" token from /verify-otp) carry a
+    // purpose and no user, and must never pass as a session.
+    if (payload.purpose !== undefined || typeof payload.userId !== "string" || typeof payload.role !== "string") {
+      res.status(401).json({ error: "unauthorized" });
+      return;
+    }
     req.user = { userId: payload.userId, role: payload.role };
     // Fire-and-forget: update lastActiveAt without blocking the request
     db.update(users)

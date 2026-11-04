@@ -557,8 +557,9 @@ export async function getActivePath(userId: string): Promise<{
                 format: q.format,
                 prompt: q.prompt,
                 options: q.options,
-                correctIndex: q.correctIndex,
-                correctBool: q.correctBool,
+                // Answer keys stay on the server.
+                correctIndex: null,
+                correctBool: null,
                 placeholder: q.placeholder,
                 order: q.order,
               })),
@@ -593,6 +594,13 @@ export async function completeBlock(
   userId: string,
   blockId: string,
 ): Promise<UserLearningBlockProgress> {
+  // Only blocks in the learner's own active path can be completed here: this
+  // endpoint enrols them in the block's course, so any other block id would be
+  // a way into any course (drafts included).
+  if (!(await progressSvc.isBlockInActiveLearningPath(userId, blockId))) {
+    throw new AppError('This block is not in your learning path', 404, 'BLOCK_NOT_IN_PATH')
+  }
+
   // Resolve the block → its course (block → unit → module → course).
   const [block] = await db.select().from(learningBlocks).where(eq(learningBlocks.id, blockId))
   if (!block) throw new AppError('Learning block not found', 404, 'BLOCK_NOT_FOUND')
@@ -600,21 +608,25 @@ export async function completeBlock(
   const [unit] = await db.select().from(units).where(eq(units.id, block.unitId))
   const [mod] = unit ? await db.select().from(modules).where(eq(modules.id, unit.moduleId)) : []
   const courseId = mod?.courseId
-
-  // Auto-enroll if there is no active enrollment for this course yet.
-  if (courseId) {
-    const [enrollment] = await db.select().from(courseEnrollments)
-      .where(and(eq(courseEnrollments.userId, userId), eq(courseEnrollments.courseId, courseId)))
-    if (!enrollment) {
-      await db.insert(courseEnrollments)
-        .values({ userId, courseId, status: 'active' })
-        .onConflictDoNothing({ target: [courseEnrollments.userId, courseEnrollments.courseId] })
-    }
+  const [course] = courseId ? await db.select({ status: courses.status }).from(courses).where(eq(courses.id, courseId)) : []
+  if (!courseId || course?.status !== 'published') {
+    throw new AppError('This block is not available', 404, 'BLOCK_NOT_AVAILABLE')
   }
 
+  // Auto-enroll if there is no active enrollment for this course yet.
+  const [enrollment] = await db.select().from(courseEnrollments)
+    .where(and(eq(courseEnrollments.userId, userId), eq(courseEnrollments.courseId, courseId)))
+  if (!enrollment) {
+    await db.insert(courseEnrollments)
+      .values({ userId, courseId, status: 'active' })
+      .onConflictDoNothing({ target: [courseEnrollments.userId, courseEnrollments.courseId] })
+  }
+
+  // The same checks as the course page (answers saved for question blocks).
+  await progressSvc.assertBlockCompletable(userId, blockId)
+
   // Reuse the canonical completion path (upsert + unit/module/course roll-up +
-  // certificate). Block locking is a course-page read-time concern, not enforced
-  // here, so nothing extra needs bypassing on the write path.
+  // certificate).
   return progressSvc.updateBlockProgress(userId, blockId, 'completed')
 }
 

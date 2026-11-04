@@ -517,7 +517,8 @@ function DocumentDeliveryCard({
   content?: string
   defaultEmail: string
 }) {
-  const [email, setEmail] = useState(defaultEmail)
+  // PDFs always go to the account's own email (the server ignores any other).
+  const email = defaultEmail
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
   // Content arrives via streaming tool-argument chunks. Disable Send until
@@ -538,21 +539,22 @@ function DocumentDeliveryCard({
   const label = TYPE_LABELS[documentType] ?? 'Document'
 
   async function handleSend() {
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setErrorMsg('Please enter a valid email address.')
-      return
-    }
     setStatus('sending')
     setErrorMsg('')
     try {
       await apiFetch('/api/ai-tools/generate-pdf', {
         method: 'POST',
-        body: JSON.stringify({ documentType, title, content, emailAddress: email.trim() }),
+        body: JSON.stringify({ documentType, title, content }),
       })
       setStatus('sent')
-    } catch {
+    } catch (err: unknown) {
       setStatus('error')
-      setErrorMsg('Failed to send. Please try again.')
+      const code = (err as { error?: { code?: string } })?.error?.code
+      setErrorMsg(
+        code === 'RATE_LIMITED'
+          ? "You've sent a lot of documents recently. Please try again a little later."
+          : "We couldn't send your PDF. Please try again.",
+      )
     }
   }
 
@@ -592,21 +594,15 @@ function DocumentDeliveryCard({
       {status === 'sent' ? (
         <div className="flex items-center gap-1.5 text-[#16a34a] text-xs font-medium">
           <Check size={13} strokeWidth={2.5} />
-          PDF sent to {email}
+          {email ? <>PDF sent to {email}</> : 'PDF sent to your email'}
         </div>
       ) : status === 'error' ? (
         <p className="text-rose-500 text-[11px]">{errorMsg}</p>
       ) : (
         <>
-          <p className="text-[#6B7280] text-[11px] mb-2">Send the PDF to your email:</p>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setErrorMsg('') }}
-            disabled={status === 'sending'}
-            placeholder="your@email.com"
-            className="w-full rounded-lg border border-brand-surface-2 px-3 py-1.5 text-[12px] text-[#1A0A12] bg-brand-surface outline-none focus:border-brand-primary transition-colors disabled:opacity-50 mb-2"
-          />
+          <p className="text-[#6B7280] text-[11px] mb-2">
+            {email ? <>We&apos;ll email the PDF to <span className="font-medium text-[#1A0A12]">{email}</span>.</> : "We'll email the PDF to your account email."}
+          </p>
           {errorMsg && <p className="text-rose-500 text-[11px] mb-2">{errorMsg}</p>}
           <button
             onClick={handleSend}
@@ -1932,7 +1928,7 @@ export function EmbeddedDashboardAssistant({
     name: 'generateAndDeliverDocument',
     description:
       'Called ONLY when a complete, full, multi-section business document has already been written out in a PREVIOUS message and is ready to deliver as a PDF. ' +
-      'Shows a card where the user can send the PDF to their email. The card is non-blocking — the user interacts with it independently. ' +
+      "Shows a card where the user can send the PDF to their account's email. The card is non-blocking — the user interacts with it independently. " +
       'PREREQUISITES — ALL must be true before calling: (1) every selection step for the tool has been completed with user confirmation, (2) the complete final document was written in full in your PREVIOUS response turn, (3) the content you are passing is the actual full document text (not a list of options, not input summaries, not your own reasoning). ' +
       'NEVER call this with: a list of options for the user to choose from, a summary of what the user told you, your own planning/reasoning text, or any partial content. ' +
       'ZERO TEXT before the tool call. After the tool call, output the cross-tool suggestion immediately. ' +
@@ -1951,7 +1947,7 @@ export function EmbeddedDashboardAssistant({
         documentType={args.documentType ?? ''}
         title={args.title ?? ''}
         content={args.content ?? ''}
-        defaultEmail={args.suggestedEmail ?? (user?.email ?? '')}
+        defaultEmail={user?.email ?? ''}
       />
     ),
   })

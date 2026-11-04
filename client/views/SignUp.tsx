@@ -57,6 +57,12 @@ function SignUpForm() {
   const [emailChecking, setEmailChecking] = useState(false)
   const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null)
   const [couponError, setCouponError] = useState<string | null>(null)
+  // Sign-up proves the email before the account exists: step 'code' asks for
+  // the 6-digit code emailed by /api/auth/send-otp.
+  const [step, setStep] = useState<'details' | 'code'>('details')
+  const [code, setCode] = useState('')
+  const [codeError, setCodeError] = useState<string | null>(null)
+  const [resending, setResending] = useState(false)
 
   // Keep couponCode in sync if URL param changes (e.g. browser back/forward)
   useEffect(() => {
@@ -78,7 +84,8 @@ function SignUpForm() {
     emailAvailable === true &&
     !emailChecking &&
     form.password.length >= 8 &&
-    !!form.country
+    !!form.country &&
+    form.couponCode.trim().length > 0
 
   async function handleEmailBlur() {
     if (validateEmail(form.email)) return
@@ -101,6 +108,28 @@ function SignUpForm() {
     }
   }
 
+  function errorCode(err: unknown): string | undefined {
+    return (err as { error?: { code?: string } })?.error?.code
+  }
+
+  async function sendCode(): Promise<boolean> {
+    try {
+      await apiFetch('/api/auth/send-otp', {
+        method: 'POST',
+        body: JSON.stringify({ email: form.email }),
+      })
+      return true
+    } catch (err: unknown) {
+      if (errorCode(err) === 'RATE_LIMITED') {
+        toast.error('Too many codes requested', { description: 'Please wait a few minutes and try again.' })
+      } else {
+        toast.error("We couldn't send your code", { description: 'Please check your email address and try again.' })
+      }
+      return false
+    }
+  }
+
+  // Step 1: details are valid, so email a code to prove the address.
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setTouched({ country: true })
@@ -112,20 +141,69 @@ function SignUpForm() {
       validateName(form.fullName) ||
       validateEmail(form.email) ||
       validatePassword(form.password) ||
-      !form.country
+      !form.country ||
+      !form.couponCode.trim()
     ) return
 
     setLoading(true)
-
     try {
+      if (await sendCode()) {
+        setCode('')
+        setCodeError(null)
+        setStep('code')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleResend() {
+    setResending(true)
+    try {
+      if (await sendCode()) {
+        setCode('')
+        setCodeError(null)
+        toast.success('A new code is on its way', { description: `Check ${form.email}.` })
+      }
+    } finally {
+      setResending(false)
+    }
+  }
+
+  // Step 2: check the code, then create the account with the proof.
+  async function handleVerifyAndRegister(e: React.FormEvent) {
+    e.preventDefault()
+    if (!/^\d{6}$/.test(code)) {
+      setCodeError('Enter the 6-digit code from your email')
+      return
+    }
+    setLoading(true)
+    setCodeError(null)
+    try {
+      let verifiedToken: string
+      try {
+        const verified = await apiFetch<{ success: boolean; data: { verifiedToken: string } }>('/api/auth/verify-otp', {
+          method: 'POST',
+          body: JSON.stringify({ email: form.email, code }),
+        })
+        verifiedToken = verified.data.verifiedToken
+      } catch (err: unknown) {
+        const c = errorCode(err)
+        setCodeError(
+          c === 'OTP_LOCKED' ? 'Too many tries. Request a new code.'
+          : c === 'RATE_LIMITED' ? 'Too many tries. Please wait a few minutes.'
+          : "That code didn't work. Check it, or request a new one.",
+        )
+        return
+      }
+
       const body: Record<string, string> = {
         fullName: form.fullName,
         email: form.email,
         password: form.password,
         country: form.country,
-      }
-      if (form.couponCode.trim()) {
-        body.couponCode = form.couponCode.trim()
+        couponCode: form.couponCode.trim(),
+        verifiedToken,
       }
 
       const { data: { token, user } } = await apiFetch<RegisterResponse>('/api/auth/register', {
@@ -144,15 +222,21 @@ function SignUpForm() {
       }
     } catch (err: unknown) {
       const body = err as { error?: { message?: string; code?: string; errors?: Record<string, string[]> } }
-      const code = body?.error?.code
-      if (code === 'EMAIL_EXISTS') {
+      const c = body?.error?.code
+      // Problems with the details send the learner back to the form.
+      if (c === 'EMAIL_EXISTS') {
+        setStep('details')
         setEmailError('An account with this email already exists')
-      } else if (code === 'INVALID_COUPON') {
+      } else if (c === 'INVALID_COUPON') {
+        setStep('details')
         setCouponError('Invalid or already used invite code')
-      } else if (code === 'VALIDATION_ERROR') {
+      } else if (c === 'EMAIL_NOT_VERIFIED') {
+        setCodeError('Your code has expired. Request a new one.')
+      } else if (c === 'VALIDATION_ERROR') {
+        setStep('details')
         const fieldErrors = body?.error?.errors ?? {}
         if (fieldErrors.couponCode?.length) {
-          setCouponError('Invalid invite code')
+          setCouponError('Enter your invite code')
         } else if (fieldErrors.email?.length) {
           setEmailError(fieldErrors.email[0])
         } else {
@@ -164,6 +248,64 @@ function SignUpForm() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (step === 'code') {
+    return (
+      <div className="relative rounded-3xl border border-brand-surface-2 bg-white p-7 shadow-[0_20px_60px_-20px_rgba(101,45,144,0.18)]">
+        <form onSubmit={handleVerifyAndRegister} className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-brand-text-primary">Check your email</h2>
+            <p className="mt-1 text-sm text-brand-text-secondary">
+              We sent a 6-digit code to <span className="font-medium text-brand-text-primary">{form.email}</span>.
+              Enter it to create your account.
+            </p>
+          </div>
+          <FloatingField
+            label="6-digit code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            required
+            autoFocus
+            value={code}
+            onChange={(e) => {
+              setCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+              setCodeError(null)
+            }}
+            icon={<Mail className="w-4 h-4" />}
+            className="tracking-[0.4em]"
+            externalError={codeError}
+          />
+          <motion.button
+            type="submit"
+            disabled={loading || code.length !== 6}
+            whileTap={{ scale: 0.98 }}
+            className="relative w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white py-3.5 rounded-xl text-sm font-semibold transition-colors shadow-[0_10px_30px_-10px_rgba(101,45,144,0.7)]"
+          >
+            {loading ? 'Creating your account…' : 'Verify and create account'}
+            {!loading && <ArrowRight className="w-4 h-4" />}
+          </motion.button>
+          <div className="flex items-center justify-between text-xs">
+            <button
+              type="button"
+              onClick={() => { setStep('details'); setCodeError(null) }}
+              className="text-brand-text-secondary hover:text-brand-primary transition-colors"
+            >
+              Change details
+            </button>
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resending}
+              className="font-medium text-brand-primary hover:text-brand-primary-dark disabled:opacity-50 transition-colors"
+            >
+              {resending ? 'Sending…' : 'Send a new code'}
+            </button>
+          </div>
+        </form>
+      </div>
+    )
   }
 
   return (
@@ -282,7 +424,8 @@ function SignUpForm() {
             </div>
           ) : (
             <FloatingField
-              label="Invite Code (optional)"
+              label="Invite Code"
+              required
               value={form.couponCode}
               onChange={(e) => { update('couponCode', e.target.value.toUpperCase()); setCouponError(null) }}
               icon={<Tag className="w-4 h-4" />}
@@ -328,7 +471,7 @@ function SignUpForm() {
             />
           )}
           <span className="relative inline-flex items-center gap-2">
-            {loading ? 'Creating your account…' : 'Register'}
+            {loading ? 'Sending your code…' : 'Continue'}
             {!loading && <ArrowRight className="w-4 h-4" />}
           </span>
         </motion.button>

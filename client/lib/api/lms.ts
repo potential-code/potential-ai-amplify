@@ -310,6 +310,12 @@ export const apiSaveQuestionAnswer = (
     { method: 'POST', body: JSON.stringify({ answerData }) },
   )
 
+/** The learner's own saved answers to one block's questions. */
+export const fetchBlockAnswers = (blockId: string) =>
+  apiFetch<Array<{ questionId: string; answerData: { selectedAnswer?: number; openEndedAnswer?: string } | null }>>(
+    `/learning-blocks/${blockId}/answers`,
+  )
+
 // Action plan
 export const fetchActionPlan = (courseId: string) =>
   apiFetch<{ courseTitle: string; questions: Array<{ question: BlockQuestion; answer: unknown | null }> }>(
