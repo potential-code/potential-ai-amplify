@@ -44,7 +44,7 @@ export const STARTERS = [
   { kind: 'chart', text: 'Which countries are our learners from?' },
   { kind: 'chart', text: 'How many lessons were completed each month this year?' },
   { kind: 'data', text: 'Which learning journey is used most?' },
-  { kind: 'chart', text: 'Course completion rate by course' },
+  { kind: 'chart', text: 'Average AI Examiner score by course' },
   { kind: 'report', text: 'Write a monthly impact report for our board' },
 ] as const
 

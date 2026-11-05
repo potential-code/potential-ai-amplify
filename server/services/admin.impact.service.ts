@@ -14,6 +14,8 @@ export interface ImpactSummary {
   coursesCompleted: number;
   certificates: number;
   mentorSessions: number;
+  aiExams: number;
+  aiExamAvgScore: number | null;
   journeysStarted: number;
   offersRedeemed: number;
   newLearners30d: number;
@@ -74,6 +76,8 @@ export async function getImpact(): Promise<Impact> {
           (SELECT count(*) FROM user_course_progress WHERE completed_at IS NOT NULL) AS courses_completed,
           (SELECT count(*) FROM course_certificates) AS certificates,
           (SELECT count(*) FROM mentor_sessions WHERE status <> 'cancelled') AS mentor_sessions,
+          (SELECT count(*) FROM examiner_attempts) AS ai_exams,
+          (SELECT round(avg(overall_score)) FROM examiner_attempts) AS ai_exam_avg,
           (SELECT count(*) FROM offer_redemptions) AS offers_redeemed
       `),
       one(sql`
@@ -99,6 +103,7 @@ export async function getImpact(): Promise<Impact> {
           (SELECT count(DISTINCT user_id) FROM user_learning_path) AS learning_path,
           (SELECT count(DISTINCT user_id) FROM cod_user_paths) AS content_on_demand,
           (SELECT count(DISTINCT user_id) FROM both_user_paths) AS blended,
+          (SELECT count(DISTINCT user_id) FROM examiner_attempts) AS ai_examiner,
           (SELECT count(DISTINCT sme_user_id) FROM mentor_sessions WHERE status <> 'cancelled') AS human_mentors,
           (SELECT count(DISTINCT user_id) FROM offer_redemptions) AS offers
       `),
@@ -154,6 +159,7 @@ export async function getImpact(): Promise<Impact> {
     { journey: "Learning Path", learners: num(journeyRow["learning_path"]) },
     { journey: "Content on Demand", learners: num(journeyRow["content_on_demand"]) },
     { journey: "Blended Learning", learners: num(journeyRow["blended"]) },
+    { journey: "AI Examiner", learners: num(journeyRow["ai_examiner"]) },
     { journey: "Human mentors", learners: num(journeyRow["human_mentors"]) },
     { journey: "Partner offers", learners: num(journeyRow["offers"]) },
   ];
@@ -168,6 +174,8 @@ export async function getImpact(): Promise<Impact> {
       coursesCompleted: num(s["courses_completed"]),
       certificates: num(s["certificates"]),
       mentorSessions: num(s["mentor_sessions"]),
+      aiExams: num(s["ai_exams"]),
+      aiExamAvgScore: s["ai_exam_avg"] == null ? null : num(s["ai_exam_avg"]),
       journeysStarted: num(journeysStarted["n"]),
       offersRedeemed: num(s["offers_redeemed"]),
     },
@@ -197,8 +205,10 @@ export interface AnalyticsInsights {
     coursesCompleted: KpiDelta;
     certificates: KpiDelta;
     mentorSessions: KpiDelta;
+    aiExams: KpiDelta;
     offersRedeemed: KpiDelta;
     journeysStarted: KpiDelta;
+    aiExamAvgScore: number | null;
   };
   /** One point per day (7d, 30d) or month (12m). */
   series: { bucket: string; newLearners: number; activeLearners: number; lessonsCompleted: number; sessionsBooked: number; sessionsCompleted: number; sessionsCancelled: number }[];
@@ -206,6 +216,8 @@ export interface AnalyticsInsights {
   funnel: { step: string; learners: number }[];
   /** Journeys started in the period. */
   journeyMix: { journey: string; count: number }[];
+  aiExamScores: { band: string; attempts: number }[];
+  aiExamModes: { mode: string; attempts: number }[];
   weekdays: { day: string; activeLearners: number }[];
   countries: { country: string; learners: number }[];
 }
@@ -249,13 +261,15 @@ export async function getAnalyticsInsights(range: InsightRange): Promise<Analyti
         (SELECT count(*) FROM user_course_progress WHERE completed_at >= ${from} AND completed_at < ${to}) AS courses,
         (SELECT count(*) FROM course_certificates WHERE issued_at >= ${from} AND issued_at < ${to}) AS certificates,
         (SELECT count(*) FROM mentor_sessions WHERE status <> 'cancelled' AND booked_at >= ${from} AND booked_at < ${to}) AS sessions,
+        (SELECT count(*) FROM examiner_attempts WHERE created_at >= ${from} AND created_at < ${to}) AS exams,
+        (SELECT round(avg(overall_score)) FROM examiner_attempts WHERE created_at >= ${from} AND created_at < ${to}) AS exam_avg,
         (SELECT count(*) FROM offer_redemptions WHERE redeemed_at >= ${from} AND redeemed_at < ${to}) AS offers,
         ((SELECT count(*) FROM user_learning_path WHERE generated_at >= ${from} AND generated_at < ${to})
           + (SELECT count(*) FROM cod_user_paths WHERE created_at >= ${from} AND created_at < ${to})
           + (SELECT count(*) FROM both_user_paths WHERE created_at >= ${from} AND created_at < ${to})) AS journeys
     `);
 
-  const [cur, prev, learnerSeries, activeSeries, lessonSeries, sessionSeries, funnel, mix, weekdays, countryRows] =
+  const [cur, prev, learnerSeries, activeSeries, lessonSeries, sessionSeries, funnel, mix, scores, modes, weekdays, countryRows] =
     await Promise.all([
       windowCounts(since, now),
       windowCounts(before, since),
@@ -297,8 +311,14 @@ export async function getAnalyticsInsights(range: InsightRange): Promise<Analyti
           (SELECT count(*) FROM user_learning_path WHERE generated_at >= ${since}) AS learning_path,
           (SELECT count(*) FROM cod_user_paths WHERE created_at >= ${since}) AS cod,
           (SELECT count(*) FROM both_user_paths WHERE created_at >= ${since}) AS blended,
+          (SELECT count(*) FROM examiner_attempts WHERE created_at >= ${since}) AS exams,
           (SELECT count(*) FROM mentor_sessions WHERE status <> 'cancelled' AND booked_at >= ${since}) AS mentors
       `),
+      rows(sql`
+        SELECT CASE WHEN overall_score >= 80 THEN '80-100' WHEN overall_score >= 60 THEN '60-79'
+                    WHEN overall_score >= 40 THEN '40-59' ELSE '0-39' END AS band, count(*) AS n
+        FROM examiner_attempts WHERE created_at >= ${since} GROUP BY 1`),
+      rows(sql`SELECT mode, count(*) AS n FROM examiner_attempts WHERE created_at >= ${since} GROUP BY 1`),
       rows(sql`
         SELECT extract(isodow FROM day)::int AS d, count(DISTINCT user_id) AS n
         FROM learner_activity_days WHERE day >= ${since}::date GROUP BY 1`),
@@ -315,6 +335,7 @@ export async function getAnalyticsInsights(range: InsightRange): Promise<Analyti
     byCountry.set(label, (byCountry.get(label) ?? 0) + num(r["n"]));
   }
 
+  const scoreMap = new Map(scores.map((r) => [String(r["band"]), num(r["n"])]));
   const dayMap = new Map(weekdays.map((r) => [num(r["d"]), num(r["n"])]));
 
   return {
@@ -326,8 +347,10 @@ export async function getAnalyticsInsights(range: InsightRange): Promise<Analyti
       coursesCompleted: delta("courses"),
       certificates: delta("certificates"),
       mentorSessions: delta("sessions"),
+      aiExams: delta("exams"),
       offersRedeemed: delta("offers"),
       journeysStarted: delta("journeys"),
+      aiExamAvgScore: cur["exam_avg"] == null ? null : num(cur["exam_avg"]),
     },
     series: buckets(range, now).map((b) => ({
       bucket: b,
@@ -350,8 +373,11 @@ export async function getAnalyticsInsights(range: InsightRange): Promise<Analyti
       { journey: "Learning Path", count: num(mix["learning_path"]) },
       { journey: "Content on Demand", count: num(mix["cod"]) },
       { journey: "Blended Learning", count: num(mix["blended"]) },
+      { journey: "AI Examiner", count: num(mix["exams"]) },
       { journey: "Mentor sessions", count: num(mix["mentors"]) },
     ],
+    aiExamScores: ["0-39", "40-59", "60-79", "80-100"].map((band) => ({ band, attempts: scoreMap.get(band) ?? 0 })),
+    aiExamModes: modes.map((r) => ({ mode: String(r["mode"]), attempts: num(r["n"]) })).sort((a, b) => b.attempts - a.attempts),
     weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => ({ day, activeLearners: dayMap.get(i + 1) ?? 0 })),
     countries: [...byCountry.entries()].map(([country, learners]) => ({ country, learners })).sort((a, b) => b.learners - a.learners).slice(0, 10),
   };

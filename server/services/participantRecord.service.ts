@@ -11,6 +11,7 @@ import {
   courses,
   eventAttendance,
   eventRsvps,
+  examinerAttempts,
   learnerActivityDays,
   learningBlocks,
   liveEvents,
@@ -32,7 +33,7 @@ import { getStreak } from "./streak.service";
 /**
  * One participant's full record for their organisation's partner contacts
  * (and admins): courses unit by unit, exam attempts with the answers given,
- * action plans and survey answers, certificates and
+ * action plans and survey answers, certificates, AI Examiner scorecards and
  * transcripts, events, mentor sessions, badges, streak, recent activity, and
  * their conversations with the AI (saved only while they're in an
  * organisation). Never another organisation's learner, and never a mentor's
@@ -177,7 +178,7 @@ async function courseRecords(userId: string) {
 
 export async function participantRecord(organisationId: string, userId: string) {
   const profile = await memberOf(organisationId, userId);
-  const [coursesData, certificates, events, sessions, badges, streak, turns, activityDays] = await Promise.all([
+  const [coursesData, certificates, examiner, events, sessions, badges, streak, turns, activityDays] = await Promise.all([
     courseRecords(userId),
     db
       .select({ number: courseCertificates.certificateNumber, course: courses.title, issuedAt: courseCertificates.issuedAt, url: courseCertificates.certificateUrl, status: courseCertificates.status })
@@ -185,6 +186,13 @@ export async function participantRecord(organisationId: string, userId: string) 
       .innerJoin(courses, eq(courses.id, courseCertificates.courseId))
       .where(eq(courseCertificates.userId, userId))
       .orderBy(desc(courseCertificates.issuedAt)),
+    db
+      .select({ a: examinerAttempts, course: courses.title })
+      .from(examinerAttempts)
+      .innerJoin(courses, eq(courses.id, examinerAttempts.courseId))
+      .where(eq(examinerAttempts.userId, userId))
+      .orderBy(desc(examinerAttempts.createdAt))
+      .limit(50),
     db
       .select({ title: liveEvents.title, startsAt: liveEvents.startsAt, endsAt: liveEvents.endsAt, format: liveEvents.format, bookedAt: eventRsvps.createdAt, minutes: eventAttendance.minutes, attendanceRead: liveEvents.attendanceSyncedAt })
       .from(eventRsvps)
@@ -230,6 +238,7 @@ export async function participantRecord(organisationId: string, userId: string) 
     if (c.completedAt) activity.push({ at: c.completedAt, kind: "course_done", text: `Completed ${c.title}` });
   }
   for (const cert of certificates) activity.push({ at: cert.issuedAt.toISOString(), kind: "certificate", text: `Certificate for ${cert.course}` });
+  for (const { a, course } of examiner) activity.push({ at: a.createdAt.toISOString(), kind: "examiner", text: `AI Examiner (${course}): ${a.overallScore}/100` });
   for (const e of events) activity.push({ at: e.bookedAt.toISOString(), kind: "event", text: `Booked ${e.title}` });
   for (const s of sessions) activity.push({ at: s.bookedAt.toISOString(), kind: "mentor", text: `Booked a session with ${s.mentorName}` });
   for (const b of earned) activity.push({ at: b.earnedAt, kind: "badge", text: `Earned the “${b.title}” badge` });
@@ -242,6 +251,18 @@ export async function participantRecord(organisationId: string, userId: string) 
     activity: activity.slice(0, 40),
     courses: coursesData,
     certificates: certificates.map((c) => ({ ...c, issuedAt: c.issuedAt.toISOString() })),
+    examiner: examiner.map(({ a, course }) => ({
+      course,
+      mode: a.mode,
+      scenario: a.scenario,
+      overallScore: a.overallScore,
+      dimensions: a.dimensions,
+      strengths: a.strengths,
+      improvements: a.improvements,
+      feedback: a.feedback,
+      transcript: a.transcript,
+      createdAt: a.createdAt.toISOString(),
+    })),
     events: events.map((e) => ({
       title: e.title,
       startsAt: e.startsAt.toISOString(),

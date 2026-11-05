@@ -12,6 +12,10 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       # AI Insights / AI Dashboard: the read-only amplify_ai_readonly role (optional).
       AI_READONLY_DATABASE_URL: ${AI_READONLY_DATABASE_URL:-}
+      # AI Examiner video mode (optional): an Anam avatar for Anna. Unset = text and voice only.
+      ANAM_API_KEY: ${ANAM_API_KEY:-}
+      ANAM_AVATAR_ID: ${ANAM_AVATAR_ID:-}
+      ANAM_VOICE_ID: ${ANAM_VOICE_ID:-}
       JWT_SECRET: ${JWT_SECRET}
       # Signs session cookies; falls back to JWT_SECRET when unset.
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}

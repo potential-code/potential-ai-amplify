@@ -145,6 +145,8 @@ export interface ImpactSummary {
   mentorSessions: number
   journeysStarted: number
   offersRedeemed: number
+  aiExams: number
+  aiExamAvgScore: number | null
 }
 
 export interface ImpactMonth {
@@ -183,6 +185,8 @@ export interface AnalyticsInsights {
     mentorSessions: KpiDelta
     offersRedeemed: KpiDelta
     journeysStarted: KpiDelta
+    aiExams: KpiDelta
+    aiExamAvgScore: number | null
   }
   series: {
     bucket: string
@@ -197,6 +201,8 @@ export interface AnalyticsInsights {
   journeyMix: { journey: string; count: number }[]
   weekdays: { day: string; activeLearners: number }[]
   countries: { country: string; learners: number }[]
+  aiExamScores: { band: string; attempts: number }[]
+  aiExamModes: { mode: string; attempts: number }[]
 }
 
 export const fetchAnalyticsInsights = (range: AnalyticsRange) =>

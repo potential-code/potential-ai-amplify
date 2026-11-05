@@ -7,6 +7,7 @@ import {
   ArrowUpRight,
   Award,
   Tag,
+  BadgeCheck,
   BookOpenCheck,
   CalendarCheck,
   GraduationCap,
@@ -52,10 +53,10 @@ const PERIOD: Record<AnalyticsRange, string> = { '7d': 'previous 7 days', '30d':
 
 const TONES = {
   brand: 'bg-ui-brand-soft text-ui-brand-text',
-  blue: 'bg-[#e8f0f8] text-[#1d4e89]',
-  green: 'bg-[#e3f1ec] text-[#1f6f5c]',
-  amber: 'bg-[#fcf0e2] text-[#8a4513]',
-  violet: 'bg-[#efe8f6] text-[#4c1d6e]',
+  blue: 'bg-[#e8f0f8] text-[#1d4e89] dark:bg-[#1b2836] dark:text-[#8fb8e6]',
+  green: 'bg-[#e3f1ec] text-[#1f6f5c] dark:bg-[#16302a] dark:text-[#7fd1b6]',
+  amber: 'bg-[#fcf0e2] text-[#8a4513] dark:bg-[#3a2a17] dark:text-[#f0b26b]',
+  violet: 'bg-[#efe8f6] text-[#4c1d6e] dark:bg-[#2c2140] dark:text-[#c8a8ee]',
 } as const
 
 function Change({ delta, range }: { delta: KpiDelta; range: AnalyticsRange }) {
@@ -123,6 +124,8 @@ const axis = { fontSize: 11, fill: chartColors.muted }
 
 export function InsightsCharts({ data, loading, range }: { data?: AnalyticsInsights; loading: boolean; range: AnalyticsRange }) {
   const series = (data?.series ?? []).map((s) => ({ ...s, label: bucketLabel(s.bucket, range) }))
+  const exams = data?.aiExamScores ?? []
+  const hasExams = exams.some((e) => e.attempts > 0)
   const per = range === '12m' ? 'month' : 'day'
   const hasActivity = series.some((s) => s.activeLearners || s.lessonsCompleted)
   const hasSessions = series.some((s) => s.sessionsBooked || s.sessionsCancelled)
@@ -196,7 +199,7 @@ export function InsightsCharts({ data, loading, range }: { data?: AnalyticsInsig
       <div className="grid gap-5 lg:grid-cols-2">
         <AdminChartCard title="Journey mix" subtitle={`What learners started, ${RANGE_WORDS[range]}`} aside={loading ? undefined : fmt(mixTotal)}>
           {loading ? sk() : mix.length === 0 ? (
-            <EmptyState icon={Route} title="Nothing started in this period" body="Course enrollments, paths and mentor sessions show here." />
+            <EmptyState icon={Route} title="Nothing started in this period" body="Course enrollments, paths, exams and mentor sessions show here." />
           ) : (
             <div className="grid items-center gap-4 sm:grid-cols-[200px_minmax(0,1fr)] lg:grid-cols-1 xl:grid-cols-[200px_minmax(0,1fr)]">
               <div className="h-[200px]" role="img" aria-label="Share of each learning journey">
@@ -247,7 +250,39 @@ export function InsightsCharts({ data, loading, range }: { data?: AnalyticsInsig
         </AdminChartCard>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-3">
+        <AdminChartCard
+          title="AI Examiner scores"
+          subtitle={`Practice exams by score, ${RANGE_WORDS[range]}`}
+          aside={loading || data?.kpis.aiExamAvgScore == null ? undefined : `${data.kpis.aiExamAvgScore}`}
+        >
+          {loading ? sk('h-[200px]') : !hasExams ? (
+            <EmptyState icon={BadgeCheck} title="No exams in this period" body="Scores from AI Examiner practice exams show here." />
+          ) : (
+            <>
+              <div className="h-[170px]" role="img" aria-label="AI Examiner attempts by score band">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={exams} margin={{ top: 8, right: 4, left: -24, bottom: 0 }}>
+                    <CartesianGrid stroke={chartColors.line} strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="band" tick={axis} axisLine={false} tickLine={false} />
+                    <YAxis tick={axis} axisLine={false} tickLine={false} allowDecimals={false} />
+                    <Tooltip {...chartTooltipStyle} />
+                    <Bar dataKey="attempts" name="Attempts" radius={[4, 4, 0, 0]}>
+                      {exams.map((e, i) => <Cell key={e.band} fill={['#d6cde0', '#c9a6e6', '#8b57b8', '#4a2168'][i]} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="mt-2 flex flex-wrap gap-1.5 text-xs text-ui-muted">
+                {(data?.aiExamModes ?? []).map((m) => (
+                  <span key={m.mode} className="rounded-full bg-ui-surface-2 px-2 py-0.5 capitalize">
+                    {m.mode} {m.attempts}
+                  </span>
+                ))}
+              </p>
+            </>
+          )}
+        </AdminChartCard>
         <AdminChartCard title="When learners learn" subtitle={`Active learners by weekday, ${RANGE_WORDS[range]}`}>
           {loading ? sk('h-[200px]') : (
             <div className="h-[200px]" role="img" aria-label="Active learners by weekday">

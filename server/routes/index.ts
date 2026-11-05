@@ -17,6 +17,7 @@ import { aiReportsRouter, adminAiReportsRouter } from "./aiReports.routes";
 import aiMentorRouter from "./aiMentor.routes";
 import askSanaRouter from "./askSana.routes";
 import tutorRouter from "./tutor.routes";
+import examinerRouter from "./examiner.routes";
 import aiAnalyticsRouter from "./ai-analytics.routes";
 
 const router: IRouter = Router();
@@ -45,6 +46,8 @@ router.use("/ai-mentors", aiMentorRouter);
 router.use("/ask-sana", askSanaRouter);
 // Multi Learning tutor (Anna, smeepTutor agent): /api/ai/tutor/*
 router.use("/ai", tutorRouter);
+// AI Examiner (Anna, smeepExaminer agent): /api/ai/examiner/*, /api/ai/anam/*
+router.use("/ai", examinerRouter);
 // SME routes: /api/mentors/* and /api/sessions/* — no sub-prefix, paths defined in sme.routes.ts
 router.use(smeRouter);
 

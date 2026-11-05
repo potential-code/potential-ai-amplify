@@ -66,6 +66,7 @@ and `SET LOCAL search_path = ai`, wrapped as `SELECT * FROM (<sql>) LIMIT 501`
 | `journey_item_progress` | learner × COD/Blended item touched | learner_id, journey_id, journey_type, item_kind, status, video_watch_pct, completed_on |
 | `journey_quiz_result` | milestone pretest/posttest | learner_id, journey_id, journey_type, quiz_type, questions_correct, total_questions, score_pct, passed, attempt_number, completed_on |
 | `activity_day` | learner × active day | learner_id, active_on, steps |
+| `ai_exam_attempt` | AI Examiner attempt | attempt_id, learner_id, course_id, mode, overall_score, course_knowledge_score, application_score, communication_score, problem_solving_score, professionalism_score, attempted_on |
 | `mentor` | mentor | mentor_id, country, joined_on, expertise, featured, upcoming_open_slots |
 | `mentor_expertise` | mentor × expertise area | mentor_id, expertise |
 | `mentor_application` | mentor application | application_id, status, applied_on, expertise, has_mentor_account |

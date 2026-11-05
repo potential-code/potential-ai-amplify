@@ -27,8 +27,8 @@ const REASON_LABEL: Record<ReportReason, string> = {
 export function surfaceLabel(surface: string): string {
   const named: Record<string, string> = {
     "ask-sana": "Ask Anna",
-    "course-help": "Course helper",
-    "multi-learning": "Multi Learning tutor",
+    "course-help": "Anna on the course page",
+    "multi-learning": "Interactive Learning",
     examiner: "AI Examiner",
     "learning-path": "Learning Path",
     "learning-path-setup": "Learning Path setup",

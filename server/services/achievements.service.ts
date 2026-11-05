@@ -19,6 +19,7 @@ interface Stats {
   bestScore: number;
   bestGain: number;
   sessions: number;
+  examiner: number;
 }
 
 interface BadgeDef {
@@ -37,6 +38,7 @@ export const BADGES: BadgeDef[] = [
   { key: "top_marks", title: "Top marks", description: "Score 100% on a quiz or exam", target: 100, value: (s) => s.bestScore },
   { key: "big_leap", title: "Big leap", description: "Score 20 points more in a final exam than in its pre-test", target: 20, value: (s) => s.bestGain },
   { key: "mentored", title: "Mentored", description: "Complete a session with a mentor", target: 1, value: (s) => s.sessions },
+  { key: "examined", title: "Real-world ready", description: "Score 70 or more in the AI Examiner", target: 70, value: (s) => s.examiner },
   { key: "course_3", title: "Lifelong learner", description: "Earn 3 certificates", target: 3, value: (s) => s.certificates },
   { key: "streak_30", title: "Habit formed", description: "Learn 30 days in a row", target: 30, value: (s) => s.longestStreak },
 ];
@@ -58,6 +60,7 @@ async function statsFor(userId: string): Promise<Stats> {
         (SELECT count(*) FROM course_certificates WHERE user_id = ${userId})::int AS certificates,
         (SELECT coalesce(max(score), 0) FROM assessment_attempts WHERE user_id = ${userId} AND completed_at IS NOT NULL)::int AS best_score,
         (SELECT count(*) FROM mentor_sessions WHERE sme_user_id = ${userId} AND status = 'completed')::int AS sessions,
+        (SELECT coalesce(max(overall_score), 0) FROM examiner_attempts WHERE user_id = ${userId})::int AS examiner,
         (
           WITH a AS (
             SELECT s.course_id, s.assessment_type, aa.score, aa.completed_at
@@ -78,6 +81,7 @@ async function statsFor(userId: string): Promise<Stats> {
     bestScore: row.best_score,
     bestGain: row.best_gain,
     sessions: row.sessions,
+    examiner: row.examiner,
   };
 }
 

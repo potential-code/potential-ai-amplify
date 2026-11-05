@@ -88,6 +88,7 @@ const ENUMS: Record<string, string[]> = {
   journey_type: JOURNEY_TYPES,
   journey_status_learning_path: [...learningPathStatusEnum.enumValues],
   journey_status_other: [...bothPathStatusEnum.enumValues],
+  ai_exam_mode: ["text", "voice", "video"],
   lesson_completion_source: ["course_lesson", "content_on_demand", "blended_learning"],
   journey_item_kind: ["youtube", "article", "course_lesson", "external"],
   quiz_type: [...codQuizTypeEnum.enumValues],
@@ -293,6 +294,26 @@ const VIEWS: CatalogView[] = [
     ],
   },
   {
+    name: "ai_exam_attempt",
+    grain: "one row per finished AI Examiner attempt",
+    description:
+      "AI Examiner: a role-play exam with Anna about one course, graded 0–100 overall and on five dimensions. Practice, not certification. " +
+      "Scores only — no scenario, transcript or feedback text.",
+    columns: [
+      { name: "attempt_id", type: "uuid", description: "" },
+      LEARNER_ID,
+      { ...COURSE_ID, description: "The course the exam was about. Joins to ai.course.course_id." },
+      { name: "mode", type: "text", description: "See the ai_exam_mode enum." },
+      { name: "overall_score", type: "integer", description: "0–100." },
+      { name: "course_knowledge_score", type: "integer or NULL", description: "0–100." },
+      { name: "application_score", type: "integer or NULL", description: "0–100." },
+      { name: "communication_score", type: "integer or NULL", description: "0–100." },
+      { name: "problem_solving_score", type: "integer or NULL", description: "0–100." },
+      { name: "professionalism_score", type: "integer or NULL", description: "0–100." },
+      { name: "attempted_on", type: "date", description: "" },
+    ],
+  },
+  {
     name: "mentor",
     grain: "one row per mentor",
     description: "Human mentors (accounts with the mentor role). No names or contact details.",
@@ -408,7 +429,7 @@ const NOTES: string[] = [
   "Countries are English names ('United Arab Emirates', 'Nigeria', 'United Kingdom'); ISO codes from early sign-ups are already folded in. Group by country directly.",
   "A 'lesson' is one AI Amplify learning block. A course is completed when ai.course_progress.completed is true (progress reached 100%) — never use enrollment_status for completion.",
   "Learners have three AI learning-journey stacks besides courses: Learning Path (AI Amplify lessons; progress lives in ai.lesson_progress), Content on Demand (external videos/articles) and Blended Learning (both). ai.journey lists every journey started; ai.lesson_completion counts finished steps across all of them.",
-  "ai.course_progress, ai.lesson_progress, ai.lesson_completion, ai.journey, ai.journey_item_progress, ai.activity_day and ai.mentor_session hold several rows per learner — joining one of them to ai.learner multiplies that learner's rows.",
+  "ai.course_progress, ai.lesson_progress, ai.lesson_completion, ai.journey, ai.journey_item_progress, ai.activity_day, ai.ai_exam_attempt and ai.mentor_session hold several rows per learner — joining one of them to ai.learner multiplies that learner's rows.",
   "Dates are calendar dates without a time zone; ai.activity_day.active_on is in the learner's own time zone.",
 ];
 
@@ -422,12 +443,13 @@ const INSTRUCTIONS: string[] = [
     "  RIGHT — each learner once:\n" +
     "    SELECT l.country, COUNT(DISTINCT l.learner_id) AS learners FROM ai.learner l JOIN ai.course_progress p ON p.learner_id = l.learner_id GROUP BY l.country",
 
-  "STANDARD FIGURES — use these definitions so answers match the admin dashboard: learners = COUNT(*) FROM ai.learner; active learners in a period = COUNT(DISTINCT learner_id) FROM ai.activity_day in that period; lessons completed = COUNT(*) FROM ai.lesson_completion; courses completed = COUNT(*) FROM ai.course_progress WHERE completed; journeys started = COUNT(*) FROM ai.journey (learners who started one = COUNT(DISTINCT learner_id)); mentor sessions = COUNT(*) FROM ai.mentor_session WHERE status <> 'cancelled'.",
+  "STANDARD FIGURES — use these definitions so answers match the admin dashboard: learners = COUNT(*) FROM ai.learner; active learners in a period = COUNT(DISTINCT learner_id) FROM ai.activity_day in that period; lessons completed = COUNT(*) FROM ai.lesson_completion; courses completed = COUNT(*) FROM ai.course_progress WHERE completed; journeys started = COUNT(*) FROM ai.journey (learners who started one = COUNT(DISTINCT learner_id)); AI exam average = AVG(overall_score) FROM ai.ai_exam_attempt; mentor sessions = COUNT(*) FROM ai.mentor_session WHERE status <> 'cancelled'.",
 
   "DATE EACH THING BY ITS OWN EVENT: learners by signed_up_on (or signup_month), lessons by completed_on, courses by completed_on, journeys by started_on, exams by attempted_on, sessions by booked_on or starts_at, redemptions by redeemed_on. For a monthly trend use date_trunc('month', <date column>)::date and ORDER BY it.",
 
   "SMALL GROUPS: when a breakdown yields a group of fewer than five learners, give the count but do not describe that group's individual members or their combination of attributes.",
 
+  "The AI Examiner (ai.ai_exam_attempt) is practice: its scores never gate a certificate.",
   "When the schema genuinely cannot answer — the data is excluded as personal or free text (names, contact details, exam transcripts, mentor notes, billing), or no view covers it — say so plainly in one sentence and name the closest thing it CAN answer. Never estimate or invent a figure.",
 
   "SHOW, DON'T LIST. When the answer is a breakdown, a ranking, a trend over time or a comparison, draw it with show_chart (one SELECT, with a chart type) instead of writing the numbers out as prose, then say in a sentence or two what the figure shows, citing it as 'Figure N'. Use run_sql for a single number or for working you do not need to show. Keep a figure to about a dozen categories — aggregate or LIMIT first.",

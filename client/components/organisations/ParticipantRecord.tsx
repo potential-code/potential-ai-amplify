@@ -3,7 +3,8 @@
 /**
  * One participant's full record, for their organisation's partner contacts
  * and for admins: overview (streak, badges, recent activity), courses unit by
- * unit with exam answers and action plans, certificates, events, mentor sessions, and their chats with
+ * unit with exam answers and action plans, certificates, AI Examiner
+ * scorecards and transcripts, events, mentor sessions, and their chats with
  * the AI (saved while they're in the organisation). AI text is shown as
  * plain text, never rendered.
  */
@@ -34,15 +35,35 @@ export type ParticipantRecordData = {
   activity: { at: string; kind: string; text: string }[]
   courses: CourseRecord[]
   certificates: { number: string; course: string; issuedAt: string; url: string | null; status: string }[]
+  examiner: {
+    course: string
+    mode: string
+    scenario: string
+    overallScore: number
+    dimensions: Record<string, number>
+    strengths: string[]
+    improvements: string[]
+    feedback: string
+    transcript: { role: string; text: string }[]
+    createdAt: string
+  }[]
   events: { title: string; startsAt: string; endsAt: string; format: string; bookedAt: string; attendedMinutes: number | null }[]
   mentorSessions: { mentorName: string; startsAt: string; minutes: number; status: string; cancelledBy: string | null; bookedAt: string }[]
   conversations: { surface: string; surfaceLabel: string; question: string | null; answer: string; createdAt: string }[]
 }
 
-type Tab = 'overview' | 'courses' | 'sessions' | 'chats'
+type Tab = 'overview' | 'courses' | 'examiner' | 'sessions' | 'chats'
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 const at = (iso: string) => `${fmtDate(iso)}, ${new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
+const DIMENSION: Record<string, string> = {
+  courseKnowledge: 'Course knowledge',
+  application: 'Application',
+  communication: 'Communication',
+  problemSolving: 'Problem solving',
+  professionalism: 'Professionalism',
+}
+
 function Section({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={cn('flex flex-col gap-3', className)}>
@@ -270,6 +291,66 @@ function Courses({ r }: { r: ParticipantRecordData }) {
   )
 }
 
+function Examiner({ r }: { r: ParticipantRecordData }) {
+  const [open, setOpen] = useState<number | null>(null)
+  if (!r.examiner.length) return <EmptyState title="No AI Examiner role-plays yet" />
+  return (
+    <ul className="flex flex-col gap-4">
+      {r.examiner.map((x, i) => (
+        <li key={i}>
+        <Card className="flex flex-col gap-3 p-5">
+          <div className="flex flex-wrap items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[15px] font-semibold text-ui-text">{x.scenario}</h3>
+              <p className="text-xs text-ui-muted">
+                {x.course} · {x.mode} · {at(x.createdAt)}
+              </p>
+            </div>
+            <span className="text-2xl font-semibold tabular-nums text-ui-text">
+              {x.overallScore}
+              <span className="text-sm font-normal text-ui-muted">/100</span>
+            </span>
+          </div>
+          <div className="grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+            {Object.entries(x.dimensions).map(([k, v]) => (
+              <div key={k} className="flex items-center gap-2 text-[13px]">
+                <span className="w-[130px] shrink-0 text-ui-muted">{DIMENSION[k] ?? k}</span>
+                <ProgressBar value={v} className="flex-1" label={`${DIMENSION[k] ?? k} ${v}`} />
+                <span className="w-8 text-right tabular-nums">{v}</span>
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold text-ui-muted">Strengths</p>
+              <ul className="mt-1 list-disc ps-5 text-[13px] text-ui-text">{x.strengths.map((s, j) => <li key={j}>{s}</li>)}</ul>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-ui-muted">To improve</p>
+              <ul className="mt-1 list-disc ps-5 text-[13px] text-ui-text">{x.improvements.map((s, j) => <li key={j}>{s}</li>)}</ul>
+            </div>
+          </div>
+          <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ui-text">{x.feedback}</p>
+          <button type="button" className="self-start text-[13px] font-semibold text-ui-brand-text hover:underline" onClick={() => setOpen(open === i ? null : i)} aria-expanded={open === i}>
+            {open === i ? 'Hide transcript' : `Show transcript (${x.transcript.length} turns)`}
+          </button>
+          {open === i && (
+            <ol className="flex max-h-[420px] flex-col gap-2 overflow-y-auto rounded-[10px] border border-ui-line p-3">
+              {x.transcript.map((t, j) => (
+                <li key={j} className={cn('max-w-[85%] rounded-[12px] px-3 py-2 text-[13px]', t.role === 'learner' ? 'self-end bg-ui-brand-soft text-ui-text' : 'self-start bg-ui-surface-2 text-ui-text')}>
+                  <span className="block text-[11px] font-semibold text-ui-muted">{t.role === 'learner' ? 'Participant' : 'Role-play'}</span>
+                  <span className="whitespace-pre-wrap">{t.text}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Card>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 function Sessions({ r }: { r: ParticipantRecordData }) {
   const [now] = useState(() => Date.now())
   return (
@@ -434,12 +515,14 @@ export function ParticipantRecord({ endpoint, backHref, backLabel }: { endpoint:
             tabs={[
               { value: 'overview', label: 'Overview' },
               { value: 'courses', label: 'Courses', count: r.courses.length },
+              { value: 'examiner', label: 'AI Examiner', count: r.examiner.length },
               { value: 'sessions', label: 'Events & mentors', count: r.events.length + r.mentorSessions.length },
               { value: 'chats', label: 'AI chats', count: r.conversations.length },
             ]}
           />
           {tab === 'overview' && <Overview r={r} />}
           {tab === 'courses' && <Courses r={r} />}
+          {tab === 'examiner' && <Examiner r={r} />}
           {tab === 'sessions' && <Sessions r={r} />}
           {tab === 'chats' && <Chats r={r} />}
         </>

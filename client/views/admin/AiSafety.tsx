@@ -1,7 +1,8 @@
 'use client'
 
 /**
- * AI safety: answers learners reported (from Ask Anna, the learning journeys
+ * AI safety: answers learners reported (from Ask Anna, the course page, the
+ * tutor, the AI Examiner, the learning journeys
  * and the AI mentors). Read the question
  * and the answer, note what was done, and mark it reviewed or dismiss it.
  * Reported text is shown as plain text, never rendered.
@@ -143,7 +144,7 @@ export default function AiSafetyPage() {
     <AdminLayout>
       <PageHeader
         title="AI safety"
-        subtitle="Answers learners reported from Ask Anna, the learning journeys and the AI mentors."
+        subtitle="Answers learners reported from Ask Anna, Anna on the course page, Interactive Learning, the AI Examiner, the learning journeys and the AI mentors."
       />
       <FilterChips<Status>
         label="Filter reports"

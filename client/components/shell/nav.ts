@@ -26,6 +26,7 @@ import {
   Megaphone,
   ShieldAlert,
   Languages,
+  ShieldCheck,
   LayoutGrid,
   type LucideIcon,
 } from 'lucide-react'
@@ -75,6 +76,7 @@ export const SHELL_CONFIG: Record<ShellRole, ShellConfig> = {
           { label: 'Interactive Learning', href: '/dashboard/multi-learning', icon: Languages },
           { label: 'Certificates', href: '/dashboard/certificates', icon: Award },
           { label: 'Achievements', href: '/dashboard/achievements', icon: Trophy },
+          { label: 'AI Examiner', href: '/dashboard/ai-examiner', icon: ShieldCheck },
         ],
       },
       {
