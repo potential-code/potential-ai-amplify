@@ -34,3 +34,5 @@ export * from "./achievements";
 export * from "./organisations";
 export * from "./aiTurns";
 export * from "./aiReports";
+export * from "./translationCache";
+export * from "./aiDashboards";

@@ -30,6 +30,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/server/mail ./mail
 # Certificate template image used by the canvas renderer
 COPY --from=builder /app/server/assets ./assets
+# AI analytics `ai` schema, applied at boot when missing or changed
+COPY --from=builder /app/server/db/aiViews/001_ai_schema.sql ./db/aiViews/001_ai_schema.sql
 # Drizzle migration files for startup migrator
 COPY --from=builder /app/server/db/migrations ./db/migrations
 # Migration runner script

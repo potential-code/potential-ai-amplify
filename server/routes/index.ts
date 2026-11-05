@@ -16,6 +16,8 @@ import { organisationsRouter, partnerRouter } from "./organisations.routes";
 import { aiReportsRouter, adminAiReportsRouter } from "./aiReports.routes";
 import aiMentorRouter from "./aiMentor.routes";
 import askSanaRouter from "./askSana.routes";
+import tutorRouter from "./tutor.routes";
+import aiAnalyticsRouter from "./ai-analytics.routes";
 
 const router: IRouter = Router();
 
@@ -24,6 +26,9 @@ router.use("/account", accountRouter);
 router.use("/newsletter", newsletterRouter);
 router.use("/stakeholders", stakeholdersRouter);
 router.use("/admin/ai-reports", adminAiReportsRouter);
+// AI analytics (AI Insights + AI Dashboard). Mounted before /admin so its
+// requests are authenticated once, by its own admin guard.
+router.use("/admin/ai", aiAnalyticsRouter);
 router.use("/admin", adminRouter);
 router.use("/mentor", mentorRouter);
 router.use("/lms", lmsRouter);
@@ -38,6 +43,8 @@ router.use("/ai-reports", aiReportsRouter);
 router.use("/ai-mentors", aiMentorRouter);
 // Ask Anna (the path keeps its old internal name, like the "ask-sana" report surface).
 router.use("/ask-sana", askSanaRouter);
+// Multi Learning tutor (Anna, smeepTutor agent): /api/ai/tutor/*
+router.use("/ai", tutorRouter);
 // SME routes: /api/mentors/* and /api/sessions/* — no sub-prefix, paths defined in sme.routes.ts
 router.use(smeRouter);
 

@@ -260,6 +260,20 @@
       "when": 1793805225288,
       "tag": "0036_ai_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1793879172101,
+      "tag": "0037_translation_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1793879426869,
+      "tag": "0038_ai_dashboards",
+      "breakpoints": true
     }
   ]
 }

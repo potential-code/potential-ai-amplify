@@ -118,7 +118,7 @@ let inflightMint: Promise<string | null> | null = null
 
 async function mintFrom(
   endpoint: '/api/account/copilot-token' | '/api/account/copilot-token/guest',
-  kind: 'user' | 'guest',
+  kind: string,
 ): Promise<string> {
   const res = await apiFetch<{ success: boolean; data: { token: string; expiresAt: number } }>(
     endpoint,
@@ -145,7 +145,10 @@ async function mintFrom(
  * the landing chat must never hard-fail.
  */
 export function ensureCopilotToken(): Promise<string | null> {
-  const desiredKind = getUser() ? 'user' : 'guest'
+  // A user token belongs to one account and role: another sign-in or a role
+  // change (say, made admin) must never reuse it, even if nothing cleared it.
+  const user = getUser()
+  const desiredKind = user ? `user:${user.id}:${user.role}` : 'guest'
   const cached = getCopilotJwt()
   let cachedKind = ''
   try {
@@ -157,9 +160,9 @@ export function ensureCopilotToken(): Promise<string | null> {
   if (inflightMint) return inflightMint
 
   inflightMint = (async () => {
-    if (desiredKind === 'user') {
+    if (desiredKind !== 'guest') {
       try {
-        return await mintFrom('/api/account/copilot-token', 'user')
+        return await mintFrom('/api/account/copilot-token', desiredKind)
       } catch (err) {
         // Ended session — fall back to an anonymous token so the
         // assistant degrades gracefully instead of 401-ing forever.

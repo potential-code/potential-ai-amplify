@@ -25,6 +25,8 @@ import {
   Users,
   Megaphone,
   ShieldAlert,
+  Languages,
+  LayoutGrid,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -70,6 +72,7 @@ export const SHELL_CONFIG: Record<ShellRole, ShellConfig> = {
         title: 'Learn',
         items: [
           { label: 'Courses', href: '/dashboard/courses', icon: GraduationCap },
+          { label: 'Interactive Learning', href: '/dashboard/multi-learning', icon: Languages },
           { label: 'Certificates', href: '/dashboard/certificates', icon: Award },
           { label: 'Achievements', href: '/dashboard/achievements', icon: Trophy },
         ],
@@ -143,6 +146,14 @@ export const SHELL_CONFIG: Record<ShellRole, ShellConfig> = {
         ],
       },
       {
+        title: 'AI',
+        items: [
+          { label: 'AI Insights', href: '/admin/ai-insights', icon: Sparkles },
+          { label: 'AI Dashboard', href: '/admin/ai-dashboard', icon: LayoutGrid },
+          { label: 'AI safety', href: '/admin/ai-safety', icon: ShieldAlert },
+        ],
+      },
+      {
         title: 'Content',
         items: [
           { label: 'Course Creation', href: '/admin/courses', icon: BookOpenCheck },
@@ -157,7 +168,6 @@ export const SHELL_CONFIG: Record<ShellRole, ShellConfig> = {
           { label: 'Mentor Applications', href: '/admin/applications', icon: UserCheck },
           { label: 'Learners', href: '/admin/learners', icon: GraduationCap },
           { label: 'Organisations', href: '/admin/organisations', icon: Building2 },
-          { label: 'AI safety', href: '/admin/ai-safety', icon: ShieldAlert },
         ],
       },
       {

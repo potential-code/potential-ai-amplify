@@ -19,3 +19,16 @@ export function useNarrow(maxWidth = 480): boolean {
   }, [maxWidth])
   return narrow
 }
+
+/** True on screens at least `minWidth` wide. Starts false, like `useNarrow`. */
+export function useMinWidth(minWidth: number): boolean {
+  const [wide, setWide] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${minWidth}px)`)
+    const update = () => setWide(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [minWidth])
+  return wide
+}

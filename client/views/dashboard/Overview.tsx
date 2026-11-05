@@ -32,7 +32,7 @@ import { AnnouncementBanner } from '@/components/dashboard/AnnouncementBanner'
 import { CopilotKit } from '@copilotkit/react-core/v2'
 import { LearningPathPanel } from '@/components/both/LearningPathPanel'
 import { useCopilotTokenReady, getCopilotHeaders } from '@/components/dashboard/copilotConfig'
-import { handOffToAnna, learnWithAnnaQuestion } from '@/lib/askAnnaPending'
+import { handOffToAnna } from '@/lib/askAnnaPending'
 
 const SANA_AVATAR = '/images/redesign/anna-avatar-96.png'
 /** Ask Anna reads this on arrival and sends it as the first message. */
@@ -368,11 +368,7 @@ function ContinueCard({
             <Link href={courseHref(course.id)} className={btn()}>
               Resume
             </Link>
-            <Link
-              href="/dashboard/anna"
-              onClick={() => handOffToAnna(learnWithAnnaQuestion(course.title, summary?.allUnitsDone ? null : summary?.currentUnit?.title))}
-              className={btn({ variant: 'secondary' })}
-            >
+            <Link href={`/dashboard/multi-learning?course=${encodeURIComponent(course.id)}`} className={btn({ variant: 'secondary' })}>
               <img src={SANA_AVATAR} alt="" className="h-[22px] w-[22px] rounded-full object-cover object-top" />
               Learn with Anna
             </Link>

@@ -1,0 +1,51 @@
+-- AI analytics — the dedicated read-only Postgres role (optional, recommended
+-- for production).
+--
+-- Without it, AI analytics runs on the app's own connection, inside a
+-- READ ONLY transaction with a statement timeout, behind the SQL guard
+-- (server/services/ai-sql/guard.ts). That works, but the guard is then the
+-- only thing between generated SQL and the base tables. With this role and
+-- AI_READONLY_DATABASE_URL set, the role's GRANTs become the security
+-- boundary: even a query that slipped past the guard could read nothing but
+-- the `ai` views and could write nothing at all.
+--
+-- Easiest: `node scripts/prod-prep.mjs ai-readonly-role --apply` in the server
+-- container does all of this with the app's connection and prints the URL
+-- (then `ai-readonly-check`). By hand, as a user that can create roles:
+--   cp server/db/aiViews/000_role.sql.example /tmp/000_role.sql
+--   # edit the password and APP_DB_ROLE (DATABASE_URL's user)
+--   psql "$SUPERUSER_DATABASE_URL" -f /tmp/000_role.sql
+-- then set, on the AI Amplify server:
+--   AI_READONLY_DATABASE_URL=postgres://amplify_ai_readonly:<password>@<host>:5432/<db>
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'amplify_ai_readonly') THEN
+    CREATE ROLE amplify_ai_readonly LOGIN PASSWORD 'CHANGE-ME';
+  END IF;
+END $$;
+
+-- APP_DB_ROLE is the role the application connects as. It must own `ai` so
+-- the boot-time rebuild (server/db/aiViews/install.ts) can drop and recreate
+-- the views and stamp the schema comment without superuser.
+CREATE SCHEMA IF NOT EXISTS ai AUTHORIZATION APP_DB_ROLE;
+ALTER SCHEMA ai OWNER TO APP_DB_ROLE;
+
+-- Nothing in public: not the tables, not the sequences, not the schema.
+REVOKE ALL ON SCHEMA public FROM amplify_ai_readonly;
+REVOKE ALL ON ALL TABLES IN SCHEMA public FROM amplify_ai_readonly;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM amplify_ai_readonly;
+
+-- Only the `ai` views (plain views run with their owner's rights, so the role
+-- needs no grant on the base tables behind them).
+GRANT USAGE ON SCHEMA ai TO amplify_ai_readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA ai TO amplify_ai_readonly;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA ai TO amplify_ai_readonly;
+ALTER DEFAULT PRIVILEGES FOR ROLE APP_DB_ROLE IN SCHEMA ai GRANT SELECT ON TABLES TO amplify_ai_readonly;
+
+-- Duplicated by the pool and by each transaction, so the ceiling holds even if
+-- one layer is missed, and even for someone connecting with psql.
+ALTER ROLE amplify_ai_readonly SET statement_timeout = '15s';
+ALTER ROLE amplify_ai_readonly SET idle_in_transaction_session_timeout = '10s';
+ALTER ROLE amplify_ai_readonly SET default_transaction_read_only = on;
+ALTER ROLE amplify_ai_readonly SET search_path = ai;

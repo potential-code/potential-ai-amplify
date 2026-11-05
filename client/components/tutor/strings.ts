@@ -12,6 +12,8 @@ export interface TutorStrings {
   pageSubtitle: string
   coursesButton: string
   placeholder: string
+  /** For phones, where the full placeholder is cut off. */
+  placeholderShort: string
   couldNotLoad: string
   tryAgain: string
   continue: string
@@ -40,6 +42,11 @@ export interface TutorStrings {
   savingPlan: string
   planSaved: string
   finalExamKind: string
+  /** The pre-test that opens a course: no pass mark, only a starting point. */
+  preTestKind: string
+  preTestHint: string
+  startingPoint: string
+  lessonsOpen: string
   questionOf: (i: number, total: number) => string
   attemptsLeft: (n: number) => string
   previous: string
@@ -60,22 +67,31 @@ export interface TutorStrings {
   showProgress: string
   hideRail: string
   showRail: string
+  openAppView: string
   close: string
   bestScore: (s: number) => string
-  voiceOn: string
-  voiceOff: string
   chooseCourse: string
   showAllCourses: string
   nowStep: (step: string) => string
   earnsCertificate: string
   language: string
+  /** The one question under a video. */
+  quickCheck: string
+  answerToContinue: string
+  checkRight: string
+  checkWrong: (answer: string) => string
+  resetProgress: string
+  resetTitle: string
+  resetBody: string
+  cancel: string
 }
 
 const en: TutorStrings = {
-  pageTitle: 'Multi Learning',
+  pageTitle: 'Interactive Learning',
   pageSubtitle: 'Anna tutors you through a course, one step at a time',
   coursesButton: 'Courses',
   placeholder: 'Reply to Anna, or tap the mic and speak',
+  placeholderShort: 'Reply to Anna',
   couldNotLoad: 'This couldn’t be loaded.',
   tryAgain: 'Try again',
   continue: 'Continue',
@@ -104,6 +120,10 @@ const en: TutorStrings = {
   savingPlan: 'Saving…',
   planSaved: 'Plan saved',
   finalExamKind: 'Final exam',
+  preTestKind: 'Pre-test',
+  preTestHint: 'A quick check before you start',
+  startingPoint: 'Your starting point',
+  lessonsOpen: 'The lessons are open.',
   questionOf: (i, total) => `Question ${i} of ${total}`,
   attemptsLeft: (n) => `${n} attempts left`,
   previous: 'Previous',
@@ -123,15 +143,22 @@ const en: TutorStrings = {
   showProgress: 'Show course progress',
   hideRail: 'Hide the course panel',
   showRail: 'Show the course panel',
+  openAppView: 'Open the app view in a new tab',
   close: 'Close',
   bestScore: (s) => `best ${s}%`,
-  voiceOn: 'Voice replies on',
-  voiceOff: 'Voice replies off',
   chooseCourse: 'Choose a course',
   showAllCourses: 'Show my courses in the chat',
   nowStep: (step) => `Now: ${step.toLowerCase()}`,
   earnsCertificate: 'Earns your certificate',
   language: 'Language',
+  quickCheck: 'Quick check',
+  answerToContinue: 'Answer the question to continue',
+  checkRight: 'Correct, well done.',
+  checkWrong: (answer) => `Not quite. The answer is: ${answer}`,
+  resetProgress: 'Start over',
+  resetTitle: 'Start this course over?',
+  resetBody: 'Your progress in this course goes back to the start, including the pre-test and your answers. Other courses are not affected.',
+  cancel: 'Cancel',
 }
 
 const ar: TutorStrings = {
@@ -139,6 +166,7 @@ const ar: TutorStrings = {
   pageSubtitle: 'آنا ترافقك في الدورة خطوة بخطوة',
   coursesButton: 'الدورات',
   placeholder: 'ردّ على آنا، أو اضغط الميكروفون وتحدّث',
+  placeholderShort: 'ردّ على آنا',
   couldNotLoad: 'تعذّر تحميل هذا المحتوى.',
   tryAgain: 'حاول مجددًا',
   continue: 'متابعة',
@@ -167,6 +195,10 @@ const ar: TutorStrings = {
   savingPlan: 'جارٍ الحفظ…',
   planSaved: 'تم حفظ الخطة',
   finalExamKind: 'الاختبار النهائي',
+  preTestKind: 'الاختبار القبلي',
+  preTestHint: 'فحص سريع قبل أن تبدأ',
+  startingPoint: 'نقطة البداية',
+  lessonsOpen: 'الدروس متاحة الآن.',
   questionOf: (i, total) => `السؤال ${i} من ${total}`,
   attemptsLeft: (n) => `${n} محاولات متبقية`,
   previous: 'السابق',
@@ -186,22 +218,30 @@ const ar: TutorStrings = {
   showProgress: 'عرض تقدم الدورة',
   hideRail: 'إخفاء لوحة الدورة',
   showRail: 'إظهار لوحة الدورة',
+  openAppView: 'فتح عرض التطبيق في علامة تبويب جديدة',
   close: 'إغلاق',
   bestScore: (s) => `أفضل نتيجة ${s}٪`,
-  voiceOn: 'الردود الصوتية مفعّلة',
-  voiceOff: 'الردود الصوتية متوقفة',
   chooseCourse: 'اختر دورة',
   showAllCourses: 'اعرض دوراتي في المحادثة',
   nowStep: (step) => `الآن: ${step}`,
   earnsCertificate: 'تمنحك شهادتك',
   language: 'اللغة',
+  quickCheck: 'سؤال سريع',
+  answerToContinue: 'أجب عن السؤال للمتابعة',
+  checkRight: 'إجابة صحيحة، أحسنت.',
+  checkWrong: (answer) => `ليس تمامًا. الإجابة الصحيحة: ${answer}`,
+  resetProgress: 'ابدأ من جديد',
+  resetTitle: 'هل تريد بدء هذه الدورة من جديد؟',
+  resetBody: 'سيعود تقدمك في هذه الدورة إلى البداية، بما في ذلك الاختبار القبلي وإجاباتك. لن تتأثر الدورات الأخرى.',
+  cancel: 'إلغاء',
 }
 
 const hi: TutorStrings = {
-  pageTitle: 'मल्टी लर्निंग',
+  pageTitle: 'इंटरैक्टिव लर्निंग',
   pageSubtitle: 'अन्ना आपको एक-एक कदम करके कोर्स सिखाती हैं',
   coursesButton: 'कोर्स',
   placeholder: 'अन्ना को जवाब दें, या माइक दबाकर बोलें',
+  placeholderShort: 'अन्ना को जवाब दें',
   couldNotLoad: 'यह लोड नहीं हो सका।',
   tryAgain: 'फिर कोशिश करें',
   continue: 'आगे बढ़ें',
@@ -230,6 +270,10 @@ const hi: TutorStrings = {
   savingPlan: 'सहेजा जा रहा है…',
   planSaved: 'योजना सहेज ली गई',
   finalExamKind: 'अंतिम परीक्षा',
+  preTestKind: 'पूर्व-परीक्षा',
+  preTestHint: 'शुरू करने से पहले एक छोटी जाँच',
+  startingPoint: 'आपकी शुरुआती स्थिति',
+  lessonsOpen: 'पाठ अब खुल गए हैं।',
   questionOf: (i, total) => `प्रश्न ${i} / ${total}`,
   attemptsLeft: (n) => `${n} प्रयास शेष`,
   previous: 'पिछला',
@@ -249,22 +293,30 @@ const hi: TutorStrings = {
   showProgress: 'कोर्स की प्रगति देखें',
   hideRail: 'कोर्स पैनल छिपाएँ',
   showRail: 'कोर्स पैनल दिखाएँ',
+  openAppView: 'ऐप व्यू नए टैब में खोलें',
   close: 'बंद करें',
   bestScore: (s) => `सर्वश्रेष्ठ ${s}%`,
-  voiceOn: 'आवाज़ में जवाब चालू',
-  voiceOff: 'आवाज़ में जवाब बंद',
   chooseCourse: 'कोर्स चुनें',
   showAllCourses: 'चैट में मेरे कोर्स दिखाएँ',
   nowStep: (step) => `अभी: ${step}`,
   earnsCertificate: 'आपको प्रमाणपत्र दिलाती है',
   language: 'भाषा',
+  quickCheck: 'छोटा सवाल',
+  answerToContinue: 'आगे बढ़ने के लिए सवाल का जवाब दें',
+  checkRight: 'सही जवाब, बहुत बढ़िया।',
+  checkWrong: (answer) => `पूरी तरह नहीं। सही जवाब है: ${answer}`,
+  resetProgress: 'फिर से शुरू करें',
+  resetTitle: 'यह कोर्स फिर से शुरू करें?',
+  resetBody: 'इस कोर्स में आपकी प्रगति शुरुआत पर लौट जाएगी, प्री-टेस्ट और आपके जवाबों सहित। बाकी कोर्स पर असर नहीं पड़ेगा।',
+  cancel: 'रद्द करें',
 }
 
 const ur: TutorStrings = {
-  pageTitle: 'ملٹی لرننگ',
+  pageTitle: 'انٹرایکٹو لرننگ',
   pageSubtitle: 'انا آپ کو قدم بہ قدم کورس سکھاتی ہیں',
   coursesButton: 'کورسز',
   placeholder: 'انا کو جواب دیں، یا مائیک دبا کر بولیں',
+  placeholderShort: 'انا کو جواب دیں',
   couldNotLoad: 'یہ لوڈ نہیں ہو سکا۔',
   tryAgain: 'دوبارہ کوشش کریں',
   continue: 'جاری رکھیں',
@@ -293,6 +345,10 @@ const ur: TutorStrings = {
   savingPlan: 'محفوظ ہو رہا ہے…',
   planSaved: 'منصوبہ محفوظ ہو گیا',
   finalExamKind: 'آخری امتحان',
+  preTestKind: 'ابتدائی ٹیسٹ',
+  preTestHint: 'شروع کرنے سے پہلے ایک مختصر جائزہ',
+  startingPoint: 'آپ کا نقطۂ آغاز',
+  lessonsOpen: 'اسباق اب کھل گئے ہیں۔',
   questionOf: (i, total) => `سوال ${i} از ${total}`,
   attemptsLeft: (n) => `${n} کوششیں باقی`,
   previous: 'پچھلا',
@@ -312,15 +368,22 @@ const ur: TutorStrings = {
   showProgress: 'کورس کی پیش رفت دیکھیں',
   hideRail: 'کورس پینل چھپائیں',
   showRail: 'کورس پینل دکھائیں',
+  openAppView: 'ایپ ویو نئے ٹیب میں کھولیں',
   close: 'بند کریں',
   bestScore: (s) => `بہترین ${s}٪`,
-  voiceOn: 'آواز میں جواب آن',
-  voiceOff: 'آواز میں جواب بند',
   chooseCourse: 'کورس چنیں',
   showAllCourses: 'چیٹ میں میرے کورسز دکھائیں',
   nowStep: (step) => `اب: ${step}`,
   earnsCertificate: 'آپ کو سرٹیفکیٹ دلاتا ہے',
   language: 'زبان',
+  quickCheck: 'مختصر سوال',
+  answerToContinue: 'جاری رکھنے کے لیے سوال کا جواب دیں',
+  checkRight: 'درست جواب، بہت خوب۔',
+  checkWrong: (answer) => `بالکل نہیں۔ درست جواب ہے: ${answer}`,
+  resetProgress: 'دوبارہ شروع کریں',
+  resetTitle: 'یہ کورس دوبارہ شروع کریں؟',
+  resetBody: 'اس کورس میں آپ کی پیش رفت شروع پر واپس چلی جائے گی، پری ٹیسٹ اور آپ کے جوابات سمیت۔ دوسرے کورسز متاثر نہیں ہوں گے۔',
+  cancel: 'منسوخ کریں',
 }
 
 const STRINGS: Record<LearnerLanguage, TutorStrings> = { en, ar, hi, ur }

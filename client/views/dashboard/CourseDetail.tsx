@@ -49,8 +49,10 @@ import { AssessmentView } from '@/components/lms/AssessmentView'
 import { CertificateModal } from '@/components/lms/CertificateModal'
 import { blockKindLabel, blockLabel, blockTitle } from '@/components/learner/courseProgress'
 import type { CoursePreviewUnit } from '@/lib/api/lms'
-import { handOffToAnna, learnWithAnnaQuestion } from '@/lib/askAnnaPending'
 import { cn } from '@/lib/utils'
+import { CourseSana } from '@/components/course-sana/CourseSana'
+import type { SanaStep } from '@/components/course-sana/courseContext'
+import { useMinWidth } from '@/lib/useNarrow'
 
 // ─── Nav item types ────────────────────────────────────────────────────────────
 
@@ -220,6 +222,22 @@ export default function CourseDetailPage() {
     remember(OUTLINE_KEY, shown)
   }, [])
 
+  // Anna open as a drawer takes 380px; below 1536px the outline steps aside
+  // for her (its button still brings it back) and returns when she closes,
+  // so the lesson keeps its width.
+  const [sanaDocked, setSanaDocked] = useState(false)
+  const roomForAll = useMinWidth(1536)
+  const outlineShownRef = useRef(outlineShown)
+  useEffect(() => {
+    outlineShownRef.current = outlineShown
+  }, [outlineShown])
+  useEffect(() => {
+    if (!sanaDocked || roomForAll) return
+    const before = outlineShownRef.current
+    setOutlineShown(false)
+    return () => setOutlineShown(before)
+  }, [sanaDocked, roomForAll])
+
   const toggleFocus = useCallback(() => {
     if (focus) {
       setFocus(false)
@@ -259,6 +277,29 @@ export default function CourseDetailPage() {
 
   const activeItem = navItems[activeIdx] ?? null
   const isLast = activeIdx === navItems.length - 1
+
+  // What Anna (bottom right) is told the learner has open, and what's next.
+  const sanaStep = useMemo<SanaStep | null>(() => {
+    if (!course || !activeItem) return null
+    if (activeItem.kind === 'assessment') {
+      const { assessmentType, title, isLocked, isCompleted } = activeItem
+      return { kind: 'assessment', assessmentType, title, isLocked, isCompleted }
+    }
+    const unit = course.modules[activeItem.moduleIdx]?.units[activeItem.unitIdx]
+    return {
+      kind: 'block',
+      block: activeItem.block,
+      unitNumber: activeItem.unitNumber,
+      unitTitle: unit?.title ?? '',
+      stepInUnit: activeItem.blockIdx + 1,
+      stepsInUnit: unit?.blocks.length ?? 1,
+    }
+  }, [course, activeItem])
+  const sanaNext = useMemo(() => {
+    const next = navItems[activeIdx + 1]
+    if (!next) return null
+    return next.kind === 'assessment' ? itemLabel(next) : `Unit ${next.unitNumber}: ${itemLabel(next)}`
+  }, [navItems, activeIdx])
 
   const hasActionPlanQuestions =
     course?.modules.some((m) => m.units.some((u) => u.blocks.some((b) => b.questions.some((q) => q.kind === 'action-plan')))) ??
@@ -392,20 +433,14 @@ export default function CourseDetailPage() {
     )
   }
 
-  // Opens Ask Anna with this course and unit as the question (the same hand-off
-  // as the Home page's Ask bar). AI Amplify has no Multi Learning tutor or
-  // course helper yet: both need a per-platform persona in potential-ai.
-  function learnWithAnna() {
-    if (!course) return
-    const unit = activeItem?.kind === 'block' ? course.modules[activeItem.moduleIdx]?.units[activeItem.unitIdx]?.title : null
-    handOffToAnna(learnWithAnnaQuestion(course.title, unit))
-    router.push('/dashboard/anna')
-  }
 
   // ─── Enrollment guard ──────────────────────────────────────────────────────
   if (!course.isEnrolled) {
     return (
-      <CourseIntro course={course} enroll={enrollMutation} />
+      <>
+        <CourseIntro course={course} enroll={enrollMutation} />
+        <CourseSana course={course} step={null} nextLabel={null} />
+      </>
     )
   }
 
@@ -472,10 +507,10 @@ export default function CourseDetailPage() {
             <ProgressBar value={pct} className="flex-1" label="Course progress" />
             <span className="text-[13px] font-semibold tabular-nums">{pct}%</span>
           </div>
-          <Button variant="secondary" className="hidden h-9 xl:inline-flex" onClick={learnWithAnna}>
+          <Link href={`/dashboard/multi-learning?course=${encodeURIComponent(courseId)}`} className={cn(btn({ variant: 'secondary' }), 'hidden h-9 xl:inline-flex')}>
             <img src={SANA_AVATAR} alt="" className="h-[22px] w-[22px] rounded-full object-cover object-top" />
             Learn with Anna
-          </Button>
+          </Link>
           <Button
             variant="secondary"
             className="h-9 w-9 min-[1100px]:hidden"
@@ -618,6 +653,7 @@ export default function CourseDetailPage() {
               )}
             </div>
           </div>
+          <CourseSana course={course} step={sanaStep} nextLabel={sanaNext} dockable onDockedChange={setSanaDocked} />
         </div>
 
         {/* Outline on smaller screens */}
@@ -1239,7 +1275,8 @@ function CourseIntro({
           <Card className="flex gap-3 px-5 py-4">
             <img src={SANA_AVATAR} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover object-top" />
             <p className="text-[13px] leading-relaxed text-ui-muted">
-              <span className="font-semibold text-ui-text">Stuck on something?</span> Ask Anna about any lesson, any time.
+              <span className="font-semibold text-ui-text">Prefer to learn by chatting?</span> Once you start, Anna can tutor you through
+              this course step by step in English, Arabic, Hindi or Urdu, in Interactive Learning.
             </p>
           </Card>
         </div>

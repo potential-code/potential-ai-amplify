@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CheckCircle2, Lock, RotateCcw, XCircle } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,6 +11,7 @@ import {
   type AssessmentSummary,
 } from '@/lib/api/lms'
 import { cn } from '@/lib/utils'
+import { setLiveStep } from '@/components/course-sana/liveStep'
 
 type Props = {
   assessmentId: string
@@ -167,6 +168,20 @@ function TakingView({
 
   const [currentIdx, setCurrentIdx] = useState(0)
   const [answers, setAnswers] = useState<Record<string, number>>({})
+
+  // Tell the course page's Anna which question is showing (never the pick).
+  useEffect(() => {
+    const cq = questions?.[currentIdx]
+    if (!cq) return
+    setLiveStep('exam', {
+      view: 'taking',
+      questionNumber: currentIdx + 1,
+      totalQuestions: questions.length,
+      question: cq.questionText,
+      options: cq.questionType === 'true-false' ? ['True', 'False'] : cq.options,
+      answeredCount: Object.keys(answers).length,
+    })
+  }, [questions, currentIdx, answers])
 
   if (isLoading || !questions) {
     return (
@@ -407,6 +422,21 @@ export function AssessmentView({ assessmentId, isLocked, onCompleted }: Props) {
       }
     },
   })
+
+  // The summary and result screens, for the course page's Anna (the taking
+  // screen reports its own question).
+  useEffect(() => {
+    if (viewState === 'taking') return
+    const s = viewState === 'result' ? resultSummary : summary
+    setLiveStep('exam', {
+      view: viewState,
+      totalQuestions: s?.assessment.totalQuestions,
+      score: s?.latestAttempt?.score ?? null,
+      passed: s?.latestAttempt ? s.hasPassed : null,
+      attemptsRemaining: s?.attemptsRemaining ?? null,
+    })
+  }, [viewState, summary, resultSummary])
+  useEffect(() => () => setLiveStep('exam', null), [])
 
   if (isLoading) {
     return (
