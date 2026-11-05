@@ -4,7 +4,7 @@ import './globals.css'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'swap' })
 
-// Icons and the shared-link image are files in this folder (icon.png,
+// Icons and the shared-link image are files in this folder (favicon.ico, icon.svg,
 // apple-icon.png, opengraph-image.jpg, twitter-image.jpg); Next adds their
 // tags. metadataBase makes the image URLs absolute, which link previews need.
 export const metadata: Metadata = {
