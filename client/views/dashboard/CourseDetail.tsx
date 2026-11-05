@@ -369,6 +369,7 @@ export default function CourseDetailPage() {
   // Opens Ask Anna with this course and unit as the question (the same hand-off
   // as the Home page's Ask bar). AI Amplify has no Multi Learning tutor page.
   function learnWithAnna() {
+    if (!course) return
     const unit =
       activeItem?.kind === 'block'
         ? course.modules[activeItem.moduleIdx]?.units[activeItem.unitIdx]?.title
