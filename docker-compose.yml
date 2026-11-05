@@ -10,6 +10,8 @@ services:
       NODE_ENV: production
       PORT: "5000"
       DATABASE_URL: ${DATABASE_URL}
+      # AI Insights / AI Dashboard: the read-only amplify_ai_readonly role (optional).
+      AI_READONLY_DATABASE_URL: ${AI_READONLY_DATABASE_URL:-}
       JWT_SECRET: ${JWT_SECRET}
       # Signs session cookies; falls back to JWT_SECRET when unset.
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
