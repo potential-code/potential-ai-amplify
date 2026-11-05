@@ -32,7 +32,7 @@ export function CodPathBuildingProgress({ onReady, onFailed, title = 'Content on
   return (
     <JourneyBuilding
       title={title}
-      subtitle="Building your personalised Content on Demand path"
+      subtitle="Building your personalized Content on Demand path"
       sanaLine="I'm curating the best videos and articles for your goals."
     >
       <LearningPathGeneratingLoader />

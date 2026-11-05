@@ -117,7 +117,7 @@ export default function NotFound() {
                 Sign in
               </Link>
               <Link href="/sign-up" className={cn(btn(), 'h-9 max-[420px]:hidden')}>
-                Join free
+                Create account
               </Link>
             </>
           )}

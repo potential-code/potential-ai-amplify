@@ -95,7 +95,7 @@ export default function OffersPage() {
     <DashboardLayout>
       <PageHeader
         title="Offers"
-        subtitle="Member-only discounts from program partners. Redeem them with the points you earn from courses."
+        subtitle="Member-only discounts from program partners. Redeem them with the points you earn from courses; a few also have a paid option."
         className="mb-[22px]"
       />
 

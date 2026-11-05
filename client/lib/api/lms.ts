@@ -81,10 +81,15 @@ export type CoursePreview = {
   learners: number
 }
 
+/** An exam as the learner gets it: the questions, never the answer key. */
+export type LearnerAssessment = Omit<Assessment, 'questions'> & {
+  questions: Omit<AssessmentQuestion, 'correctAnswer' | 'explanation'>[]
+}
+
 export type LearnerCourseDetail = LearnerCourse & {
   modules: LearnerModule[]
-  preAssessment: (Assessment & { isLocked: boolean; isCompleted: boolean }) | null
-  postAssessment: (Assessment & { isLocked: boolean }) | null
+  preAssessment: (LearnerAssessment & { isLocked: boolean; isCompleted: boolean }) | null
+  postAssessment: (LearnerAssessment & { isLocked: boolean }) | null
   courseProgress: CourseProgress | null
   /** Only before enrolment. */
   preview?: CoursePreview
@@ -146,6 +151,7 @@ export type BlockQuestion = {
   format: 'multiple-choice' | 'true-false' | 'short-text'
   prompt: string
   options: string[] | null
+  /** Always null for learners: the server keeps the answer key. */
   correctIndex: number | null
   correctBool: boolean | null
   placeholder: string | null

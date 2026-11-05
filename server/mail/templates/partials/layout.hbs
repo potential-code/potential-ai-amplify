@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- The design is light: ask mail apps not to recolour it. Outlook and
+       Gmail may still darken it, which is why the logo sits on its own white badge. -->
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
   <style>
+    :root { color-scheme: light only; supported-color-schemes: light only; }
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
     body { margin: 0; padding: 0; background-color: #F9F9FF; }
     @media only screen and (max-width: 620px) {
@@ -34,10 +39,13 @@
                 style="background-color:#ffffff;padding:28px 40px 22px;
                        border-left:1px solid #F1ECFA;border-right:1px solid #F1ECFA;">
               <a href="{{siteUrl}}" target="_blank" style="display:inline-block;text-decoration:none;">
-                <img src="{{siteUrl}}/images/redesign/potential-logo.png"
+                <!-- A white badge with the logo baked in (660x194, shown at 220x65), so
+                     the logo stays readable when a mail app goes dark.
+                     width/height keep the real shape: some phones honour the height. -->
+                <img src="{{siteUrl}}/images/email-logo.png"
                      alt="Potential.org — AI Amplify"
-                     width="180" height="75"
-                     style="display:block;max-width:180px;height:auto;border:0;outline:none;text-decoration:none;">
+                     width="220" height="65"
+                     style="display:block;width:220px;max-width:220px;height:65px;border:0;outline:none;text-decoration:none;">
               </a>
             </td>
           </tr>

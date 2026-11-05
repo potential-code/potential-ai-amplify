@@ -184,6 +184,34 @@ export async function checkCoupon(req: Request, res: Response, next: NextFunctio
 }
 
 /**
+ * GET /api/account/voice-token
+ *
+ * A 60-second service JWT for opening the voice WebSocket. The socket carries
+ * its token in the URL, where it can end up in logs, so it gets a token that
+ * is useless almost immediately instead of the 1-hour chat token.
+ */
+export async function voiceToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const secret = process.env["COPILOT_SERVICE_JWT_SECRET"];
+    if (!secret) {
+      res.status(503).json({
+        success: false,
+        error: { message: "AI assistant is not configured", code: "COPILOT_NOT_CONFIGURED" },
+      });
+      return;
+    }
+    const token = jwt.sign(
+      { platformId: "ai-amplify", userId: req.user!.userId, scope: browserClaims(req.user!.role).scope },
+      secret,
+      { algorithm: "HS256", expiresIn: 60 },
+    );
+    res.status(200).json({ success: true, data: { token } });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
  * POST /api/account/set-password
  *
  * Sets the first password for an account created without one (Anna's chat

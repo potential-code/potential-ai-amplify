@@ -29,7 +29,7 @@ export function BothPathBuildingProgress({
   subtitle,
   steps,
   title = 'Blended Learning',
-  headerSubtitle = 'Building your personalised Blended Learning path',
+  headerSubtitle = 'Building your personalized Blended Learning path',
   leading,
   sanaLine = "I'm mixing AI Amplify course blocks with the best external content for your goals.",
   sanaAvatar,

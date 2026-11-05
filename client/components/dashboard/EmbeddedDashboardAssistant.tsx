@@ -17,7 +17,7 @@ import {
 import '@copilotkit/react-ui/v2/styles.css'
 import './copilot.css'
 import { useRouter, usePathname } from 'next/navigation'
-import { Ban, Check, Download, FileText, Languages, MessageSquarePlus, Volume2, VolumeX } from 'lucide-react'
+import { Ban, Check, FileText, MessageSquarePlus } from 'lucide-react'
 import { btn, inputClass } from '@/components/kit'
 import { COPILOT_AGENT } from './copilotConfig'
 import { useSharedAssistantThreadId, useResetAssistantThread } from './AssistantProvider'
@@ -35,9 +35,8 @@ import { PhoneField } from '@/components/ui/PhoneField'
 import {
   onPillClickRef,
   beforeSendRef,
-  parseAssistantPills,
 } from './chat-components'
-import { SanaAssistantMessage, SanaTypingIndicator } from '@/components/learning-ui/SanaMessages'
+import { SanaAssistantMessage, SanaReplyActions, SanaTypingIndicator, type SanaReplyActionsRenderer } from '@/components/learning-ui/SanaMessages'
 import { SanaChatInput } from '@/components/learning-ui/SanaChatInput'
 import { useSanaRunError, SanaConnectionNotice } from '@/components/learning-ui/SanaRunError'
 import '@/components/learning-ui/sana-studio.css'
@@ -52,14 +51,11 @@ import { EventAssistantCards } from '@/components/dashboard/assistant-cards/Even
 import { filterCourses, filterOffers } from '@/components/dashboard/assistant-cards/filterUtils'
 import { MentorBookingWidget } from '@/components/dashboard/assistant-cards/MentorBookingWidget'
 import { AssistantCardSkeleton } from '@/components/dashboard/assistant-cards/AssistantCardStrip'
-import { AskSanaGreeting, AskSanaQuickChips, AskSanaRail, ASK_LANG_KEY, ASK_STRINGS, ASK_VOICE_KEY } from './AskSanaParts'
+import { AskSanaGreeting, AskSanaShortcuts, AskSanaStarters, ASK_STRINGS } from './AskSanaParts'
+import { AskSanaReplyActions, AskSanaUserMessage, askSanaAttachOptions } from './AskSanaMessages'
 import { SanaComposerOptions } from '@/components/learning-ui/SanaChatInput'
-import { SanaMenu } from '@/components/learning-ui/SanaMenu'
 import { useReadAloud } from '@/components/tutor/useVoice'
-import { LANGUAGES, directionOf } from '@/components/tutor/strings'
-import { SanaReplyActionsProvider } from '@/components/learning-ui/SanaReplyActions'
-import { AskAnnaUserMessage, askAnnaAttachOptions } from './askAnnaDocuments'
-import { ASK_ANNA_PENDING_KEY } from '@/lib/askAnnaPending'
+import { directionOf } from '@/components/tutor/strings'
 import type { LearnerLanguage } from '@/components/tutor/api'
 
 const VALID_COUNTRIES = getCountryDataList()
@@ -68,13 +64,18 @@ const VALID_COUNTRIES = getCountryDataList()
 
 import { ChatLoadingContext } from './chat-loading-context'
 import { useNarrow } from '@/lib/useNarrow'
-import { ASK_ANNA_PROMPT as ASSISTANT_INSTRUCTIONS } from "../../../shared/anna/prompts";
+import { ASK_ANNA_PROMPT as ASSISTANT_INSTRUCTIONS } from '../../../shared/anna/prompts'
+import { ASK_ANNA_PENDING_KEY } from '@/lib/askAnnaPending'
 
 // Toggle: set to true to re-enable page-navigation actions (openXxxAndGetData).
 // When false, the LLM never sees these actions — all content queries go through
 // the card-display actions (showXxxCards) instead.
 const NAVIGATION_ACTIONS_ENABLED = false
-
+// What openProfileAndGetData tells Anna happened: with navigation off the
+// learner stays in the chat, and Anna must not say they're on their profile.
+const PROFILE_OPENED = NAVIGATION_ACTIONS_ENABLED
+  ? 'Opened profile page.'
+  : 'Loaded the profile. No page was opened: the user is still here in the chat, not on their profile page.'
 
 
 // ─── User snapshot type ───────────────────────────────────────────────────────
@@ -88,9 +89,9 @@ type UserSnapshot = {
 }
 
 const PAGE_NAMES: Record<string, string> = {
-  '/dashboard': 'Overview',
+  '/dashboard': 'Home',
   '/dashboard/profile': 'Profile',
-  '/dashboard/sessions': 'Sessions',
+  '/dashboard/sessions': 'My Sessions',
   '/dashboard/courses': 'Courses',
   '/dashboard/events': 'Events',
   '/dashboard/offers': 'Offers',
@@ -98,7 +99,7 @@ const PAGE_NAMES: Record<string, string> = {
   '/dashboard/ai-mentors': 'AI Mentors',
   '/dashboard/support': 'Support',
   '/dashboard/learning': 'Learning Path',
-  '/dashboard/anna': 'Anna - AI Concierge',
+  '/dashboard/anna': 'Ask Anna',
 }
 
 // v2 tool results arrive as strings (the respond() payload is JSON-serialized
@@ -141,6 +142,33 @@ function CancelledBookingGuard({ respond }: { respond?: (r: unknown) => void }) 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return null
+}
+
+// ─── Field update outcome (the card after save or cancel) ───────────────────
+
+function FieldUpdateOutcome({ field, result }: { field: CollectableField; result: unknown }) {
+  let outcome: { saved?: boolean; cancelled?: boolean } = {}
+  try {
+    outcome = typeof result === 'string' ? JSON.parse(result) : ((result as typeof outcome) ?? {})
+  } catch {
+    /* unknown shape: treat as not saved */
+  }
+  const label = FIELD_TITLES[field] ?? 'Profile'
+  const text = outcome.saved ? `${label} updated` : outcome.cancelled ? `${label} update cancelled` : `${label} wasn't updated`
+  return (
+    <div className="sana-lead my-2 flex">
+      <span
+        role="status"
+        className={cn(
+          'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-medium',
+          outcome.saved ? 'border-transparent bg-ui-ok-soft text-ui-ok' : 'border-ui-line bg-ui-surface text-ui-muted',
+        )}
+      >
+        {outcome.saved ? <Check className="h-3.5 w-3.5" aria-hidden /> : <Ban className="h-3.5 w-3.5" aria-hidden />}
+        {text}
+      </span>
+    </div>
+  )
 }
 
 // ─── Field update card (collect + save a single profile field in one step) ────
@@ -332,8 +360,8 @@ function DocumentDeliveryCard({
   content?: string
   defaultEmail: string
 }) {
-  // PDFs always go to the account's own email (the server ignores any other).
-  const email = defaultEmail
+  // The server always sends to the signed-in account's own address.
+  const [sentTo, setSentTo] = useState(defaultEmail)
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
   // Content arrives via streaming tool-argument chunks. Disable Send until
@@ -357,19 +385,15 @@ function DocumentDeliveryCard({
     setStatus('sending')
     setErrorMsg('')
     try {
-      await apiFetch('/api/ai-tools/generate-pdf', {
+      const res = await apiFetch<{ email?: string }>('/api/ai-tools/generate-pdf', {
         method: 'POST',
         body: JSON.stringify({ documentType, title, content }),
       })
+      if (res?.email) setSentTo(res.email)
       setStatus('sent')
-    } catch (err: unknown) {
+    } catch {
       setStatus('error')
-      const code = (err as { error?: { code?: string } })?.error?.code
-      setErrorMsg(
-        code === 'RATE_LIMITED'
-          ? "You've sent a lot of documents recently. Please try again a little later."
-          : "We couldn't send your PDF. Please try again.",
-      )
+      setErrorMsg('Failed to send. Please try again.')
     }
   }
 
@@ -400,14 +424,20 @@ function DocumentDeliveryCard({
       {status === 'sent' ? (
         <div className="flex items-center gap-1.5 text-[13px] font-medium text-ui-ok" role="status">
           <Check size={15} strokeWidth={2.5} aria-hidden />
-          {email ? <>PDF sent to {email}</> : 'PDF sent to your email'}
+          PDF sent to {sentTo}
         </div>
       ) : status === 'error' ? (
         <p className="text-[13px] text-ui-danger" role="alert">{errorMsg}</p>
       ) : (
         <>
           <p className="mb-2 text-[13px] text-ui-muted">
-            {email ? <>We&apos;ll email the PDF to <span className="font-medium text-ui-text">{email}</span>.</> : "We'll email the PDF to your account email."}
+            {defaultEmail ? (
+              <>
+                We&apos;ll email the PDF to <span className="font-medium text-ui-text">{defaultEmail}</span>
+              </>
+            ) : (
+              'We’ll email the PDF to your account address'
+            )}
           </p>
           {errorMsg && <p className="mb-2 text-[13px] text-ui-danger" role="alert">{errorMsg}</p>}
           <button
@@ -478,26 +508,9 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
   const [profileUpdateActive, setProfileUpdateActive] = useState(false)
   const [showEmptyState, setShowEmptyState] = useState(true)
 
-  // Reply language (Ask Anna's own setting, remembered per browser). A change
-  // applies from the next reply; the conversation itself is kept.
-  const [lang, setLangState] = useState<LearnerLanguage>('en')
-  const attachOptions = useMemo(() => askAnnaAttachOptions(lang), [lang])
-  useEffect(() => {
-    try {
-      const v = localStorage.getItem(ASK_LANG_KEY)
-      if (v === 'ar' || v === 'hi' || v === 'ur') setLangState(v)
-    } catch {
-      /* private mode */
-    }
-  }, [])
-  const setLang = useCallback((next: LearnerLanguage) => {
-    setLangState(next)
-    try {
-      localStorage.setItem(ASK_LANG_KEY, next)
-    } catch {
-      /* private mode: the language simply isn't remembered */
-    }
-  }, [])
+  // Ask Anna's screen is in English; Anna replies in the language the learner
+  // writes in (see the reply-language context below).
+  const lang: LearnerLanguage = 'en'
   const askUi = ASK_STRINGS[lang]
   const narrow = useNarrow()
   const askPlaceholder = narrow ? askUi.placeholderShort : askUi.placeholder
@@ -507,14 +520,6 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
   // Spoken replies: each finished reply read aloud (tutor TTS on the AI backend).
   const readAloud = useReadAloud()
   const { stop: stopReadAloud, play: playReadAloud } = readAloud
-  const [voiceReplies, setVoiceRepliesState] = useState(false)
-  useEffect(() => {
-    try {
-      setVoiceRepliesState(localStorage.getItem(ASK_VOICE_KEY) === '1')
-    } catch {
-      /* private mode */
-    }
-  }, [])
 
   // v2: one AG-UI agent per surface; thread id shared via AssistantProvider's
   // plain React context (the popup's v1 CopilotKit provider is unrelated).
@@ -551,6 +556,34 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
     },
     [agent, agentAny, copilotkit],
   )
+
+  // Regenerate the latest reply in place: drop it locally and run again from
+  // the last user message (the LangGraph agent forks that message's
+  // checkpoint, so the old reply doesn't linger in the thread).
+  const regenerate = useCallback(() => {
+    if (agentAny?.isRunning) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const list: any[] = agentAny?.messages ?? []
+    let i = list.length - 1
+    while (i >= 0 && list[i]?.role !== 'user') i--
+    if (i < 0) return
+    runChainRef.current = runChainRef.current.then(async () => {
+      try {
+        agentAny.setMessages?.(list.slice(0, i + 1))
+        await copilotkit.runAgent({ agent })
+        // The greeting is added in the browser with the first question, so the
+        // checkpoint the redo starts from can predate it: keep it on top.
+        const greeting = list[0]
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const now: any[] = agentAny?.messages ?? []
+        if (greeting?.role === 'assistant' && !now.some((m) => m?.id === greeting.id)) {
+          agentAny.setMessages?.([greeting, ...now])
+        }
+      } catch (err) {
+        console.warn('[assistant] regenerate failed', err)
+      }
+    })
+  }, [agent, agentAny, copilotkit])
 
   // Visible failure state for runs (backend down / network drop) — retry
   // re-runs the agent; the user's message is already in the local thread.
@@ -643,42 +676,7 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
     if (messages.length > 0) setShowEmptyState(false)
   }, [messages.length])
 
-  // Plain text of a message, with our sentinel comments stripped.
-  const messageText = useCallback((msg: { content?: unknown }): string => {
-    const raw = msg?.content
-    const text =
-      typeof raw === 'string'
-        ? raw
-        : Array.isArray(raw)
-          ? raw.map((p: { type?: string; text?: string }) => (p?.type === 'text' ? (p.text ?? '') : '')).join('')
-          : ''
-    return text.replace(/<!--[\s\S]*?-->/g, '').trim()
-  }, [])
-
   const hasConversation = messages.some((msg) => msg?.role === 'user' || msg?.role === 'assistant')
-
-  // Export the visible conversation as a downloadable .txt transcript.
-  const handleExportChat = useCallback(() => {
-    const lines = messages
-      .filter((msg) => msg?.role === 'user' || msg?.role === 'assistant')
-      .map((msg) => {
-        const who = msg.role === 'user' ? 'You' : 'Anna'
-        const text = messageText(msg)
-        return text ? `${who}: ${text}` : ''
-      })
-      .filter(Boolean)
-    if (lines.length === 0) return
-    const header = `Anna chat transcript\nExported ${new Date().toLocaleString()}\n\n`
-    const blob = new Blob([header + lines.join('\n\n') + '\n'], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `anna-chat-${new Date().toISOString().slice(0, 10)}.txt`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
-  }, [messages, messageText])
 
   // Reset to a fresh conversation: stop any run/voice, clear the visible
   // messages, re-show the empty state, and mint a new backend thread (so the
@@ -832,7 +830,7 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
   useFrontendTool({
     name: 'searchCatalogue',
     description:
-      'Fetch the current content catalogue so you can semantically match user intent to IDs. ' +
+      'Fetch the current content catalog so you can semantically match user intent to IDs. ' +
       'ALWAYS call this FIRST before any topic-based show*Cards action. ' +
       'Pass only the types relevant to the user\'s query. ' +
       'Returns id+title for each item — use semantic reasoning to identify which IDs match.',
@@ -853,7 +851,7 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
     }),
     render: ({ status }) => {
       if (status !== ToolCallStatus.InProgress) return <></>
-      return <p className="text-xs text-ui-muted py-1 italic">Searching catalogue…</p>
+      return <p className="text-xs text-ui-muted py-1 italic">Searching catalog…</p>
     },
     handler: async ({ types }) => {
       const results: Record<string, unknown[]> = {}
@@ -949,7 +947,10 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
   useFrontendTool({
     name: 'openProfileAndGetData',
     description:
-      "Open the profile page and fetch the user's full stored profile record. Call this when the user asks to open, view, or navigate to their profile, account settings, personal details, my info, edit profile, achievements, my achievements, certificates, or my certificates. The profile page contains an achievements/certifications section showing earned course certificates. Do NOT call this just to answer a simple question about email, name, or country — those are already in the user context.",
+      (NAVIGATION_ACTIONS_ENABLED
+        ? 'Open the profile page and fetch '
+        : "Fetch (this does NOT open any page: the user stays in this chat) ") +
+      "the user's full stored profile record. Call this when the user asks to open, view, or navigate to their profile, account settings, personal details, my info, edit profile, achievements, my achievements, certificates, or my certificates. The profile page contains an achievements/certifications section showing earned course certificates. Do NOT call this just to answer a simple question about email, name, or country — those are already in the user context.",
     handler: async () => {
       if (NAVIGATION_ACTIONS_ENABLED) router.push('/dashboard/profile')
       try {
@@ -974,9 +975,9 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
           role: u['role'],
           certificates: certsArr.map((c) => ({ title: c.courseTitle, number: c.certificateNumber })),
         }
-        return `Opened profile page. Profile data: ${JSON.stringify(summary)}`
+        return `${PROFILE_OPENED} Profile data: ${JSON.stringify(summary)}`
       } catch {
-        return 'Opened profile page. (Could not load profile data.)'
+        return `${PROFILE_OPENED} (Could not load profile data.)`
       }
     },
   })
@@ -1080,7 +1081,7 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
     name: 'openHumanMentorsAndGetData',
     available: NAVIGATION_ACTIONS_ENABLED,
     description:
-      'Open the human mentors page and fetch the list of available real human mentors. Call this when the user mentions: human mentors, real mentor, real coach, book a mentor, find a mentor, expert session, programme mentor, human coach, one-on-one session, or 1-on-1. This is NOT for AI mentors — use openAiMentorsAndGetData for those.',
+      'Open the human mentors page and fetch the list of available real human mentors. Call this when the user mentions: human mentors, real mentor, real coach, book a mentor, find a mentor, expert session, program mentor, human coach, one-on-one session, or 1-on-1. This is NOT for AI mentors — use openAiMentorsAndGetData for those.',
     handler: async () => {
       router.push('/dashboard/human-mentors')
       try {
@@ -1236,12 +1237,12 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
   useFrontendTool({
     name: 'showCoursesByTopic',
     description:
-      'Show courses semantically matching the user\'s topic or interest. BEFORE calling this, consult the content catalogue in your context, identify course IDs that are semantically relevant to the user\'s intent, and pass those IDs. Use when the user mentions a subject: "courses about blogs", "sales courses", "courses related to marketing", "find courses on leadership", "X training", "learn about X".',
+      'Show courses semantically matching the user\'s topic or interest. BEFORE calling this, consult the content catalog in your context, identify course IDs that are semantically relevant to the user\'s intent, and pass those IDs. Use when the user mentions a subject: "courses about blogs", "sales courses", "courses related to marketing", "find courses on leadership", "X training", "learn about X".',
     parameters: z.object({
       ids: z
         .array(z.string())
         .describe(
-          'IDs of courses from the catalogue that are semantically relevant to the user\'s intent. Look at the catalogue, reason about which courses match the topic by meaning (not just keyword), and pass their IDs. Pass an empty array only if truly nothing is relevant.',
+          'IDs of courses from the catalog that are semantically relevant to the user\'s intent. Look at the catalog, reason about which courses match the topic by meaning (not just keyword), and pass their IDs. Pass an empty array only if truly nothing is relevant.',
         ),
     }),
     render: ({ status, args, result }) => {
@@ -1269,13 +1270,13 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
   useFrontendTool({
     name: 'showOfferCards',
     description:
-      'Display filtered offer cards inline in the chat. Use when the user asks for offers, deals, discounts, partner offers, points redemption, or anything in the marketplace — without explicitly asking to navigate. When the user mentions a topic or interest, consult the catalogue and pass the IDs of semantically matching offers. For explicit navigation ("go to offers", "open offers"), use openOffersAndGetData instead.',
+      'Display filtered offer cards inline in the chat. Use when the user asks for offers, deals, discounts, partner offers, points redemption, or anything in the marketplace — without explicitly asking to navigate. When the user mentions a topic or interest, consult the catalog and pass the IDs of semantically matching offers. For explicit navigation ("go to offers", "open offers"), use openOffersAndGetData instead.',
     parameters: z.object({
       ids: z
         .array(z.string())
         .optional()
         .describe(
-          'IDs of offers from the catalogue that are semantically relevant to the user\'s intent. Omit or pass empty array to show all offers.',
+          'IDs of offers from the catalog that are semantically relevant to the user\'s intent. Omit or pass empty array to show all offers.',
         ),
       redeemableOnly: z
         .boolean()
@@ -1313,13 +1314,13 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
   useFrontendTool({
     name: 'showHumanMentorCards',
     description:
-      'Display filtered human mentor cards inline in the chat. Use for recommendation queries ("recommend a mentor", "find a mentor for X", "who can help with sales"). When the user mentions a topic or need, consult the catalogue and pass the IDs of semantically matching mentors. For explicit navigation ("go to mentors", "open human mentors"), use openHumanMentorsAndGetData instead.',
+      'Display filtered human mentor cards inline in the chat. Use for recommendation queries ("recommend a mentor", "find a mentor for X", "who can help with sales"). When the user mentions a topic or need, consult the catalog and pass the IDs of semantically matching mentors. For explicit navigation ("go to mentors", "open human mentors"), use openHumanMentorsAndGetData instead.',
     parameters: z.object({
       ids: z
         .array(z.string())
         .optional()
         .describe(
-          'IDs of human mentors from the catalogue that are semantically relevant to the user\'s need. Omit or pass empty array to show all mentors.',
+          'IDs of human mentors from the catalog that are semantically relevant to the user\'s need, best match first (cards keep this order). Omit or pass empty array to show all mentors.',
         ),
     }),
     render: ({ status, args, result }) => {
@@ -1359,13 +1360,13 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
   useFrontendTool({
     name: 'showAiMentorCards',
     description:
-      'Display filtered AI mentor cards inline in the chat. Use for recommendation queries ("recommend an AI mentor", "which AI mentor handles marketing", "find an AI coach for X"). When the user mentions a topic, consult the catalogue and pass the slugs of semantically matching AI mentors. For explicit navigation ("go to AI mentors", "open AI mentors"), use openAiMentorsAndGetData instead.',
+      'Display filtered AI mentor cards inline in the chat. Use for recommendation queries ("recommend an AI mentor", "which AI mentor handles marketing", "find an AI coach for X"). When the user mentions a topic, consult the catalog and pass the slugs of semantically matching AI mentors. For explicit navigation ("go to AI mentors", "open AI mentors"), use openAiMentorsAndGetData instead.',
     parameters: z.object({
       slugs: z
         .array(z.string())
         .optional()
         .describe(
-          'Slugs of AI mentors from the catalogue that are semantically relevant to the user\'s need. Omit or pass empty array to show all AI mentors.',
+          'Slugs of AI mentors from the catalog that are semantically relevant to the user\'s need. Omit or pass empty array to show all AI mentors.',
         ),
     }),
     render: ({ status, args, result }) => {
@@ -1405,7 +1406,7 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
         .array(z.string())
         .optional()
         .describe(
-          'IDs of tools from the catalogue that semantically match the user\'s need. ' +
+          'IDs of tools from the catalog that semantically match the user\'s need. ' +
             'Valid values: business-idea, business-plan, marketing-plan, ai-proposal. ' +
             'Omit or pass empty array to show all four tools.',
         ),
@@ -1447,8 +1448,9 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
       'Examples: "I want to increase sales", "How can I close more deals?", ' +
       '"I need more customers", "How do I improve my marketing?", "How can I grow my business?". ' +
       'BEFORE calling this, call searchCatalogue(["courses","offers","humanMentors","aiMentors","aiTools"]) ' +
-      'to get all catalogue items, then pass the semantically matched IDs for each category. ' +
-      'Pass an empty array for any category with no relevant matches — that section is hidden automatically.',
+      'to get all catalog items, then pass the semantically matched IDs for each category. ' +
+      'Pass an empty array for any category with no relevant matches — that section is hidden automatically. ' +
+      'In every list, put the best match first: cards are shown in the order given.',
     parameters: z.object({
       courseIds: z
         .array(z.string())
@@ -1713,7 +1715,7 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
   useFrontendTool({
     name: 'showEventCards',
     description:
-      'Display filtered event cards inline in the chat. Use for event discovery and recommendation queries: "what events can I join", "show upcoming events", "show event recordings", "find a webinar on X". When the user mentions a topic, consult the catalogue and pass the IDs of semantically matching events. For explicit navigation ("go to events", "open events"), use openEventsAndGetData instead.',
+      'Display filtered event cards inline in the chat. Use for event discovery and recommendation queries: "what events can I join", "show upcoming events", "show event recordings", "find a webinar on X". When the user mentions a topic, consult the catalog and pass the IDs of semantically matching events. For explicit navigation ("go to events", "open events"), use openEventsAndGetData instead.',
     parameters: z.object({
       statusFilter: z
         .enum(['upcoming', 'completed', 'all'])
@@ -1724,7 +1726,7 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
         .array(z.string())
         .optional()
         .describe(
-          'IDs of events from the catalogue that are semantically relevant to the user\'s topic or interest. Omit or pass empty array to show all events for the given statusFilter.',
+          'IDs of events from the catalog that are semantically relevant to the user\'s topic or interest. Omit or pass empty array to show all events for the given statusFilter.',
         ),
     }),
     render: ({ status, args, result }) => {
@@ -1786,6 +1788,11 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
       // the same tree position so its internal saved/cancelled state persists.
       if (props.status === ToolCallStatus.InProgress) return <></>
       const { args } = props
+      // Finished: show the outcome, not the form. The card can remount once the
+      // tool completes, and a fresh form would look like it's still waiting.
+      if (props.status === ToolCallStatus.Complete) {
+        return <FieldUpdateOutcome field={args.field as CollectableField} result={props.result} />
+      }
       const respond = props.status === ToolCallStatus.Executing ? props.respond : undefined
       return (
         <FieldUpdateCard
@@ -1826,7 +1833,7 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
     name: 'generateAndDeliverDocument',
     description:
       'Called ONLY when a complete, full, multi-section business document has already been written out in a PREVIOUS message and is ready to deliver as a PDF. ' +
-      "Shows a card where the user can send the PDF to their account's email. The card is non-blocking — the user interacts with it independently. " +
+      'Shows a card where the user can send the PDF to their email. The card is non-blocking — the user interacts with it independently. ' +
       'PREREQUISITES — ALL must be true before calling: (1) every selection step for the tool has been completed with user confirmation, (2) the complete final document was written in full in your PREVIOUS response turn, (3) the content you are passing is the actual full document text (not a list of options, not input summaries, not your own reasoning). ' +
       'NEVER call this with: a list of options for the user to choose from, a summary of what the user told you, your own planning/reasoning text, or any partial content. ' +
       'ZERO TEXT before the tool call. After the tool call, output the cross-tool suggestion immediately. ' +
@@ -1845,55 +1852,32 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
         documentType={args.documentType ?? ''}
         title={args.title ?? ''}
         content={args.content ?? ''}
-        defaultEmail={user?.email ?? ''}
+        defaultEmail={args.suggestedEmail ?? (user?.email ?? '')}
       />
     ),
   })
 
-  // --- Reply language: rides in the run context like Multi Learning's
-  // learner language (the chatbot graph appends every context entry to its
-  // system prompt).
-  useAgentContext({
-    description: 'Reply language chosen by the user on the Ask Anna page',
-    value:
-      lang === 'en'
-        ? 'Reply in English.'
-        : `Always write your replies in ${askUi.agentLanguage}, including option labels and follow-up suggestions, even if earlier messages were in English. Keep tool names, tool arguments, IDs and any option or suggestion markup format exactly as specified. Course, mentor and offer names may stay as they are in the catalogue.`,
-  })
-
-  // --- Spoken replies: read each finished reply aloud while the toggle is on
-  // (not during a live voice call, which speaks on its own).
-  const setVoiceReplies = useCallback(
-    (on: boolean) => {
-      setVoiceRepliesState(on)
-      try {
-        if (on) localStorage.setItem(ASK_VOICE_KEY, '1')
-        else localStorage.removeItem(ASK_VOICE_KEY)
-      } catch {
-        /* private mode */
-      }
-      if (!on) stopReadAloud()
-    },
-    [stopReadAloud, playReadAloud],
-  )
-  const spokenRef = useRef<Set<string>>(new Set())
-  const wasRunningRef = useRef(false)
-  useEffect(() => {
-    if (wasRunningRef.current && !isRunning && voiceReplies && !voiceOn) {
-      const last = [...messages]
-        .reverse()
-        .find((m) => m?.role === 'assistant' && messageText(m).length > 0)
-      if (last?.id && !spokenRef.current.has(last.id)) {
-        spokenRef.current.add(last.id)
-        const { prose } = parseAssistantPills(messageText(last))
-        if (prose.trim()) void playReadAloud(last.id, prose)
-      }
-    }
-    wasRunningRef.current = isRunning
-  }, [isRunning, messages, voiceReplies, voiceOn, stopReadAloud, playReadAloud, messageText])
   useEffect(() => {
     if (voiceOn) stopReadAloud()
   }, [voiceOn, stopReadAloud, playReadAloud])
+
+  // Copy, read aloud and try again under each reply; documents in the composer.
+  const renderReplyActions = useCallback<SanaReplyActionsRenderer>(
+    (reply) => (
+      <AskSanaReplyActions
+        {...reply}
+        lang={lang}
+        readAloud={readAloud}
+        onRegenerate={() => {
+          readAloud.stop()
+          regenerate()
+        }}
+        busy={isRunning}
+      />
+    ),
+    [lang, readAloud, regenerate, isRunning],
+  )
+  const attachOptions = useMemo(() => askSanaAttachOptions(lang), [lang])
 
   // Rail / quick-chip entries go through the same send path as typing.
   const ask = useCallback(
@@ -1940,12 +1924,11 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
     }
   }, [copilotkit])
 
-  const currentLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0]
   const iconBtn = cn(btn({ variant: 'secondary', size: 'md' }), 'h-9 w-9 px-0')
 
   return (
     <ChatLoadingContext.Provider value={isRunning}>
-    <div className={cn('sana-studio smeep-copilot relative flex flex-col h-[460px] overflow-hidden rounded-none bg-ui-bg', className)}>
+    <div className={cn('ask-sana sana-studio smeep-copilot relative flex flex-col h-[460px] overflow-hidden rounded-none bg-ui-bg', className)}>
       {runFailed && <SanaConnectionNotice onRetry={retryRun} />}
       <header className="relative z-[3] flex flex-shrink-0 flex-wrap items-center gap-x-2.5 gap-y-3 border-b border-ui-line bg-ui-surface px-4 py-3 sm:px-6 sm:py-3.5">
         <img
@@ -1962,55 +1945,8 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
           </p>
         </div>
         <div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:gap-2">
-          <SanaMenu
-            label={
-              <span lang={currentLang.code}>
-                <span className="sm:hidden">{currentLang.short}</span>
-                <span className="hidden sm:inline">{currentLang.label}</span>
-              </span>
-            }
-            ariaLabel={`Reply language: ${currentLang.label}`}
-            icon={<Languages className="hidden h-[18px] w-[18px] flex-none sm:block" strokeWidth={1.75} aria-hidden />}
-            items={LANGUAGES.map((l) => ({
-              key: l.code,
-              label: l.label,
-              lang: l.code,
-              dir: l.dir,
-              selected: l.code === lang,
-              onSelect: () => setLang(l.code),
-            }))}
-          />
-          <button
-            type="button"
-            aria-pressed={voiceReplies}
-            onClick={() => setVoiceReplies(!voiceReplies)}
-            title={voiceReplies ? 'Voice replies on' : 'Voice replies off'}
-            className={cn(
-              btn({ variant: 'secondary', size: 'md' }),
-              'h-9 px-3',
-              voiceReplies && 'border-transparent bg-ui-brand-soft text-ui-brand-text hover:bg-ui-brand-soft',
-            )}
-          >
-            {voiceReplies ? (
-              <Volume2 className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
-            ) : (
-              <VolumeX className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
-            )}
-            <span className="hidden xl:inline">{voiceReplies ? 'Voice replies on' : 'Voice replies off'}</span>
-            <span className="sr-only xl:hidden">Voice replies</span>
-          </button>
           {/* While a call is active the in-call dock below replaces this. */}
           {!voiceOn && <VoiceModeButton onClick={startVoice} agentName="Anna" />}
-          <button
-            type="button"
-            aria-label="Export chat"
-            title="Export chat"
-            onClick={handleExportChat}
-            disabled={!hasConversation}
-            className={iconBtn}
-          >
-            <Download className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
-          </button>
           <button
             type="button"
             aria-label="New chat"
@@ -2038,15 +1974,16 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
         value={{
           lang,
           placeholder: askPlaceholder,
-          above: <AskSanaQuickChips onAsk={ask} disabled={isRunning} />,
+          // A new chat shows the groups as tabs under the greeting instead.
+          above: showEmptyState ? undefined : <AskSanaShortcuts onAsk={ask} disabled={isRunning} />,
           attach: attachOptions,
         }}
       >
+        <SanaReplyActions.Provider value={renderReplyActions}>
         <div className="relative z-[1] flex min-h-0 flex-1">
           {/* CopilotChat always takes full height so V2 can measure the input bar
               correctly. The greeting overlays it until the first message. */}
           <div ref={chatContainerRef} className="relative min-w-0 flex-1 overflow-hidden smeep-assistant-chat" dir={dir} lang={lang}>
-            <SanaReplyActionsProvider lang={lang} reportSurface="ask-sana">
             <CopilotChat
               agentId={COPILOT_AGENT}
               threadId={threadId}
@@ -2054,7 +1991,7 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 assistantMessage: SanaAssistantMessage as any,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                userMessage: AskAnnaUserMessage as any,
+                userMessage: AskSanaUserMessage as any,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 cursor: SanaTypingIndicator as any,
               }}
@@ -2066,18 +2003,18 @@ export function EmbeddedDashboardAssistant({ className }: { className?: string }
                 welcomeMessageText: askUi.greeting(firstName),
               }}
             />
-            </SanaReplyActionsProvider>
             {showEmptyState && (
               <div className="absolute inset-0 z-10 flex flex-col bg-ui-bg">
                 <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-7">
                   <AskSanaGreeting text={askUi.greeting(firstName)} today={askUi.today} />
+                  <AskSanaStarters onAsk={ask} />
                 </div>
                 <SanaChatInput onSubmitMessage={handleSendFromEmptyState} isRunning={false} />
               </div>
             )}
           </div>
-          <AskSanaRail onAsk={ask} disabled={isRunning} />
         </div>
+        </SanaReplyActions.Provider>
       </SanaComposerOptions.Provider>
       {/* Persistent audio sink for streaming TTS playback. */}
       <audio ref={audioRef} hidden />

@@ -10,7 +10,7 @@ interface RegeneratePathDialogProps {
   onClose: () => void
   onConfirm: () => Promise<void> | void
   loading: boolean
-  /** Extra context when the path is stale (catalogue updated since built). */
+  /** Extra context when the path is stale (catalog updated since built). */
   stale?: boolean
 }
 
@@ -38,7 +38,7 @@ export function RegeneratePathDialog({
   if (!open) return null
 
   const body = stale
-    ? 'The course catalogue has been updated since your path was built. Anna will rebuild it from the latest content, using your original answers and everything you have completed so far. Your progress is kept.'
+    ? 'The course catalog has been updated since your path was built. Anna will rebuild it from the latest content, using your original answers and everything you have completed so far. Your progress is kept.'
     : 'Anna will rebuild your path using your original answers, your progress so far, and the latest course content. Completed blocks stay completed, so nothing is lost.'
 
   return (

@@ -102,7 +102,7 @@ export function VideoBlock({ block, onCompleted, onAdvance, onWatchThreshold }: 
               className={cn(
                 'h-full rounded-full transition-colors',
                 ytWatchPct >= 95
-                  ? 'bg-ui-ok-soft0'
+                  ? 'bg-ui-ok'
                   : 'bg-ui-brand',
               )}
             />
@@ -123,7 +123,7 @@ export function VideoBlock({ block, onCompleted, onAdvance, onWatchThreshold }: 
               className={cn(
                 'h-full rounded-full transition-colors',
                 watchPct >= 95
-                  ? 'bg-ui-ok-soft0'
+                  ? 'bg-ui-ok'
                   : 'bg-ui-brand',
               )}
             />

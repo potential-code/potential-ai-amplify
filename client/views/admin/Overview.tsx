@@ -104,7 +104,7 @@ export default function AdminOverview() {
             <>
               <Pill tone="brand" className="self-center">
                 <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-                Super admin
+                Administrator
               </Pill>
               <Link href="/admin/courses" className={btn()}>
                 <Plus className="h-4 w-4" strokeWidth={2} aria-hidden />
@@ -266,7 +266,7 @@ function NeedsAttentionPanel({
               ? `${data.pendingStakeholderApplications} new from VCs, government, universities, corporates or incubators`
               : 'No VC, government, university, corporate or incubator submissions',
           count: data.pendingStakeholderApplications,
-          href: '/admin/stakeholder-applications',
+          href: '/admin/stakeholder-applications/vc',
         },
         {
           key: 'drafts',

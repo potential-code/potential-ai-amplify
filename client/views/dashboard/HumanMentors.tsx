@@ -195,7 +195,7 @@ export default function HumanMentorsPage() {
               title={mentors.length === 0 ? 'No mentors available yet' : 'No mentors match'}
               body={
                 mentors.length === 0
-                  ? 'Mentors will appear here as soon as they join the programme.'
+                  ? 'Mentors will appear here as soon as they join the program.'
                   : 'Try another expertise or a different search.'
               }
               action={

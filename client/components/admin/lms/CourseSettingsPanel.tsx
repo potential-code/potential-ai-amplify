@@ -89,7 +89,7 @@ export function CourseSettingsPanel({
           }}
         />
       </FormField>
-      <FormField label="Topic" hint="Groups the course in the learner catalogue. Saves straight away.">
+      <FormField label="Topic" hint="Groups the course in the learner catalog. Saves straight away.">
         <span className="relative block">
           <select
             value={course.category ?? ''}

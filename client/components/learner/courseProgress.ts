@@ -73,6 +73,50 @@ export function stepLabel(block: LearnerBlock): string {
   return 'Read'
 }
 
+/** What kind of step a block is, in a word or two. Never uses the title. */
+export function blockKindLabel(block: LearnerBlock): string {
+  switch (block.type) {
+    case 'video':
+      return 'Video'
+    case 'image':
+      return 'Image'
+    case 'question': {
+      const kinds = new Set(block.questions.map((q) => q.kind))
+      if (kinds.size === 1 && kinds.has('action-plan')) return 'Action plan'
+      if (kinds.has('survey') && !kinds.has('action-plan')) return 'Survey'
+      return 'Questions'
+    }
+    default:
+      return 'Read'
+  }
+}
+
+// Imported courses name most blocks after their type ("Video", "Read More")
+// and end-of-unit surveys "<Course> Complete Unit 3": those say nothing the
+// type label doesn't.
+const PLACEHOLDER_TITLES = new Set(['video', 'read', 'read more', 'reading', 'text', 'image', 'survey', 'quiz', 'questions', 'action plan'])
+const PLACEHOLDER_PATTERN = /\bcomplete\s+(unit\s*\d+|questions?)\s*$/i
+
+/** The author's own title for a block, or null when it is empty or a placeholder. */
+export function blockTitle(block: LearnerBlock): string | null {
+  const t = block.title.trim().replace(/\s+/g, ' ')
+  if (!t || PLACEHOLDER_TITLES.has(t.toLowerCase()) || PLACEHOLDER_PATTERN.test(t)) return null
+  return t
+}
+
+/**
+ * Outline / navigation label: the block's real title, or a plain label when
+ * it has none ("Read More" -> "Read more"). Long titles are left whole; the
+ * caller truncates them with CSS.
+ */
+export function blockLabel(block: LearnerBlock): string {
+  const real = blockTitle(block)
+  if (real) return real
+  const t = block.title.trim().toLowerCase()
+  if (PLACEHOLDER_TITLES.has(t) && block.type !== 'question') return t.charAt(0).toUpperCase() + t.slice(1)
+  return blockKindLabel(block)
+}
+
 export type CourseSummary = {
   id: string
   title: string

@@ -22,6 +22,7 @@ import { getMentorSessionsList, type SessionWithDetails } from '@/lib/api/mentor
 import { getMyAvailability, type Slot } from '@/lib/api/mentorAvailability'
 import { fetchMenteeNotes, saveMenteeNotes } from '@/lib/api/redesign'
 import { cn } from '@/lib/utils'
+import { countryName } from '@/lib/countryName'
 
 type Filter = 'all' | 'upcoming' | 'past'
 
@@ -106,7 +107,7 @@ export default function Mentees() {
           email: u.email,
           avatarUrl: u.avatarUrl,
           company: u.company,
-          country: u.country,
+          country: u.country ? countryName(u.country) : u.country,
           sessions: sorted,
           hasUpcoming: list.some((s) => ['upcoming', 'live'].includes(sessionPhase(s, now))),
           latest: sorted[0],

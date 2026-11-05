@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { MessageCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { getAllAiMentors } from '@/lib/dashboardData'
+import { aiMentorPortrait } from '@/components/dashboard/aiMentorMeta'
 import { filterAiMentorsBySlugs } from './filterUtils'
 import { AssistantCardStrip } from './AssistantCardStrip'
 
@@ -48,9 +49,10 @@ export function AiMentorAssistantCards({ topic, slugs, actionStatus }: Props) {
         >
           <div className="relative aspect-[4/3] overflow-hidden">
             <img
-              src={mentor.avatar}
-              alt={mentor.name}
-              className="w-full h-full object-cover"
+              src={aiMentorPortrait(mentor.slug) ?? mentor.avatar}
+              alt=""
+              loading="lazy"
+              className="w-full h-full bg-ui-surface-2 object-cover"
             />
             <span className="absolute top-1.5 start-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-ui-surface/95 text-[11px] font-semibold text-ui-text">
               <span className="w-1.5 h-1.5 rounded-full bg-ui-ok" aria-hidden />

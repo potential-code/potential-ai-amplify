@@ -57,7 +57,7 @@ export function rangeBuckets(range: AnalyticsRange, now = new Date()): Bucket[] 
  * Spread sparse `{ label, ...values }` rows over the full range. The extra
  * leading bucket (the range starts part way through it) is dropped when empty
  * so the chart shows exactly 12 months / 7 days / 30 days.
- * Falls back to the raw rows if the server used labels we don't recognise.
+ * Falls back to the raw rows if the server used labels we don't recognize.
  */
 export function fillSeries<T extends { label: string }, K extends keyof T & string>(
   range: AnalyticsRange,

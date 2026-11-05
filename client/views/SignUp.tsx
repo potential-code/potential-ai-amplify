@@ -564,7 +564,7 @@ const SANA_STEPS: { label: string; icon: typeof User }[] = [
 /** The side panel when signing up with an organisation's link: what joining means. */
 function OrgAside({ name }: { name: string }) {
   const points = [
-    'Free courses, AI mentors and live events, like every AI Amplify learner.',
+    'The same courses, AI mentors and live events as every AI Amplify learner.',
     `${name} follows your progress: courses, exam answers, certificates, events, mentor sessions, and your chats with Anna and the AI mentors.`,
     'You can leave the organisation any time from your profile.',
   ]

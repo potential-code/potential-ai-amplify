@@ -16,39 +16,48 @@ const DEFAULT_BUILD_STEPS = [
 export function DiscoveryHowItWorks({
   title = 'How it works',
   steps,
+  current = 0,
 }: {
   title?: string
   steps: { label: string; detail: string }[]
+  /** The step the learner is on; earlier steps show as done. */
+  current?: number
 }) {
   return (
     <>
       <h2 className="px-2 text-[15px] font-semibold text-ui-text">{title}</h2>
       <ol className="flex flex-col gap-0.5">
-        {steps.map((s, i) => (
-          <li key={s.label} className="grid grid-cols-[24px_minmax(0,1fr)] gap-2.5 rounded-[10px] p-2">
-            <span
-              className={
-                i === 0
-                  ? 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-ui-brand text-[11px] font-bold text-white'
-                  : 'inline-flex h-6 w-6 items-center justify-center rounded-full border-[1.5px] border-ui-line text-[11px] font-bold text-ui-muted'
-              }
-              aria-hidden
-            >
-              {i + 1}
-            </span>
-            <span className="flex min-w-0 flex-col gap-0.5">
-              <span className={i === 0 ? 'text-[13px] font-semibold text-ui-text' : 'text-[13px] text-ui-text'}>{s.label}</span>
-              <span className="text-xs text-ui-muted">{s.detail}</span>
-            </span>
-          </li>
-        ))}
+        {steps.map((s, i) => {
+          const done = i < current
+          const active = i === current
+          return (
+            <li key={s.label} className="grid grid-cols-[24px_minmax(0,1fr)] gap-2.5 rounded-[10px] p-2" aria-current={active ? 'step' : undefined}>
+              <span
+                className={
+                  active
+                    ? 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-ui-brand text-[11px] font-bold text-white'
+                    : done
+                      ? 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-ui-brand-soft text-[11px] font-bold text-ui-brand-text'
+                      : 'inline-flex h-6 w-6 items-center justify-center rounded-full border-[1.5px] border-ui-line text-[11px] font-bold text-ui-muted'
+                }
+                aria-hidden
+              >
+                {done ? '✓' : i + 1}
+              </span>
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span className={active ? 'text-[13px] font-semibold text-ui-text' : done ? 'text-[13px] text-ui-muted' : 'text-[13px] text-ui-text'}>{s.label}</span>
+                <span className="text-xs text-ui-muted">{s.detail}</span>
+              </span>
+            </li>
+          )
+        })}
       </ol>
     </>
   )
 }
 
 export function AfterAnswersNote({
-  note = 'Building your path usually takes about 30 seconds.',
+  note = 'Building your path usually takes under 2 minutes.',
   steps = DEFAULT_BUILD_STEPS,
 }: {
   note?: string

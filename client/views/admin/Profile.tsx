@@ -10,8 +10,6 @@ import {
   MapPin,
   Pencil,
   Phone,
-  RefreshCw,
-  Route,
   ShieldCheck,
   User as UserIcon,
 } from 'lucide-react'
@@ -24,8 +22,6 @@ import { fmtDate, Pill, selectClass } from '@/components/admin/ui'
 import { changePassword as updatePassword, getUser, renameCachedUser, setFirstPassword } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
 import { PhoneField } from '@/components/ui/PhoneField'
-import { ConfirmDialog } from '@/components/admin/widgets/ConfirmDialog'
-import { apiRegenerateLearningSetupAll } from '@/lib/api/lms'
 import { cn } from '@/lib/utils'
 
 const COUNTRIES = getCountryDataList()
@@ -71,8 +67,6 @@ export default function AdminProfilePage({ variant = 'admin' }: { variant?: 'adm
   const [pwSaving, setPwSaving] = useState(false)
   const [pwErrors, setPwErrors] = useState<Record<string, string>>({})
 
-  const [regenConfirmOpen, setRegenConfirmOpen] = useState(false)
-  const [regenRunning, setRegenRunning] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -206,19 +200,6 @@ export default function AdminProfilePage({ variant = 'admin' }: { variant?: 'adm
       .finally(() => setPwSaving(false))
   }
 
-  function handleRegenConfirm() {
-    setRegenConfirmOpen(false)
-    setRegenRunning(true)
-    apiRegenerateLearningSetupAll()
-      .then((d) => {
-        toast.success(`Regenerated ${d.themeCount} themes and ${d.questionCount} questions, ${d.pathsCleared} paths reset`)
-      })
-      .catch((err: unknown) => {
-        toast.error(err instanceof Error ? err.message : 'Failed to regenerate learning setup')
-      })
-      .finally(() => setRegenRunning(false))
-  }
-
   const displayName = serverUser?.fullName ?? cached?.fullName ?? ''
   const email = serverUser?.email ?? cached?.email ?? ''
   const role = serverUser?.role ?? cached?.role ?? ''
@@ -239,7 +220,7 @@ export default function AdminProfilePage({ variant = 'admin' }: { variant?: 'adm
           <p className="mt-0.5 break-all text-sm text-ui-muted">{email}</p>
           <Pill tone="brand" className="mt-3">
             <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-            {partner ? 'Partner' : 'Super admin'}
+            {partner ? 'Partner' : 'Administrator'}
           </Pill>
           <dl className="mt-5 space-y-2 border-t border-ui-line pt-4 text-left text-[13px]">
             <InfoRow label="Role" value={<span className="capitalize">{role}</span>} />
@@ -433,54 +414,9 @@ export default function AdminProfilePage({ variant = 'admin' }: { variant?: 'adm
             </div>
           </form>
 
-          {/* AI Learning Path (admins only) */}
-          {!partner && (
-          <section aria-labelledby="h-regen" className="rounded-[14px] border border-ui-line bg-ui-surface px-5 py-5">
-            <div className="flex items-start gap-3">
-              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-ui-brand-soft text-ui-brand-text">
-                <Route className="h-5 w-5" strokeWidth={1.75} aria-hidden />
-              </span>
-              <div className="min-w-0">
-                <h2 id="h-regen" className="text-base font-semibold text-ui-text">AI Learning Path</h2>
-                <p className="mt-0.5 text-[13px] text-ui-muted">Rebuild the global learning setup from the current course catalog.</p>
-              </div>
-            </div>
-            <p className="mt-3 max-w-[75ch] text-sm leading-relaxed text-ui-muted">
-              Regenerating rebuilds all themes and intake questions from the current course catalog using AI, then resets
-              every learner&apos;s active path so they receive a fresh one on next visit. Completed blocks are preserved
-              server-side. This can take <strong className="font-semibold text-ui-text">up to 15 minutes</strong> to complete.
-            </p>
-            {regenRunning && (
-              <p className="mt-3 flex items-center gap-1.5 text-[13px] text-ui-muted" role="status">
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-ui-brand" aria-hidden />
-                Regeneration in progress. This may take several minutes; you can leave this page.
-              </p>
-            )}
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                disabled={regenRunning}
-                onClick={() => setRegenConfirmOpen(true)}
-                className={btn({ variant: 'secondary' })}
-              >
-                {regenRunning ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <RefreshCw className="h-4 w-4" aria-hidden />}
-                {regenRunning ? 'Regenerating' : 'Regenerate learning path setup'}
-              </button>
-              <span className="text-xs text-ui-muted">Asks for confirmation first.</span>
-            </div>
-          </section>
-          )}
         </div>
       </div>
 
-      <ConfirmDialog
-        open={regenConfirmOpen}
-        title="Regenerate learning path setup"
-        message="This rebuilds all AI themes and intake questions from the current course catalog and resets every learner's active path. Completed blocks are preserved. The AI run takes up to 15 minutes. Continue?"
-        confirmLabel="Regenerate"
-        onConfirm={handleRegenConfirm}
-        onCancel={() => setRegenConfirmOpen(false)}
-      />
     </Layout>
   )
 }

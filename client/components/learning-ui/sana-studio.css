@@ -303,23 +303,85 @@
   outline-offset: 2px;
 }
 
+/* Paperclip: a quiet icon inside the box, not a bordered button. */
+.sana-studio .sana-icon-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ui-muted);
+  margin-inline-start: -8px;
+}
+.sana-studio .sana-icon-btn--ghost:hover:not(:disabled) {
+  color: var(--ui-text);
+}
+/* A shared document waiting to be sent, above the input box. */
+.sana-studio .sana-attachment {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 360px;
+  margin-bottom: 8px;
+  padding: 8px 8px 8px 10px;
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  animation: sana-fadeup 0.2s ease both;
+}
+.sana-studio .sana-attachment-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--ui-brand-soft);
+  color: var(--ui-brand-text);
+}
+.sana-studio .sana-attachment--error {
+  border-color: color-mix(in srgb, var(--ui-danger) 40%, transparent);
+}
+.sana-studio .sana-attachment--error .sana-attachment-icon {
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger);
+}
+.sana-studio .sana-attachment-remove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--ui-muted);
+}
+.sana-studio .sana-attachment-remove:hover {
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+}
+
 /* ── Chat bubbles ───────────────────────────────────────────────────────────── */
 
+/* Anna's replies sit on the page, beside her avatar; only the learner's
+   messages are bubbles (after the Potential chat embed). */
 .sana-studio .sana-bubble {
   min-width: 0;
-  max-width: 600px;
-  background: var(--ui-surface);
-  border: 1px solid var(--ui-line);
-  border-radius: 4px 16px 16px 16px;
-  padding: 12px 14px;
+  max-width: 680px;
+  padding: 6px 0 0;
   font-size: 15px;
   line-height: 1.6;
   color: var(--ui-text);
   overflow-wrap: anywhere;
 }
-[dir="rtl"] .sana-studio .sana-bubble,
-.sana-studio[dir="rtl"] .sana-bubble,
-.sana-studio [dir="rtl"] .sana-bubble {
+/* The typing dots keep a small box, so "Anna is writing" still reads. */
+.sana-studio .sana-bubble.sana-typing {
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-line);
+  border-radius: 4px 16px 16px 16px;
+  padding: 12px 14px;
+}
+[dir="rtl"] .sana-studio .sana-bubble.sana-typing,
+.sana-studio[dir="rtl"] .sana-bubble.sana-typing,
+.sana-studio [dir="rtl"] .sana-bubble.sana-typing {
   border-radius: 16px 4px 16px 16px;
 }
 .sana-studio .sana-bubble a {
@@ -384,7 +446,7 @@
 @keyframes sana-pulse-soft { from { opacity: 1; } to { opacity: 1; } }
 
 /* ── Questionnaire answer-control indent: aligns controls under Anna's bubble
-     in the chat flow; the centred intro overlay cancels it. ─────────────────── */
+     in the chat flow; the centered intro overlay cancels it. ─────────────────── */
 
 .sana-studio .sana-qa-indent {
   padding-inline-start: 42px;
@@ -409,7 +471,7 @@
   background: transparent !important;
   background-color: transparent !important;
 }
-/* Centre the thread as one readable column. The bottom padding must clear the
+/* Center the thread as one readable column. The bottom padding must clear the
    composer, which CopilotChat docks OVER the scroll area; without it the last
    card sits partly hidden behind the input at full scroll. */
 .sana-studio .smeep-assistant-chat [data-testid="copilot-scroll-content"] {
@@ -460,7 +522,7 @@
 .sana-studio [data-copilotkit] button.font-medium { font-weight: 500; }
 .sana-studio [data-copilotkit] button.font-semibold { font-weight: 600; }
 
-/* ── Reply actions (every Anna chat, after the Potential embed) ───── */
+/* ── Reply actions and shared files (Ask Anna, after the Potential embed) ───── */
 .sana-studio .sana-reply-actions {
   display: flex;
   align-items: center;
@@ -493,53 +555,6 @@
   outline: 2px solid var(--ui-brand);
   outline-offset: 1px;
 }
-
-/* ── Shared documents (Ask Anna): the chip in the composer and on sent messages ── */
-.sana-studio .sana-attachment {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: 360px;
-  margin-bottom: 8px;
-  padding: 8px 8px 8px 10px;
-  border: 1px solid var(--ui-line);
-  border-radius: 12px;
-  background: var(--ui-surface);
-  animation: sana-fadeup 0.2s ease both;
-}
-.sana-studio .sana-attachment-icon {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--ui-brand-soft);
-  color: var(--ui-brand-text);
-}
-.sana-studio .sana-attachment--error {
-  border-color: color-mix(in srgb, var(--ui-danger) 40%, transparent);
-}
-.sana-studio .sana-attachment--error .sana-attachment-icon {
-  background: var(--ui-danger-soft);
-  color: var(--ui-danger);
-}
-.sana-studio .sana-attachment-remove {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  color: var(--ui-muted);
-}
-.sana-studio .sana-attachment-remove:hover {
-  background: var(--ui-surface-2);
-  color: var(--ui-text);
-}
-
 .sana-studio .sana-sent-file {
   display: inline-flex;
   align-items: center;
@@ -555,4 +570,23 @@
 }
 .sana-studio .sana-sent-file svg {
   color: var(--ui-brand-text);
+}
+
+/* Ask Anna: what Anna can do (tabs on a new chat, shortcut menus in one). */
+.sana-studio .ask-starter {
+  animation: sana-fadeup 0.24s ease both;
+}
+.sana-studio .sana-chip.is-open {
+  border-color: var(--ui-brand);
+  background: var(--ui-brand-soft);
+  color: var(--ui-brand-text);
+}
+.sana-studio .ask-shortcut-menu {
+  animation: sana-fadeup 0.16s ease both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sana-studio .ask-starter,
+  .sana-studio .ask-shortcut-menu {
+    animation: none;
+  }
 }

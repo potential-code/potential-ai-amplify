@@ -88,6 +88,17 @@ describe('course preview for non-enrolled learners', () => {
     expect(res.body.data.modules.length).toBeGreaterThan(0)
   })
 
+  it('never sends answer keys to an enrolled learner', async () => {
+    const res = await api<{ success: boolean; data: CourseDetail }>(
+      'GET', `/api/lms/courses/${publishedCourseId}`, { token: user.token },
+    )
+    const json = JSON.stringify(res.body.data)
+    expect(json).not.toContain('"correctAnswer"')
+    expect(json).not.toContain('"explanation"')
+    expect(json).not.toMatch(/"correctIndex":\d/)
+    expect(json).not.toMatch(/"correctBool":(true|false)/)
+  })
+
   it('404s for an unpublished course', async () => {
     const res = await api<{ error?: string }>(
       'GET', `/api/lms/courses/${draftCourseId}`, { token: user.token },

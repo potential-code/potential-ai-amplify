@@ -6,33 +6,41 @@ import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Award, BookOpenCheck, Check, ChevronRight, Flame, Mic, Play, Trophy } from 'lucide-react'
-import { CopilotKit } from '@copilotkit/react-core/v2'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { LearningPathPanel } from '@/components/both/LearningPathPanel'
-import { useCopilotTokenReady, getCopilotHeaders } from '@/components/dashboard/copilotConfig'
-import { Avatar, Card, CoverTile, EmptyState, ProgressBar, SectionHeader, Skeleton, btn } from '@/components/kit'
+import { Avatar, Card, Chip, CoverTile, EmptyState, ProgressBar, SectionHeader, Skeleton, btn } from '@/components/kit'
 import { getUser } from '@/lib/auth'
 import { getMyAiMentors } from '@/lib/dashboardData'
+import { aiMentorPortrait } from '@/components/dashboard/aiMentorMeta'
 import { fetchLearnerCourses, fetchUserCertificates } from '@/lib/api/lms'
-import { cancelSmeSession, getSmeSessions, getMentors, type SmeSession } from '@/lib/api/sme'
+import { cancelSmeSession, getSmeSessions, getMentors, type MentorUser, type SmeSession } from '@/lib/api/sme'
 import { fetchOffers } from '@/lib/api/offers'
 import { fetchMyEvents, type LiveEvent } from '@/lib/api/liveEvents'
 import { eventPhaseAt, timeLabel, useNow } from '@/lib/events/eventTime'
 import { fetchStreak, type Streak } from '@/lib/api/redesign'
 import { useDictation } from '@/components/tutor/useVoice'
-import { courseHref, sortByRecent, topicIcon, useCourseSummaries, type CourseListItem, type CourseSummary } from '@/components/learner/courseProgress'
+import {
+  courseHref,
+  sortByRecent,
+  topicIcon,
+  useCourseSummaries,
+  type CourseListItem,
+  type CourseSummary,
+} from '@/components/learner/courseProgress'
 import { cn } from '@/lib/utils'
-import { ASK_ANNA_PENDING_KEY } from '@/lib/askAnnaPending'
 import { useNarrow } from '@/lib/useNarrow'
 import { AnnouncementBanner } from '@/components/dashboard/AnnouncementBanner'
+import { CopilotKit } from '@copilotkit/react-core/v2'
+import { LearningPathPanel } from '@/components/both/LearningPathPanel'
+import { useCopilotTokenReady, getCopilotHeaders } from '@/components/dashboard/copilotConfig'
+import { handOffToAnna, learnWithAnnaQuestion } from '@/lib/askAnnaPending'
 
 const SANA_AVATAR = '/images/redesign/anna-avatar-96.png'
 /** Ask Anna reads this on arrival and sends it as the first message. */
+
 // CopilotKit v2 runtime (multi-route Express handler: /info, /transcribe,
 // /agent/:id/run) for the learning-path panel.
 const AI_BACKEND_URL = (process.env.NEXT_PUBLIC_AI_BACKEND_URL as string | undefined)?.replace(/\/$/, '') || 'http://localhost:8000'
 const VOICE_RUNTIME_URL = `${AI_BACKEND_URL}/copilotkit-voice`
-
 
 function timeGreeting(d = new Date()) {
   const h = d.getHours()
@@ -51,29 +59,33 @@ export default function DashboardOverview() {
     queryFn: fetchLearnerCourses,
   })
   const courses = allCourses as CourseListItem[]
-  const { data: certificates = [] } = useQuery({
-    queryKey: ['user-certificates'],
-    queryFn: fetchUserCertificates,
-  })
+  const { data: certificates = [] } = useQuery({ queryKey: ['user-certificates'], queryFn: fetchUserCertificates })
   const { data: offersData } = useQuery({ queryKey: ['offers'], queryFn: fetchOffers })
-  const { data: liveEvents = [] } = useQuery({
-    queryKey: ['live-events', 'mine'],
-    queryFn: fetchMyEvents,
-  })
+  const { data: liveEvents = [] } = useQuery({ queryKey: ['live-events', 'mine'], queryFn: fetchMyEvents })
   const now = useNow()
-  const { data: apiMentors = [] } = useQuery({ queryKey: ['mentors'], queryFn: getMentors })
+  const { data: apiMentors = [], isLoading: mentorsLoading } = useQuery({ queryKey: ['mentors'], queryFn: getMentors })
   const streakQuery = useQuery({ queryKey: ['me-streak'], queryFn: fetchStreak, retry: false })
 
   const inProgress = useMemo(() => courses.filter((c) => c.isEnrolled && c.progressPercentage < 100), [courses])
   const { byId: summaries, isLoading: summariesLoading } = useCourseSummaries(inProgress.map((c) => c.id))
-  const inProgressSorted = useMemo(() => [...inProgress].sort((a, b) => sortByRecent(summaries.get(a.id), summaries.get(b.id))), [inProgress, summaries])
+  const inProgressSorted = useMemo(
+    () => [...inProgress].sort((a, b) => sortByRecent(summaries.get(a.id), summaries.get(b.id))),
+    [inProgress, summaries],
+  )
+  // The course list: everything in progress, then finished courses to review,
+  // topped up to three rows.
+  const completed = useMemo(() => courses.filter((c) => c.isEnrolled && c.progressPercentage >= 100), [courses])
+  const myCourses = useMemo(
+    () => [...inProgressSorted, ...completed.slice(0, Math.max(0, 3 - inProgressSorted.length))],
+    [inProgressSorted, completed],
+  )
   const current = inProgressSorted[0] ?? null
   const currentSummary = current ? summaries.get(current.id) : undefined
   const explore = useMemo(() => courses.filter((c) => !c.isEnrolled).slice(0, 4), [courses])
 
   // "Welcome back" only for someone who has been here before; a brand-new
   // account must not be greeted as returning. A previous dashboard visit on
-  // this device, or any enrolment, counts as returning.
+  // this device, or any enrollment, counts as returning.
   const [visitedBefore, setVisitedBefore] = useState(false)
   // Decide once per mount: StrictMode re-runs effects in development, and the
   // second run would read back the flag the first run just wrote.
@@ -92,11 +104,12 @@ export default function DashboardOverview() {
   const returning = visitedBefore || courses.some((c) => c.isEnrolled)
 
   const [smeSessions, setSmeSessions] = useState<SmeSession[]>([])
+  const [sessionsFailed, setSessionsFailed] = useState(false)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
   useEffect(() => {
     getSmeSessions()
       .then(({ upcoming }) => setSmeSessions(upcoming.slice(0, 2)))
-      .catch(() => {})
+      .catch(() => setSessionsFailed(true))
   }, [])
   async function handleCancelSession(id: string) {
     setCancellingId(id)
@@ -117,9 +130,9 @@ export default function DashboardOverview() {
         ? []
         : liveEvents
             .filter((e) => eventPhaseAt(e, now) !== 'ended')
-            // What they booked first, then soonest first.
+            // What she booked first, then soonest first.
             .sort((a, b) => Number(!!b.booked) - Number(!!a.booked) || a.startsAt.localeCompare(b.startsAt))
-            .slice(0, 2),
+            .slice(0, 4),
     [liveEvents, now],
   )
 
@@ -143,7 +156,7 @@ export default function DashboardOverview() {
 
         <AnnouncementBanner />
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
           <ContinueCard
             loading={coursesLoading || (!!current && summariesLoading && !currentSummary)}
             course={current}
@@ -163,45 +176,47 @@ export default function DashboardOverview() {
 
         <LearningPathSection />
 
-        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <InProgressCard loading={coursesLoading} courses={inProgressSorted} summaries={summaries} />
-          <ComingUpCard
-            sessions={smeSessions}
-            events={upcomingEvents}
-            mentor={apiMentors[0] ?? null}
-            cancellingId={cancellingId}
-            onCancel={handleCancelSession}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <Card className="@container">
-            <div className="flex items-center justify-between gap-3 px-5 pt-4">
-              <h2 className="text-base font-semibold text-ui-text">AI mentors</h2>
-              <Link href="/dashboard/ai-mentors" className="text-[13px] font-semibold text-ui-brand-text hover:underline">
-                All AI mentors
-              </Link>
-            </div>
-            <p className="px-5 pt-0.5 text-[13px] text-ui-muted">Specialist coaches you can chat with any time.</p>
-            <ul className="grid grid-cols-1 gap-2 p-3 @lg:grid-cols-2">
-              {aiMentors.map((m) => (
-                <li key={m.slug}>
-                  <Link
-                    href={`/dashboard/ai-mentors/${m.slug}`}
-                    className="flex items-center gap-3 rounded-[10px] px-2 py-2 transition-colors hover:bg-ui-surface-2"
-                  >
-                    <Avatar name={m.name} src={m.avatar} size={40} />
-                    <span className="flex min-w-0 flex-col">
-                      <span className="truncate text-sm font-semibold text-ui-text">{m.name}</span>
-                      <span className="truncate text-[13px] text-ui-muted">{m.specialty}</span>
-                    </span>
-                    <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-ui-muted" aria-hidden />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Card>
-          <CertificateCard certificates={certificates} />
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="flex min-w-0 flex-col gap-5">
+            <InProgressCard loading={coursesLoading} courses={myCourses} summaries={summaries} />
+            <ComingUpCard
+              sessions={smeSessions}
+              sessionsFailed={sessionsFailed}
+              events={upcomingEvents}
+              cancellingId={cancellingId}
+              onCancel={handleCancelSession}
+            />
+          </div>
+          <div className="flex min-w-0 flex-col gap-5">
+            <MentorsCard loading={mentorsLoading} mentors={apiMentors.slice(0, 3)} />
+            <CertificateCard certificates={certificates} />
+            <Card>
+              <div className="flex items-center justify-between gap-3 px-5 pt-4">
+                <h2 className="text-base font-semibold text-ui-text">AI mentors</h2>
+                <Link href="/dashboard/ai-mentors" className="text-[13px] font-semibold text-ui-brand-text hover:underline">
+                  All AI mentors
+                </Link>
+              </div>
+              <p className="px-5 pt-0.5 text-[13px] text-ui-muted">Specialist coaches you can chat with any time.</p>
+              <ul className="grid grid-cols-1 gap-1 p-3 sm:grid-cols-2 lg:grid-cols-1">
+                {aiMentors.map((m) => (
+                  <li key={m.slug}>
+                    <Link
+                      href={`/dashboard/ai-mentors/${m.slug}`}
+                      className="flex items-center gap-3 rounded-[10px] px-2 py-2 transition-colors hover:bg-ui-surface-2"
+                    >
+                      <Avatar name={m.name} src={aiMentorPortrait(m.slug) ?? m.avatar} size={40} />
+                      <span className="flex min-w-0 flex-col">
+                        <span className="truncate text-sm font-semibold text-ui-text">{m.name}</span>
+                        <span className="truncate text-[13px] text-ui-muted">{m.specialty}</span>
+                      </span>
+                      <ChevronRight className="ms-auto h-4 w-4 shrink-0 text-ui-muted rtl:rotate-180" aria-hidden />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
         </div>
 
         <section aria-labelledby="h-explore">
@@ -231,7 +246,7 @@ export default function DashboardOverview() {
                   <Card interactive className="flex h-full flex-col overflow-hidden">
                     <CoverTile src={c.cover} title={c.title} icon={topicIcon(c.category)} />
                     <span className="flex flex-col gap-1.5 p-3.5">
-                      <span className="text-[15px] font-semibold leading-snug text-ui-text" dir="auto">{c.title}</span>
+                      <span className="text-[15px] font-semibold leading-snug text-ui-text">{c.title}</span>
                       <span className="text-[13px] text-ui-muted">{courseFacts(c)}</span>
                     </span>
                   </Card>
@@ -305,19 +320,14 @@ function ContinueCard({
     <div className="@container">
       <section
         aria-labelledby="h-continue"
-        className="grid grid-cols-1 h-full overflow-hidden rounded-[14px] border border-ui-line bg-ui-surface shadow-ui @xl:grid-cols-[260px_minmax(0,1fr)]"
+        className="grid h-full grid-cols-1 overflow-hidden rounded-[14px] border border-ui-line bg-ui-surface shadow-ui @xl:grid-cols-[260px_minmax(0,1fr)]"
       >
         <div className="relative">
-          <CoverTile
-            src={course.cover}
-            title={course.title}
-            icon={topicIcon(course.category)}
-            className="h-full max-h-[200px] min-h-[180px] @xl:aspect-auto @xl:max-h-none @xl:min-h-[240px]"
-          />
+          <CoverTile src={course.cover} title={course.title} icon={topicIcon(course.category)} className="h-full max-h-[200px] min-h-[180px] @xl:aspect-auto @xl:max-h-none @xl:min-h-[240px]" />
           <Link
             href={courseHref(course.id)}
             aria-label={`Resume ${course.title}`}
-            className="absolute left-1/2 top-1/2 inline-flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#652d90] shadow-[0_6px_20px_rgba(0,0,0,0.2)] transition-transform hover:scale-105"
+            className="absolute left-1/2 top-1/2 inline-flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[var(--color-brand-primary)] shadow-[0_6px_20px_rgba(0,0,0,0.2)] transition-transform hover:scale-105"
           >
             <Play className="ml-0.5 h-[22px] w-[22px] fill-current" aria-hidden />
           </Link>
@@ -358,9 +368,13 @@ function ContinueCard({
             <Link href={courseHref(course.id)} className={btn()}>
               Resume
             </Link>
-            <Link href="/dashboard/anna" className={btn({ variant: 'secondary' })}>
+            <Link
+              href="/dashboard/anna"
+              onClick={() => handOffToAnna(learnWithAnnaQuestion(course.title, summary?.allUnitsDone ? null : summary?.currentUnit?.title))}
+              className={btn({ variant: 'secondary' })}
+            >
               <img src={SANA_AVATAR} alt="" className="h-[22px] w-[22px] rounded-full object-cover object-top" />
-              Ask Anna
+              Learn with Anna
             </Link>
           </div>
         </div>
@@ -394,7 +408,9 @@ function StreakCard({
     <div className={cn('flex items-center justify-between gap-3', streak && 'border-t border-ui-line pt-3.5')}>
       <div className="flex flex-col">
         <span className="text-[22px] font-bold tabular-nums tracking-[-0.01em] text-ui-text">{points.toLocaleString()}</span>
-        <span className="text-xs text-ui-muted">points to spend on offers{offersCount > 0 ? `, ${offersCount} available` : ''}</span>
+        <span className="text-xs text-ui-muted">
+          points to spend on offers{offersCount > 0 ? `, ${offersCount} available` : ''}
+        </span>
       </div>
       <Link href="/dashboard/offers" className={btn({ variant: 'secondary', size: 'sm' })}>
         View offers
@@ -423,7 +439,9 @@ function StreakCard({
             {streak.currentStreak > 0 ? `${streak.currentStreak}-day streak` : 'Start a streak today'}
           </h2>
           <span className="text-[13px] text-ui-muted">
-            {goalMet ? "Today's goal done. See you tomorrow." : `Daily goal: finish ${streak.dailyGoal} unit step${streak.dailyGoal === 1 ? '' : 's'}`}
+            {goalMet
+              ? "Today's goal done. See you tomorrow."
+              : `Daily goal: finish ${streak.dailyGoal} unit step${streak.dailyGoal === 1 ? '' : 's'}`}
           </span>
         </div>
         <Link
@@ -439,9 +457,7 @@ function StreakCard({
         {streak.week.map((d) => {
           const isToday = d.date === today
           const future = d.date > today
-          const label = new Date(`${d.date}T12:00:00`).toLocaleDateString('en-US', {
-            weekday: 'short',
-          })
+          const label = new Date(`${d.date}T12:00:00`).toLocaleDateString('en-US', { weekday: 'short' })
           return (
             <li key={d.date} className="flex flex-col items-center gap-1.5">
               <span className={cn('text-xs', isToday ? 'font-semibold text-ui-text' : 'text-ui-muted')}>{label}</span>
@@ -452,11 +468,10 @@ function StreakCard({
                     isToday && 'ring-[3px] ring-ui-brand-soft',
                   )}
                 >
-                  <Check className="h-[15px] w-[15px]" strokeWidth={2.6} role="img" aria-label={isToday ? 'Done today' : 'Done'} />
+                  <Check className="h-[15px] w-[15px]" strokeWidth={2.6} aria-label={isToday ? 'Done today' : 'Done'} />
                 </span>
               ) : (
                 <span
-                  role={future ? undefined : 'img'}
                   aria-label={future ? undefined : isToday ? 'Not done yet today' : 'Missed'}
                   className={cn('h-[30px] w-[30px] rounded-full border border-ui-line', future && 'border-dashed')}
                 />
@@ -484,11 +499,11 @@ function AskSanaBar() {
     e.preventDefault()
     const q = text.trim()
     try {
-      if (q) sessionStorage.setItem(ASK_ANNA_PENDING_KEY, q)
+      if (q) handOffToAnna(q)
     } catch {
       /* storage blocked: Anna still opens */
     }
-    router.push('/dashboard/anna')
+    router.push('/dashboard/assistant')
   }
 
   return (
@@ -525,12 +540,20 @@ function AskSanaBar() {
 
 // ── In progress ──────────────────────────────────────────────────────────────
 
-function InProgressCard({ loading, courses, summaries }: { loading: boolean; courses: CourseListItem[]; summaries: Map<string, CourseSummary> }) {
+function InProgressCard({
+  loading,
+  courses,
+  summaries,
+}: {
+  loading: boolean
+  courses: CourseListItem[]
+  summaries: Map<string, CourseSummary>
+}) {
   return (
-    <Card aria-labelledby="h-progress" role="region" className="@container">
+    <Card aria-labelledby="h-progress" role="region">
       <div className="flex items-center justify-between px-5 py-4">
         <h2 id="h-progress" className="text-base font-semibold text-ui-text">
-          In progress
+          Your courses
         </h2>
         <Link href="/dashboard/courses" className="text-[13px] font-semibold text-ui-brand-text hover:underline">
           All my courses
@@ -545,7 +568,7 @@ function InProgressCard({ loading, courses, summaries }: { loading: boolean; cou
         <div className="border-t border-ui-line">
           <EmptyState
             icon={BookOpenCheck}
-            title="Nothing in progress"
+            title="No courses yet"
             body="Courses you start show up here with your progress."
             action={
               <Link href="/dashboard/courses" className={btn({ variant: 'secondary', size: 'sm' })}>
@@ -558,35 +581,42 @@ function InProgressCard({ loading, courses, summaries }: { loading: boolean; cou
         <ul>
           {courses.map((c) => {
             const s = summaries.get(c.id)
-            const pct = s?.progress ?? c.progressPercentage
-            const line = s
-              ? s.allUnitsDone
-                ? 'Next: final exam'
-                : pct === 0
-                  ? `${s.totalUnits} units, not started`
-                  : `Next: ${s.currentUnit?.title ?? `Unit ${s.currentUnitNumber}`}`
-              : c.difficulty
+            const done = c.progressPercentage >= 100
+            const pct = done ? 100 : (s?.progress ?? c.progressPercentage)
+            const line = done
+              ? 'Completed'
+              : s
+                ? s.allUnitsDone
+                  ? 'Next: final exam'
+                  : pct === 0
+                    ? `${s.totalUnits} units, not started`
+                    : `Next: ${s.currentUnit?.title ?? `Unit ${s.currentUnitNumber}`}`
+                : `${pct}% complete`
             return (
               <li key={c.id} className="border-t border-ui-line">
                 <Link
                   href={courseHref(c.id)}
-                  className="grid grid-cols-[56px_minmax(0,1fr)_44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-ui-bg @md:grid-cols-[64px_minmax(0,1fr)_140px_24px] @md:gap-4 @md:px-5"
+                  aria-label={done ? `Review ${c.title}` : undefined}
+                  className="grid grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-ui-bg sm:grid-cols-[64px_minmax(0,1fr)_140px_24px] sm:gap-4 sm:px-5"
                 >
-                  <CoverTile
-                    src={c.cover}
-                    title={c.title}
-                    icon={topicIcon(c.category)}
-                    className="aspect-auto h-10 rounded-lg @md:h-11 [&_svg]:h-5 [&_svg]:w-5"
-                  />
-                  <span className="flex min-w-0 flex-col gap-0.5">
-                    <span className="truncate text-[15px] font-semibold text-ui-text" dir="auto">{c.title}</span>
-                    <span className="line-clamp-2 text-[13px] text-ui-muted">{line}</span>
+                  <CoverTile src={c.cover} title={c.title} icon={topicIcon(c.category)} className="aspect-auto h-10 rounded-lg sm:h-11 [&_svg]:h-5 [&_svg]:w-5" />
+                  <span className="flex min-w-0 flex-col gap-1">
+                    <span className="truncate text-[15px] font-semibold text-ui-text">{c.title}</span>
+                    <span className={cn('line-clamp-2 text-[13px] leading-5', done ? 'font-medium text-ui-ok' : 'text-ui-muted')}>
+                      {c.difficulty && <Chip className="me-2 h-5 px-1.5 align-[1px] text-[11px] font-semibold">{c.difficulty}</Chip>}
+                      {done && <Check className="me-1 inline h-3.5 w-3.5 align-[-2px]" strokeWidth={2.5} aria-hidden />}
+                      {line}
+                    </span>
                   </span>
-                  <span className="flex items-center gap-2.5">
-                    <ProgressBar value={pct} className="hidden flex-1 @md:block" label={`${c.title} progress`} />
-                    <span className="w-full text-right text-[13px] font-semibold tabular-nums text-ui-text @md:w-[34px]">{pct}%</span>
-                  </span>
-                  <ChevronRight className="hidden h-[18px] w-[18px] text-ui-muted @md:block" aria-hidden />
+                  {done ? (
+                    <span className={cn(btn({ variant: 'secondary', size: 'sm' }), 'justify-self-end sm:w-full')}>Review</span>
+                  ) : (
+                    <span className="flex items-center gap-2.5">
+                      <ProgressBar value={pct} className="hidden flex-1 sm:block" label={`${c.title} progress`} />
+                      <span className="w-[44px] text-end text-[13px] font-semibold tabular-nums text-ui-text sm:w-[34px]">{pct}%</span>
+                    </span>
+                  )}
+                  <ChevronRight className="hidden h-[18px] w-[18px] text-ui-muted sm:block rtl:rotate-180" aria-hidden />
                 </Link>
               </li>
             )
@@ -601,112 +631,154 @@ function InProgressCard({ loading, courses, summaries }: { loading: boolean; cou
 
 function ComingUpCard({
   sessions,
+  sessionsFailed,
   events,
-  mentor,
   cancellingId,
   onCancel,
 }: {
   sessions: SmeSession[]
+  sessionsFailed: boolean
   events: LiveEvent[]
-  mentor: {
-    id: string
-    fullName: string
-    expertise: string[] | null
-    avatarUrl: string | null
-  } | null
   cancellingId: string | null
   onCancel: (id: string) => void
 }) {
-  const nothing = sessions.length === 0 && events.length === 0
   const now = useNow()
   return (
     <Card aria-labelledby="h-coming" role="region" className="flex flex-col gap-3.5 px-5 py-4">
       <h2 id="h-coming" className="text-base font-semibold text-ui-text">
         Coming up
       </h2>
-      {nothing && <p className="text-[13px] text-ui-muted">No mentor sessions booked and no live events scheduled.</p>}
-      {sessions.map((s) => (
-        <div key={s.id} className="grid grid-cols-[44px_minmax(0,1fr)] items-center gap-3">
-          <Avatar name={s.mentorUser.fullName} src={s.mentorUser.avatarUrl} size={44} />
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <span className="truncate font-semibold text-ui-text">Session with {s.mentorUser.fullName}</span>
-            <span className="text-[13px] text-ui-muted">
-              {new Intl.DateTimeFormat('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-              }).format(new Date(s.slot.startsAt))}
-            </span>
-            <span className="mt-1 flex gap-3 text-[13px] font-semibold">
-              {s.meetingLink && (
-                <a href={s.meetingLink} target="_blank" rel="noreferrer" className="text-ui-brand-text hover:underline">
-                  Join
-                </a>
-              )}
-              <button
-                type="button"
-                disabled={cancellingId === s.id}
-                onClick={() => onCancel(s.id)}
-                className="text-ui-danger hover:underline disabled:opacity-50"
-              >
-                {cancellingId === s.id ? 'Cancelling' : 'Cancel'}
-              </button>
-            </span>
-          </div>
-        </div>
-      ))}
-      {events.map((e) => {
-        const d = new Date(e.startsAt)
-        const open = now !== null && ['opening', 'live'].includes(eventPhaseAt(e, now))
-        return (
-          <div key={e.id} className="grid grid-cols-[44px_minmax(0,1fr)] items-center gap-3">
-            <span className="flex h-12 w-11 flex-col items-center justify-center rounded-[10px] border border-ui-line text-[11px] text-ui-muted">
-              {d.toLocaleDateString('en-US', { month: 'short' })}
-              <strong className="text-base leading-tight text-ui-text">{d.getDate()}</strong>
-            </span>
-            <span className="flex min-w-0 flex-col gap-0.5">
-              <Link href="/dashboard/events" className="truncate font-semibold text-ui-text hover:underline">
-                {e.title}
-              </Link>
-              <span className="text-[13px] text-ui-muted">
-                {timeLabel(e.startsAt)}, {e.format === 'in_person' ? (e.location ?? 'in person') : 'online'}
-                {e.booked && <span className="font-semibold text-ui-ok"> · Booked</span>}
-              </span>
-              <span className="flex gap-3 text-[13px] font-semibold">
-                {e.booked && open && e.meetingLink && (
-                  <a href={e.meetingLink} target="_blank" rel="noreferrer" className="text-ui-brand-text hover:underline">
-                    Join now
-                  </a>
-                )}
-                <Link href="/dashboard/events" className="text-ui-brand-text hover:underline">
-                  {e.booked ? 'View details' : 'Book a place'}
-                </Link>
-              </span>
-            </span>
-          </div>
-        )
-      })}
-      {sessions.length === 0 && mentor && (
-        <Link href="/dashboard/human-mentors" className="grid grid-cols-[44px_minmax(0,1fr)] items-center gap-3 rounded-[10px] hover:bg-ui-surface-2">
-          <Avatar name={mentor.fullName} src={mentor.avatarUrl} size={44} />
-          <span className="flex min-w-0 flex-col gap-0.5">
-            <span className="truncate font-semibold text-ui-text">Book {mentor.fullName}</span>
-            {mentor.expertise && mentor.expertise.length > 0 && (
-              <span className="line-clamp-2 text-[13px] text-ui-muted">{mentor.expertise.slice(0, 3).join(', ')}</span>
-            )}
-          </span>
-        </Link>
+      {sessions.length > 0 && (
+        <ul className="grid gap-x-6 gap-y-3.5 sm:grid-cols-2">
+          {sessions.map((s) => (
+            <li key={s.id} className="grid grid-cols-[44px_minmax(0,1fr)] items-center gap-3">
+              <Avatar name={s.mentorUser.fullName} src={s.mentorUser.avatarUrl} size={44} />
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="truncate font-semibold text-ui-text">Session with {s.mentorUser.fullName}</span>
+                <span className="text-[13px] text-ui-muted">
+                  {new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(s.slot.startsAt))}
+                </span>
+                <span className="mt-1 flex gap-3 text-[13px] font-semibold">
+                  {s.meetingLink && (
+                    <a href={s.meetingLink} target="_blank" rel="noreferrer" className="text-ui-brand-text hover:underline">
+                      Join
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    disabled={cancellingId === s.id}
+                    onClick={() => onCancel(s.id)}
+                    className="text-ui-danger hover:underline disabled:opacity-50"
+                  >
+                    {cancellingId === s.id ? 'Cancelling' : 'Cancel'}
+                  </button>
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
-      <div className="flex gap-2">
-        <Link href="/dashboard/human-mentors" className={cn(btn({ variant: 'secondary', size: 'sm' }), 'h-9 flex-1')}>
+      {events.length > 0 && (
+        <ul aria-label="Live events" className={cn('grid gap-x-6 gap-y-4 sm:grid-cols-2', sessions.length > 0 && 'border-t border-ui-line pt-3.5')}>
+          {events.map((e) => {
+            const d = new Date(e.startsAt)
+            const open = now !== null && ['opening', 'live'].includes(eventPhaseAt(e, now))
+            return (
+              <li key={e.id} className="grid grid-cols-[44px_minmax(0,1fr)] items-start gap-3">
+                <span className="flex h-12 w-11 flex-col items-center justify-center rounded-[10px] border border-ui-line text-[11px] text-ui-muted">
+                  {d.toLocaleDateString('en-US', { month: 'short' })}
+                  <strong className="text-base leading-tight text-ui-text">{d.getDate()}</strong>
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="font-semibold leading-snug text-ui-text">{e.title}</span>
+                  <span className="text-[13px] text-ui-muted">
+                    {timeLabel(e.startsAt)}, {e.format === 'in_person' ? (e.location ?? 'in person') : 'online'}
+                    {e.booked && <span className="font-semibold text-ui-ok"> · Booked</span>}
+                  </span>
+                  {e.description && <span className="line-clamp-2 text-[13px] leading-snug text-ui-muted">{e.description}</span>}
+                  <span className="mt-1 flex gap-3 text-[13px] font-semibold">
+                    {e.booked && open && e.meetingLink && (
+                      <a href={e.meetingLink} target="_blank" rel="noreferrer" className="text-ui-brand-text hover:underline">
+                        Join now
+                      </a>
+                    )}
+                    <Link href="/dashboard/events" className="text-ui-brand-text hover:underline">
+                      {e.booked ? 'View details' : 'Book a place'}
+                    </Link>
+                  </span>
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+      {sessionsFailed && (
+        <p className="text-[13px] text-ui-muted" role="status">
+          Your mentor sessions could not load. Refresh the page to try again.
+        </p>
+      )}
+      {events.length === 0 && (
+        <p className="text-[13px] text-ui-muted">
+          {sessions.length === 0 && !sessionsFailed ? 'No mentor sessions booked and no live events scheduled.' : 'No live events scheduled.'}{' '}
+          <Link href="/dashboard/events" className="font-semibold text-ui-brand-text hover:underline">
+            Browse past recordings
+          </Link>
+        </p>
+      )}
+      <div className="flex gap-2 sm:justify-end">
+        <Link href="/dashboard/human-mentors" className={cn(btn({ variant: 'secondary', size: 'sm' }), 'h-9 max-sm:flex-1')}>
           Find a mentor
         </Link>
         <Link href="/dashboard/events" className={cn(btn({ variant: 'ghost', size: 'sm' }), 'h-9')}>
           All events
         </Link>
       </div>
+    </Card>
+  )
+}
+
+// ── Program mentors ────────────────────────────────────────────────────────
+
+function MentorsCard({ loading, mentors }: { loading: boolean; mentors: MentorUser[] }) {
+  return (
+    <Card aria-labelledby="h-mentors" role="region" className="flex flex-col gap-3 px-5 py-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="h-mentors" className="text-base font-semibold text-ui-text">
+          Mentors
+        </h2>
+        <Link href="/dashboard/human-mentors" className="text-[13px] font-semibold text-ui-brand-text hover:underline">
+          All mentors
+        </Link>
+      </div>
+      <p className="-mt-2 text-[13px] text-ui-muted">Book a 1:1 session with an expert.</p>
+      {loading ? (
+        <div className="flex flex-col gap-2.5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-10" />
+          ))}
+        </div>
+      ) : mentors.length === 0 ? (
+        <p className="text-[13px] text-ui-muted">No mentors available right now.</p>
+      ) : (
+        <ul className="flex flex-col gap-2.5">
+          {mentors.map((m) => (
+            <li key={m.id} className="grid grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-3">
+              <Avatar name={m.fullName} src={m.avatarUrl} size={40} />
+              <span className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-semibold text-ui-text">{m.fullName}</span>
+                <span className="truncate text-[13px] text-ui-muted">{m.expertise?.slice(0, 2).join(', ') || 'Mentor'}</span>
+              </span>
+              <Link
+                href={`/dashboard/human-mentors?mentor=${encodeURIComponent(m.id)}`}
+                aria-label={`Book ${m.fullName}`}
+                className={btn({ variant: 'soft', size: 'sm' })}
+              >
+                Book
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </Card>
   )
 }
@@ -732,11 +804,7 @@ function CertificateCard({ certificates }: { certificates: { id: string; courseT
             <span className="truncate font-semibold text-ui-text">{latest.courseTitle}</span>
             <span className="text-[13px] text-ui-muted">
               Latest, issued{' '}
-              {new Date(latest.issuedAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
+              {new Date(latest.issuedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </span>
         ) : (

@@ -229,7 +229,6 @@ export function AnalyticsOverviewTab({ range }: Props) {
           </table>
         </TableCard>
       </div>
-      {/* AI section, commented out (mockup only): <AnalyticsAiTab /> */}
     </div>
   )
 }

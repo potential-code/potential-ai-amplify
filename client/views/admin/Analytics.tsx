@@ -6,7 +6,6 @@ import { PageHeader, Tabs } from '@/components/kit'
 import { Segmented } from '@/components/admin/ui'
 import { AnalyticsOverviewTab } from './analytics/AnalyticsOverviewTab'
 import { AnalyticsStakeholdersTab } from './analytics/AnalyticsStakeholdersTab'
-// import { AnalyticsAiTab } from './analytics/AnalyticsAiTab'
 import type { AnalyticsRange } from '@/lib/api/adminAnalytics'
 import { ExportMenu } from '@/components/admin/ExportMenu'
 import { LearningGainCard } from '@/components/admin/LearningGainCard'
@@ -16,12 +15,11 @@ const RANGES: { value: AnalyticsRange; label: string }[] = [
   { value: '30d', label: '30d' },
   { value: '12m', label: '12m' },
 ]
-type Tab = 'overview' | 'stakeholders' | 'ai'
+type Tab = 'overview' | 'stakeholders'
 
 const TABS: { value: Tab; label: string }[] = [
   { value: 'overview', label: 'Main overview' },
   { value: 'stakeholders', label: 'Stakeholder applications' },
-  // { value: 'ai', label: 'AI insights' },
 ]
 
 export default function AdminAnalytics() {
@@ -36,9 +34,8 @@ export default function AdminAnalytics() {
           subtitle="Data on users, learning outcomes and stakeholder applications."
           className="mb-0 max-md:flex-col max-md:items-start"
           actions={
-            // Range filter, hidden on the AI insights tab
             <div className="flex flex-wrap items-center gap-2">
-              {activeTab !== 'ai' && <Segmented<AnalyticsRange> label="Date range" options={RANGES} value={range} onChange={setRange} />}
+              <Segmented<AnalyticsRange> label="Date range" options={RANGES} value={range} onChange={setRange} />
               <ExportMenu />
             </div>
           }
@@ -54,7 +51,6 @@ export default function AdminAnalytics() {
             </div>
           )}
           {activeTab === 'stakeholders' && <AnalyticsStakeholdersTab range={range} />}
-          {/* {activeTab === 'ai' && <AnalyticsAiTab />} */}
         </div>
       </div>
     </AdminLayout>

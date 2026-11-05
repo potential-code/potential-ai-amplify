@@ -41,4 +41,14 @@ describe("potential-ai tokens", () => {
   it("needs a session for a user token", async () => {
     expect((await api("GET", "/api/account/copilot-token")).status).toBe(401);
   });
+
+  it("the voice socket gets a 60-second token, never the 1-hour chat token", async () => {
+    const u = await createUser();
+    const c = claims((await api("GET", "/api/account/voice-token", { token: u.token })).body.data.token);
+    expect(c["platformId"]).toBe("ai-amplify");
+    expect(c["userId"]).toBe(u.id);
+    expect(c["scope"]).toBe("user");
+    expect((c["exp"] as number) - (c["iat"] as number)).toBe(60);
+    expect((await api("GET", "/api/account/voice-token")).status).toBe(401);
+  });
 });

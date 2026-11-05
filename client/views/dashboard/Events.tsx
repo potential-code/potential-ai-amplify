@@ -30,9 +30,15 @@ import { RecordingLink } from '@/components/media/RecordingLink'
 
 const GRID_PAGE_SIZE = 6
 
-/** The event's own cover, if it has one. */
-function eventArt(e: LiveEvent): string | null {
-  return e.coverImage ? optimizedSrc(e.coverImage) : null
+/** Events without their own cover borrow one of the program's webinar banners. */
+const EVENT_ART = ['/images/events/webinar-1.webp', '/images/events/webinar-2.webp', '/images/events/webinar-3.webp']
+
+/** The event's cover, else a webinar banner picked by id so it stays put across pages. */
+function eventArt(e: LiveEvent) {
+  if (e.coverImage) return optimizedSrc(e.coverImage)
+  let h = 0
+  for (let i = 0; i < e.id.length; i++) h = (h * 31 + e.id.charCodeAt(i)) >>> 0
+  return EVENT_ART[h % EVENT_ART.length]
 }
 
 /** The start as day parts in the viewer's own time zone. */
@@ -367,13 +373,11 @@ function FeaturedCard({
       aria-labelledby={titleId}
       className={cn('flex flex-wrap items-center gap-4 p-[18px] lg:flex-nowrap lg:gap-[22px] lg:px-6', upcoming ? 'shadow-ui lg:py-[22px]' : 'lg:py-5')}
     >
-      {eventArt(event) && (
-        <img
-          src={eventArt(event)!}
-          alt=""
-          className="hidden aspect-[2/1] w-[176px] shrink-0 rounded-[10px] bg-ui-surface-2 object-cover sm:block"
-        />
-      )}
+      <img
+        src={eventArt(event)}
+        alt=""
+        className="hidden aspect-[2/1] w-[176px] shrink-0 rounded-[10px] bg-ui-surface-2 object-cover sm:block"
+      />
       <DateBlock startsAt={event.startsAt} soft={upcoming} />
       <div className="flex min-w-[200px] flex-1 flex-col gap-2">
         <div className="flex flex-wrap gap-1.5">
@@ -425,9 +429,7 @@ function EventCard({
   const hasDetails = !past || !!event.description || !!event.coverImage
   return (
     <Card interactive className="flex flex-col overflow-hidden">
-      {eventArt(event) && (
-        <img src={eventArt(event)!} alt="" loading="lazy" className="aspect-[2/1] w-full shrink-0 bg-ui-surface-2 object-cover" />
-      )}
+      <img src={eventArt(event)} alt="" loading="lazy" className="aspect-[2/1] w-full shrink-0 bg-ui-surface-2 object-cover" />
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-center gap-3">
           <DateBlock startsAt={event.startsAt} size="sm" />

@@ -110,7 +110,7 @@ export function BothConversationalQuestionnaire({
   agentId = 'codDiscovery',
   headerAvatar = DEFAULT_HEADER_AVATAR,
   headerTitle = 'Blended Learning',
-  headerSubtitle = 'Building your personalised Blended Learning path',
+  headerSubtitle = 'Building your personalized Blended Learning path',
   topicPrompt = 'Start with a topic, or type your own goal below.',
   topicChips = TOPIC_CHIPS,
   topicCard,
@@ -336,7 +336,7 @@ export function BothConversationalQuestionnaire({
         panel={
           panel ?? (
             <>
-              <DiscoveryHowItWorks steps={STANDARD_DISCOVERY_STEPS} />
+              <DiscoveryHowItWorks steps={STANDARD_DISCOVERY_STEPS} current={messages.some((m) => m?.role === 'user') ? 1 : 0} />
               <AfterAnswersNote />
             </>
           )

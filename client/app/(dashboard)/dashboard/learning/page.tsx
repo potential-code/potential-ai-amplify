@@ -89,7 +89,7 @@ function LearningPageInner() {
     }
   }
 
-  // Re-personalisation: rebuild the path reusing the learner's stored
+  // Re-personalization: rebuild the path reusing the learner's stored
   // questionnaire answers, current progress and the LATEST platform setup.
   // Same full-screen loader as first-time generation.
   const handleRegenerate = useCallback(async () => {
@@ -115,7 +115,7 @@ function LearningPageInner() {
   if (generating) {
     return (
       <DashboardLayout fullBleed>
-        <JourneyBuilding title="Learning Path" subtitle="Anna is building your path" sanaLine="I'm matching our course catalogue to your answers.">
+        <JourneyBuilding title="Learning Path" subtitle="Anna is building your path" sanaLine="I'm matching our course catalog to your answers.">
           <LearningPathGeneratingLoader />
         </JourneyBuilding>
       </DashboardLayout>
@@ -156,7 +156,7 @@ function LearningPageInner() {
       <DashboardLayout fullBleed>
         <JourneyMessage
           title="Learning Path"
-          heading="Personalised learning paths aren't ready yet"
+          heading="Personalized learning paths aren't ready yet"
           body="We're still preparing this experience. In the meantime, you can browse and start any course from the Courses page."
           action={
             <Link href="/dashboard/courses" className={btn({ variant: 'primary', size: 'md' })}>

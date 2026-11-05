@@ -109,7 +109,11 @@ export default function CertificatesPage() {
                     {top && topSummary && ` ${top.title} is the closest: ${remainingText(topSummary)}.`}
                   </p>
                   {top ? (
-                    <Link href={courseHref(top.id)} className={cn(btn(), 'mt-2')}>
+                    <Link
+                      href={courseHref(top.id)}
+                      // Course titles are long: let the label wrap rather than widen the card past a phone screen.
+                      className={cn(btn(), 'mt-2 h-auto min-h-10 max-w-full whitespace-normal py-2 text-center')}
+                    >
                       Continue {top.title}
                     </Link>
                   ) : (

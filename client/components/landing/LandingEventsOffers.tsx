@@ -30,6 +30,7 @@ export function LandingEventsOffers() {
   const [events, setEvents] = useState<LiveEvent[] | null>(null)
   const [loadedAt, setLoadedAt] = useState(0)
   const [offers, setOffers] = useState<Offer[] | null>(null)
+  const [eventsFailed, setEventsFailed] = useState(false)
 
   useEffect(() => {
     fetchPublishedEvents()
@@ -37,14 +38,17 @@ export function LandingEventsOffers() {
         setLoadedAt(Date.now())
         setEvents([...data].sort((a, b) => b.startsAt.localeCompare(a.startsAt)))
       })
-      .catch(() => setEvents([]))
+      .catch(() => {
+        setEventsFailed(true)
+        setEvents([])
+      })
     fetchPublicOffers()
       .then(setOffers)
       .catch(() => setOffers([]))
   }, [])
 
   // Both empty after loading: nothing honest to show.
-  if (events?.length === 0 && offers?.length === 0) return null
+  if (events?.length === 0 && offers?.length === 0 && !eventsFailed) return null
 
   return (
     <section aria-labelledby="h-evof" className="pb-9 pt-2">
@@ -59,7 +63,7 @@ export function LandingEventsOffers() {
           </p>
         </div>
         <div className="grid grid-cols-1 items-stretch gap-5 min-[900px]:grid-cols-2">
-          {events?.length !== 0 && <EventsCard events={events} now={loadedAt} />}
+          {(events?.length !== 0 || eventsFailed) && <EventsCard events={events} now={loadedAt} failed={eventsFailed} />}
           {offers?.length !== 0 && <OffersCard offers={offers} />}
         </div>
       </div>
@@ -87,13 +91,17 @@ function CardFoot({ href, label }: { href: string; label: string }) {
   )
 }
 
-function EventsCard({ events, now }: { events: LiveEvent[] | null; now: number }) {
+function EventsCard({ events, now, failed = false }: { events: LiveEvent[] | null; now: number; failed?: boolean }) {
   const allWebinars = !!events?.length && events.every((e) => /webinar/i.test(e.type))
   const noun = allWebinars ? 'webinar' : 'event'
   return (
     <div id="events" className="flex scroll-mt-[84px] flex-col overflow-hidden rounded-[14px] border border-ui-line bg-ui-surface">
       <CardTop title="Live events" meta="Online, with global access" />
-      {events === null ? (
+      {failed ? (
+        <p className="border-t border-ui-line px-[22px] py-4 text-sm text-ui-muted">
+          Events could not load right now. Please check back soon.
+        </p>
+      ) : events === null ? (
         <div className="flex flex-col gap-2 border-t border-ui-line px-[22px] py-3">
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} className="h-[52px]" />

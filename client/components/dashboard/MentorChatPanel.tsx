@@ -2,11 +2,13 @@
 
 /**
  * AI Mentor chat on the shared Anna conversation canvas: a header with the
- * mentor's identity, the mentor's turns in bordered bubbles beside their icon
- * tile, the learner's in magenta bubbles, ice-breakers as chips over the
- * composer, and (on wide screens) a rail with the mentor's details, human
- * mentors to book and the other AI mentors. Bot config and the SSE stream come
- * through the AI Amplify server (/api/ai-mentors), behind the learner's session.
+ * mentor's identity, the mentor's replies on the page beside their portrait
+ * (copy and read aloud under each, follow-up chips under the latest), the
+ * learner's in magenta bubbles, ice-breakers as chips over the composer, and
+ * (on wide screens) a rail with the mentor's details, human mentors to book
+ * and the other AI mentors. The composer can dictate and share a document,
+ * like Ask Anna. Bot config and the SSE stream come through the AI Amplify server
+ * (/api/ai-mentors), behind the learner's session.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -16,13 +18,13 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, FileText, Loader2, Mic, Paperclip, Send, Square, X } from 'lucide-react'
-import { ASK_DOCUMENT_ACCEPT, readDocument } from './askAnnaDocuments'
-import type { SanaSharedDocument } from '@/components/learning-ui/SanaChatInput'
 import { cn } from '@/lib/utils'
 import { Avatar, btn, Chip, EmptyState } from '@/components/kit'
 import { getMentors } from '@/lib/api/sme'
 import { aiMentorViewByBotId, aiMentorViews, type AiMentorView } from './aiMentorMeta'
+import { ASK_DOCUMENT_ACCEPT, readDocument } from './AskSanaMessages'
 import { SanaReplyButtons, type ReadAloud } from '@/components/learning-ui/SanaReplyActions'
+import type { SanaSharedDocument } from '@/components/learning-ui/SanaChatInput'
 import { useDictation, useReadAloud } from '@/components/tutor/useVoice'
 import '@/components/learning-ui/sana-studio.css'
 
@@ -110,16 +112,17 @@ function MentorPortrait({ src, size = 32 }: { src: string; size?: number }) {
       alt=""
       width={size}
       height={size}
-      className="rounded-full object-cover flex-shrink-0"
+      className="rounded-full bg-ui-surface-2 object-cover flex-shrink-0"
       style={{ width: size, height: size }}
       unoptimized
     />
   )
 }
 
-/** The mentor's face in the redesign: their specialty icon on a tinted tile. */
+/** The mentor's face: the local portrait, else their specialty icon on a tinted tile. */
 function MentorMark({ view, src, size = 32 }: { view?: AiMentorView; src: string; size?: number }) {
   if (!view) return <MentorPortrait src={src} size={size} />
+  if (view.portrait) return <MentorPortrait src={view.portrait} size={size} />
   const Icon = view.icon
   return (
     <span
@@ -146,35 +149,34 @@ function TypingDots() {
   )
 }
 
-/** The mentor's turn: a bordered bubble beside the mentor's tile. */
+/** The mentor's turn: the reply on the page beside the mentor's tile, then copy and read aloud. */
 function MentorTurn({
   view,
   avatarUrl,
   message,
   isLast,
   readAloud,
-  reportSurface,
-  question,
   onSuggest,
   busy,
+  reportSurface,
+  question,
 }: {
   view?: AiMentorView
   avatarUrl: string
   message: Message
   isLast: boolean
   readAloud: ReadAloud
-  reportSurface: string
-  /** What the learner asked; none for the greeting, which gets no buttons. */
-  question?: string
   onSuggest: (text: string) => void
   busy: boolean
+  reportSurface: string
+  question?: string
 }) {
   return (
     <div className="group flex gap-2.5 items-start mb-4" style={{ animation: 'sana-fadeup 0.24s ease both' }}>
       <MentorMark view={view} src={avatarUrl} />
       <div className="min-w-0 flex-1">
         {message.isStreaming && message.text === '' ? (
-          <div className="sana-bubble w-fit !py-[16px]">
+          <div className="sana-bubble sana-typing w-fit !py-[16px]">
             <TypingDots />
           </div>
         ) : (
@@ -205,7 +207,7 @@ function MentorTurn({
                 {processMarkdown(message.text)}
               </ReactMarkdown>
             </div>
-            {!message.isStreaming && message.text && question !== undefined && (
+            {!message.isStreaming && message.text && !message.isGreeting && (
               <div className="sana-reply-actions">
                 <SanaReplyButtons id={message.id} text={message.text} isLast={isLast} readAloud={readAloud} reportSurface={reportSurface} question={question} />
               </div>
@@ -300,9 +302,9 @@ function MentorRail({ view, name, specialty, description }: { view?: AiMentorVie
           <Link
             key={m.slug}
             href={`/dashboard/ai-mentors/${m.slug}`}
-            className="flex items-center gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-ui-surface-2"
+            className="-mx-1.5 flex items-center gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-ui-surface-2"
           >
-            <MentorMark view={m} src="" size={30} />
+            <MentorMark view={m} src="" size={36} />
             <span className="flex min-w-0 flex-col">
               <span className="truncate text-sm font-semibold text-ui-text">{m.name}</span>
               <span className="truncate text-xs text-ui-muted">{m.specialty}</span>
@@ -634,10 +636,10 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
                       message={m}
                       isLast={m.id === lastMentorId}
                       readAloud={readAloud}
-                      reportSurface={`mentor:${view?.slug ?? 'ai-mentor'}`}
-                      question={messages.slice(0, i).reverse().find((x) => x.isUser)?.text}
                       onSuggest={sendMessage}
                       busy={isStreaming}
+                      reportSurface={`mentor:${view?.slug ?? 'ai-mentor'}`}
+                      question={messages.slice(0, i).reverse().find((x) => x.isUser)?.text}
                     />
                   ),
                 )}

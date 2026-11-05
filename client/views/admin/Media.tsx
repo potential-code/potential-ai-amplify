@@ -172,7 +172,7 @@ export default function AdminMediaPage() {
         <PageHeader
           className="mb-0"
           title="Media Library"
-          subtitle="Upload, organise and reuse images, documents and recordings across the platform."
+          subtitle="Upload, organize and reuse images, documents and recordings across the platform."
         />
 
         <UploadDropzone onAccepted={handleAccepted} />

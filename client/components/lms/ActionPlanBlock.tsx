@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import { CheckCircle2, Send } from 'lucide-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
-import { apiSaveQuestionAnswer, apiUpdateBlockProgress, type LearnerBlock } from '@/lib/api/lms'
+import { apiSaveQuestionAnswer, apiUpdateBlockProgress, fetchActionPlan, type LearnerBlock } from '@/lib/api/lms'
 import { cn } from '@/lib/utils'
-import { useSavedAnswers } from './useSavedAnswers'
 
 type Props = {
   block: LearnerBlock
@@ -15,50 +15,63 @@ type Props = {
 }
 
 /**
- * An action-plan step. A step can hold several prompts; each gets its own box,
- * Save waits until every one is answered, saves them all and then completes
- * the block (the server only accepts completion once every prompt has an
- * answer). Answers saved earlier fill their boxes. (Ported from AI Amplify d40e894.)
+ * An action-plan block: one written answer per prompt. A block can hold
+ * several prompts, and the server only marks it done once every one has an
+ * answer, so each gets its own box and all are saved together.
  */
 export function ActionPlanBlock({ block, onCompleted }: Props) {
   const queryClient = useQueryClient()
   const isAlreadyCompleted = block.blockProgress?.status === 'completed'
-  const prompts = [...block.questions].sort((a, b) => a.order - b.order)
+  const prompts = block.questions.filter((q) => q.kind === 'action-plan')
 
   const [texts, setTexts] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(isAlreadyCompleted)
-  const saved = useSavedAnswers(block.id)
 
-  // Reset only when the learner moves to another block (keying on completion
-  // too wiped the text the moment it was saved).
+  // A different block starts empty. Only on a block change: the course data
+  // refreshes after saving, and clearing then would blank the answers just saved.
   useEffect(() => {
     setTexts({})
   }, [block.id])
-
   useEffect(() => {
-    if (isAlreadyCompleted) setSubmitted(true)
-  }, [isAlreadyCompleted])
+    setSubmitted(isAlreadyCompleted)
+  }, [block.id, isAlreadyCompleted])
 
+  // Answers saved before (a finished block, or one left half done) fill their boxes.
+  const { id: courseId } = useParams<{ id: string }>()
+  const saved = useQuery({
+    queryKey: ['action-plan', courseId],
+    queryFn: () => fetchActionPlan(courseId),
+    enabled: Boolean(prompts.length && courseId),
+    staleTime: 60_000,
+  })
   useEffect(() => {
-    if (!saved) return
-    const fromServer: Record<string, string> = {}
-    for (const [id, v] of Object.entries(saved)) if (typeof v === 'string') fromServer[id] = v
-    setTexts((prev) => ({ ...fromServer, ...prev }))
-  }, [saved])
+    if (!saved.data) return
+    setTexts((current) => {
+      const next = { ...current }
+      for (const p of prompts) {
+        const entry = saved.data.questions.find((q) => q.question.id === p.id)
+        const answer = (entry?.answer as { answerData?: { openEndedAnswer?: unknown } } | null)?.answerData?.openEndedAnswer
+        if (typeof answer === 'string' && !next[p.id]) next[p.id] = answer
+      }
+      return next
+    })
+    // prompts is derived from block, which the saved data is keyed to.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saved.data, block.id])
 
-  const allAnswered = prompts.length > 0 && prompts.every((q) => (texts[q.id] ?? '').trim().length > 0)
+  const allAnswered = prompts.length > 0 && prompts.every((p) => (texts[p.id] ?? '').trim().length > 0)
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      await Promise.all(
-        prompts.map((q) => apiSaveQuestionAnswer(q.id, { openEndedAnswer: (texts[q.id] ?? '').trim() })),
-      )
+      for (const p of prompts) {
+        await apiSaveQuestionAnswer(p.id, { openEndedAnswer: (texts[p.id] ?? '').trim() })
+      }
       return apiUpdateBlockProgress(block.id, { status: 'completed' })
     },
     onSuccess: () => {
       setSubmitted(true)
       queryClient.invalidateQueries({ queryKey: ['learner-course'] })
-      queryClient.invalidateQueries({ queryKey: ['block-answers', block.id] })
+      queryClient.invalidateQueries({ queryKey: ['action-plan', courseId] })
       onCompleted()
     },
   })
@@ -67,36 +80,40 @@ export function ActionPlanBlock({ block, onCompleted }: Props) {
     <div>
       <p className="mb-2 text-[15px] text-ui-muted">Turn this unit into a step for your own business. Your answers build your action plan.</p>
 
-      {prompts.map((q, i) => {
-        const text = texts[q.id] ?? ''
-        return (
-          <div key={q.id} className={i === 0 ? '' : 'mt-6'}>
-            <p className="text-base sm:text-[17px] text-ui-text leading-relaxed font-semibold">{q.prompt}</p>
-            <div className="mt-3 relative">
-              <textarea
-                maxLength={10_000}
-                value={text}
-                onChange={(e) => setTexts((prev) => ({ ...prev, [q.id]: e.target.value }))}
-                disabled={submitted}
-                aria-label={q.prompt}
-                placeholder={q.placeholder ?? 'Write your action plan here…'}
-                rows={prompts.length > 1 ? 4 : 5}
-                className={cn(
-                  'w-full rounded-[10px] border bg-ui-surface px-4 py-3 text-sm text-ui-text leading-relaxed placeholder:text-ui-muted focus:outline-none transition-all resize-none',
-                  submitted
-                    ? 'border-transparent bg-ui-ok-soft'
-                    : 'border-ui-line focus:border-ui-brand focus:ring-2 focus:ring-ui-brand/20',
+      <div className="space-y-6">
+        {prompts.map((p, i) => {
+          const value = texts[p.id] ?? ''
+          return (
+            <div key={p.id}>
+              <label htmlFor={`ap-${p.id}`} className="block text-base sm:text-[17px] text-ui-text leading-relaxed font-semibold">
+                {prompts.length > 1 && <span className="mr-1.5 text-ui-muted">{i + 1}.</span>}
+                {p.prompt.trim()}
+              </label>
+              <div className="mt-3 relative">
+                <textarea
+                  id={`ap-${p.id}`}
+                  value={value}
+                  onChange={(e) => setTexts((t) => ({ ...t, [p.id]: e.target.value }))}
+                  disabled={submitted}
+                  placeholder={p.placeholder || 'Write your action plan here…'}
+                  rows={prompts.length > 1 ? 3 : 5}
+                  className={cn(
+                    'w-full rounded-[10px] border bg-ui-surface px-4 py-3 text-sm text-ui-text leading-relaxed placeholder:text-ui-muted focus:outline-none transition-all resize-none',
+                    submitted
+                      ? 'border-transparent bg-ui-ok-soft'
+                      : 'border-ui-line focus:border-ui-brand focus:ring-2 focus:ring-ui-brand/20',
+                  )}
+                />
+                {!submitted && (
+                  <div className="absolute bottom-2 right-3 text-xs text-ui-muted">
+                    {value.length} chars
+                  </div>
                 )}
-              />
-              {!submitted && (
-                <div className="absolute bottom-2 right-3 text-xs text-ui-muted">
-                  {text.length} chars
-                </div>
-              )}
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
 
       {/* Saved badge */}
       <AnimatePresence>
@@ -116,19 +133,21 @@ export function ActionPlanBlock({ block, onCompleted }: Props) {
       </AnimatePresence>
 
       {submitMutation.isError && !submitted && (
-        <p className="mt-4 text-sm text-ui-danger">We couldn&apos;t save your action plan. Please try again.</p>
+        <p role="alert" className="mt-3 text-sm text-ui-danger">
+          Your answers couldn&apos;t be saved. Please check each box and try again.
+        </p>
       )}
 
       {/* CTA */}
       {!submitted && (
         <div className="mt-5 flex items-center justify-end gap-3">
           {prompts.length > 1 && !allAnswered && (
-            <span className="text-xs text-ui-muted">Answer every prompt to save</span>
+            <span className="text-xs text-ui-muted">Answer all {prompts.length} questions to save</span>
           )}
           <button
             onClick={() => submitMutation.mutate()}
             disabled={!allAnswered || submitMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-[10px] bg-ui-brand hover:bg-ui-brand-hover text-white h-10 px-4 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center gap-2 rounded-[10px] bg-ui-brand hover:bg-ui-brand-hover text-white h-10 px-4 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             <Send className="w-3.5 h-3.5" />
             {submitMutation.isPending ? 'Saving…' : 'Save my action plan'}

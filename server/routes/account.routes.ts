@@ -57,6 +57,7 @@ const checkEmailDto = z.object({
  * PUT  /me                   — update own profile fields
  * POST /set-password         — first password for an account created without one
  * GET  /copilot-token        — service JWT for Anna (chat, voice)
+ * GET  /voice-token          — 60-second token for the voice WebSocket URL
  * GET  /copilot-token/guest  — anonymous token for Anna's landing-page chat
  * POST /check-email {email}  — is this email free to sign up with (in the body,
  *                              so addresses stay out of URLs and logs)
@@ -72,6 +73,7 @@ router.put("/me", authenticate, validate(updateProfileDto), accountController.up
 router.post("/set-password", authenticate, validate(setPasswordDto), accountController.setPassword);
 router.get("/copilot-token", authenticate, accountController.copilotToken);
 router.get("/copilot-token/guest", guestTokenIp, accountController.guestCopilotToken);
+router.get("/voice-token", authenticate, accountController.voiceToken);
 router.post("/check-email", lookupIp, validate(checkEmailDto), accountController.checkEmail);
 router.get("/check-coupon", lookupIp, accountController.checkCoupon);
 router.get("/email-preferences", authenticate, announcements.getEmailPreferences);

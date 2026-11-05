@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import {
   Award,
   BookOpen,
@@ -16,6 +16,7 @@ import {
   FileText,
   GraduationCap,
   ImageIcon,
+  Info,
   ListChecks,
   ListTree,
   Lock,
@@ -46,10 +47,10 @@ import { SurveyBlock } from '@/components/lms/SurveyBlock'
 import { ActionPlanBlock } from '@/components/lms/ActionPlanBlock'
 import { AssessmentView } from '@/components/lms/AssessmentView'
 import { CertificateModal } from '@/components/lms/CertificateModal'
-import { stepLabel } from '@/components/learner/courseProgress'
+import { blockKindLabel, blockLabel, blockTitle } from '@/components/learner/courseProgress'
 import type { CoursePreviewUnit } from '@/lib/api/lms'
+import { handOffToAnna, learnWithAnnaQuestion } from '@/lib/askAnnaPending'
 import { cn } from '@/lib/utils'
-import { ASK_ANNA_PENDING_KEY } from '@/lib/askAnnaPending'
 
 // ─── Nav item types ────────────────────────────────────────────────────────────
 
@@ -77,12 +78,24 @@ type BlockNavItem = {
 type NavItem = AssessmentItem | BlockNavItem
 
 const OUTLINE_KEY = 'smeep.coursePlayer.outline'
+const FOCUS_KEY = 'smeep.coursePlayer.focus'
 const SANA_AVATAR = '/images/redesign/anna-avatar-96.png'
 
 function itemLabel(item: NavItem | undefined) {
   if (!item) return ''
   if (item.kind === 'assessment') return item.assessmentType === 'pre' ? 'Pre-test' : 'Final exam'
-  return stepLabel(item.block)
+  return blockLabel(item.block)
+}
+
+/** ['Pre-test', 'done'] -> "Pre-test, done"; capitalises the first word. */
+function sentence(parts: Array<string | null | false | undefined>) {
+  const text = parts.filter(Boolean).join(', ')
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+function sameText(a: string | null | undefined, b: string | null | undefined) {
+  const norm = (t: string | null | undefined) => (t ?? '').trim().replace(/\s+/g, ' ').toLowerCase()
+  return norm(a) === norm(b)
 }
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
@@ -177,26 +190,47 @@ export default function CourseDetailPage() {
     open: false,
     certificate: null,
   })
-  const mainRef = useRef<HTMLElement>(null)
+  const mainRef = useRef<HTMLDivElement>(null)
   const certShownRef = useRef(false)
 
-  // Panels: the outline can be hidden (focus mode); remembered per device.
+  // Panels, remembered per device (wide screens, where their buttons live):
+  // the outline can be hidden on its own, and focus mode hides both the app
+  // sidebar and the outline, then puts back whatever was showing.
   const [outlineShown, setOutlineShown] = useState(true)
+  const [focus, setFocus] = useState(false)
+  const outlineBeforeFocus = useRef(true)
   useEffect(() => {
     try {
-      if (localStorage.getItem(OUTLINE_KEY) === '0') setOutlineShown(false)
+      const focused = localStorage.getItem(FOCUS_KEY) === '1'
+      setFocus(focused)
+      if (focused || localStorage.getItem(OUTLINE_KEY) === '0') setOutlineShown(false)
     } catch {
       /* storage blocked: keep the default */
     }
   }, [])
-  const setOutline = useCallback((shown: boolean) => {
-    setOutlineShown(shown)
+  const remember = (key: string, on: boolean) => {
     try {
-      localStorage.setItem(OUTLINE_KEY, shown ? '1' : '0')
+      localStorage.setItem(key, on ? '1' : '0')
     } catch {
       /* ignore */
     }
+  }
+  const setOutline = useCallback((shown: boolean) => {
+    setOutlineShown(shown)
+    remember(OUTLINE_KEY, shown)
   }, [])
+
+  const toggleFocus = useCallback(() => {
+    if (focus) {
+      setFocus(false)
+      setOutlineShown(outlineBeforeFocus.current)
+    } else {
+      outlineBeforeFocus.current = outlineShown
+      setFocus(true)
+      setOutlineShown(false)
+    }
+    remember(FOCUS_KEY, !focus)
+  }, [focus, outlineShown])
 
   // Reset state when courseId changes
   useEffect(() => {
@@ -296,10 +330,14 @@ export default function CourseDetailPage() {
     setActiveIdx(idx)
     setVideoWatchUnlocked(false)
     setMobileMenuOpen(false)
-    requestAnimationFrame(() => {
-      mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
-    })
   }
+
+  // Every step opens at its top. Instant, not smooth: the new step's content has
+  // already replaced the old, so a smooth scroll would glide through it and move
+  // the buttons while the learner reaches for them.
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 })
+  }, [activeIdx])
 
   const handleAdvance = () => {
     if (!isLast) {
@@ -310,24 +348,26 @@ export default function CourseDetailPage() {
   // ─── Loading ───────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="flex h-dvh flex-col bg-ui-bg">
-        <div className="flex h-[60px] shrink-0 items-center gap-4 border-b border-ui-line bg-ui-surface px-5">
-          <Skeleton className="h-9 w-24" />
-          <Skeleton className="h-5 w-48" />
-        </div>
-        <div className="flex flex-1">
-          <div className="hidden w-[300px] space-y-3 border-r border-ui-line bg-ui-surface p-4 min-[1100px]:block">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-12" />
-            ))}
+      <DashboardLayout fullBleed>
+        <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
+          <div className="flex h-[60px] shrink-0 items-center gap-4 border-b border-ui-line bg-ui-surface px-5">
+            <Skeleton className="h-9 w-24" />
+            <Skeleton className="h-5 w-48" />
           </div>
-          <div className="flex-1 space-y-4 px-4 py-7 sm:px-12">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-9 w-2/3 max-w-[560px]" />
-            <Skeleton className="aspect-video w-full max-w-[720px]" />
+          <div className="flex flex-1">
+            <div className="hidden w-[300px] space-y-3 border-e border-ui-line bg-ui-surface p-4 min-[1100px]:block">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-12" />
+              ))}
+            </div>
+            <div className="flex-1 space-y-4 px-4 py-7 sm:px-12">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-9 w-2/3 max-w-[560px]" />
+              <Skeleton className="aspect-video w-full max-w-[720px]" />
+            </div>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
@@ -352,9 +392,21 @@ export default function CourseDetailPage() {
     )
   }
 
+  // Opens Ask Anna with this course and unit as the question (the same hand-off
+  // as the Home page's Ask bar). AI Amplify has no Multi Learning tutor or
+  // course helper yet: both need a per-platform persona in potential-ai.
+  function learnWithAnna() {
+    if (!course) return
+    const unit = activeItem?.kind === 'block' ? course.modules[activeItem.moduleIdx]?.units[activeItem.unitIdx]?.title : null
+    handOffToAnna(learnWithAnnaQuestion(course.title, unit))
+    router.push('/dashboard/anna')
+  }
+
   // ─── Enrollment guard ──────────────────────────────────────────────────────
   if (!course.isEnrolled) {
-    return <CourseIntro course={course} enroll={enrollMutation} />
+    return (
+      <CourseIntro course={course} enroll={enrollMutation} />
+    )
   }
 
   const pct = Math.round(course.progressPercentage)
@@ -366,219 +418,365 @@ export default function CourseDetailPage() {
         ? 'Before you start'
         : 'Final exam'
 
-  // Opens Ask Anna with this course and unit as the question (the same hand-off
-  // as the Home page's Ask bar). AI Amplify has no Multi Learning tutor page.
-  function learnWithAnna() {
-    if (!course) return
-    const unit =
-      activeItem?.kind === 'block'
-        ? course.modules[activeItem.moduleIdx]?.units[activeItem.unitIdx]?.title
-        : null
-    const where = unit ? `the unit "${unit}" in my course "${course.title}"` : `my course "${course.title}"`
-    try {
-      sessionStorage.setItem(ASK_ANNA_PENDING_KEY, `Help me understand ${where}. Explain the key ideas simply, with an example for my business.`)
-    } catch {
-      /* storage blocked: Anna still opens */
-    }
-    router.push('/dashboard/anna')
-  }
-
   const outline = (
     <CourseOutline course={course} navItems={navItems} activeIdx={activeIdx} onSelect={goTo} />
   )
 
+  const description = course.description?.trim() || null
+
   return (
-    <div className="flex h-dvh flex-col bg-ui-bg text-ui-text">
-      {/* ── Top bar ── */}
-      <header className="flex h-[60px] shrink-0 items-center gap-3 border-b border-ui-line bg-ui-surface px-4 sm:gap-4 sm:px-5">
-        <Link href="/dashboard/courses" className={cn(btn({ variant: 'secondary' }), 'h-9 px-3')}>
-          <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
-          Courses
-        </Link>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[15px] font-semibold" dir="auto">{course.title}</span>
-          <span className="text-xs text-ui-muted">{headerSub}</span>
-        </div>
-        <div className="hidden w-[220px] items-center gap-2.5 md:flex">
-          <ProgressBar value={pct} className="flex-1" label="Course progress" />
-          <span className="text-[13px] font-semibold tabular-nums">{pct}%</span>
-        </div>
-        <Button variant="secondary" className="hidden h-9 xl:inline-flex" onClick={learnWithAnna}>
-          <img src={SANA_AVATAR} alt="" className="h-[22px] w-[22px] rounded-full object-cover object-top" />
-          Learn with Anna
-        </Button>
-        <Button
-          variant="secondary"
-          className="h-9 w-9 min-[1100px]:hidden"
-          size="icon"
-          aria-label="Course content"
-          onClick={() => setMobileMenuOpen(true)}
-        >
-          <ListTree className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
-        </Button>
-        <div role="group" aria-label="Panels" className="hidden items-center gap-1.5 min-[1100px]:flex">
-          <Button
-            variant="secondary"
-            size="icon"
-            className={cn('h-9 w-9', outlineShown && 'bg-ui-surface-2')}
-            aria-pressed={outlineShown}
-            aria-label={outlineShown ? 'Hide course outline' : 'Show course outline'}
-            title={outlineShown ? 'Hide course outline' : 'Show course outline'}
-            onClick={() => setOutline(!outlineShown)}
-          >
-            <PanelLeft className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
-          </Button>
-          <Button variant="secondary" className="h-9" onClick={() => setOutline(!outlineShown)}>
-            {outlineShown ? 'Focus mode' : 'Exit focus'}
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex min-h-0 flex-1">
-        {outlineShown && (
-          <nav
-            aria-label="Course outline"
-            className="hidden w-[300px] shrink-0 overflow-y-auto border-r border-ui-line bg-ui-surface px-3 py-4 min-[1100px]:block"
-          >
-            {outline}
-          </nav>
+    <DashboardLayout fullBleed>
+      {/* Focus mode (wide screens only, where its toggle lives) lifts the player
+          over the app sidebar; otherwise it sits inside the app shell. */}
+      <div
+        className={cn(
+          'flex min-h-0 flex-1 flex-col bg-ui-bg text-ui-text',
+          focus && 'min-[1100px]:fixed min-[1100px]:inset-0 min-[1100px]:z-40',
         )}
-
-        <main ref={mainRef} className="min-w-0 flex-1 overflow-y-auto">
-          <div
-            className={cn(
-              'flex min-h-full w-full max-w-[816px] flex-col gap-[22px] px-4 py-5 sm:px-8 sm:py-7 lg:px-12',
-              !outlineShown && 'mx-auto',
-            )}
+      >
+        {/* ── Top bar ── */}
+        <header className="relative flex h-[60px] shrink-0 items-center gap-2 border-b border-ui-line bg-ui-surface px-3 sm:gap-4 sm:px-5">
+          <Link
+            href="/dashboard/courses"
+            aria-label="Back to courses"
+            className={cn(btn({ variant: 'secondary' }), 'h-9 w-9 shrink-0 px-0 sm:w-auto sm:px-3')}
           >
-            {pct >= 100 && (
-              <Card className="flex flex-wrap items-center gap-3 border-transparent bg-ui-ok-soft p-4">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ui-ok text-white">
-                  <Check className="h-5 w-5" strokeWidth={2.5} aria-hidden />
-                </span>
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="font-semibold text-ui-text">Course complete</span>
-                  <span className="text-[13px] text-ui-muted">Well done. Your progress is saved.</span>
-                </span>
-                <span className="flex flex-wrap gap-2">
-                  {course.enableCertificate && (
-                    <Button size="sm" onClick={handleViewCertificate}>
-                      <Award className="h-4 w-4" aria-hidden />
-                      View certificate
-                    </Button>
-                  )}
-                  {hasActionPlanQuestions && (
-                    <Button size="sm" variant="secondary" onClick={handleDownloadActionPlan}>
-                      <Download className="h-4 w-4" aria-hidden />
-                      Action plan PDF
-                    </Button>
-                  )}
-                  <Button size="sm" variant="secondary" onClick={() => router.push('/dashboard/courses')}>
-                    Back to my courses
-                  </Button>
-                </span>
-              </Card>
-            )}
-
-            {activeItem ? (
-              <>
-                <div className="flex flex-col gap-2">
-                  <span className="text-[13px] text-ui-muted">
-                    {activeItem.kind === 'block'
-                      ? `${course.modules.length > 1 ? `${course.modules[activeItem.moduleIdx]?.title} / ` : ''}Unit ${activeItem.unitNumber} / ${itemLabel(activeItem)}`
-                      : activeItem.assessmentType === 'pre'
-                        ? 'Before you start'
-                        : course.enableCertificate
-                          ? 'Pass it to earn your certificate'
-                          : 'After the last unit'}
+            <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
+            <span className="hidden sm:inline">Courses</span>
+          </Link>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="flex min-w-0 items-center gap-2">
+              <span className="truncate text-[15px] font-semibold" title={course.title}>
+                {course.title}
+              </span>
+              {course.difficulty && (
+                <Chip className="h-5 shrink-0 px-1.5 text-[11px]">{course.difficulty}</Chip>
+              )}
+            </span>
+            <span className="flex min-w-0 items-center gap-1.5 text-xs text-ui-muted">
+              <span className="shrink-0">{headerSub}</span>
+              {description && (
+                <>
+                  <span aria-hidden className="hidden sm:inline">
+                    ·
                   </span>
-                  <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em] sm:text-[30px]">
-                    {activeItem.kind === 'block'
-                      ? course.modules[activeItem.moduleIdx]?.units[activeItem.unitIdx]?.title
-                      : itemLabel(activeItem)}
-                  </h1>
-                </div>
-
-                {activeItem.kind === 'block' && activeItem.block.type === 'text' && (
-                  <UnitVideoCard
-                    course={course}
-                    item={activeItem}
-                    navItems={navItems}
-                    onReplay={goTo}
-                  />
-                )}
-
-                <div key={activeItem.kind === 'block' ? activeItem.block.id : `assessment-${activeItem.id}`}>
-                  {activeItem.kind === 'assessment' ? (
-                    <AssessmentView assessmentId={activeItem.id} isLocked={activeItem.isLocked} onCompleted={handleComplete} />
-                  ) : (
-                    <BlockRenderer
-                      block={activeItem.block}
-                      onCompleted={handleComplete}
-                      onAdvance={isLast ? undefined : handleAdvance}
-                      onWatchThreshold={() => setVideoWatchUnlocked(true)}
-                    />
-                  )}
-                </div>
-              </>
-            ) : (
-              <Card>
-                <EmptyState icon={BookOpen} title="This course has no lessons yet" body="Check back soon." />
-              </Card>
-            )}
-
-            {/* Prev / Next */}
-            {navItems.length > 0 && (
-              <div className="mt-auto flex items-center justify-between gap-3 border-t border-ui-line pt-[18px]">
-                {activeIdx > 0 ? (
-                  <Button variant="secondary" onClick={() => goTo(activeIdx - 1)}>
-                    <ChevronLeft className="h-[18px] w-[18px]" aria-hidden />
-                    {(() => {
-                      const prev = navItems[activeIdx - 1]
-                      const sameUnit =
-                        prev?.kind === 'block' && activeItem?.kind === 'block' && prev.unitId === activeItem.unitId
-                      return sameUnit || prev?.kind === 'assessment' ? itemLabel(prev) : 'Previous'
-                    })()}
-                  </Button>
-                ) : (
-                  <span />
-                )}
-                <NextAction
-                  course={course}
-                  activeItem={activeItem}
-                  isLast={isLast}
-                  videoWatchUnlocked={videoWatchUnlocked}
-                  saving={completeBlockMutation.isPending}
-                  onComplete={(blockId) => completeBlockMutation.mutate(blockId, { onSuccess: handleAdvance })}
-                  onAdvance={handleAdvance}
-                />
-              </div>
-            )}
+                  <span className="hidden truncate sm:inline" title={description}>
+                    {description}
+                  </span>
+                </>
+              )}
+            </span>
           </div>
-        </main>
-      </div>
-
-      {/* Outline on smaller screens */}
-      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" className="w-[320px] max-w-[85vw] gap-0 overflow-y-auto border-r border-ui-line bg-ui-surface p-0 text-ui-text">
-          <SheetTitle className="px-5 pb-1 pt-5 text-base font-semibold text-ui-text" dir="auto">{course.title}</SheetTitle>
-          <div className="flex items-center gap-2.5 px-5 pb-3">
+          {description && <CourseInfo course={course} description={description} totalUnits={totalUnits} pct={pct} />}
+          <div className="hidden w-[220px] items-center gap-2.5 md:flex">
             <ProgressBar value={pct} className="flex-1" label="Course progress" />
             <span className="text-[13px] font-semibold tabular-nums">{pct}%</span>
           </div>
-          <nav aria-label="Course outline" className="px-3 pb-6">
-            {outline}
-          </nav>
-        </SheetContent>
-      </Sheet>
+          <Button variant="secondary" className="hidden h-9 xl:inline-flex" onClick={learnWithAnna}>
+            <img src={SANA_AVATAR} alt="" className="h-[22px] w-[22px] rounded-full object-cover object-top" />
+            Learn with Anna
+          </Button>
+          <Button
+            variant="secondary"
+            className="h-9 w-9 min-[1100px]:hidden"
+            size="icon"
+            aria-label="Course content"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <ListTree className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
+          </Button>
+          <div role="group" aria-label="Panels" className="hidden items-center gap-1.5 min-[1100px]:flex">
+            <Button
+              variant="secondary"
+              size="icon"
+              className={cn('h-9 w-9', outlineShown && 'bg-ui-surface-2')}
+              aria-pressed={outlineShown}
+              aria-label={outlineShown ? 'Hide course outline' : 'Show course outline'}
+              title={outlineShown ? 'Hide course outline' : 'Show course outline'}
+              onClick={() => setOutline(!outlineShown)}
+            >
+              <PanelLeft className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
+            </Button>
+            <Button variant="secondary" className={cn('h-9', focus && 'bg-ui-surface-2')} aria-pressed={focus} onClick={toggleFocus}>
+              {focus ? 'Exit focus' : 'Focus mode'}
+            </Button>
+          </div>
+        </header>
 
-      <CertificateModal
-        open={certModal.open}
-        certificate={certModal.certificate}
-        courseTitle={course.title}
-        onClose={() => setCertModal((prev) => ({ ...prev, open: false }))}
-      />
-      <Toaster position="bottom-right" richColors closeButton />
+        <div className="flex min-h-0 flex-1">
+          {outlineShown && (
+            <nav
+              aria-label="Course outline"
+              className="hidden w-[300px] shrink-0 overflow-y-auto border-e border-ui-line bg-ui-surface px-3 py-4 min-[1100px]:block"
+            >
+              {outline}
+            </nav>
+          )}
+
+          <div ref={mainRef} className="min-w-0 flex-1 overflow-y-auto">
+            <div
+              className={cn(
+                // Bottom room so Anna's launcher never sits on the Next button.
+                'flex min-h-full w-full max-w-[816px] flex-col gap-[22px] px-4 pb-24 pt-5 sm:px-8 sm:pb-24 sm:pt-7 lg:px-12',
+                !outlineShown && 'mx-auto',
+              )}
+            >
+              {pct >= 100 && (
+                <Card className="flex flex-wrap items-center gap-3 border-transparent bg-ui-ok-soft p-4">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ui-ok text-white">
+                    <Check className="h-5 w-5" strokeWidth={2.5} aria-hidden />
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="font-semibold text-ui-text">Course complete</span>
+                    <span className="text-[13px] text-ui-muted">Well done. Your progress is saved.</span>
+                  </span>
+                  <span className="flex flex-wrap gap-2">
+                    {course.enableCertificate && (
+                      <Button size="sm" onClick={handleViewCertificate}>
+                        <Award className="h-4 w-4" aria-hidden />
+                        View certificate
+                      </Button>
+                    )}
+                    {hasActionPlanQuestions && (
+                      <Button size="sm" variant="secondary" onClick={handleDownloadActionPlan}>
+                        <Download className="h-4 w-4" aria-hidden />
+                        Action plan PDF
+                      </Button>
+                    )}
+                    <Button size="sm" variant="secondary" onClick={() => router.push('/dashboard/courses')}>
+                      Back to my courses
+                    </Button>
+                  </span>
+                </Card>
+              )}
+
+              {activeItem ? (
+                <>
+                  <StepHeading course={course} item={activeItem} />
+
+                  {activeItem.kind === 'block' && activeItem.block.type === 'text' && (
+                    <UnitVideoCard
+                      course={course}
+                      item={activeItem}
+                      navItems={navItems}
+                      onReplay={goTo}
+                    />
+                  )}
+
+                  <div key={activeItem.kind === 'block' ? activeItem.block.id : `assessment-${activeItem.id}`}>
+                    {activeItem.kind === 'assessment' ? (
+                      <AssessmentView assessmentId={activeItem.id} isLocked={activeItem.isLocked} onCompleted={handleComplete} />
+                    ) : (
+                      <BlockRenderer
+                        block={activeItem.block}
+                        onCompleted={handleComplete}
+                        onAdvance={isLast ? undefined : handleAdvance}
+                        onWatchThreshold={() => setVideoWatchUnlocked(true)}
+                      />
+                    )}
+                  </div>
+                </>
+              ) : (
+                <Card>
+                  <EmptyState icon={BookOpen} title="This course has no lessons yet" body="Check back soon." />
+                </Card>
+              )}
+
+              {/* Prev / Next */}
+              {navItems.length > 0 && (
+                <div className="mt-auto flex items-center justify-between gap-3 border-t border-ui-line pt-[18px]">
+                  {activeIdx > 0 ? (
+                    <Button variant="secondary" className="min-w-0" onClick={() => goTo(activeIdx - 1)}>
+                      <ChevronLeft className="h-[18px] w-[18px] shrink-0" aria-hidden />
+                      {(() => {
+                        const prev = navItems[activeIdx - 1]
+                        const sameUnit =
+                          prev?.kind === 'block' && activeItem?.kind === 'block' && prev.unitId === activeItem.unitId
+                        // Short labels only: a long title would push Next off a phone screen.
+                        let label = 'Previous'
+                        if (prev?.kind === 'assessment') label = itemLabel(prev)
+                        else if (prev && sameUnit) {
+                          const full = blockLabel(prev.block)
+                          label = full.length <= 24 ? full : blockKindLabel(prev.block)
+                        }
+                        return <span className="truncate">{label}</span>
+                      })()}
+                    </Button>
+                  ) : (
+                    <span />
+                  )}
+                  <NextAction
+                    course={course}
+                    activeItem={activeItem}
+                    isLast={isLast}
+                    videoWatchUnlocked={videoWatchUnlocked}
+                    saving={completeBlockMutation.isPending}
+                    onComplete={(blockId) => completeBlockMutation.mutate(blockId, { onSuccess: handleAdvance })}
+                    onAdvance={handleAdvance}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Outline on smaller screens */}
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetContent side="left" className="w-[320px] max-w-[85vw] gap-0 overflow-y-auto border-r border-ui-line bg-ui-surface p-0 text-ui-text">
+            <SheetTitle className="px-5 pb-1 pt-5 text-base font-semibold text-ui-text">{course.title}</SheetTitle>
+            <div className="flex items-center gap-2.5 px-5 pb-3">
+              <ProgressBar value={pct} className="flex-1" label="Course progress" />
+              <span className="text-[13px] font-semibold tabular-nums">{pct}%</span>
+            </div>
+            <nav aria-label="Course outline" className="px-3 pb-6">
+              {outline}
+            </nav>
+          </SheetContent>
+        </Sheet>
+
+        <CertificateModal
+          open={certModal.open}
+          certificate={certModal.certificate}
+          courseTitle={course.title}
+          onClose={() => setCertModal((prev) => ({ ...prev, open: false }))}
+        />
+      </div>
+    </DashboardLayout>
+  )
+}
+
+// ─── Step heading: where you are, unit title, block title ──────────────────────
+
+function StepHeading({ course, item }: { course: LearnerCourseDetail; item: NavItem }) {
+  const eyebrowCls = 'text-[13px] text-ui-muted'
+  const h1Cls = 'text-2xl font-semibold leading-tight tracking-[-0.02em] sm:text-[30px]'
+
+  if (item.kind === 'assessment') {
+    return (
+      <div className="flex flex-col gap-2">
+        <span className={eyebrowCls}>
+          {item.assessmentType === 'pre'
+            ? 'Before you start'
+            : course.enableCertificate
+              ? 'Pass it to earn your certificate'
+              : 'After the last unit'}
+        </span>
+        <h1 className={h1Cls}>{itemLabel(item)}</h1>
+      </div>
+    )
+  }
+
+  const mod = course.modules[item.moduleIdx]
+  const unit = mod?.units[item.unitIdx]
+  const blocks = unit?.blocks ?? []
+  const title = blockTitle(item.block)
+  const showTitle = !!title && !sameText(title, unit?.title)
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
+        <span className={cn(eyebrowCls, 'min-w-0')}>
+          {course.modules.length > 1 && mod ? `${mod.title} / ` : ''}Unit {item.unitNumber} /{' '}
+          {showTitle ? blockKindLabel(item.block) : blockLabel(item.block)}
+        </span>
+        {blocks.length > 1 && (
+          <span className="flex shrink-0 items-center gap-2 text-xs text-ui-muted">
+            <span className="tabular-nums">
+              Step {item.blockIdx + 1} of {blocks.length}
+            </span>
+            <span className="flex gap-1" aria-hidden>
+              {blocks.map((b, i) => (
+                <span
+                  key={b.id}
+                  className={cn(
+                    'h-1.5 w-3 rounded-full sm:w-4',
+                    i === item.blockIdx
+                      ? 'bg-ui-brand'
+                      : b.blockProgress?.status === 'completed'
+                        ? 'bg-ui-ok'
+                        : 'bg-ui-line',
+                  )}
+                />
+              ))}
+            </span>
+          </span>
+        )}
+      </div>
+      <h1 className={h1Cls}>{unit?.title}</h1>
+      {showTitle && (
+        <h2 className="text-lg font-semibold leading-snug text-ui-text [overflow-wrap:anywhere] sm:text-xl">{title}</h2>
+      )}
+    </div>
+  )
+}
+
+// ─── Course info popover (full description) ────────────────────────────────────
+
+function CourseInfo({
+  course,
+  description,
+  totalUnits,
+  pct,
+}: {
+  course: LearnerCourseDetail
+  description: string
+  totalUnits: number
+  pct: number
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  // Not `relative`: the panel anchors to the top bar so it fits a phone screen.
+  return (
+    <div ref={ref} className="shrink-0">
+      <Button
+        variant="secondary"
+        size="icon"
+        className={cn('h-9 w-9', open && 'bg-ui-surface-2')}
+        aria-label="About this course"
+        title="About this course"
+        aria-expanded={open}
+        aria-controls="course-info"
+        onClick={() => setOpen((o) => !o)}
+      >
+        <Info className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
+      </Button>
+      {open && (
+        <div
+          id="course-info"
+          role="dialog"
+          aria-label="About this course"
+          className="absolute inset-x-3 top-full z-40 mt-2 rounded-[14px] border border-ui-line bg-ui-surface p-4 text-ui-text shadow-ui sm:inset-x-auto sm:end-5 sm:w-[380px]"
+        >
+          <div className="flex flex-wrap gap-2">
+            {course.difficulty && <Chip>{course.difficulty}</Chip>}
+            {course.enableCertificate && <Chip tone="brand">Certificate</Chip>}
+          </div>
+          <p className="mt-2.5 text-[15px] font-semibold leading-snug">{course.title}</p>
+          <p className="mt-1.5 max-h-[50vh] overflow-y-auto whitespace-pre-line text-sm leading-relaxed text-ui-muted">
+            {description}
+          </p>
+          <p className="mt-3 text-xs text-ui-muted">
+            {sentence([totalUnits > 0 ? `${totalUnits} units` : null, `${pct}% complete`])}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -684,7 +882,7 @@ function UnitVideoCard({
       <div className="relative w-[96px] shrink-0 sm:w-[120px]">
         <CoverTile src={course.cover} title={course.title} className="h-[56px] rounded-lg sm:h-[68px] [&_svg]:h-5 [&_svg]:w-5" />
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="inline-flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white/95 text-[#652d90]">
+          <span className="inline-flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white/95 text-[var(--color-brand-primary)]">
             <Play className="ml-0.5 h-3.5 w-3.5 fill-current" aria-hidden />
           </span>
         </span>
@@ -751,7 +949,7 @@ function CourseOutline({
     return (open ?? idxs[0])?.i ?? -1
   }
 
-  const rowCls = 'grid w-full grid-cols-[24px_minmax(0,1fr)] items-start gap-3 rounded-[10px] p-2.5 text-left transition-colors'
+  const rowCls = 'grid w-full grid-cols-[24px_minmax(0,1fr)] items-start gap-3 rounded-[10px] p-2.5 text-start transition-colors'
 
   return (
     <div className="flex flex-col gap-0.5">
@@ -768,9 +966,13 @@ function CourseOutline({
           <StatusDot state={course.preAssessment.isCompleted ? 'done' : activeIdx === preIdx ? 'active' : 'todo'}>
             <ClipboardCheck className="h-3.5 w-3.5" aria-hidden />
           </StatusDot>
-          <span className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium leading-snug text-ui-text">Pre-test</span>
-            <span className="text-xs text-ui-muted">{course.preAssessment.isCompleted ? 'Done' : 'Start here'}</span>
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="line-clamp-2 text-sm font-medium leading-snug text-ui-text" title={course.preAssessment.title || undefined}>
+              {course.preAssessment.title?.trim() || 'Pre-test'}
+            </span>
+            <span className="text-xs text-ui-muted">
+              {sentence([course.preAssessment.title?.trim() ? 'Pre-test' : null, course.preAssessment.isCompleted ? 'done' : 'start here'])}
+            </span>
           </span>
         </button>
       )}
@@ -785,9 +987,10 @@ function CourseOutline({
             const n = unitNumber
             const done = unit.unitProgress?.status === 'completed'
             const isActiveUnit = unit.id === activeUnitId
+            const blocksDone = unit.blocks.filter((b) => b.blockProgress?.status === 'completed').length
             const meta = [
               `Unit ${n}`,
-              isActiveUnit && !done ? 'in progress' : null,
+              isActiveUnit && !done && unit.blocks.length > 0 ? `${blocksDone} of ${unit.blocks.length} done` : null,
               unit.isLocked ? 'locked' : null,
               unit.durationMinutes ? `${unit.durationMinutes} min` : null,
             ]
@@ -799,9 +1002,16 @@ function CourseOutline({
                 <div key={unit.id} className="flex flex-col gap-0.5 rounded-[10px] bg-ui-bg pb-1.5 pt-1">
                   <div className={cn(rowCls, 'pb-1.5')}>
                     <StatusDot state={done ? 'done' : 'active'}>{n}</StatusDot>
-                    <span className="flex flex-col gap-0.5">
-                      <span className="text-sm font-semibold leading-snug text-ui-text" dir="auto">{unit.title}</span>
+                    <span className="flex min-w-0 flex-col gap-0.5">
+                      <span className="text-sm font-semibold leading-snug text-ui-text">{unit.title}</span>
                       <span className="text-xs text-ui-muted">{meta}</span>
+                      {!done && unit.blocks.length > 1 && (
+                        <ProgressBar
+                          value={(blocksDone / unit.blocks.length) * 100}
+                          className="mt-1 h-1"
+                          label={`Unit ${n} progress`}
+                        />
+                      )}
                     </span>
                   </div>
                   <ul>
@@ -809,6 +1019,7 @@ function CourseOutline({
                       const idx = navItems.findIndex((i) => i.kind === 'block' && i.block.id === block.id)
                       const isActive = idx === activeIdx
                       const isDone = block.blockProgress?.status === 'completed'
+                      const label = blockLabel(block)
                       return (
                         <li key={block.id}>
                           <button
@@ -817,7 +1028,7 @@ function CourseOutline({
                             onClick={() => idx >= 0 && onSelect(idx)}
                             aria-current={isActive ? 'step' : undefined}
                             className={cn(
-                              'flex h-9 w-full items-center gap-2.5 rounded-lg pl-[46px] pr-2.5 text-left text-[13px] transition-colors',
+                              'flex min-h-9 w-full items-center gap-2.5 rounded-lg py-1.5 pe-2.5 ps-[46px] text-start text-[13px] leading-snug transition-colors',
                               isActive ? 'bg-ui-brand-soft font-semibold text-ui-brand-text' : 'text-ui-muted hover:bg-ui-surface-2 hover:text-ui-text',
                               'disabled:cursor-not-allowed disabled:opacity-60',
                             )}
@@ -829,7 +1040,9 @@ function CourseOutline({
                             ) : (
                               <BlockTypeIcon type={block.type} className="h-4 w-4 shrink-0" />
                             )}
-                            <span className="truncate">{stepLabel(block)}</span>
+                            <span className="line-clamp-2 min-w-0" title={label.length > 28 ? label : undefined}>
+                              {label}
+                            </span>
                           </button>
                         </li>
                       )
@@ -852,7 +1065,7 @@ function CourseOutline({
                   {unit.isLocked ? <Lock className="h-3 w-3" aria-label="Locked" /> : n}
                 </StatusDot>
                 <span className="flex flex-col gap-0.5">
-                  <span dir="auto" className={cn('text-sm font-medium leading-snug', unit.isLocked ? 'text-ui-muted' : 'text-ui-text')}>
+                  <span className={cn('text-sm font-medium leading-snug', unit.isLocked ? 'text-ui-muted' : 'text-ui-text')}>
                     {unit.title}
                   </span>
                   <span className="text-xs text-ui-muted">{meta}</span>
@@ -881,10 +1094,12 @@ function CourseOutline({
           >
             {course.postAssessment.isLocked ? <Lock className="h-3.5 w-3.5" aria-label="Locked" /> : <ClipboardCheck className="h-3.5 w-3.5" aria-hidden />}
           </StatusDot>
-          <span className="flex flex-col gap-0.5">
-            <span className="text-sm font-semibold text-ui-text">Final exam</span>
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="line-clamp-2 text-sm font-semibold leading-snug text-ui-text" title={course.postAssessment.title || undefined}>
+              {course.postAssessment.title?.trim() || 'Final exam'}
+            </span>
             <span className="text-xs text-ui-muted">
-              {course.enableCertificate ? 'Pass it to earn your certificate' : course.postAssessment.title}
+              {sentence([course.postAssessment.title?.trim() ? 'Final exam' : null, course.enableCertificate ? 'pass it to earn your certificate' : null])}
             </span>
           </span>
         </button>

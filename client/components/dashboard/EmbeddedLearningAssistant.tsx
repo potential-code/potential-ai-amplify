@@ -84,7 +84,7 @@ import { LEARNING_PATH_PROMPT as LEARNING_INSTRUCTIONS } from "../../../shared/a
 interface Props {
   path: ActiveLearningPath
   onPathRefresh: () => void
-  /** Rebuilds the path (stored answers + progress + latest catalogue). */
+  /** Rebuilds the path (stored answers + progress + latest catalog). */
   onRegenerate?: () => Promise<void> | void
   threadId?: string
   onResetThread?: () => void
@@ -698,7 +698,7 @@ export function EmbeddedLearningAssistant({ path, onPathRefresh, onRegenerate, t
     },
   })
 
-  // ── Regenerate path (re-personalisation) ──────────────────────────────────
+  // ── Regenerate path (re-personalization) ──────────────────────────────────
 
   const handleRegenerate = async () => {
     if (!onRegenerate) return
@@ -789,12 +789,12 @@ export function EmbeddedLearningAssistant({ path, onPathRefresh, onRegenerate, t
       />
 
       {/* Stale-path nudge: the platform setup was regenerated after this path
-          was built, so its themes/blocks come from an outdated catalogue. */}
+          was built, so its themes/blocks come from an outdated catalog. */}
       {path.stale && onRegenerate && (
         <div className="relative z-[2] mx-4 mt-3 flex shrink-0 flex-wrap items-center gap-3 rounded-[10px] border border-ui-line bg-ui-surface px-3.5 py-2.5 sm:mx-6">
           <Sparkles className="h-4 w-4 shrink-0 text-ui-brand-text" aria-hidden />
           <p className="min-w-0 flex-1 text-[13px] leading-snug text-ui-text">
-            The course catalogue has been updated since this path was built. Update it to include the latest content;
+            The course catalog has been updated since this path was built. Update it to include the latest content;
             your progress is kept.
           </p>
           <button type="button" onClick={() => setShowRegenDialog(true)} className={btn({ variant: 'primary', size: 'sm' })}>
@@ -847,7 +847,7 @@ export function EmbeddedLearningAssistant({ path, onPathRefresh, onRegenerate, t
               {firstName ? `Welcome back, ${firstName}. ` : 'Welcome back. '}
               {current
                 ? `Your path has ${courseCount} course${courseCount !== 1 ? 's' : ''}, built from your questionnaire. Pick up where you left off, or open any course in your journey.`
-                : 'You have finished every course in your path. Update it to get new courses from the latest catalogue.'}
+                : 'You have finished every course in your path. Update it to get new courses from the latest catalog.'}
             </SanaLine>
             <PathSummaryCard path={path} current={current} onUpdate={onRegenerate ? () => setShowRegenDialog(true) : undefined} />
             {current && (

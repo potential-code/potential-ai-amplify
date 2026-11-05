@@ -253,13 +253,13 @@ export default function StakeholderApplicationsView({ type }: { type: string }) 
           <EmptyState
             icon={meta.icon}
             title="No results for that search"
-            body="Try a different name, email or organisation, or clear the search."
+            body="Try a different name, email or organization, or clear the search."
           />
         ) : (
           <EmptyState
             icon={meta.icon}
             title={`No ${meta.noun} submissions yet`}
-            body={`When someone completes the ${meta.form} form, their submission shows here with their organisation, contact details and how they want to be involved.`}
+            body={`When someone completes the ${meta.form} form, their submission shows here with their organization, contact details and how they want to be involved.`}
           />
         )}
       </TableCard>
@@ -297,7 +297,7 @@ export default function StakeholderApplicationsView({ type }: { type: string }) 
           <thead>
             <tr>
               <th scope="col">Name</th>
-              <th scope="col">Organisation</th>
+              <th scope="col">Organization</th>
               <th scope="col">Email</th>
               <th scope="col">Country</th>
               <th scope="col">Website</th>
@@ -375,7 +375,7 @@ export default function StakeholderApplicationsView({ type }: { type: string }) 
           <SearchInput
             value={search}
             onChange={handleSearch}
-            placeholder="Search name, email, organisation"
+            placeholder="Search name, email, organization"
             label="Search submissions"
             className="w-full sm:w-[320px]"
           />
@@ -411,7 +411,7 @@ export default function StakeholderApplicationsView({ type }: { type: string }) 
               <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-3.5">
                 <DetailField label="Title">{selected.title}</DetailField>
                 <DetailField label="Submitted">{fmtDate(selected.createdAt)}</DetailField>
-                <DetailField label="Organisation" wide>{selected.representing}</DetailField>
+                <DetailField label="Organization" wide>{selected.representing}</DetailField>
                 <DetailField label="Email">
                   {selected.email && (
                     <a href={`mailto:${selected.email}`} className="break-all text-ui-brand-text underline underline-offset-2">

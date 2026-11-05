@@ -281,7 +281,7 @@ export function ConversationalQuestionnaire({
         addBubble({
           id: "building",
           kind: "building",
-          text: "Building your personalised learning path.",
+          text: "Building your personalized learning path.",
         });
         try {
           await onGenerate(nextAnswers as Record<string, unknown>);
@@ -357,7 +357,7 @@ export function ConversationalQuestionnaire({
         panelOpen={panelOpen}
         panel={
           <>
-            <DiscoveryHowItWorks steps={HOW_IT_WORKS} />
+            <DiscoveryHowItWorks steps={HOW_IT_WORKS} current={done ? 2 : Object.keys(answers).length > 0 ? 1 : 0} />
             <AfterAnswersNote />
           </>
         }

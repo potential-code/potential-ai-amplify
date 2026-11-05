@@ -1,7 +1,8 @@
 /**
  * Display details for the AI mentors on the redesigned pages: the order the
- * catalogue is shown in, a plain-text name ("and", not "&"), and an icon tile
- * per specialty (the redesign uses tiles, not the old animated portraits).
+ * catalog is shown in, a plain-text name ("and", not "&"), the local
+ * portrait (same art as the homepage) and an icon tile per specialty, used
+ * as the fallback when a mentor has no portrait.
  */
 
 import type { LucideIcon } from 'lucide-react'
@@ -16,6 +17,8 @@ export interface AiMentorView {
   description: string
   icon: LucideIcon
   tile: { bg: string; fg: string }
+  /** Local portrait art (compressed .webp), when the mentor has one. */
+  portrait?: string
   /** Starter prompts for the chat (sent as the learner's message). */
   starters: string[]
 }
@@ -53,6 +56,20 @@ const META: Record<string, { icon: LucideIcon; tile: { bg: string; fg: string };
   },
 }
 
+/** Local portraits (AI-generated headshots) by slug; the catalog's own avatars are remote GIFs. */
+const PORTRAITS: Record<string, string> = {
+  'sales-coach': '/images/mentors/coaches/ai-sales.webp',
+  'marketing-coach': '/images/mentors/coaches/ai-marketing.webp',
+  'legal-consultant': '/images/mentors/coaches/ai-legal.webp',
+  'leadership-mentor': '/images/mentors/coaches/ai-leadership.webp',
+  'sustainability-bot': '/images/mentors/coaches/ai-sustainability.webp',
+  'corporate-security': '/images/mentors/coaches/ai-security.webp',
+}
+
+export function aiMentorPortrait(slug: string): string | undefined {
+  return PORTRAITS[slug]
+}
+
 const ORDER = ['sales-coach', 'marketing-coach', 'legal-consultant', 'leadership-mentor', 'sustainability-bot', 'corporate-security']
 
 export function aiMentorViews(): AiMentorView[] {
@@ -73,6 +90,7 @@ export function aiMentorViews(): AiMentorView[] {
         description: m.description,
         icon: meta.icon,
         tile: meta.tile,
+        portrait: PORTRAITS[m.slug],
         starters: meta.starters,
       }
     })

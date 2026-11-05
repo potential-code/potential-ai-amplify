@@ -242,7 +242,25 @@ export function LandingHumanMentors() {
 
   // The old section hid itself when the API returned nothing; keep that.
   if (mentors !== null && mentors.length === 0 && !failed) return null
-  if (failed) return null
+  // A failed load keeps the section (the header's Mentors link points here) with a short note.
+  if (failed) {
+    return (
+      <section id="mentors" aria-labelledby="h-mentors" className="scroll-mt-[68px] py-9">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-2 px-4 min-[900px]:px-10">
+          <h2 id="h-mentors" className="text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-ui-text min-[900px]:text-[30px]">
+            Human mentors
+          </h2>
+          <p className="text-base leading-[1.55] text-ui-muted">
+            The mentor list could not load right now.{' '}
+            <Link href="/sign-up" className="font-semibold text-ui-brand-text hover:underline">
+              Create an account
+            </Link>{' '}
+            to browse every mentor and book a session.
+          </p>
+        </div>
+      </section>
+    )
+  }
 
   const filtered =
     active === 'All' ? featuredFirst : featuredFirst.filter((m) => categoriesOf(m.expertise ?? []).has(active))

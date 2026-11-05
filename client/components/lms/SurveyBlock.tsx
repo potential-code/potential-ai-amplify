@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { CheckCircle2, Send } from 'lucide-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
-import { apiSaveQuestionAnswer, apiUpdateBlockProgress, type BlockQuestion, type LearnerBlock } from '@/lib/api/lms'
+import { apiSaveQuestionAnswer, apiUpdateBlockProgress, fetchBlockAnswers, type BlockQuestion, type LearnerBlock } from '@/lib/api/lms'
 import { cn } from '@/lib/utils'
-import { useSavedAnswers } from './useSavedAnswers'
 
 type Props = {
   block: LearnerBlock
@@ -16,7 +15,7 @@ type Props = {
 
 type Answers = Record<string, number | string>
 
-export function QuestionItem({
+function QuestionItem({
   question,
   answer,
   submitted,
@@ -32,7 +31,6 @@ export function QuestionItem({
       <div className="mt-4">
         <p className="text-[15px] font-semibold text-ui-text leading-relaxed mb-2">{question.prompt}</p>
         <textarea
-          maxLength={10_000}
           value={typeof answer === 'string' ? answer : ''}
           onChange={(e) => onChange(e.target.value)}
           disabled={submitted}
@@ -109,23 +107,36 @@ export function SurveyBlock({ block, onCompleted }: Props) {
 
   const [answers, setAnswers] = useState<Answers>({})
   const [submitted, setSubmitted] = useState(isAlreadyCompleted)
-  const saved = useSavedAnswers(block.id)
 
-  // Reset only when the learner moves to another block. Keying this on
-  // completion too wiped the answers the moment they were saved (the course
-  // refetches and the block flips to completed).
+  // A different block starts empty. Only on a block change: the course data
+  // refreshes after submitting, and clearing then would blank the choices just made.
   useEffect(() => {
     setAnswers({})
   }, [block.id])
-
   useEffect(() => {
-    if (isAlreadyCompleted) setSubmitted(true)
-  }, [isAlreadyCompleted])
+    setSubmitted(isAlreadyCompleted)
+  }, [block.id, isAlreadyCompleted])
 
-  // Answers saved earlier fill the boxes the learner hasn't touched.
+  // Coming back to a finished check-in: show the answers given.
+  const saved = useQuery({
+    queryKey: ['block-answers', block.id],
+    queryFn: () => fetchBlockAnswers(block.id),
+    enabled: isAlreadyCompleted,
+    staleTime: 60_000,
+  })
   useEffect(() => {
-    if (saved) setAnswers((prev) => ({ ...saved, ...prev }))
-  }, [saved])
+    if (!saved.data) return
+    setAnswers((current) => {
+      const next = { ...current }
+      for (const a of saved.data) {
+        if (next[a.questionId] !== undefined) continue
+        const d = a.answerData
+        if (typeof d?.selectedAnswer === 'number') next[a.questionId] = d.selectedAnswer
+        else if (typeof d?.openEndedAnswer === 'string') next[a.questionId] = d.openEndedAnswer
+      }
+      return next
+    })
+  }, [saved.data])
 
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -145,7 +156,6 @@ export function SurveyBlock({ block, onCompleted }: Props) {
     onSuccess: () => {
       setSubmitted(true)
       queryClient.invalidateQueries({ queryKey: ['learner-course'] })
-      queryClient.invalidateQueries({ queryKey: ['block-answers', block.id] })
       onCompleted()
     },
   })

@@ -237,7 +237,7 @@ export function CodConversationalQuestionnaire({ onProfileExtracted }: Props) {
         panelOpen={panelOpen}
         panel={
           <>
-            <DiscoveryHowItWorks steps={STANDARD_DISCOVERY_STEPS} />
+            <DiscoveryHowItWorks steps={STANDARD_DISCOVERY_STEPS} current={messages.some((m) => m?.role === 'user') ? 1 : 0} />
             <AfterAnswersNote />
           </>
         }

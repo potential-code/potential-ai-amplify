@@ -8,12 +8,13 @@
  *
  * Built on the redesign tokens (`ui-*`) so light and dark both work. The root
  * keeps the `sana-studio smeep-copilot` classes so the shared CopilotKit chat
- * overrides (transparent surfaces, centred thread, composer clearance) apply.
+ * overrides (transparent surfaces, centered thread, composer clearance) apply.
  */
 
 import { useEffect, useRef, type ComponentPropsWithoutRef, type ReactNode } from 'react'
 import { ArrowRight, Check, Lock } from 'lucide-react'
 import { btn, ProgressBar } from '@/components/kit'
+import { optimizedSrc } from '@/lib/images'
 import { cn } from '@/lib/utils'
 
 export const SANA_AVATAR = '/images/redesign/anna-avatar-96.png'
@@ -39,6 +40,7 @@ export function JourneyCanvas({ children, className }: { children: ReactNode; cl
 
 export function JourneyHeader({
   leading,
+  cover,
   title,
   subtitle,
   progress,
@@ -46,6 +48,8 @@ export function JourneyHeader({
   secondaryActions,
 }: {
   leading?: ReactNode
+  /** The path's cover image, shown as a thumbnail (from sm up) when there is no `leading`. */
+  cover?: string | null
   title: ReactNode
   subtitle?: ReactNode
   /** "x of y done" readout with a small bar (hidden on phones). */
@@ -59,7 +63,14 @@ export function JourneyHeader({
   return (
     <div className="relative z-[2] shrink-0 border-b border-ui-line bg-ui-surface px-4 py-3 sm:px-6 sm:py-3.5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
-        {leading}
+        {leading ??
+          (cover && (
+            <img
+              src={optimizedSrc(cover)}
+              alt=""
+              className="hidden h-10 w-14 shrink-0 rounded-lg bg-ui-surface-2 object-cover sm:block"
+            />
+          ))}
         <div className="flex min-w-0 flex-1 flex-col">
           <h1 className="text-[22px] font-semibold leading-tight tracking-[-0.01em] text-ui-text sm:text-lg sm:leading-snug">
             {title}
@@ -149,6 +160,8 @@ export interface PanelItem {
   stripCount?: string
   steps?: PanelStep[]
   progress?: { value: number; label: string }
+  /** Milestone artwork, shown as a thumbnail when the panel asks for them. */
+  image?: string | null
 }
 
 function Dot({ state, index }: { state: PanelItem['state']; index: number }) {
@@ -209,6 +222,7 @@ export function JourneyPanel({
   items,
   onSelect,
   footer,
+  thumbnails = false,
 }: {
   title?: string
   count?: ReactNode
@@ -217,6 +231,8 @@ export function JourneyPanel({
   items: PanelItem[]
   onSelect?: (id: string) => void
   footer?: ReactNode
+  /** Show each milestone's image (where it has one) at the end of its row. */
+  thumbnails?: boolean
 }) {
   return (
     <>
@@ -237,6 +253,8 @@ export function JourneyPanel({
         {items.map((m, i) => {
           const clickable = !!onSelect && m.state !== 'locked'
           const current = m.state === 'current'
+          const thumb = thumbnails && m.image ? optimizedSrc(m.image) : null
+          const cols = thumb ? 'grid-cols-[24px_minmax(0,1fr)_64px]' : 'grid-cols-[24px_minmax(0,1fr)]'
           const body = (
             <>
               <Dot state={m.state} index={i} />
@@ -267,6 +285,17 @@ export function JourneyPanel({
                   </span>
                 )}
               </span>
+              {thumb && (
+                <img
+                  src={thumb}
+                  alt=""
+                  loading="lazy"
+                  className={cn(
+                    'h-12 w-16 self-center rounded-lg bg-ui-surface-2 object-cover',
+                    m.state === 'locked' && 'opacity-60 grayscale',
+                  )}
+                />
+              )}
             </>
           )
           return (
@@ -276,14 +305,16 @@ export function JourneyPanel({
                   type="button"
                   onClick={() => onSelect!(m.id)}
                   className={cn(
-                    'grid w-full grid-cols-[24px_minmax(0,1fr)] gap-2.5 rounded-[10px] p-2 text-start transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-brand',
+                    'grid w-full gap-2.5 rounded-[10px] p-2 text-start',
+                    cols,
+                    'transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-brand',
                     current ? 'py-2.5' : 'hover:bg-ui-surface-2',
                   )}
                 >
                   {body}
                 </button>
               ) : (
-                <div className="grid grid-cols-[24px_minmax(0,1fr)] gap-2.5 p-2">{body}</div>
+                <div className={cn('grid gap-2.5 p-2', cols)}>{body}</div>
               )}
               {current && m.steps && m.steps.length > 0 && (
                 <ul className="flex flex-col gap-2 pb-3 pe-2 ps-[42px]" aria-label={`${m.title} steps`}>
@@ -385,7 +416,8 @@ export function SanaLine({ children, avatar }: { children: ReactNode; avatar?: R
       {avatar ?? (
         <img src={SANA_AVATAR} alt="Anna" className="h-8 w-8 shrink-0 rounded-full object-cover object-top" />
       )}
-      <div className="max-w-[600px] rounded-[4px_16px_16px_16px] border border-ui-line bg-ui-surface px-3.5 py-3 text-[15px] leading-relaxed text-ui-text">
+      {/* No box: Anna's lines sit on the page, like her chat replies. */}
+      <div className="min-w-0 max-w-[680px] pt-1.5 text-[15px] leading-relaxed text-ui-text">
         {children}
       </div>
     </div>
@@ -418,4 +450,4 @@ export function LearnerLine({ children, onClick }: { children: ReactNode; onClic
 }
 
 /** Card indent that lines content up with Anna's bubble on wider screens. */
-export const leadIndent = 'md:ml-[42px]'
+export const leadIndent = 'md:ms-[42px]'

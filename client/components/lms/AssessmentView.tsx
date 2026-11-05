@@ -215,13 +215,15 @@ function TakingView({
             {q.questionText}
           </p>
 
-          <div className="grid gap-2">
+          <div className="grid gap-2" role="radiogroup" aria-label={q.questionText}>
             {options.map((opt, idx) => {
               const isSelected = answers[q.id] === idx
               return (
                 <motion.button
                   key={idx}
                   type="button"
+                  role="radio"
+                  aria-checked={isSelected}
                   onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: idx }))}
                   whileHover={{ x: 3 }}
                   whileTap={{ scale: 0.99 }}

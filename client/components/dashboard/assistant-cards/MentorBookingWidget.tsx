@@ -491,7 +491,7 @@ export function MentorBookingWidget({ mentorName, respond, onRegisterCancel, onD
 
             {selectedDate && (
               <div className="mt-3">
-                <p className="text-[12px] font-semiboldst text-ui-muted mb-1.5">
+                <p className="text-[12px] font-semibold text-ui-muted mb-1.5">
                   Available times
                 </p>
                 <div className="flex flex-wrap gap-1.5">

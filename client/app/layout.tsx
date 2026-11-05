@@ -4,15 +4,27 @@ import './globals.css'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'swap' })
 
+// Icons and the shared-link image are files in this folder (icon.png,
+// apple-icon.png, opengraph-image.jpg, twitter-image.jpg); Next adds their
+// tags. metadataBase makes the image URLs absolute, which link previews need.
 export const metadata: Metadata = {
-  title: 'AI Amplify — Amplify Your Business with AI | Powered by Potential.org',
+  metadataBase: new URL('https://aiamplify.potential.org'),
+  // Each page sets its own title, shown as "Courses | AI Amplify"; the homepage keeps the full name.
+  title: { default: 'AI Amplify — Amplify Your Business with AI | Powered by Potential.org', template: '%s | AI Amplify' },
   description:
     "Learn to put AI to work in your business: cut costs, win more customers, and build future-ready skills with AI Amplify, Potential.org's global program for SMEs and job seekers.",
   keywords: 'AI Amplify, SME, AI, business empowerment, startup, digital transformation, AI tools',
   openGraph: {
     title: 'AI Amplify — Amplify Your Business with AI',
-    description: 'An AI-powered program for SMEs, startups, and job seekers worldwide.',
+    description: 'AI training, mentors and tools for SMEs, startups and job seekers worldwide. By Potential.org.',
     type: 'website',
+    siteName: 'AI Amplify',
+    url: '/',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AI Amplify — Amplify Your Business with AI',
+    description: 'AI training, mentors and tools for SMEs, startups and job seekers worldwide. By Potential.org.',
   },
 }
 

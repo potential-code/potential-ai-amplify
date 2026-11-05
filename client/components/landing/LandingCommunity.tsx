@@ -56,7 +56,7 @@ export function LandingCommunity() {
   )
 }
 
-/** Newsletter sign-up (POST /api/newsletter/subscribe), same behaviour as the old footer form. */
+/** Newsletter sign-up (POST /api/newsletter/subscribe), same behavior as the old footer form. */
 function NewsletterForm() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)

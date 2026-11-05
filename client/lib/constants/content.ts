@@ -366,7 +366,7 @@ export const AI_MENTORS = {
       avatar: 'https://api.potential.com/static/mentors/1689757544593-Marketing%20Coach.gif',
     },
     {
-      name: 'Legal Consultant',
+      name: 'Legal Coach',
       slug: 'legal-consultant',
       botId: '6540b46f64bed7823ecd4209',
       specialty: 'Legal',
@@ -375,7 +375,7 @@ export const AI_MENTORS = {
         'https://api.potential.com/static/mentors/1698739311601-Potential.com%20AI%20Bots%20.jpg',
     },
     {
-      name: 'Sustainability Bot',
+      name: 'Sustainability Coach',
       slug: 'sustainability-bot',
       botId: '64cb87a1293c2813e908395e',
       specialty: 'Sustainability',

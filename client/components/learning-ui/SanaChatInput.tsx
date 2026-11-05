@@ -41,6 +41,8 @@ export interface SanaComposerOptionsValue {
   above?: ReactNode
   /** Let the learner share a document (a paperclip); off unless provided. */
   attach?: SanaAttachOptions
+  /** The conversation is over (e.g. a marked exam): this note replaces the input. */
+  closed?: string
 }
 
 export type SanaSharedDocument = { name: string; text: string; truncated: boolean; pages?: number }
@@ -179,6 +181,19 @@ export function SanaChatInput({
   const canAct = isRunning || ((value.trim().length > 0 || docReady) && attachment?.status !== 'reading')
   const basePlaceholder = placeholder ?? options.placeholder ?? chatPlaceholderRef.current ?? 'Ask Anna anything'
   const shownPlaceholder = docReady && attach ? attach.askAbout(attachment.name) : basePlaceholder
+
+  if (options.closed) {
+    return (
+      <div className="sana-composer px-4 pb-4 pt-2 sm:px-8 sm:pb-[22px]">
+        <p
+          className="mx-auto rounded-[12px] border border-ui-line bg-ui-surface-2 px-4 py-3 text-center text-[13px] text-ui-muted"
+          style={{ maxWidth: 'var(--sana-thread-max, 776px)' }}
+        >
+          {options.closed}
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="sana-composer px-4 pb-4 pt-2 sm:px-8 sm:pb-[22px]">

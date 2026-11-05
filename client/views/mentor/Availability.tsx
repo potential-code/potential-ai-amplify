@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type FormEvent } from 'react'
-import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, Globe, Lock, Plus, Timer, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, Globe, Lock, Plus, Repeat, Timer, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { MentorLayout } from '@/components/mentor/MentorLayout'
 import { Button, Chip, PageHeader, Skeleton, inputClass } from '@/components/kit'
@@ -23,10 +23,22 @@ import { cn } from '@/lib/utils'
 // ---------------------------------------------------------------------------
 
 const BASE_HOURS = Array.from({ length: 14 }, (_, i) => i + 7) // 07:00 .. 20:00
+/** Weekly repeat choices: 0 = only the selected times, N = also the same weekday and hour for the next N weeks. */
+const REPEAT_OPTIONS = [0, 1, 2, 4, 8, 12] as const
+/** Slots per POST. The API has no explicit cap, but this keeps each body far under the 100 kB JSON limit. */
+const ADD_BATCH = 150
 
 function localKey(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
+const cellKey = (d: Date, hour: number) => `${localKey(d)}|${hour}`
+/** "YYYY-MM-DD|H" key, shifted `weeks` weeks later, as a local Date at that hour. */
+function keyToDate(key: string, weeks = 0) {
+  const [dk, h] = key.split('|')
+  const [y, m, d] = dk.split('-').map(Number)
+  return new Date(y, m - 1, d + weeks * 7, Number(h))
+}
+const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
 function startOfWeek(d: Date) {
   const x = new Date(d.getFullYear(), d.getMonth(), d.getDate())
   const dow = (x.getDay() + 6) % 7 // Monday = 0
@@ -57,7 +69,8 @@ function joinWords(items: string[]) {
   return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
 }
 
-type CellState = 'past' | 'booked' | 'open' | 'remove' | 'sel' | 'free'
+type CellState = 'past' | 'booked' | 'open' | 'remove' | 'sel' | 'rep' | 'skip' | 'free'
+const SELECTABLE: ReadonlySet<CellState> = new Set(['free', 'sel', 'rep', 'skip'])
 
 // ---------------------------------------------------------------------------
 
@@ -69,6 +82,8 @@ export default function Availability() {
   const [loading, setLoading] = useState(true)
   const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set()) // "YYYY-MM-DD|H"
   const [selectedSlotIds, setSelectedSlotIds] = useState<Set<string>>(new Set())
+  const [repeatWeeks, setRepeatWeeks] = useState<number>(0)
+  const [excludedCells, setExcludedCells] = useState<Set<string>>(new Set()) // repeated times the mentor left out
   const [adding, setAdding] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [pastOpen, setPastOpen] = useState(false)
@@ -120,8 +135,39 @@ export default function Availability() {
     return [...set].sort((a, b) => a - b)
   }, [days, upcomingSlots])
 
+  // Every time the current selection would add: each selected cell, plus the
+  // same weekday and hour for the next `repeatWeeks` weeks. Times that already
+  // exist (open or booked) or have passed are skipped and counted, so the
+  // mentor is told before adding.
+  const plan = useMemo(() => {
+    const pending = new Map<string, Date>()
+    const seen = new Set<string>()
+    const left = new Set<string>() // repeated times the mentor left out
+    let existing = 0
+    let passed = 0
+    for (const key of selectedCells) {
+      const hour = Number(key.split('|')[1])
+      for (let w = 0; w <= repeatWeeks; w++) {
+        const at = keyToDate(key, w)
+        const k = cellKey(at, hour)
+        if (seen.has(k)) continue
+        seen.add(k)
+        if (w > 0 && excludedCells.has(k) && !selectedCells.has(k)) {
+          left.add(k)
+          continue
+        }
+        if (slotByCell.has(k)) existing++
+        else if (at <= now) passed++
+        else pending.set(k, at)
+      }
+    }
+    const list = [...pending].map(([key, at]) => ({ key, at })).sort((a, b) => a.at.getTime() - b.at.getTime())
+    return { pending: list, keys: new Set(pending.keys()), left, existing, passed }
+  }, [selectedCells, repeatWeeks, excludedCells, slotByCell, now])
+  const pending = plan.pending
+
   function cellState(day: Date, hour: number): { state: CellState; slot?: Slot } {
-    const key = `${localKey(day)}|${hour}`
+    const key = cellKey(day, hour)
     const slot = slotByCell.get(key)
     if (slot) {
       if (!slot.isAvailable) return { state: 'booked', slot }
@@ -129,7 +175,9 @@ export default function Availability() {
     }
     const at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour)
     if (at <= now) return { state: 'past' }
-    return { state: selectedCells.has(key) ? 'sel' : 'free' }
+    if (selectedCells.has(key)) return { state: 'sel' }
+    if (plan.keys.has(key)) return { state: 'rep' }
+    return { state: plan.left.has(key) ? 'skip' : 'free' }
   }
 
   function toggleCell(day: Date, hour: number) {
@@ -138,14 +186,68 @@ export default function Availability() {
       if (slot) toggleSlotId(slot.id)
       return
     }
+    const key = cellKey(day, hour)
+    if (state === 'rep') {
+      // Leave this one repeated time out (e.g. a holiday).
+      setExcludedCells((prev) => new Set(prev).add(key))
+      return
+    }
+    if (state === 'skip') {
+      // A repeated time the mentor left out: put it back.
+      setExcludedCells((prev) => {
+        const next = new Set(prev)
+        next.delete(key)
+        return next
+      })
+      return
+    }
     if (state !== 'free' && state !== 'sel') return
-    const key = `${localKey(day)}|${hour}`
     setSelectedCells((prev) => {
       const next = new Set(prev)
       if (next.has(key)) next.delete(key)
       else next.add(key)
       return next
     })
+  }
+
+  /** Selectable cells in a row or column, and whether they are all selected. */
+  function groupInfo(cells: [Date, number][]) {
+    const keys: string[] = []
+    let allOn = true
+    for (const [d, h] of cells) {
+      const { state } = cellState(d, h)
+      if (!SELECTABLE.has(state)) continue
+      keys.push(cellKey(d, h))
+      if (state !== 'sel') allOn = false
+    }
+    return { keys, allOn: keys.length > 0 && allOn }
+  }
+
+  /** Select every free hour in a row or column, or clear them when all are already selected. */
+  function toggleGroup(cells: [Date, number][]) {
+    const { keys, allOn } = groupInfo(cells)
+    if (keys.length === 0) return
+    setSelectedCells((prev) => {
+      const next = new Set(prev)
+      for (const k of keys) {
+        if (allOn) next.delete(k)
+        else next.add(k)
+      }
+      return next
+    })
+    if (!allOn) {
+      setExcludedCells((prev) => {
+        if (!keys.some((k) => prev.has(k))) return prev
+        const next = new Set(prev)
+        for (const k of keys) next.delete(k)
+        return next
+      })
+    }
+  }
+
+  function clearSelection() {
+    setSelectedCells(new Set())
+    setExcludedCells(new Set())
   }
 
   function toggleSlotId(id: string) {
@@ -157,42 +259,64 @@ export default function Availability() {
     })
   }
 
-  // New slots to submit (future, not already existing)
-  const pending = useMemo(() => {
-    const out: { key: string; at: Date }[] = []
-    for (const key of selectedCells) {
-      if (slotByCell.has(key)) continue
-      const [dk, h] = key.split('|')
-      const [y, m, d] = dk.split('-').map(Number)
-      const at = new Date(y, m - 1, d, Number(h))
-      if (at > now) out.push({ key, at })
-    }
-    return out.sort((a, b) => a.at.getTime() - b.at.getTime())
-  }, [selectedCells, slotByCell, now])
-
-  const pendingDays = useMemo(() => {
+  const pendingSummary = useMemo(() => {
+    const dayLabel = (d: Date) => fmtLocal(d, { weekday: 'short', month: 'short', day: 'numeric' }).replace(',', '')
     const seen = new Map<string, string>()
-    for (const p of pending) seen.set(localKey(p.at), fmtLocal(p.at, { weekday: 'short', month: 'short', day: 'numeric' }).replace(',', ''))
-    return [...seen.values()]
+    for (const p of pending) seen.set(localKey(p.at), dayLabel(p.at))
+    const labels = [...seen.values()]
+    if (labels.length <= 4) return `${joinWords(labels)}.`
+    return `${plural(labels.length, 'day')} from ${labels[0]} to ${labels[labels.length - 1]}.`
   }, [pending])
 
-  function handleAdd() {
-    if (pending.length === 0) return
+  const skipped = plan.existing + plan.passed
+  const candidates = pending.length + skipped
+  let skipNotice = ''
+  if (skipped > 0) {
+    const one = skipped === 1
+    const who = candidates === 1 ? 'This time' : pending.length === 0 ? `All ${candidates} of these times` : `${skipped} of these ${candidates} times`
+    const sing = candidates === 1 || (one && pending.length > 0)
+    if (plan.passed === 0) skipNotice = `${who} ${sing ? 'is' : 'are'} already open or booked and will be skipped.`
+    else if (plan.existing === 0) skipNotice = `${who} ${sing ? 'has' : 'have'} already passed and will be skipped.`
+    else skipNotice = `${who} will be skipped: ${plan.existing} already open or booked, ${plan.passed} already passed.`
+  }
+
+  async function handleAdd() {
+    if (pending.length === 0 || adding) return
     setAdding(true)
-    addSlots(pending.map((p) => ({ startsAt: p.at.toISOString() })))
-      .then((data) => {
-        const added = data.slots.length
-        const skipped = data.skippedDuplicates ?? 0
-        toast.success(
-          skipped > 0
-            ? `${added} slot${added !== 1 ? 's' : ''} added. ${skipped} already existed and ${skipped === 1 ? 'was' : 'were'} skipped.`
-            : `${added} slot${added !== 1 ? 's' : ''} added`,
-        )
-        setSelectedCells(new Set())
-        return fetchData()
-      })
-      .catch((err) => toast.error(apiErrorMessage(err, 'Failed to add slots')))
-      .finally(() => setAdding(false))
+    let added = 0
+    let dupes = 0
+    try {
+      for (let i = 0; i < pending.length; i += ADD_BATCH) {
+        const cutoff = new Date()
+        const chunk = pending.slice(i, i + ADD_BATCH).filter((p) => p.at > cutoff)
+        if (chunk.length === 0) continue
+        try {
+          const data = await addSlots(chunk.map((p) => ({ startsAt: p.at.toISOString() })))
+          added += data.slots.length
+          dupes += data.skippedDuplicates ?? 0
+        } catch (err) {
+          // 409: every time in this batch already exists (e.g. added in another tab).
+          if ((err as { status?: number })?.status === 409) {
+            dupes += chunk.length
+            continue
+          }
+          throw err
+        }
+      }
+      const tail = dupes > 0 ? ` ${dupes} already existed and ${dupes === 1 ? 'was' : 'were'} skipped.` : ''
+      if (added > 0) toast.success(`${plural(added, 'slot')} added.${tail}`)
+      else toast.info(`No new slots added.${tail}`)
+      clearSelection()
+      setRepeatWeeks(0)
+    } catch (err) {
+      const msg = apiErrorMessage(err, 'Failed to add slots')
+      // Batches already sent stay added; the refresh below marks them as open,
+      // so trying again only sends what is still missing.
+      toast.error(added > 0 ? `${plural(added, 'slot')} added, then adding stopped: ${msg}` : msg)
+    } finally {
+      await fetchData()
+      setAdding(false)
+    }
   }
 
   const deletable = upcomingSlots.filter((s) => s.isAvailable)
@@ -265,6 +389,7 @@ export default function Availability() {
               <Legend swatch="border-ui-line bg-ui-surface-2">Booked</Legend>
               <Legend swatch="border-transparent bg-[repeating-linear-gradient(135deg,var(--color-ui-surface-2)_0_3px,var(--color-ui-bg)_3px_6px)]">Time passed</Legend>
               <Legend swatch="border-ui-line bg-ui-surface">Available to add</Legend>
+              {repeatWeeks > 0 && <Legend swatch="border-ui-brand bg-ui-brand-soft">Weekly repeat</Legend>}
             </div>
             {mobileCols < 7 && <p className="mx-4 mt-2 text-xs text-ui-muted md:hidden">Past days are hidden on small screens.</p>}
 
@@ -283,8 +408,24 @@ export default function Availability() {
                     const k = localKey(d)
                     const isToday = k === todayKey
                     const past = dayIsPast(d)
+                    const col = hours.map((h) => [d, h] as [Date, number])
+                    const { keys, allOn } = groupInfo(col)
                     return (
-                      <span key={k} className={cn('flex flex-col items-center gap-0.5 pb-2 pt-1.5 text-xs font-semibold text-ui-muted', past && 'max-md:hidden')}>
+                      <button
+                        key={k}
+                        type="button"
+                        disabled={keys.length === 0}
+                        aria-pressed={keys.length === 0 ? undefined : allOn}
+                        aria-label={`Select every free hour on ${fmtLocal(d, { weekday: 'long', month: 'long', day: 'numeric' })}`}
+                        title={keys.length === 0 ? undefined : allOn ? 'Clear this day' : 'Select this whole day'}
+                        onClick={() => toggleGroup(col)}
+                        className={cn(
+                          'flex flex-col items-center gap-0.5 rounded-[10px] pb-2 pt-1.5 text-xs font-semibold text-ui-muted transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ui-brand disabled:cursor-default',
+                          keys.length > 0 && 'hover:bg-ui-surface-2 hover:text-ui-text',
+                          allOn && 'bg-ui-brand-soft text-ui-brand-text hover:bg-ui-brand-soft hover:text-ui-brand-text',
+                          past && 'max-md:hidden',
+                        )}
+                      >
                         {fmtLocal(d, { weekday: 'short' })}
                         <strong
                           className={cn(
@@ -294,11 +435,29 @@ export default function Availability() {
                         >
                           {d.getDate()}
                         </strong>
-                      </span>
+                      </button>
                     )
                   })}
-                  {hours.map((h) => [
-                    <span key={`h-${h}`} className="flex items-center justify-end pr-1.5 text-[11px] tabular-nums text-ui-muted">{hh(h)}</span>,
+                  {hours.map((h) => {
+                    const row = days.map((d) => [d, h] as [Date, number])
+                    const { keys, allOn } = groupInfo(row)
+                    return [
+                    <button
+                      key={`h-${h}`}
+                      type="button"
+                      disabled={keys.length === 0}
+                      aria-pressed={keys.length === 0 ? undefined : allOn}
+                      aria-label={`Select ${hh(h)} on every free day this week`}
+                      title={keys.length === 0 ? undefined : allOn ? 'Clear this hour' : 'Select this hour all week'}
+                      onClick={() => toggleGroup(row)}
+                      className={cn(
+                        'flex items-center justify-end rounded-[7px] pe-1.5 text-[11px] tabular-nums text-ui-muted transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ui-brand disabled:cursor-default',
+                        keys.length > 0 && 'hover:bg-ui-surface-2 hover:text-ui-text',
+                        allOn && 'bg-ui-brand-soft font-semibold text-ui-brand-text hover:bg-ui-brand-soft hover:text-ui-brand-text',
+                      )}
+                    >
+                      {hh(h)}
+                    </button>,
                     ...days.map((d) => {
                       const { state } = cellState(d, h)
                       const label = `${fmtLocal(d, { weekday: 'long', day: 'numeric' })}, ${hh(h)}`
@@ -312,29 +471,55 @@ export default function Availability() {
                         />
                       )
                     }),
-                  ])}
+                    ]
+                  })}
                 </div>
               )}
             </div>
 
-            <div className="flex flex-col items-stretch gap-3 border-t border-ui-line bg-ui-bg px-4 py-3.5 sm:flex-row sm:items-center">
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5" aria-live="polite">
-                <strong className="text-sm font-semibold text-ui-text">
-                  {pending.length === 0 ? 'No new slots selected' : `${pending.length} new slot${pending.length === 1 ? '' : 's'} selected`}
-                </strong>
-                <span className="text-xs text-ui-muted">
-                  {pending.length === 0
-                    ? 'Click empty hours in the grid to select them. Click an open slot to select it for removal.'
-                    : `${joinWords(pendingDays)}. Times already added are skipped.`}
+            <div className="flex flex-col gap-3 border-t border-ui-line bg-ui-bg px-4 py-3.5">
+              <div className="flex flex-col items-stretch gap-3">
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5" aria-live="polite">
+                  <strong className="text-sm font-semibold text-ui-text">
+                    {pending.length === 0 ? 'No new slots selected' : `${plural(pending.length, 'new slot')} to add`}
+                  </strong>
+                  <span className="text-xs text-ui-muted">
+                    {pending.length === 0
+                      ? 'Click empty hours to select them, or a day or hour heading to select a whole column or row. Click an open slot to select it for removal.'
+                      : repeatWeeks > 0
+                        ? `${pendingSummary} Repeats weekly; click a repeated time to leave it out.`
+                        : pendingSummary}
+                  </span>
+                  {skipNotice && (
+                    <span className="mt-1 flex gap-1.5 text-xs leading-snug text-ui-brand-text">
+                      <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden />
+                      {skipNotice}
+                    </span>
+                  )}
                 </span>
-              </span>
-              <Button variant="secondary" disabled={selectedCells.size === 0} onClick={() => setSelectedCells(new Set())}>
-                Clear
-              </Button>
-              <Button disabled={pending.length === 0 || adding} onClick={handleAdd}>
-                <Plus className="h-[18px] w-[18px]" aria-hidden />
-                {adding ? 'Adding' : pending.length > 0 ? `Add ${pending.length} slot${pending.length === 1 ? '' : 's'}` : 'Add slots'}
-              </Button>
+                <div className="flex flex-wrap items-center gap-2 max-sm:[&>*]:flex-1">
+                  <label className="me-auto flex items-center gap-2 text-[13px] font-semibold text-ui-text max-sm:basis-full">
+                    <Repeat className="h-4 w-4 shrink-0 text-ui-muted" strokeWidth={1.75} aria-hidden />
+                    <span className="whitespace-nowrap">Repeat weekly</span>
+                    <select
+                      value={repeatWeeks}
+                      onChange={(e) => setRepeatWeeks(Number(e.target.value))}
+                      className={cn(inputClass, 'w-auto min-w-0 cursor-pointer font-medium max-sm:flex-1')}
+                    >
+                      {REPEAT_OPTIONS.map((n) => (
+                        <option key={n} value={n}>{n === 0 ? 'This week only' : `Next ${plural(n, 'week')}`}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <Button variant="secondary" disabled={selectedCells.size === 0 || adding} onClick={clearSelection}>
+                    Clear
+                  </Button>
+                  <Button disabled={pending.length === 0 || adding} onClick={handleAdd}>
+                    <Plus className="h-[18px] w-[18px]" aria-hidden />
+                    {adding ? 'Adding' : pending.length > 0 ? `Add ${plural(pending.length, 'slot')}` : 'Add slots'}
+                  </Button>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -375,7 +560,7 @@ export default function Availability() {
                           type="checkbox"
                           checked={selectedSlotIds.has(s.id)}
                           onChange={() => toggleSlotId(s.id)}
-                          className="h-4 w-4 shrink-0 accent-[#652d90]"
+                          className="h-4 w-4 shrink-0 accent-ui-brand"
                         />
                         <span className="flex-1">{slotLabel(s.startsAt)}</span>
                         <Chip tone="brand" className="rounded-full">Available</Chip>
@@ -468,13 +653,15 @@ function GridCell({ state, label, hideOnMobile, onClick }: { state: CellState; l
     open: ', open slot. Select to remove',
     remove: ', open slot selected for removal',
     sel: ', selected',
+    rep: ', added by weekly repeat. Select to leave it out',
+    skip: ', repeated time left out. Select to add it back',
     free: '',
   }[state]
   return (
     <button
       type="button"
       disabled={disabled}
-      aria-pressed={disabled ? undefined : state === 'sel' || state === 'remove'}
+      aria-pressed={disabled ? undefined : state === 'sel' || state === 'rep' || state === 'remove'}
       aria-label={label + suffix}
       onClick={onClick}
       className={cn(
@@ -486,12 +673,16 @@ function GridCell({ state, label, hideOnMobile, onClick }: { state: CellState; l
         state === 'open' && 'border-dashed border-ui-brand bg-ui-brand-soft text-ui-brand-text hover:brightness-95',
         state === 'remove' && 'border-ui-danger bg-ui-danger-soft text-ui-danger',
         state === 'sel' && 'border-ui-brand bg-ui-brand text-white',
+        state === 'rep' && 'border-ui-brand bg-ui-brand-soft text-ui-brand-text hover:brightness-95',
+        state === 'skip' && 'border-dashed border-ui-line bg-ui-surface text-ui-muted hover:bg-ui-surface-2',
       )}
     >
       {state === 'booked' && (<><Lock className="h-3 w-3" aria-hidden />Booked</>)}
       {state === 'open' && (<><Check className="h-3 w-3" aria-hidden />Open</>)}
       {state === 'remove' && (<><X className="h-3 w-3" aria-hidden />Remove</>)}
       {state === 'sel' && (<><Plus className="h-3 w-3" aria-hidden />New</>)}
+      {state === 'rep' && (<><Repeat className="h-3 w-3" aria-hidden />Repeat</>)}
+      {state === 'skip' && (<><X className="h-3 w-3" aria-hidden />Skipped</>)}
     </button>
   )
 }

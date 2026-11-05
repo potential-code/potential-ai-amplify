@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import StakeholderApplicationsView from '@/views/admin/StakeholderApplications'
+
+export const metadata: Metadata = { title: 'Stakeholder applications' }
 
 interface Props {
   params: Promise<{ type: string }>

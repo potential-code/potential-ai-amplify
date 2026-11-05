@@ -479,6 +479,11 @@ export default function CheckoutPage() {
     enabled: Boolean(id),
   })
 
+  // Balance for "Balance after this order" (shared cache with the offers list),
+  // and to know before asking for a payment whether the learner can afford it.
+  const { data: list, isLoading: listLoading } = useQuery({ queryKey: ['offers'], queryFn: fetchOffers })
+  const shortOfPoints = Boolean(offer && list && list.userPoints < offer.pointsCost)
+
   const {
     data: intentData,
     isLoading: intentLoading,
@@ -487,7 +492,8 @@ export default function CheckoutPage() {
   } = useQuery({
     queryKey: ['payment-intent', id],
     queryFn: () => apiCreatePaymentIntent(id),
-    enabled: Boolean(offer),
+    // Only once we know the balance covers it: no request doomed to fail.
+    enabled: Boolean(offer && list) && !shortOfPoints,
     // Don't retry: a failed PI creation means something is wrong
     retry: false,
     staleTime: Infinity,
@@ -498,17 +504,15 @@ export default function CheckoutPage() {
     queryFn: () => apiFetch<{ success: boolean; data: { user: MeUser } }>('/api/account/me').then((r) => r.data.user),
   })
 
-  // Balance for "Balance after this order" (shared cache with the offers list).
-  const { data: list } = useQuery({ queryKey: ['offers'], queryFn: fetchOffers })
 
-  const isLoading = offerLoading || (Boolean(offer) && intentLoading) || profileLoading
-  const isError = offerError || intentError
+  const isLoading = offerLoading || listLoading || (Boolean(offer) && !shortOfPoints && intentLoading) || profileLoading
+  const isError = offerError || intentError || shortOfPoints
 
   if (isLoading) return <CheckoutSkeleton id={id} />
 
   if (isError || !offer) {
     const isInsufficientPoints =
-      (intentQueryError as { error?: { code?: string } } | null)?.error?.code === 'INSUFFICIENT_POINTS'
+      shortOfPoints || (intentQueryError as { error?: { code?: string } } | null)?.error?.code === 'INSUFFICIENT_POINTS'
 
     return (
       <DashboardLayout>

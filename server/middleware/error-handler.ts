@@ -66,6 +66,23 @@ export function errorHandler(
     return;
   }
 
+  // body-parser: malformed JSON or an oversized body is the client's mistake, not a 500.
+  const parseError = err as { type?: string; status?: number } | null;
+  if (parseError?.type === "entity.parse.failed") {
+    res.status(400).json({
+      success: false,
+      error: { message: "The request body is not valid JSON.", code: "INVALID_JSON" },
+    });
+    return;
+  }
+  if (parseError?.type === "entity.too.large") {
+    res.status(413).json({
+      success: false,
+      error: { message: "The request is too large.", code: "PAYLOAD_TOO_LARGE" },
+    });
+    return;
+  }
+
   // Unexpected error — log the full details server-side but never expose them.
   logger.error({ err }, "Unhandled error");
   res.status(500).json({

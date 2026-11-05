@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
+import { MessageCircle } from 'lucide-react'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { Avatar, btn, Card, Chip, PageHeader, SectionHeader } from '@/components/kit'
 import { aiMentorViews } from '@/components/dashboard/aiMentorMeta'
@@ -38,20 +39,38 @@ export default function AiMentorsPage() {
                   href={`/dashboard/ai-mentors/${m.slug}`}
                   className="group block h-full rounded-[14px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-brand"
                 >
-                  <Card interactive className="flex h-full flex-col gap-2.5 p-[18px]">
-                    <span
-                      aria-hidden
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-[12px]"
-                      style={{ background: m.tile.bg, color: m.tile.fg }}
-                    >
-                      <Icon className="h-5 w-5" strokeWidth={1.75} />
-                    </span>
-                    <h3 className="text-[15px] font-semibold text-ui-text">{m.name}</h3>
-                    <Chip className="self-start">{m.specialty}</Chip>
-                    <p className="text-sm leading-relaxed text-ui-muted">{m.description}</p>
-                    <span className="mt-auto pt-1 text-[13px] font-semibold text-ui-brand-text group-hover:underline">
-                      Start a chat
-                    </span>
+                  <Card interactive className="flex h-full flex-col overflow-hidden">
+                    <div className="relative aspect-[6/5] w-full overflow-hidden bg-ui-surface-2">
+                      {m.portrait ? (
+                        <img
+                          src={m.portrait}
+                          alt={`Portrait of the ${m.name}`}
+                          loading="lazy"
+                          className="h-full w-full object-cover object-[50%_25%] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+                        />
+                      ) : (
+                        <span
+                          aria-hidden
+                          className="flex h-full w-full items-center justify-center"
+                          style={{ background: m.tile.bg, color: m.tile.fg }}
+                        >
+                          <Icon className="h-12 w-12" strokeWidth={1.5} />
+                        </span>
+                      )}
+                      <span className="absolute start-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[12px] font-semibold text-ui-text shadow-sm backdrop-blur">
+                        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        AI coach
+                      </span>
+                    </div>
+                    <div className="flex flex-1 flex-col gap-2.5 p-[18px]">
+                      <h3 className="text-[15px] font-semibold text-ui-text">{m.name}</h3>
+                      <Chip className="self-start">{m.specialty}</Chip>
+                      <p className="text-sm leading-relaxed text-ui-muted">{m.description}</p>
+                      <span className={cn(btn({ variant: 'primary', size: 'md' }), 'mt-auto w-full')}>
+                        <MessageCircle aria-hidden className="h-4 w-4" strokeWidth={2} />
+                        Start a chat
+                      </span>
+                    </div>
                   </Card>
                 </Link>
               </li>

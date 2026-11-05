@@ -8,8 +8,10 @@ import { AdminLayout } from '@/components/admin/AdminLayout'
 import { Avatar, Button, EmptyState, FilterChips, PageHeader, Skeleton } from '@/components/kit'
 import { IconButton, Pill, SearchInput, TableCard, adminTableClass, fmtDate } from '@/components/admin/ui'
 import { ConfirmDialog } from '@/components/admin/widgets/ConfirmDialog'
+import { RegenerateSetupCard } from '@/components/admin/RegenerateSetupCard'
 import { apiFetch } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { countryName } from '@/lib/countryName'
 import { ExportMenu } from '@/components/admin/ExportMenu'
 
 // ---------------------------------------------------------------------------
@@ -264,7 +266,9 @@ export default function LearnersView() {
           />
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+        {/* Below 1440px the detail panel narrows and "Last active" moves to it,
+            so the Actions column always fits beside the panel. */}
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_280px] min-[1440px]:grid-cols-[minmax(0,1fr)_320px]">
           <TableCard
             footer={
               !isLoading && !isError && filtered.length > 0
@@ -287,14 +291,14 @@ export default function LearnersView() {
                 body={search || status !== 'all' ? 'Try another search or filter.' : 'Learners appear here once they sign up.'}
               />
             ) : (
-              <table className={cn(adminTableClass, 'min-w-[640px]')}>
+              <table className={cn(adminTableClass, 'min-w-[540px] min-[1440px]:min-w-[640px]')}>
                 <thead>
                   <tr>
                     <th scope="col">Learner</th>
                     <th scope="col" className="hidden min-[1560px]:table-cell">Country</th>
                     <th scope="col">Path status</th>
                     <th scope="col">Progress</th>
-                    <th scope="col">Last active</th>
+                    <th scope="col" className="hidden min-[1440px]:table-cell">Last active</th>
                     <th scope="col" className="!text-right">Actions</th>
                   </tr>
                 </thead>
@@ -328,14 +332,14 @@ export default function LearnersView() {
                             </div>
                           </div>
                         </td>
-                        <td className="hidden text-ui-muted min-[1560px]:table-cell">{learner.country ?? 'Not set'}</td>
+                        <td className="hidden text-ui-muted min-[1560px]:table-cell">{countryName(learner.country) || 'Not set'}</td>
                         <td>
                           <PathStatusPill learner={learner} />
                         </td>
-                        <td className="whitespace-nowrap text-[13px]">
+                        <td className="text-[13px] min-[1440px]:whitespace-nowrap">
                           <ProgressText learner={learner} />
                         </td>
-                        <td className="whitespace-nowrap text-[13px] text-ui-muted">{formatRelativeDate(learner.lastActiveAt)}</td>
+                        <td className="hidden whitespace-nowrap text-[13px] text-ui-muted min-[1440px]:table-cell">{formatRelativeDate(learner.lastActiveAt)}</td>
                         <td>
                           <div className="flex justify-end gap-0.5" onClick={(e) => e.stopPropagation()}>
                             {ACTION_ORDER.map((action) => {
@@ -386,7 +390,7 @@ export default function LearnersView() {
                   {selected.blocksCompleted} done, {selected.blocksInProgress} in progress
                 </dd>
                 <dt className="text-ui-muted">Country</dt>
-                <dd className="text-ui-text">{selected.country ?? 'Not set'}</dd>
+                <dd className="text-ui-text">{countryName(selected.country) || 'Not set'}</dd>
                 <dt className="text-ui-muted">Last active</dt>
                 <dd className="text-ui-text">{selected.lastActiveAt ? fmtDate(selected.lastActiveAt) : 'Never'}</dd>
                 <dt className="text-ui-muted">Joined</dt>
@@ -423,6 +427,8 @@ export default function LearnersView() {
           )}
         </div>
       </div>
+
+      <RegenerateSetupCard />
 
       {/* Confirm dialog */}
       <ConfirmDialog

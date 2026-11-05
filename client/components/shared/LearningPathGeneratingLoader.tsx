@@ -24,7 +24,7 @@ interface LearningPathGeneratingLoaderProps {
  * timer (the build itself reports no progress); the caller swaps this out once
  * the path is ready.
  */
-export function LearningPathGeneratingLoader({ complete, steps = STEPS, subtitle = 'This takes about 30 seconds' }: LearningPathGeneratingLoaderProps) {
+export function LearningPathGeneratingLoader({ complete, steps = STEPS, subtitle = 'This usually takes under 2 minutes' }: LearningPathGeneratingLoaderProps) {
   const [currentStep, setCurrentStep] = useState(0)
 
   useEffect(() => {

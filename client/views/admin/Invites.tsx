@@ -300,7 +300,12 @@ export default function InvitesPage() {
                         </>
                       ) : (
                         <td colSpan={4} className="text-[13px] text-ui-muted">
-                          {invite.status === 'revoked' ? 'Revoked before use' : 'Not used yet'}
+                          {invite.status === 'revoked'
+                            ? 'Revoked before use'
+                            : invite.status === 'used'
+                              ? // Used, but that account has since been deleted.
+                                'Account since removed'
+                              : 'Not used yet'}
                         </td>
                       )}
                       <td className="text-right">

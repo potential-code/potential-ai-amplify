@@ -91,7 +91,7 @@ export default function CoursesPage() {
   const [filter, setFilter] = useState<Filter>('all')
   const [shown, setShown] = useState(PAGE)
 
-  const { data = [], isLoading } = useQuery({ queryKey: ['learner-courses'], queryFn: fetchLearnerCourses })
+  const { data = [], isLoading, isError, refetch } = useQuery({ queryKey: ['learner-courses'], queryFn: fetchLearnerCourses })
   const courses = data as CourseListItem[]
   const hasTopics = courses.some((c) => 'category' in c)
 
@@ -190,6 +190,19 @@ export default function CoursesPage() {
             <Skeleton key={i} className="h-64 rounded-[14px]" />
           ))}
         </div>
+      ) : isError ? (
+        <Card>
+          <EmptyState
+            icon={SearchX}
+            title="Courses could not load"
+            body="Something went wrong while loading the catalog."
+            action={
+              <Button variant="secondary" onClick={() => void refetch()}>
+                Try again
+              </Button>
+            }
+          />
+        </Card>
       ) : filtered.length === 0 ? (
         <Card>
           <EmptyState

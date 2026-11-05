@@ -28,6 +28,7 @@ import { changePassword, getUser, renameCachedUser, setFirstPassword } from '@/l
 import { fetchLearnerCourses } from '@/lib/api/lms'
 import { fetchOffers } from '@/lib/api/offers'
 import { cn } from '@/lib/utils'
+import { countryName } from '@/lib/countryName'
 import { EmailPreferences } from '@/components/shared/EmailPreferences'
 import { OrganisationMembership } from '@/components/shared/OrganisationMembership'
 
@@ -55,7 +56,7 @@ interface MeUser {
 type ProfileForm = { fullName: string; phone: string; bio: string; company: string; country: string }
 
 function formFrom(u: MeUser): ProfileForm {
-  return { fullName: u.fullName, phone: u.phone ?? '', bio: u.bio ?? '', company: u.company ?? '', country: u.country ?? '' }
+  return { fullName: u.fullName, phone: u.phone ?? '', bio: u.bio ?? '', company: u.company ?? '', country: countryName(u.country) }
 }
 
 function formatTimezone(tz: string) {
@@ -280,7 +281,7 @@ export default function ProfilePage() {
 
   const u = serverUser
   const memberSince = u?.createdAt ? new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : null
-  const roleLine = [u ? ROLE_LABEL[u.role] ?? u.role : null, u?.country].filter(Boolean).join(', ')
+  const roleLine = [u ? ROLE_LABEL[u.role] ?? u.role : null, countryName(u?.country)].filter(Boolean).join(', ')
 
   return (
     <DashboardLayout>
@@ -449,7 +450,7 @@ export default function ProfilePage() {
                       label="Bio"
                       htmlFor="p-bio"
                       error={errors.bio}
-                      hint={`${form.bio.length}/500. Tell us about your business so Anna can personalise its answers.`}
+                      hint={`${form.bio.length}/500. Tell us about your business so Anna can personalize its answers.`}
                     >
                       <textarea
                         id="p-bio"
@@ -482,7 +483,7 @@ export default function ProfilePage() {
                         {u?.phone || <NotAdded />}
                       </DetailRow>
                       <DetailRow icon={MapPin} label="Country">
-                        {u?.country || <NotAdded />}
+                        {countryName(u?.country) || <NotAdded />}
                       </DetailRow>
                       <DetailRow icon={Building2} label="Company">
                         {u?.company || <NotAdded />}
@@ -495,7 +496,7 @@ export default function ProfilePage() {
                       {u?.bio ? (
                         <span className="whitespace-pre-line">{u.bio}</span>
                       ) : (
-                        <NotAdded>Not added. Tell us about your business so Anna can personalise its answers.</NotAdded>
+                        <NotAdded>Not added. Tell us about your business so Anna can personalize its answers.</NotAdded>
                       )}
                     </DetailRow>
                   </>

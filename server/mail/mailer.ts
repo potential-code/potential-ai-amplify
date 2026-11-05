@@ -158,8 +158,14 @@ export async function sendMail(options: SendMailOptions): Promise<void> {
   const html = await renderTemplate(template, context);
   const transporter = await getTransporter();
 
+  // Inboxes show the sender's name rather than the bare address. FROM_EMAIL may
+  // already carry one ("Name <addr>"); otherwise FROM_NAME, default "AI Amplify".
+  const from = fromEmail.includes("<")
+    ? fromEmail
+    : { name: process.env["FROM_NAME"]?.trim() || "AI Amplify", address: fromEmail.trim() };
+
   await transporter.sendMail({
-    from: fromEmail,
+    from,
     to,
     subject,
     html,

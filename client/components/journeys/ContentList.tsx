@@ -9,6 +9,7 @@
 import type { ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { Check, FileText, GraduationCap, ImageIcon, ListChecks, Lock, PlayCircle } from 'lucide-react'
+import { optimizedSrc } from '@/lib/images'
 import { cn } from '@/lib/utils'
 import { leadIndent } from './JourneyKit'
 
@@ -69,12 +70,15 @@ export function ContentRows({ rows }: { rows: ContentRowData[] }) {
 
 /** "What you asked for": the learner's goal, topics and the shape of the path. */
 export function AskedForCard({
+  cover,
   goal,
   topics,
   aside,
   facts,
   children,
 }: {
+  /** The path's cover image, as a banner across the top of the card. */
+  cover?: string | null
   goal?: string | null
   topics?: string[]
   aside?: ReactNode
@@ -82,7 +86,17 @@ export function AskedForCard({
   children?: ReactNode
 }) {
   return (
-    <article aria-labelledby="asked-for" className={cn('flex flex-col gap-3 rounded-[14px] border border-ui-line bg-ui-surface p-4 sm:p-[18px]', leadIndent)}>
+    <article
+      aria-labelledby="asked-for"
+      className={cn('flex flex-col gap-3 overflow-hidden rounded-[14px] border border-ui-line bg-ui-surface p-4 sm:p-[18px]', leadIndent)}
+    >
+      {cover && (
+        <img
+          src={optimizedSrc(cover)}
+          alt=""
+          className="-mx-4 -mt-4 mb-1 h-28 w-[calc(100%+2rem)] max-w-none bg-ui-surface-2 object-cover sm:-mx-[18px] sm:-mt-[18px] sm:h-36 sm:w-[calc(100%+36px)]"
+        />
+      )}
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="asked-for" className="text-base font-semibold text-ui-text">
           What you asked for
