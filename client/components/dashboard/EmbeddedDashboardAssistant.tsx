@@ -59,6 +59,7 @@ import { useReadAloud } from '@/components/tutor/useVoice'
 import { LANGUAGES, directionOf } from '@/components/tutor/strings'
 import { SanaReplyActionsProvider } from '@/components/learning-ui/SanaReplyActions'
 import { AskAnnaUserMessage, askAnnaAttachOptions } from './askAnnaDocuments'
+import { ASK_ANNA_PENDING_KEY } from '@/lib/askAnnaPending'
 import type { LearnerLanguage } from '@/components/tutor/api'
 
 const VALID_COUNTRIES = getCountryDataList()
@@ -443,13 +444,12 @@ const onToolStartRef: { current: ((msg: string) => void) | null } = { current: n
 // sessionStorage. It is read and removed on first load (used once), and kept
 // in this module variable until it has been sent, so React StrictMode's
 // throwaway first mount can't lose it.
-const PENDING_ASK_KEY = 'smeep.askSana.pending'
 let pendingAsk: string | null = null
 function takePendingAsk(): string | null {
   try {
-    const v = sessionStorage.getItem(PENDING_ASK_KEY)
+    const v = sessionStorage.getItem(ASK_ANNA_PENDING_KEY)
     if (v !== null) {
-      sessionStorage.removeItem(PENDING_ASK_KEY)
+      sessionStorage.removeItem(ASK_ANNA_PENDING_KEY)
       pendingAsk = v.trim() || null
     }
   } catch {

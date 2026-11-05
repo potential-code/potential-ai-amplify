@@ -22,6 +22,7 @@ import { fetchStreak, type Streak } from '@/lib/api/redesign'
 import { useDictation } from '@/components/tutor/useVoice'
 import { courseHref, sortByRecent, topicIcon, useCourseSummaries, type CourseListItem, type CourseSummary } from '@/components/learner/courseProgress'
 import { cn } from '@/lib/utils'
+import { ASK_ANNA_PENDING_KEY } from '@/lib/askAnnaPending'
 import { useNarrow } from '@/lib/useNarrow'
 import { AnnouncementBanner } from '@/components/dashboard/AnnouncementBanner'
 
@@ -32,7 +33,6 @@ const SANA_AVATAR = '/images/redesign/anna-avatar-96.png'
 const AI_BACKEND_URL = (process.env.NEXT_PUBLIC_AI_BACKEND_URL as string | undefined)?.replace(/\/$/, '') || 'http://localhost:8000'
 const VOICE_RUNTIME_URL = `${AI_BACKEND_URL}/copilotkit-voice`
 
-export const ASK_SANA_PENDING_KEY = 'smeep.askSana.pending'
 
 function timeGreeting(d = new Date()) {
   const h = d.getHours()
@@ -484,7 +484,7 @@ function AskSanaBar() {
     e.preventDefault()
     const q = text.trim()
     try {
-      if (q) sessionStorage.setItem(ASK_SANA_PENDING_KEY, q)
+      if (q) sessionStorage.setItem(ASK_ANNA_PENDING_KEY, q)
     } catch {
       /* storage blocked: Anna still opens */
     }

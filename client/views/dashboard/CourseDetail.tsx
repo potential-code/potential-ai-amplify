@@ -49,6 +49,7 @@ import { CertificateModal } from '@/components/lms/CertificateModal'
 import { stepLabel } from '@/components/learner/courseProgress'
 import type { CoursePreviewUnit } from '@/lib/api/lms'
 import { cn } from '@/lib/utils'
+import { ASK_ANNA_PENDING_KEY } from '@/lib/askAnnaPending'
 
 // ─── Nav item types ────────────────────────────────────────────────────────────
 
@@ -365,6 +366,22 @@ export default function CourseDetailPage() {
         ? 'Before you start'
         : 'Final exam'
 
+  // Opens Ask Anna with this course and unit as the question (the same hand-off
+  // as the Home page's Ask bar). AI Amplify has no Multi Learning tutor page.
+  function learnWithAnna() {
+    const unit =
+      activeItem?.kind === 'block'
+        ? course.modules[activeItem.moduleIdx]?.units[activeItem.unitIdx]?.title
+        : null
+    const where = unit ? `the unit "${unit}" in my course "${course.title}"` : `my course "${course.title}"`
+    try {
+      sessionStorage.setItem(ASK_ANNA_PENDING_KEY, `Help me understand ${where}. Explain the key ideas simply, with an example for my business.`)
+    } catch {
+      /* storage blocked: Anna still opens */
+    }
+    router.push('/dashboard/anna')
+  }
+
   const outline = (
     <CourseOutline course={course} navItems={navItems} activeIdx={activeIdx} onSelect={goTo} />
   )
@@ -385,10 +402,10 @@ export default function CourseDetailPage() {
           <ProgressBar value={pct} className="flex-1" label="Course progress" />
           <span className="text-[13px] font-semibold tabular-nums">{pct}%</span>
         </div>
-        <Link href="/dashboard/multi-learning" className={cn(btn({ variant: 'secondary' }), 'hidden h-9 xl:inline-flex')}>
+        <Button variant="secondary" className="hidden h-9 xl:inline-flex" onClick={learnWithAnna}>
           <img src={SANA_AVATAR} alt="" className="h-[22px] w-[22px] rounded-full object-cover object-top" />
           Learn with Anna
-        </Link>
+        </Button>
         <Button
           variant="secondary"
           className="h-9 w-9 min-[1100px]:hidden"
