@@ -4,7 +4,7 @@
  * The suite runs the real Express app against a real Postgres. It refuses to
  * run against anything but a database whose name ends in `_test`, so it can
  * never touch a development or production database by mistake. Migrations are
- * applied once here; fixtures use @e2e.local emails and clean up after
+ * applied once here; fixtures use this run's own @r<run>.e2e.local emails and clean up after
  * themselves.
  *
  *   createdb amplify_test

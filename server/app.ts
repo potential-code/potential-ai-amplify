@@ -1,14 +1,11 @@
-import path from "path";
-import { fileURLToPath } from 'url'
 import express, { type Express } from "express";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 import cors from "cors";
 import helmet from "helmet";
 import pinoHttp from "pino-http";
 import { toNodeHandler } from "better-auth/node";
 import router from "./routes";
+import { UPLOADS_ROOT } from "./config/uploads";
 import { auth } from "./auth";
 import { logger } from "./config/logger";
 import { basicAuthGate } from "./middleware/basic-auth";
@@ -104,7 +101,7 @@ app.use("/api", perIp("api", MINUTE, 1200));
 // The basicAuthGate (admin UI guard) is intentionally bypassed here.
 app.use(
   "/uploads",
-  express.static(path.join(__dirname, '..', 'uploads'), {
+  express.static(UPLOADS_ROOT, {
     setHeaders: (res, filePath) => {
       // Never let the browser guess a different type than the extension says.
       res.setHeader("X-Content-Type-Options", "nosniff");

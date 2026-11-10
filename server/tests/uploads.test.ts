@@ -45,6 +45,12 @@ describe("media uploads", () => {
     expect(name).not.toMatch(/\.html/);
   });
 
+  it("serve an uploaded file back from where it was stored", async () => {
+    const res = await fetch(`${baseUrl}/uploads/media/${stored[0]}`);
+    expect(res.status).toBe(200);
+    expect(Buffer.from(await res.arrayBuffer()).equals(PNG)).toBe(true);
+  });
+
   it("serve uploaded files with nosniff", async () => {
     const res = await fetch(`${baseUrl}/uploads/media/${stored[0]}`);
     expect(res.headers.get("x-content-type-options")).toBe("nosniff");

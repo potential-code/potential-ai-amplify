@@ -2,13 +2,13 @@ import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import { like } from "drizzle-orm";
 import { db } from "../db";
 import { stakeholderRegistrations } from "../db/schema";
-import { startTestServer, api, cleanup, createUser, newEmail } from "./helpers";
+import { startTestServer, api, cleanup, createUser, newEmail, RUN_DOMAIN } from "./helpers";
 
 beforeAll(async () => {
   await startTestServer();
 });
 afterAll(async () => {
-  await db.delete(stakeholderRegistrations).where(like(stakeholderRegistrations.email, "%@e2e.local"));
+  await db.delete(stakeholderRegistrations).where(like(stakeholderRegistrations.email, `%@${RUN_DOMAIN}`));
   await cleanup();
 });
 

@@ -1,11 +1,11 @@
 import multer from 'multer'
-import path from 'path'
 import crypto from 'crypto'
 import fs from 'fs'
 import type { Request, Response, NextFunction } from 'express'
 import { AppError } from '../utils/app-error'
+import { uploadsPath } from '../config/uploads'
 
-const UPLOADS_DIR = path.join(__dirname, '..', 'uploads', 'media')
+const UPLOADS_DIR = uploadsPath('media')
 
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true })

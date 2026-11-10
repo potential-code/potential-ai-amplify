@@ -1,10 +1,27 @@
 import { db } from '../../db'
 import {
-  assessments, assessmentQuestions, assessmentAttempts,
+  assessments, assessmentQuestions, assessmentAttempts, courseEnrollments, courses,
 } from '../../db/schema'
-import { eq, and, asc } from 'drizzle-orm'
+import { eq, and, asc, sql } from 'drizzle-orm'
 import { recalculateCourseProgress } from './progress.service'
 import { recordLearningStep } from '../streak.service'
+
+/**
+ * The assessment, if this learner may take it: it belongs to a published course they're enrolled
+ * in (learners only ever reach a test from inside such a course). Anything else is NOT_FOUND, so
+ * tests in other or unpublished courses can't be read, answered or used to reveal answers.
+ */
+async function assessmentForLearner(userId: string, assessmentId: string) {
+  const [row] = await db
+    .select({ assessment: assessments })
+    .from(assessments)
+    .innerJoin(courses, eq(courses.id, assessments.courseId))
+    .innerJoin(courseEnrollments, and(eq(courseEnrollments.courseId, courses.id), eq(courseEnrollments.userId, userId)))
+    .where(and(eq(assessments.id, assessmentId), eq(courses.status, 'published')))
+    .limit(1)
+  if (!row) throw new Error('NOT_FOUND')
+  return row.assessment
+}
 
 /**
  * Returns a summary of the assessment state for a learner, including attempt history,
@@ -14,8 +31,7 @@ import { recordLearningStep } from '../streak.service'
  * @param assessmentId  - UUID of the assessment.
  */
 export async function getAssessmentSummary(userId: string, assessmentId: string) {
-  const [assessment] = await db.select().from(assessments).where(eq(assessments.id, assessmentId))
-  if (!assessment) throw new Error('NOT_FOUND')
+  const assessment = await assessmentForLearner(userId, assessmentId)
 
   const questions = await db.select().from(assessmentQuestions)
     .where(eq(assessmentQuestions.assessmentId, assessmentId))
@@ -82,7 +98,8 @@ export async function getAssessmentSummary(userId: string, assessmentId: string)
  *
  * @param assessmentId - UUID of the assessment.
  */
-export async function getAssessmentQuestions(assessmentId: string) {
+export async function getAssessmentQuestions(userId: string, assessmentId: string) {
+  await assessmentForLearner(userId, assessmentId)
   const questions = await db.select().from(assessmentQuestions)
     .where(eq(assessmentQuestions.assessmentId, assessmentId))
     .orderBy(asc(assessmentQuestions.order))
@@ -104,15 +121,7 @@ export async function submitAttempt(
   assessmentId: string,
   answers: Record<string, number>,
 ) {
-  const [assessment] = await db.select().from(assessments).where(eq(assessments.id, assessmentId))
-  if (!assessment) throw new Error('NOT_FOUND')
-
-  const existingAttempts = await db.select().from(assessmentAttempts)
-    .where(and(eq(assessmentAttempts.userId, userId), eq(assessmentAttempts.assessmentId, assessmentId)))
-
-  if (assessment.maxAttempts > 0 && existingAttempts.length >= assessment.maxAttempts) {
-    throw new Error('MAX_ATTEMPTS_EXCEEDED')
-  }
+  const assessment = await assessmentForLearner(userId, assessmentId)
 
   const questions = await db.select().from(assessmentQuestions)
     .where(eq(assessmentQuestions.assessmentId, assessmentId))
@@ -122,8 +131,18 @@ export async function submitAttempt(
   const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0
   const passed = assessment.isGraded ? score >= assessment.passingScore : null
 
-  const [attempt] = await db.insert(assessmentAttempts)
-    .values({
+  // One submission at a time per learner and test: the attempt limit and "already passed" are
+  // checked under the lock, so racing submits (a double-click, a script) can't push past the
+  // limit, land after a pass, or collide on the attempt number and surface a 500.
+  await db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtextextended(${`assessment:${userId}:${assessmentId}`}, 0))`)
+    const existingAttempts = await tx.select({ passed: assessmentAttempts.passed }).from(assessmentAttempts)
+      .where(and(eq(assessmentAttempts.userId, userId), eq(assessmentAttempts.assessmentId, assessmentId)))
+    if (existingAttempts.some((a) => a.passed === true)) throw new Error('ALREADY_PASSED')
+    if (assessment.maxAttempts > 0 && existingAttempts.length >= assessment.maxAttempts) {
+      throw new Error('MAX_ATTEMPTS_EXCEEDED')
+    }
+    await tx.insert(assessmentAttempts).values({
       userId,
       assessmentId,
       attemptNumber: existingAttempts.length + 1,
@@ -132,7 +151,7 @@ export async function submitAttempt(
       passed,
       completedAt: new Date(),
     })
-    .returning()
+  })
 
   await recordLearningStep(userId)
 

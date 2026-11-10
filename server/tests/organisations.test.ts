@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
 import { and, eq, like } from 'drizzle-orm'
 import { db } from '../db'
 import { users, organisations, notifications, partnerInvites } from '../db/schema'
-import { startTestServer, stopTestServer, api, createTestUser, createInviteCode, cleanupFixtureUsers, signIn, ORIGIN, type TestUser } from './helpers'
+import { startTestServer, stopTestServer, api, createTestUser, createInviteCode, cleanupFixtureUsers, signIn, ORIGIN, RUN_DOMAIN, type TestUser } from './helpers'
 import { assertCanSignUp, createLearnerAccount } from '../auth/accounts'
 
 /**
@@ -15,7 +15,7 @@ let outsider: TestUser
 let orgId: string
 let joinCode: string
 let otherOrgId: string
-const PARTNER_EMAIL = `partner-${crypto.randomUUID().slice(0, 8)}@e2e.local`
+const PARTNER_EMAIL = `partner-${crypto.randomUUID().slice(0, 8)}@${RUN_DOMAIN}`
 const PASSWORD = 'e2e-partner-12345'
 let partnerToken: string
 let base: string
@@ -35,7 +35,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   delete process.env['LEARNER_NOTIFICATIONS_ENABLED']
-  await db.delete(users).where(like(users.email, 'partner-%@e2e.local'))
+  await db.delete(users).where(like(users.email, `partner-%@${RUN_DOMAIN}`))
   await db.delete(organisations).where(like(organisations.name, 'UAT Org%'))
   await cleanupFixtureUsers()
   await stopTestServer()
@@ -68,7 +68,7 @@ describe('organisations (admin)', () => {
 
 describe('joining', () => {
   it('signs a learner up into the organisation with its code', async () => {
-    const email = `org-joiner-${crypto.randomUUID().slice(0, 8)}@e2e.local`
+    const email = `org-joiner-${crypto.randomUUID().slice(0, 8)}@${RUN_DOMAIN}`
     // AI Amplify is invite-only: the organisation link comes on top of an invite code.
     const couponCode = await createInviteCode()
     await assertCanSignUp(email, couponCode, joinCode)
@@ -78,7 +78,7 @@ describe('joining', () => {
   })
 
   it('refuses a code that is off or unknown before creating anything', async () => {
-    const email = `org-bad-${crypto.randomUUID().slice(0, 8)}@e2e.local`
+    const email = `org-bad-${crypto.randomUUID().slice(0, 8)}@${RUN_DOMAIN}`
     const couponCode = await createInviteCode()
     await expect(assertCanSignUp(email, couponCode, 'NOPE1234')).rejects.toMatchObject({ code: 'INVALID_ORG_CODE' })
     await expect(createLearnerAccount({ fullName: 'E2E Bad', email, country: 'AE', couponCode, orgCode: 'NOPE1234' })).rejects.toMatchObject({ code: 'INVALID_ORG_CODE' })

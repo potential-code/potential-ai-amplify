@@ -260,9 +260,12 @@ export async function getAssessmentQuestions(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const data = await assessmentSvc.getAssessmentQuestions(req.params.assessmentId)
+    const data = await assessmentSvc.getAssessmentQuestions(req.user!.userId, req.params.assessmentId)
     res.json({ success: true, data })
   } catch (e) {
+    if (e instanceof Error && e.message === 'NOT_FOUND') {
+      return next(new AppError('Assessment not found', 404, 'NOT_FOUND'))
+    }
     next(e)
   }
 }
@@ -272,8 +275,9 @@ export async function getAssessmentQuestions(
  * Grades and records a completed assessment attempt for the learner.
  * Returns 201 with the attempt result and updated summary.
  * Maps service errors:
- *   NOT_FOUND            → 404
+ *   NOT_FOUND            → 404 (no such test, or not in a published course the learner is enrolled in)
  *   MAX_ATTEMPTS_EXCEEDED → 429
+ *   ALREADY_PASSED       → 409
  */
 export async function submitAssessmentAttempt(
   req: Request<{ assessmentId: string }>,
@@ -288,6 +292,7 @@ export async function submitAssessmentAttempt(
     if (e instanceof Error) {
       if (e.message === 'NOT_FOUND') return next(new AppError('Assessment not found', 404, 'NOT_FOUND'))
       if (e.message === 'MAX_ATTEMPTS_EXCEEDED') return next(new AppError('Maximum attempts exceeded', 429, 'MAX_ATTEMPTS_EXCEEDED'))
+      if (e.message === 'ALREADY_PASSED') return next(new AppError('You have already passed this test', 409, 'ALREADY_PASSED'))
     }
     next(e)
   }

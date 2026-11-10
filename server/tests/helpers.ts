@@ -6,7 +6,7 @@
  */
 import type { Server } from "node:http";
 import bcrypt from "bcryptjs";
-import { like, inArray } from "drizzle-orm";
+import { and, inArray, like, lt } from "drizzle-orm";
 import { app } from "../app";
 import { db } from "../db";
 import {
@@ -88,6 +88,15 @@ export async function signIn(email: string, password: string): Promise<string> {
 
 export const PASSWORD = "e2e-password-123";
 let seq = 0;
+
+/**
+ * One id per test process. Every fixture email of this run ends in
+ * @r<RUN_ID>.e2e.local and every invite code starts E2E<RUN_ID>, so cleanup()
+ * removes only this run's fixtures: another suite sharing the database at the
+ * same time keeps its own.
+ */
+export const RUN_ID = crypto.randomUUID().slice(0, 8);
+export const RUN_DOMAIN = `r${RUN_ID}.e2e.local`;
 const createdUserIds: string[] = [];
 const createdCourseIds: string[] = [];
 
@@ -102,7 +111,7 @@ export interface TestUser {
 
 /** A verified user straight in the database, signed in with a password. */
 export async function createUser(role: "sme" | "admin" | "mentor" = "sme", fullName = "E2E User"): Promise<TestUser> {
-  const email = `t${Date.now()}-${++seq}-${Math.random().toString(36).slice(2, 7)}@e2e.local`;
+  const email = `t${Date.now()}-${++seq}-${Math.random().toString(36).slice(2, 7)}@${RUN_DOMAIN}`;
   const [u] = await db.insert(users).values({
     fullName,
     email,
@@ -127,7 +136,7 @@ export async function createTestUser(prefix = "user"): Promise<TestUser> {
 export const cleanupFixtureUsers = (): Promise<void> => cleanup();
 
 export function newEmail(): string {
-  return `t${Date.now()}-${++seq}-${Math.random().toString(36).slice(2, 7)}@e2e.local`;
+  return `t${Date.now()}-${++seq}-${Math.random().toString(36).slice(2, 7)}@${RUN_DOMAIN}`;
 }
 
 export interface TestCourse {
@@ -204,7 +213,7 @@ export async function enrol(userId: string, courseId: string): Promise<void> {
 }
 
 export async function createInviteCode(): Promise<string> {
-  const code = `E2E${Date.now()}${++seq}`;
+  const code = `E2E${RUN_ID}${Date.now()}${++seq}`;
   await db.insert(inviteCodes).values({ code });
   return code;
 }
@@ -212,7 +221,11 @@ export async function createInviteCode(): Promise<string> {
 /** Removes everything the fixtures created (call in afterAll). */
 export async function cleanup(): Promise<void> {
   if (createdCourseIds.length) await db.delete(courses).where(inArray(courses.id, createdCourseIds.splice(0)));
-  await db.delete(inviteCodes).where(like(inviteCodes.code, "E2E%"));
-  await db.delete(users).where(like(users.email, "%@e2e.local"));
+  await db.delete(inviteCodes).where(like(inviteCodes.code, `E2E${RUN_ID}%`));
+  await db.delete(users).where(like(users.email, `%@${RUN_DOMAIN}`));
+  // Leftovers from runs that died more than a day ago (no suite runs that long).
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  await db.delete(inviteCodes).where(and(like(inviteCodes.code, "E2E%"), lt(inviteCodes.createdAt, dayAgo)));
+  await db.delete(users).where(and(like(users.email, "%e2e.local"), lt(users.createdAt, dayAgo)));
   createdUserIds.length = 0;
 }

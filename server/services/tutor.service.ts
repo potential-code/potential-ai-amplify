@@ -1304,6 +1304,12 @@ export async function submitQuiz(
     if (error instanceof Error && error.message === 'MAX_ATTEMPTS_EXCEEDED') {
       throw new AppError('No attempts left for this exam', 409, 'QUIZ_LOCKED')
     }
+    if (error instanceof Error && error.message === 'ALREADY_PASSED') {
+      throw new AppError('This exam is already passed', 409, 'ALREADY_PASSED')
+    }
+    if (error instanceof Error && error.message === 'NOT_FOUND') {
+      throw new AppError('Exam not found', 404, 'QUIZ_NOT_FOUND')
+    }
     throw error
   }
 

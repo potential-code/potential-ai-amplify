@@ -12,20 +12,11 @@ import { notify } from '../notifications.service'
 import { checkBadgesSoon } from '../achievements.service'
 import type { CourseCertificate } from '../../db/schema'
 import { logger } from '../../config/logger'
+import { uploadsPath } from '../../config/uploads'
 
-/**
- * Where certificate PNGs live: the uploads folder the API serves at /uploads.
- * In the production bundle that is next to dist/ (/app/uploads); when running
- * from source (dev, tests) it is server/uploads, not a folder under services/.
- */
+/** Where certificate PNGs live: the uploads folder the API serves at /uploads. */
 function getCertDir(): string {
-  const candidates = [
-    path.join(__dirname, '..', 'uploads'),
-    path.join(process.cwd(), 'uploads'),
-    path.join(process.cwd(), 'server', 'uploads'),
-  ]
-  const base = candidates.find((dir) => fs.existsSync(path.join(dir, 'certificates'))) ?? candidates[0]!
-  return path.join(base, 'certificates')
+  return uploadsPath('certificates')
 }
 
 /** The bundled assets folder: next to the compiled bundle in production, under server/ in dev and tests. */
