@@ -34,6 +34,9 @@ export function getUser(): User | null {
 
 /** Stores (or clears) the cached user and tells the app it changed. */
 export function cacheUser(user: User | null): void {
+  // A different account (or none) from the one cached: the previous person's
+  // Anna token must not carry over (shared browsers, sign-in without sign-out).
+  if ((user?.id ?? null) !== (getUser()?.id ?? null)) clearCopilotTokens()
   try {
     if (user) window.localStorage.setItem(USER_KEY, JSON.stringify(user))
     else window.localStorage.removeItem(USER_KEY)
@@ -64,6 +67,17 @@ export async function checkSession(): Promise<{ ok: boolean; user: User | null }
   return { ok: true, user }
 }
 
+/** Forgets the cached Anna (copilot) token; see components/dashboard/copilotConfig.ts. */
+function clearCopilotTokens(): void {
+  try {
+    for (const key of Object.keys(window.localStorage)) {
+      if (key.startsWith('smeep_copilot_jwt')) window.localStorage.removeItem(key)
+    }
+  } catch {
+    // storage unavailable
+  }
+}
+
 /** Forgets everything this browser holds for the signed-in user. */
 export function clearAuth(): void {
   // Checkout billing drafts are per-user data: drop them so the next person
@@ -75,11 +89,10 @@ export function clearAuth(): void {
   } catch {
     // storage unavailable: nothing to clear
   }
+  clearCopilotTokens()
   try {
     for (const key of Object.keys(window.localStorage)) {
-      if (key.startsWith('smeep_copilot_jwt') || key === 'smeep_token' || key === 'smeep_remember') {
-        window.localStorage.removeItem(key)
-      }
+      if (key === 'smeep_token' || key === 'smeep_remember') window.localStorage.removeItem(key)
     }
   } catch {
     // storage unavailable

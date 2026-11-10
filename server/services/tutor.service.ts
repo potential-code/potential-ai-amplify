@@ -894,8 +894,10 @@ export async function answerVideoCheck(
 
 /**
  * Clears the learner's progress in one course so it can be taken again from
- * the start: lesson progress, saved answers and pre-test / exam attempts.
- * Certificates already issued stay (they are a record).
+ * the start: lesson progress and saved answers. Pre-test and exam attempts
+ * stay, like certificates: they are a record, and deleting them would hand
+ * back a final exam that ran out of attempts (only an admin may reopen one).
+ * Points can't be earned twice either: the ledger pays each unit once.
  */
 export async function resetCourseProgress(userId: string, courseId: string): Promise<{ ok: true }> {
   await assertCourseAccess(userId, courseId)
@@ -909,8 +911,6 @@ export async function resetCourseProgress(userId: string, courseId: string): Pro
   const questionIds = blockIds.length
     ? (await db.select({ id: blockQuestions.id }).from(blockQuestions).where(inArray(blockQuestions.blockId, blockIds))).map((q) => q.id)
     : []
-  const assessmentIds = (await db.select({ id: assessments.id }).from(assessments).where(eq(assessments.courseId, courseId))).map((a) => a.id)
-
   await db.transaction(async (tx) => {
     if (blockIds.length) {
       await tx.delete(userLearningBlockProgress).where(
@@ -927,11 +927,6 @@ export async function resetCourseProgress(userId: string, courseId: string): Pro
       await tx.delete(userModuleProgress).where(and(eq(userModuleProgress.userId, userId), inArray(userModuleProgress.moduleId, moduleIds)))
     }
     await tx.delete(userCourseProgress).where(and(eq(userCourseProgress.userId, userId), eq(userCourseProgress.courseId, courseId)))
-    if (assessmentIds.length) {
-      await tx.delete(assessmentAttempts).where(
-        and(eq(assessmentAttempts.userId, userId), inArray(assessmentAttempts.assessmentId, assessmentIds)),
-      )
-    }
   })
   return { ok: true }
 }

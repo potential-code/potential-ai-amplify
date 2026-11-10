@@ -7,6 +7,7 @@ import {
 import { eq, and, desc, inArray, gt, sql } from 'drizzle-orm'
 import { AppError } from '../../utils/app-error'
 import { recordLearningStep } from '../streak.service'
+import { assertQuestionsAnswered } from '../lms/progress.service'
 import { callBothPathBuilder, type BothPathBuilderInput, type BlockCatalogItem } from '../learning/bothAiClient'
 
 const PASS_THRESHOLD = 0.7
@@ -274,7 +275,15 @@ export async function getBothPath(userId: string) {
     .orderBy(desc(bothUserPaths.createdAt)).limit(1)
 
   if (!path) return null
+  return bothPathView(userId, path)
+}
 
+/**
+ * A path as the learner sees it: each milestone's lock, pre-test, content and quiz state. The
+ * path page shows this, and every learner write checks against it (see the gates below), so what
+ * a write accepts is exactly what the page offers.
+ */
+async function bothPathView(userId: string, path: typeof bothUserPaths.$inferSelect) {
   // ── Fetch external content refs + pool items ────────────────────────────
   const contentRefs = await db.select({
     ref: bothPathContentRefs,
@@ -476,6 +485,63 @@ export async function getBothPath(userId: string) {
   }
 }
 
+// ── Gates: every learner write is checked against the path view ─────────────
+
+/** The learner's own path, as the path page shows it. 404 for anyone else's. */
+async function ownPathView(userId: string, pathId: string) {
+  const [path] = await db.select().from(bothUserPaths)
+    .where(and(eq(bothUserPaths.id, pathId), eq(bothUserPaths.userId, userId))).limit(1)
+  if (!path) throw new AppError('Learning path not found', 404, 'PATH_NOT_FOUND')
+  return bothPathView(userId, path)
+}
+
+type BothMilestoneView = Awaited<ReturnType<typeof bothPathView>>['milestones'][number]
+
+function milestoneIn(view: Awaited<ReturnType<typeof bothPathView>>, milestoneId: string): BothMilestoneView {
+  const milestone = view.milestones.find((m) => m.milestoneId === milestoneId)
+  if (!milestone) throw new AppError('Milestone not found', 404, 'MILESTONE_NOT_FOUND')
+  return milestone
+}
+
+const milestoneLocked = () =>
+  new AppError('Finish the earlier milestones first', 409, 'MILESTONE_LOCKED')
+
+const quizNotAvailable = () =>
+  new AppError('This quiz isn\'t open: finish the milestone first, or it\'s already passed', 409, 'QUIZ_NOT_AVAILABLE')
+
+/**
+ * The milestone an item is shown in, or why it can't be worked on: 404 when the item isn't in
+ * this path's milestone at all, 409 when it is but the milestone isn't open yet (locked, or the
+ * pre-test not done), exactly as the path page hides it.
+ */
+async function openMilestoneForItem(
+  userId: string, pathId: string, milestoneId: string, itemType: 'external' | 'internal', itemId: string,
+): Promise<BothMilestoneView> {
+  const view = await ownPathView(userId, pathId)
+  const milestone = view.milestones.find((m) => m.milestoneId === milestoneId)
+  if (milestone?.unlocked && milestone.pretestCompleted && milestone.content.some((c) => c.id === itemId && c.itemType === itemType)) {
+    return milestone
+  }
+  const [ref] = itemType === 'internal'
+    ? await db.select({ id: bothPathBlockRefs.id }).from(bothPathBlockRefs)
+      .where(and(eq(bothPathBlockRefs.bothUserPathId, pathId), eq(bothPathBlockRefs.blockId, itemId), eq(bothPathBlockRefs.milestoneId, milestoneId))).limit(1)
+    : await db.select({ id: bothPathContentRefs.id }).from(bothPathContentRefs)
+      .where(and(eq(bothPathContentRefs.bothUserPathId, pathId), eq(bothPathContentRefs.contentPoolId, itemId), eq(bothPathContentRefs.milestoneId, milestoneId))).limit(1)
+  if (!ref || (milestone?.unlocked && milestone.pretestCompleted)) {
+    // Not in this milestone, or in it but not shown (filtered out for the learner's style).
+    throw new AppError('This item is not part of your path', 404, 'ITEM_NOT_IN_PATH')
+  }
+  throw milestoneLocked()
+}
+
+/**
+ * Serialises a learner's writes to one milestone for the rest of the transaction, so "only once"
+ * checks and attempt numbers can't race.
+ */
+async function lockMilestone(tx: Parameters<Parameters<typeof db.transaction>[0]>[0], userId: string, pathId: string, milestoneId: string) {
+  await tx.execute(sql`select pg_advisory_xact_lock(hashtextextended(${`both:${userId}:${pathId}:${milestoneId}`}, 0))`)
+}
+
 /**
  * Saves where the learner is in a Blended item's video, so they resume there
  * on any device. Watched % only goes up; a completed item stays completed.
@@ -490,9 +556,9 @@ export async function saveVideoPosition(
   positionSec: number,
   watchPct: number,
 ) {
-  const [path] = await db.select({ id: bothUserPaths.id }).from(bothUserPaths)
-    .where(and(eq(bothUserPaths.id, pathId), eq(bothUserPaths.userId, userId))).limit(1)
-  if (!path) return null
+  // Only for an item the learner can see: not someone else's path, nor an item outside theirs.
+  const shown = await openMilestoneForItem(userId, pathId, milestoneId, itemType, itemId).then(() => true, () => false)
+  if (!shown) return null
   const [row] = await db.insert(bothUserItemProgress)
     .values({ userId, itemType, itemId, bothUserPathId: pathId, milestoneId, status: 'in_progress', videoPositionSec: positionSec, videoWatchPct: watchPct })
     .onConflictDoUpdate({
@@ -526,14 +592,10 @@ export async function completeItem(
   milestoneId: string,
   videoWatchPct?: number,
 ): Promise<void> {
-  await assertOwnsPath(userId, pathId)
-  // The item must be one this path actually contains, in that milestone.
-  const [ref] = itemType === 'internal'
-    ? await db.select({ id: bothPathBlockRefs.id }).from(bothPathBlockRefs)
-      .where(and(eq(bothPathBlockRefs.bothUserPathId, pathId), eq(bothPathBlockRefs.blockId, itemId), eq(bothPathBlockRefs.milestoneId, milestoneId))).limit(1)
-    : await db.select({ id: bothPathContentRefs.id }).from(bothPathContentRefs)
-      .where(and(eq(bothPathContentRefs.bothUserPathId, pathId), eq(bothPathContentRefs.contentPoolId, itemId), eq(bothPathContentRefs.milestoneId, milestoneId))).limit(1)
-  if (!ref) throw new AppError('This item is not in your learning path', 404, 'ITEM_NOT_IN_PATH')
+  // Only an item the path page shows: in this milestone, unlocked, pre-test done.
+  await openMilestoneForItem(userId, pathId, milestoneId, itemType, itemId)
+  // A course question block needs its answers saved first, as on the course page.
+  if (itemType === 'internal') await assertQuestionsAnswered(userId, itemId)
 
   const [before] = await db.select({ status: bothUserItemProgress.status }).from(bothUserItemProgress)
     .where(and(
@@ -596,38 +658,44 @@ export async function getMilestonePretest(userId: string, pathId: string, milest
  * @param answers     - Array of answer indices (same length as pretestQuestions).
  */
 export async function submitPretest(userId: string, pathId: string, milestoneId: string, answers: number[]) {
-  await assertOwnsPath(userId, pathId)
+  // Unlocked milestones only, as the path page offers it.
+  const milestone = milestoneIn(await ownPathView(userId, pathId), milestoneId)
+  if (!milestone.unlocked) throw milestoneLocked()
   const [assessment] = await db.select().from(bothMilestoneAssessments)
     .where(and(eq(bothMilestoneAssessments.bothUserPathId, pathId), eq(bothMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)
 
   if (!assessment) throw new AppError('Assessment not found', 404, 'ASSESSMENT_NOT_FOUND')
 
-  // Guard: only one pretest attempt per milestone
-  const [existing] = await db.select().from(bothUserQuizResults).where(
-    and(
-      eq(bothUserQuizResults.userId, userId),
-      eq(bothUserQuizResults.bothUserPathId, pathId),
-      eq(bothUserQuizResults.milestoneId, milestoneId),
-      eq(bothUserQuizResults.quizType, 'pretest'),
-    )
-  ).limit(1)
-  if (existing) return { alreadySubmitted: true, score: existing.score, total: existing.totalQuestions }
-
   const questions = assessment.pretestQuestions as Array<{ correctIndex: number }> ?? []
   const score = answers.reduce((acc, ans, i) => acc + (ans === questions[i]?.correctIndex ? 1 : 0), 0)
 
-  await db.insert(bothUserQuizResults).values({
-    userId,
-    bothUserPathId: pathId,
-    milestoneId,
-    quizType: 'pretest',
-    score,
-    totalQuestions: questions.length,
-    passed: true, // pretests always "pass" — they're diagnostic only
-    attemptNumber: 1,
-    answers,
+  // One pretest per milestone, checked under the milestone lock so two submits can't both land.
+  const existing = await db.transaction(async (tx) => {
+    await lockMilestone(tx, userId, pathId, milestoneId)
+    const [prior] = await tx.select().from(bothUserQuizResults).where(
+      and(
+        eq(bothUserQuizResults.userId, userId),
+        eq(bothUserQuizResults.bothUserPathId, pathId),
+        eq(bothUserQuizResults.milestoneId, milestoneId),
+        eq(bothUserQuizResults.quizType, 'pretest'),
+      )
+    ).limit(1)
+    if (prior) return prior
+    await tx.insert(bothUserQuizResults).values({
+      userId,
+      bothUserPathId: pathId,
+      milestoneId,
+      quizType: 'pretest',
+      score,
+      totalQuestions: questions.length,
+      passed: true, // pretests always "pass" — they're diagnostic only
+      attemptNumber: 1,
+      answers,
+    })
+    return null
   })
+  if (existing) return { alreadySubmitted: true, score: existing.score, total: existing.totalQuestions }
 
   await recordLearningStep(userId)
   return { score, total: questions.length }
@@ -665,7 +733,9 @@ export async function getMilestoneQuiz(userId: string, pathId: string, milestone
  * @returns           - Score, total, and whether the attempt passed.
  */
 export async function submitQuiz(userId: string, pathId: string, milestoneId: string, answers: number[]) {
-  await assertOwnsPath(userId, pathId)
+  // Only when the path page offers the quiz: unlocked, pre-test and content done, not yet passed.
+  const milestone = milestoneIn(await ownPathView(userId, pathId), milestoneId)
+  if (!milestone.unlocked || !milestone.quizAvailable) throw quizNotAvailable()
   const [assessment] = await db.select().from(bothMilestoneAssessments)
     .where(and(eq(bothMilestoneAssessments.bothUserPathId, pathId), eq(bothMilestoneAssessments.milestoneId, milestoneId)))
     .limit(1)
@@ -677,24 +747,29 @@ export async function submitQuiz(userId: string, pathId: string, milestoneId: st
   const total = questions.length
   const passed = score / total >= PASS_THRESHOLD
 
-  const prevAttempts = await db.select().from(bothUserQuizResults)
-    .where(and(
-      eq(bothUserQuizResults.userId, userId),
-      eq(bothUserQuizResults.bothUserPathId, pathId),
-      eq(bothUserQuizResults.milestoneId, milestoneId),
-      eq(bothUserQuizResults.quizType, 'posttest'),
-    ))
-
-  await db.insert(bothUserQuizResults).values({
-    userId,
-    bothUserPathId: pathId,
-    milestoneId,
-    quizType: 'posttest',
-    score,
-    totalQuestions: total,
-    passed,
-    attemptNumber: prevAttempts.length + 1,
-    answers,
+  // Attempt numbers and "not yet passed" are settled under the milestone lock, so racing
+  // submits get distinct numbers and none lands after a pass.
+  await db.transaction(async (tx) => {
+    await lockMilestone(tx, userId, pathId, milestoneId)
+    const prevAttempts = await tx.select({ passed: bothUserQuizResults.passed }).from(bothUserQuizResults)
+      .where(and(
+        eq(bothUserQuizResults.userId, userId),
+        eq(bothUserQuizResults.bothUserPathId, pathId),
+        eq(bothUserQuizResults.milestoneId, milestoneId),
+        eq(bothUserQuizResults.quizType, 'posttest'),
+      ))
+    if (prevAttempts.some((a) => a.passed)) throw quizNotAvailable()
+    await tx.insert(bothUserQuizResults).values({
+      userId,
+      bothUserPathId: pathId,
+      milestoneId,
+      quizType: 'posttest',
+      score,
+      totalQuestions: total,
+      passed,
+      attemptNumber: prevAttempts.length + 1,
+      answers,
+    })
   })
   await recordLearningStep(userId)
 

@@ -7,7 +7,7 @@
     "dev:server": "bun run --filter @workspace/server dev",
     "build": "bun run typecheck && bun run --filter '*' build",
     "typecheck": "tsc --noEmit",
-    "test": "cd server && bun test --preload ./tests/setup.ts ./tests",
+    "test": "cd server && bun test --preload ./tests/setup.ts ./tests && cd ../client && bun test ./components",
     "db:generate": "drizzle-kit generate --config ./drizzle.config.ts",
     "db:migrate": "node --env-file=.env node_modules/.bin/drizzle-kit migrate --config ./drizzle.config.ts",
     "db:push": "node --env-file=.env node_modules/.bin/drizzle-kit push --config ./drizzle.config.ts",

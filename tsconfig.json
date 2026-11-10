@@ -62,6 +62,7 @@
     "server/dist",
     "server/db/seed",
     "server/**/__tests__/**",
-    "server/tests/**"
+    "server/tests/**",
+    "client/**/__tests__/**"
   ]
 }

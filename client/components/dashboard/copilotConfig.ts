@@ -90,7 +90,7 @@ export function resetBothLearningThreadId(): string {
 // localStorage and re-minted shortly before expiry.
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
-import { getUser } from '@/lib/auth'
+import { checkSession, getUser } from '@/lib/auth'
 
 const COPILOT_JWT_KEY = 'smeep_copilot_jwt'
 const COPILOT_JWT_EXP_KEY = 'smeep_copilot_jwt_exp'
@@ -100,18 +100,44 @@ const COPILOT_JWT_KIND_KEY = 'smeep_copilot_jwt_kind'
 // straddle the boundary.
 const EXPIRY_MARGIN_MS = 5 * 60 * 1000
 
-/** Cached, still-valid copilot service JWT — or '' when absent/expired. */
+/**
+ * The account a token was minted for: its `userId` claim (the AI Amplify
+ * server writes it), or null when absent or unreadable. Read only, never
+ * trusted for anything but this local check: potential-ai verifies the
+ * signature.
+ */
+export function tokenUserId(token: string): string | null {
+  try {
+    const part = token.split('.')[1]
+    if (!part) return null
+    const b64 = part.replace(/-/g, '+').replace(/_/g, '/')
+    const claims = JSON.parse(atob(b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), '=')))
+    return typeof claims?.userId === 'string' ? claims.userId : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Cached, still-valid copilot service JWT — or '' when absent, expired, or
+ * minted for someone else. A user token only ever serves the account it names:
+ * on a shared browser, signing in as a different person (without signing the
+ * first one out) must never run their Anna chats under the first account.
+ * A guest token names nobody, so it is safe for anyone.
+ */
 export function getCopilotJwt(): string {
   if (typeof window === 'undefined') return ''
   try {
     const exp = Number(window.localStorage.getItem(COPILOT_JWT_EXP_KEY) || 0)
-    if (Date.now() < exp - EXPIRY_MARGIN_MS) {
-      return window.localStorage.getItem(COPILOT_JWT_KEY) || ''
-    }
+    const token = window.localStorage.getItem(COPILOT_JWT_KEY) || ''
+    if (!token || Date.now() >= exp - EXPIRY_MARGIN_MS) return ''
+    const kind = window.localStorage.getItem(COPILOT_JWT_KIND_KEY)
+    if (kind === 'guest') return token
+    const owner = tokenUserId(token)
+    return owner !== null && owner === getUser()?.id ? token : ''
   } catch {
-    /* noop */
+    return ''
   }
-  return ''
 }
 
 let inflightMint: Promise<string | null> | null = null
@@ -144,7 +170,15 @@ async function mintFrom(
  * back to a guest token so the assistant still works instead of breaking —
  * the landing chat must never hard-fail.
  */
-export function ensureCopilotToken(): Promise<string | null> {
+// Once per page load, ask the server who is signed in before any cached token
+// is used. The cached user can be stale for a moment after another account
+// signs in on the same browser; confirming first (checkSession updates the
+// cache, which drops a token minted for someone else) closes that window.
+let sessionConfirmed: Promise<unknown> | null = null
+const confirmSession = () => (sessionConfirmed ??= checkSession().catch(() => null))
+
+export async function ensureCopilotToken(): Promise<string | null> {
+  await confirmSession()
   // A user token belongs to one account and role: another sign-in or a role
   // change (say, made admin) must never reuse it, even if nothing cleared it.
   const user = getUser()
@@ -156,7 +190,7 @@ export function ensureCopilotToken(): Promise<string | null> {
   } catch {
     /* noop */
   }
-  if (cached && cachedKind === desiredKind) return Promise.resolve(cached)
+  if (cached && cachedKind === desiredKind) return cached
   if (inflightMint) return inflightMint
 
   inflightMint = (async () => {

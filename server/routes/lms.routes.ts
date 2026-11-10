@@ -376,7 +376,7 @@ const codVideoPositionDto = z.object({
 
 const submitAnswersDto = z.object({
   pathId: z.string().uuid(),
-  answers: z.array(z.number().int().min(0).max(3)),
+  answers: z.array(z.number().int().min(0).max(3)).max(50),
 })
 
 router.get('/cod/path', authenticate, cod.getCodPath)
@@ -428,7 +428,7 @@ const completeItemDto = z.object({
 
 const submitBothAnswersDto = z.object({
   pathId: z.string().uuid(),
-  answers: z.array(z.number().int().min(0).max(3)),
+  answers: z.array(z.number().int().min(0).max(3)).max(50),
 })
 
 // ---------------------------------------------------------------------------

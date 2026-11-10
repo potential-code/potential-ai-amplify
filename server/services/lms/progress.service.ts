@@ -410,14 +410,19 @@ export async function assertUnitAvailableFor(userId: string, unitId: string): Pr
 /** Before a learner marks a block complete. */
 export async function assertBlockCompletable(userId: string, blockId: string): Promise<void> {
   const block = await assertBlockAvailable(userId, blockId)
-  if (block.type === 'question') {
-    const qs = await db.select({ id: blockQuestions.id }).from(blockQuestions).where(eq(blockQuestions.blockId, blockId))
-    if (qs.length) {
-      const answered = await db.select({ id: questionAnswers.questionId }).from(questionAnswers)
-        .where(and(eq(questionAnswers.userId, userId), inArray(questionAnswers.questionId, qs.map((q) => q.id))))
-      if (answered.length < qs.length) throw new AppError('Answer the questions first', 409, 'BLOCK_NOT_ANSWERED')
-    }
-  }
+  if (block.type === 'question') await assertQuestionsAnswered(userId, blockId)
+}
+
+/**
+ * A question block counts as done only once every one of its questions has a
+ * saved answer, wherever it is worked on (course page, tutor, Blended path).
+ */
+export async function assertQuestionsAnswered(userId: string, blockId: string): Promise<void> {
+  const qs = await db.select({ id: blockQuestions.id }).from(blockQuestions).where(eq(blockQuestions.blockId, blockId))
+  if (!qs.length) return
+  const answered = await db.select({ id: questionAnswers.questionId }).from(questionAnswers)
+    .where(and(eq(questionAnswers.userId, userId), inArray(questionAnswers.questionId, qs.map((q) => q.id))))
+  if (answered.length < qs.length) throw new AppError('Answer the questions first', 409, 'BLOCK_NOT_ANSWERED')
 }
 
 /** Before a learner marks a whole unit complete: every block in it must be. */
