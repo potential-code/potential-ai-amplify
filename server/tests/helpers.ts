@@ -11,8 +11,9 @@ import { app } from "../app";
 import { db } from "../db";
 import {
   users, courses, modules, units, learningBlocks, blockQuestions,
-  assessments, assessmentQuestions, inviteCodes, courseEnrollments, authAccounts,
+  assessments, assessmentQuestions, inviteCodes, courseEnrollments, authAccounts, adminAuditLog,
 } from "../db/schema";
+import { flushAuditWrites } from "../middleware/audit-log";
 
 /** The site origin Better Auth trusts (its CSRF check rejects other origins). */
 export const ORIGIN = process.env["BETTER_AUTH_URL"] || process.env["FRONTEND_URL"] || "http://localhost:3000";
@@ -218,14 +219,114 @@ export async function createInviteCode(): Promise<string> {
   return code;
 }
 
-/** Removes everything the fixtures created (call in afterAll). */
+/**
+ * Removes everything the fixtures created (call in afterAll). Admin audit rows
+ * have no foreign key (they outlive their actor on purpose), so the fixture
+ * users' rows go first, once in-flight audit writes have landed.
+ */
 export async function cleanup(): Promise<void> {
   if (createdCourseIds.length) await db.delete(courses).where(inArray(courses.id, createdCourseIds.splice(0)));
   await db.delete(inviteCodes).where(like(inviteCodes.code, `E2E${RUN_ID}%`));
+  await flushAuditWrites();
+  const runUserIds = db.select({ id: users.id }).from(users).where(like(users.email, `%@${RUN_DOMAIN}`));
+  await db.delete(adminAuditLog).where(inArray(adminAuditLog.actorUserId, runUserIds));
   await db.delete(users).where(like(users.email, `%@${RUN_DOMAIN}`));
   // Leftovers from runs that died more than a day ago (no suite runs that long).
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   await db.delete(inviteCodes).where(and(like(inviteCodes.code, "E2E%"), lt(inviteCodes.createdAt, dayAgo)));
+  const staleUserIds = db.select({ id: users.id }).from(users).where(and(like(users.email, "%e2e.local"), lt(users.createdAt, dayAgo)));
+  await db.delete(adminAuditLog).where(inArray(adminAuditLog.actorUserId, staleUserIds));
   await db.delete(users).where(and(like(users.email, "%e2e.local"), lt(users.createdAt, dayAgo)));
   createdUserIds.length = 0;
+}
+
+/**
+ * Sends a hand-written HTTP/1.1 request over a raw TCP socket, for request
+ * lines fetch() can't produce (absolute-form "POST http://host/path", dot
+ * segments) and callers that hang up early. `headers` gets Host,
+ * Content-Length and Connection: close added. With `hangUp`, the socket is
+ * destroyed as soon as the request has been handed to the kernel and the
+ * status is null.
+ */
+export async function rawHttp(
+  requestTarget: string,
+  opts: { method?: string; headers?: Record<string, string>; body?: unknown; hangUp?: boolean } = {},
+): Promise<{ status: number | null; text: string }> {
+  const { connect } = await import("node:net");
+  const url = new URL(baseUrl);
+  const body = opts.body === undefined ? "" : JSON.stringify(opts.body);
+  const headers: Record<string, string> = {
+    Host: url.host,
+    ...(opts.body !== undefined ? { "Content-Type": "application/json" } : {}),
+    ...opts.headers,
+    "Content-Length": String(Buffer.byteLength(body)),
+    Connection: "close",
+  };
+  const head = [`${opts.method ?? "GET"} ${requestTarget} HTTP/1.1`, ...Object.entries(headers).map(([k, v]) => `${k}: ${v}`)].join("\r\n");
+  return new Promise((resolve, reject) => {
+    const socket = connect(Number(url.port), url.hostname);
+    let text = "";
+    socket.setEncoding("utf8");
+    socket.on("data", (chunk: string) => {
+      text += chunk;
+    });
+    socket.on("error", reject);
+    socket.on("connect", () => {
+      socket.write(`${head}\r\n\r\n${body}`, () => {
+        if (opts.hangUp) {
+          socket.destroy();
+          resolve({ status: null, text: "" });
+        }
+      });
+    });
+    socket.on("close", () => {
+      if (opts.hangUp) return;
+      const m = /^HTTP\/1\.1 (\d{3})/.exec(text);
+      resolve({ status: m ? Number(m[1]) : null, text });
+    });
+  });
+}
+
+/**
+ * Writes several HTTP/1.1 requests on one socket in a single write (HTTP
+ * pipelining), then hangs up straight away without reading any response.
+ */
+export async function pipelineAndHangUp(
+  requests: Array<{ method: string; path: string; headers?: Record<string, string>; body?: unknown }>,
+): Promise<void> {
+  const { connect } = await import("node:net");
+  const url = new URL(baseUrl);
+  const wire = requests
+    .map((r) => {
+      const body = r.body === undefined ? "" : JSON.stringify(r.body);
+      const headers: Record<string, string> = {
+        Host: url.host,
+        ...(r.body !== undefined ? { "Content-Type": "application/json" } : {}),
+        ...r.headers,
+        "Content-Length": String(Buffer.byteLength(body)),
+      };
+      return [`${r.method} ${r.path} HTTP/1.1`, ...Object.entries(headers).map(([k, v]) => `${k}: ${v}`)].join("\r\n") + `\r\n\r\n${body}`;
+    })
+    .join("");
+  await new Promise<void>((resolve, reject) => {
+    const socket = connect(Number(url.port), url.hostname);
+    socket.on("error", reject);
+    socket.on("connect", () => {
+      socket.write(wire, () => {
+        socket.destroy();
+        resolve();
+      });
+    });
+  });
+}
+
+/** Polls `check` until it returns a truthy value or `timeoutMs` passes; returns the last value. */
+export async function waitFor<T>(check: () => Promise<T>, timeoutMs = 5000): Promise<T> {
+  const until = Date.now() + timeoutMs;
+  let value = await check();
+  while (!value && Date.now() < until) {
+    await Bun.sleep(50);
+    value = await check();
+  }
+  return value;
 }

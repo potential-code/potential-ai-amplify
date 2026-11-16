@@ -8,7 +8,9 @@
     "build": "node ./build.mjs",
     "start": "node --env-file=../.env --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p ../tsconfig.json --noEmit",
-    "db:ai-views": "bun --env-file=../.env ./db/aiViews/apply.ts"
+    "db:ai-views": "bun --env-file=../.env ./db/aiViews/apply.ts",
+    "operator:create-user": "node --env-file=../.env ./scripts/create-operator-user.mjs",
+    "operator:generate-key": "node ./scripts/generate-operator-key.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.1046.0",

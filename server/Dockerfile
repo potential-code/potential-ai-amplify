@@ -36,6 +36,9 @@ COPY --from=builder /app/server/db/aiViews/001_ai_schema.sql ./db/aiViews/001_ai
 COPY --from=builder /app/server/db/migrations ./db/migrations
 # Migration runner script
 COPY --from=builder /app/server/scripts/migrate.mjs ./scripts/migrate.mjs
+# Operator service account bootstrap (docs/operator-access.md):
+#   node scripts/create-operator-user.mjs --email <address> [--apply]
+COPY --from=builder /app/server/scripts/create-operator-user.mjs ./scripts/create-operator-user.mjs
 # CRM outbox health, read-only: node scripts/crm-outbox-status.mjs
 COPY --from=builder /app/server/scripts/crm-outbox-status.mjs ./scripts/crm-outbox-status.mjs
 # Entrypoint: runs migrations then starts server

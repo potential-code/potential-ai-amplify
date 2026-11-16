@@ -64,10 +64,23 @@ export const removeLearner = wrap<{ id: string; userId: string }>(async (req) =>
   await svc.removeLearner(req.params.id, req.params.userId);
   return { ok: true };
 });
-export const partners = wrap<{ id: string }>((req) => svc.listPartners(req.params.id));
+// A partner setup link holds a live token: whoever opens it creates the
+// partner login and sees the organisation's learners. An admin in the browser
+// gets it to pass on by hand; an operator key (Maya) never does, so a key
+// can't be turned into a partner login. The invite email still carries it.
+const withoutSetupLinkForKeys = (req: Request<{ id: string }>, contact: svc.PartnerContact): svc.PartnerContact => {
+  if (req.user?.via !== "operator_key") return contact;
+  const { setupLink: _setupLink, ...rest } = contact;
+  return rest;
+};
+
+export const partners = wrap<{ id: string }>(async (req) =>
+  (await svc.listPartners(req.params.id)).map((contact) => withoutSetupLinkForKeys(req, contact)),
+);
 export const invitePartner = wrap<{ id: string }>(async (req, res) => {
   res.status(201);
-  return svc.invitePartner(req.params.id, req.user!.userId, req.body as { fullName: string; email: string });
+  const invite = await svc.invitePartner(req.params.id, req.user!.userId, req.body as { fullName: string; email: string });
+  return withoutSetupLinkForKeys(req, invite);
 });
 export const cancelInvite = wrap<{ id: string; inviteId: string }>(async (req) => {
   await svc.cancelInvite(req.params.id, req.params.inviteId);

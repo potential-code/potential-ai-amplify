@@ -38,3 +38,4 @@ export * from "./translationCache";
 export * from "./aiDashboards";
 export * from "./examinerAttempts";
 export * from "./crmOutbox";
+export * from "./adminAuditLog";

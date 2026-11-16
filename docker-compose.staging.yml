@@ -21,6 +21,11 @@ services:
       SMTP_PORT: ${SMTP_PORT:-1025}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
+      # Operator keys (Maya, the AI operator): label:sha256 entries and the admin
+      # service account they act as (maya@potential.org). Bearer auth is off
+      # while unset. See server/docs/operator-access.md.
+      OPERATOR_API_KEYS: ${OPERATOR_API_KEYS:-}
+      OPERATOR_SERVICE_USER_EMAIL: ${OPERATOR_SERVICE_USER_EMAIL:-}
       # CRM sync: learner events queue in crm_outbox; sent only when
       # CRM_SYNC_ENABLED is "true" (needs the URL, key and program id).
       # CRM events only: they never send an email.

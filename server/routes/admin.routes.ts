@@ -5,6 +5,7 @@ import { patchOf } from '../utils/zodPatch'
 import { authenticate } from "../middleware/authenticate";
 import { requireRole } from "../middleware/require-role";
 import { validate } from "../middleware/validate";
+import { refuseOperatorPriceFields } from "../auth/operatorScope";
 import * as adminController from "../controllers/admin.controller";
 import * as offersCtrl from "../controllers/offers.controller";
 import * as analyticsController from "../controllers/admin.analytics.controller";
@@ -128,13 +129,17 @@ router.get("/offers", offersCtrl.adminListOffers);
  * POST /api/admin/offers
  * Creates a new offer. Slug is auto-generated from the title.
  */
-router.post("/offers", validate(createOfferDto), offersCtrl.adminCreateOffer);
+// With an operator key (Maya) creating an offer is out of scope (it sets a
+// price); the price check here is a second line should that ever change.
+router.post("/offers", refuseOperatorPriceFields, validate(createOfferDto), offersCtrl.adminCreateOffer);
 
 /**
  * PATCH /api/admin/offers/:id
  * Partially updates an existing offer.
  */
-router.patch("/offers/:id", validate(updateOfferDto), offersCtrl.adminUpdateOffer);
+// An operator key may edit an offer but never its price fields (price,
+// priceLabel, priceBefore, pointsCost): 403. Admin sessions are unaffected.
+router.patch("/offers/:id", refuseOperatorPriceFields, validate(updateOfferDto), offersCtrl.adminUpdateOffer);
 
 /**
  * DELETE /api/admin/offers/:id
