@@ -442,7 +442,6 @@ export function AppShell({
 }) {
   const config = SHELL_CONFIG[role]
   const pathname = usePathname() ?? ''
-  const router = useRouter()
   const user = useAuthUser()
   const avatarUrl = useAvatarUrl(user)
   const theme = useAppTheme()
@@ -450,11 +449,13 @@ export function AppShell({
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
 
-  // Ends the session on the server (revoking it), not just in this browser.
+  // Ends the session on the server (revoking it), not just in this browser,
+  // then a full page load: the next person on this tab starts with fresh
+  // in-memory state (consent store, GTM, cached queries), nothing of this one's.
   const logout = useCallback(async () => {
     await signOut()
-    router.push('/login')
-  }, [router])
+    window.location.assign('/login')
+  }, [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -474,7 +475,7 @@ export function AppShell({
   return (
     <div className={cn('flex bg-ui-bg text-ui-text', fullBleed ? 'h-dvh overflow-hidden' : 'min-h-dvh')}>
       {/* GTM learner events (first lesson, certificate); renders nothing, polls only while GTM runs. */}
-      {role === 'learner' && <MilestoneWatcher />}
+      {role === 'learner' && user && <MilestoneWatcher userId={user.id} />}
       <aside
         className={cn(
           'sticky top-0 hidden h-dvh shrink-0 overflow-hidden border-r border-ui-line lg:flex',

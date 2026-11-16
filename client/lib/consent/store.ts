@@ -23,6 +23,12 @@ export interface CookieConsentState {
   open: boolean
   /** The current page is on the allowlist (isTrackedUrl). */
   tracked: boolean
+  /**
+   * GTM is actually loaded in this document and the current page is tracked:
+   * events pushed now reach GTM. False on a tracked page of a "tainted"
+   * document (one that has shown an untracked URL), where GTM never starts.
+   */
+  running: boolean
 }
 
 export type SignUpMethod = 'web_form' | 'anna_chat'
@@ -68,7 +74,11 @@ function eventForMilestone(m: Milestone): MarketingEvent | null {
  */
 const milestoneId = (m: Milestone) => `${m.key}@${m.earnedAt}`
 
-/** A milestone already there on the first fetch counts as new if this recent. */
+/**
+ * Only a milestone the server stored this recently is ever reported (on every
+ * fetch, not just the first), so an old one can't fire as new: a learner
+ * switch in the same tab, a cleared localStorage, a lost seen set.
+ */
 const RECENT_MS = 10 * 60_000
 /** Milestones (milestoneId) already handled in this browser (other tabs, later pages). */
 const REPORTED_KEY = 'amplify.gtmReported'
@@ -100,7 +110,7 @@ export function createConsentStore(deps: PlainDeps | Deps = {}) {
             return p.navigate ?? (p.win ? browserNavigate(p.win) : undefined)
           },
         }
-  let state: CookieConsentState = { gtmId: null, choice: null, open: false, tracked: false }
+  let state: CookieConsentState = { gtmId: null, choice: null, open: false, tracked: false, running: false }
   let url: string | null = null
   let asked = false // the banner opens by itself at most once per page load
   // This document has shown an untracked URL (a token, invite code, staff
@@ -109,7 +119,8 @@ export function createConsentStore(deps: PlainDeps | Deps = {}) {
   let tainted = false
   let opener: { focus(): void; isConnected?: boolean } | null = null
   const started = new Set<SignUpMethod>() // sign_up_start sent on this page
-  let seenMilestones: Set<string> | null = null // keys in this document's fetches
+  let seenMilestones: Set<string> | null = null // keys in this learner's fetches in this document
+  let milestonesUser: string | null = null // whose milestones seenMilestones holds
   const listeners = new Set<() => void>()
 
   const set = (next: Partial<CookieConsentState>) => {
@@ -118,7 +129,8 @@ export function createConsentStore(deps: PlainDeps | Deps = {}) {
       merged.gtmId === state.gtmId &&
       merged.choice === state.choice &&
       merged.open === state.open &&
-      merged.tracked === state.tracked
+      merged.tracked === state.tracked &&
+      merged.running === state.running
     )
       return
     state = merged
@@ -130,7 +142,7 @@ export function createConsentStore(deps: PlainDeps | Deps = {}) {
   /** Pushes only while GTM runs on a tracked page; returns whether it did. */
   const push = (e: MarketingEvent): boolean => {
     const win = d.win()
-    if (!state.gtmId || !state.tracked || !win?.__amplifyGtmLoaded) return false
+    if (!state.gtmId || !state.running || !win?.__amplifyGtmLoaded) return false
     win.dataLayer = win.dataLayer || []
     win.dataLayer.push({ ...e })
     return true
@@ -176,7 +188,7 @@ export function createConsentStore(deps: PlainDeps | Deps = {}) {
     // change doesn't produce a new pathname) must be tracked.
     const address = currentAddress(win)
     const tracked = isTrackedUrl(url) && (address === null || isTrackedUrl(address))
-    set({ tracked })
+    set({ tracked, running: tracked && gtmLoaded() })
     if (!tracked) {
       tainted = true
       // Fallback only: the history guard has normally started a full load to
@@ -196,6 +208,7 @@ export function createConsentStore(deps: PlainDeps | Deps = {}) {
       return
     }
     bootGtm(win, state.gtmId, state.choice, d.navigate() ?? browserNavigate(win))
+    set({ running: gtmLoaded() })
     if (!asked) {
       asked = true
       if (state.choice === null) set({ open: true })
@@ -218,7 +231,7 @@ export function createConsentStore(deps: PlainDeps | Deps = {}) {
     /** Called with the validated container id from /public-config (null = off). */
     configure(gtmId: string | null) {
       if (!gtmId) {
-        set({ gtmId: null, choice: null, open: false, tracked: false })
+        set({ gtmId: null, choice: null, open: false, tracked: false, running: false })
         return
       }
       set({ gtmId, choice: readChoice(d.storage(), d.now()) })
@@ -284,29 +297,35 @@ export function createConsentStore(deps: PlainDeps | Deps = {}) {
       if (push({ event: 'sign_up_start', method })) started.add(method)
     },
     /**
-     * Called with each /api/me/milestones fetch. A first_step badge or
-     * certificate that is new (not in this page's earlier fetches, or on the
-     * first fetch stored in the last 10 minutes) and not handled before in
-     * this browser is reported once. Seen on a page that can't be tracked, it
-     * is marked handled and never sent.
+     * Called with each /api/me/milestones fetch of the signed-in learner
+     * `userId`. A first_step badge or certificate is reported once when the
+     * server stored it in the last 10 minutes (checked on every fetch), it
+     * wasn't in this learner's earlier fetches in this document, and it wasn't
+     * handled before in this browser. Only while GTM runs: anything else is left untouched (not sent,
+     * not marked handled) for a page load where GTM runs. A different user id
+     * starts over, so one learner's milestones never count as new for another.
      */
-    noteMilestones(items: Milestone[]) {
-      if (!state.gtmId) return
-      const first = seenMilestones === null
+    noteMilestones(items: Milestone[], userId: string) {
+      if (!state.gtmId || !state.running) return
+      if (userId !== milestonesUser) {
+        milestonesUser = userId
+        seenMilestones = null
+      }
       const done = new Set(reported())
+      const unsent = new Set<string>()
       for (const m of items) {
         const e = eventForMilestone(m)
         const id = milestoneId(m)
         if (!e || done.has(id)) continue
-        const isNew = first
-          ? typeof m.ageSeconds === 'number' && Number.isFinite(m.ageSeconds) && Math.abs(m.ageSeconds * 1000) <= RECENT_MS
-          : !seenMilestones!.has(id)
-        if (!isNew) continue
-        done.add(id)
-        markReported(id)
-        push(e)
+        const recent = typeof m.ageSeconds === 'number' && Number.isFinite(m.ageSeconds) && Math.abs(m.ageSeconds * 1000) <= RECENT_MS
+        if (!recent || seenMilestones?.has(id)) continue
+        // Marked handled only once GTM has it.
+        if (push(e)) {
+          done.add(id)
+          markReported(id)
+        } else unsent.add(id)
       }
-      seenMilestones = new Set([...(seenMilestones ?? []), ...items.map(milestoneId)])
+      seenMilestones = new Set([...(seenMilestones ?? []), ...items.map(milestoneId).filter((id) => !unsent.has(id))])
     },
   }
 }

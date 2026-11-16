@@ -152,7 +152,8 @@ export async function listMilestones(userId: string): Promise<Milestone[]> {
     db
       .select({ id: courseCertificates.id, issuedAt: courseCertificates.issuedAt, ageSeconds: age(courseCertificates.issuedAt) })
       .from(courseCertificates)
-      .where(eq(courseCertificates.userId, userId)),
+      // Active only, as admin analytics count them: a revoked certificate isn't a milestone.
+      .where(and(eq(courseCertificates.userId, userId), eq(courseCertificates.status, "active"))),
   ]);
   const seconds = (v: unknown) => Math.round(Number(v));
   return [

@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { authenticate } from "../middleware/authenticate";
+import { requireRole } from "../middleware/require-role";
 import { validate } from "../middleware/validate";
 import { perUser, MINUTE } from "../middleware/limits";
 import {
@@ -28,7 +29,8 @@ router.get("/announcements", authenticate, getMyAnnouncements);
 router.post("/notifications/read-all", authenticate, readAllMyNotifications);
 router.post("/notifications/:id/read", authenticate, readMyNotification);
 router.get("/achievements", authenticate, getMyAchievements);
-router.get("/milestones", authenticate, getMyMilestones);
+// Learners only: the browser's GTM learner events (staff areas are never tracked).
+router.get("/milestones", authenticate, requireRole("sme"), getMyMilestones);
 router.get("/leaderboard", authenticate, getMyLeaderboard);
 router.put("/leaderboard-visibility", authenticate, validate(z.object({ show: z.boolean() }).strict()), setMyLeaderboardVisibility);
 router.get("/organisation", authenticate, organisations.mine);

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
 import { eq } from 'drizzle-orm'
 import { db } from '../db'
 import { courseCertificates, notifications, userBadges } from '../db/schema'
-import { startTestServer, stopTestServer, api, createTestUser, createCourse, cleanupFixtureUsers, type TestUser } from './helpers'
+import { startTestServer, stopTestServer, api, createTestUser, createUser, createCourse, cleanupFixtureUsers, type TestUser } from './helpers'
 import { recordLearningStep } from '../services/streak.service'
 import { checkBadges } from '../services/achievements.service'
 
@@ -78,5 +78,23 @@ describe('learner milestones', () => {
 
   it("shows only the signed-in learner's own milestones", async () => {
     expect((await milestones(other.token)).body.data.items).toEqual([])
+  })
+
+  it('lists only active certificates (a revoked one is not a milestone)', async () => {
+    const [revoked] = await db
+      .insert(courseCertificates)
+      .values({ userId: other.id, courseId, certificateNumber: `CERT-E2E-R-${Date.now()}`, status: 'inactive' })
+      .returning()
+    const items = (await milestones(other.token)).body.data.items
+    expect(items.map((i) => i.key)).not.toContain(`certificate:${revoked!.id}`)
+    expect(items).toEqual([])
+  })
+
+  it('is for learners only: staff get 403', async () => {
+    for (const role of ['admin', 'mentor'] as const) {
+      const staff = await createUser(role)
+      const res = await api('GET', '/api/me/milestones', { token: staff.token })
+      expect([role, res.status]).toEqual([role, 403])
+    }
   })
 })

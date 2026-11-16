@@ -226,7 +226,6 @@ describe('GTM loader', () => {
       '/dashboard',
       '/dashboard/',
       '/dashboard/courses/1?course=2',
-      '/dashboard/offers?success=1',
       'https://aiamplify.potential.org/dashboard/learning',
     ]) {
       expect([p, isTrackedUrl(p)]).toEqual([p, true])
@@ -261,6 +260,12 @@ describe('GTM loader', () => {
       '/dashboard/offers/1/checkout/',
       '/dashboard/billing',
       '/dashboard/payments/1',
+      // paid product: the offers list, each offer's price and buy pages
+      '/dashboard/offers',
+      '/dashboard/offers/',
+      '/dashboard/offers?success=1',
+      '/dashboard/offers/1',
+      '/dashboard/offers/1/buy',
       '/dashboard/courses?q=ahmed%40example.com',
       '/#access_token=abc',
       // staff areas and anything not on the allowlist
@@ -332,7 +337,7 @@ describe('consent store', () => {
     const { store, win, appended } = setup()
     store.configure(null)
     store.enterPath('/')
-    expect(store.getState()).toEqual({ gtmId: null, choice: null, open: false, tracked: false })
+    expect(store.getState()).toEqual({ gtmId: null, choice: null, open: false, tracked: false, running: false })
     expect(win.dataLayer).toBeUndefined()
     expect(appended).toHaveLength(0)
     store.openSettings()
@@ -345,7 +350,7 @@ describe('consent store', () => {
     const { store, win, appended } = setup()
     store.configure('GTM-TEST1234')
     store.enterPath('/')
-    expect(store.getState()).toEqual({ gtmId: 'GTM-TEST1234', choice: null, open: true, tracked: true })
+    expect(store.getState()).toEqual({ gtmId: 'GTM-TEST1234', choice: null, open: true, tracked: true, running: true })
     expect(appended).toHaveLength(1)
     expect(entries(win.dataLayer)[0][1]).toBe('default')
   })
@@ -387,7 +392,7 @@ describe('consent store', () => {
     const { store } = setup('rejected')
     store.configure('GTM-TEST1234')
     store.enterPath('/dashboard')
-    expect(store.getState()).toEqual({ gtmId: 'GTM-TEST1234', choice: 'rejected', open: false, tracked: true })
+    expect(store.getState()).toEqual({ gtmId: 'GTM-TEST1234', choice: 'rejected', open: false, tracked: true, running: true })
     store.openSettings()
     expect(store.getState().open).toBe(true)
     store.accept()
@@ -635,7 +640,7 @@ describe('marketing events (Maya spec)', () => {
     r.store.enterPath('/mentor/setup?token=abc') // GTM loaded, page untracked (reload pending)
     r.store.trackSignUpStart('web_form')
     r.store.trackSignUp('web_form')
-    r.store.noteMilestones([firstStep(1)])
+    r.store.noteMilestones([firstStep(1)], 'learner-a')
     expect(pushedEvents(r.win)).toEqual([])
 
     const f = fakeWindow('/dashboard')
@@ -644,25 +649,25 @@ describe('marketing events (Maya spec)', () => {
     off.configure(null)
     off.enterPath('/dashboard')
     off.trackSignUpStart('web_form')
-    off.noteMilestones([firstStep(1)])
+    off.noteMilestones([firstStep(1)], 'learner-a')
     expect(f.win.dataLayer).toBeUndefined()
     expect(storage.dump()).toEqual({}) // GTM off: nothing stored either
   })
 
   it('first_lesson_completed: when the first_step badge is newly earned, exactly once', () => {
     const { win, store } = running()
-    store.noteMilestones([]) // first fetch: nothing yet
-    store.noteMilestones([firstStep(0)]) // the next poll brings the newly earned badge
-    store.noteMilestones([firstStep(0)])
+    store.noteMilestones([], 'learner-a') // first fetch: nothing yet
+    store.noteMilestones([firstStep(0)], 'learner-a') // the next poll brings the newly earned badge
+    store.noteMilestones([firstStep(0)], 'learner-a')
     expect(pushedEvents(win)).toEqual([{ event: 'first_lesson_completed' }])
   })
 
   it('counts a badge already in the first fetch only if the server stored it in the last 10 minutes', () => {
     const recent = running()
-    recent.store.noteMilestones([firstStep(2)])
+    recent.store.noteMilestones([firstStep(2)], 'learner-a')
     expect(pushedEvents(recent.win)).toEqual([{ event: 'first_lesson_completed' }])
     const old = running()
-    old.store.noteMilestones([firstStep(60 * 24)])
+    old.store.noteMilestones([firstStep(60 * 24)], 'learner-a')
     expect(pushedEvents(old.win)).toEqual([])
   })
 
@@ -671,29 +676,29 @@ describe('marketing events (Maya spec)', () => {
     // session in another time zone, or a browser clock that is wrong).
     const skewed = { key: 'badge:first_step', earnedAt: ago(-240), ageSeconds: 60 }
     const r = running()
-    r.store.noteMilestones([skewed])
+    r.store.noteMilestones([skewed], 'learner-a')
     expect(pushedEvents(r.win)).toEqual([{ event: 'first_lesson_completed' }])
     const old = running()
-    old.store.noteMilestones([{ key: 'badge:first_step', earnedAt: ago(1), ageSeconds: 3600 }])
+    old.store.noteMilestones([{ key: 'badge:first_step', earnedAt: ago(1), ageSeconds: 3600 }], 'learner-a')
     expect(pushedEvents(old.win)).toEqual([])
   })
 
   it('ignores other badges and anything else', () => {
     const { win, store } = running()
-    store.noteMilestones([])
+    store.noteMilestones([], 'learner-a')
     store.noteMilestones([
       { key: 'badge:streak_7', earnedAt: ago(0), ageSeconds: 0 },
       { key: 'announcement:1', earnedAt: ago(0), ageSeconds: 0 },
       { key: 'badge:first_step_x', earnedAt: ago(0), ageSeconds: 0 },
-    ])
+    ], 'learner-a')
     expect(pushedEvents(win)).toEqual([])
   })
 
   it('course_certificate: once per newly issued certificate, with no course name or ids', () => {
     const { win, store } = running('/dashboard/certificates')
-    store.noteMilestones([cert('c0', 500)]) // an old one: not new
-    store.noteMilestones([cert('c1', 0), cert('c0', 500)])
-    store.noteMilestones([cert('c1', 0), cert('c0', 500)])
+    store.noteMilestones([cert('c0', 500)], 'learner-a') // an old one: not new
+    store.noteMilestones([cert('c1', 0), cert('c0', 500)], 'learner-a')
+    store.noteMilestones([cert('c1', 0), cert('c0', 500)], 'learner-a')
     expect(pushedEvents(win)).toEqual([{ event: 'course_certificate' }])
     const all = JSON.stringify(win.dataLayer)
     for (const s of ['c1', 'certificate:', 'earnedAt']) expect(all).not.toContain(s)
@@ -702,9 +707,9 @@ describe('marketing events (Maya spec)', () => {
   it('another tab or page load in the same browser does not report it again', () => {
     const storage = memoryStorage()
     const a = running('/dashboard', storage)
-    a.store.noteMilestones([firstStep(1)])
+    a.store.noteMilestones([firstStep(1)], 'learner-a')
     const b = running('/dashboard/learning', storage)
-    b.store.noteMilestones([firstStep(1)]) // the same stored row
+    b.store.noteMilestones([firstStep(1)], 'learner-a') // the same stored row
     expect([pushedEvents(a.win).length, pushedEvents(b.win).length]).toEqual([1, 0])
     expect(Object.keys(storage.dump())).toContain('amplify.gtmReported')
   })
@@ -712,20 +717,89 @@ describe('marketing events (Maya spec)', () => {
   it('a second learner signing in on the same browser still reports their own first step', () => {
     const storage = memoryStorage()
     const a = running('/dashboard', storage) // learner A
-    a.store.noteMilestones([firstStep(5)])
+    a.store.noteMilestones([firstStep(5)], 'learner-a')
     const b = running('/dashboard', storage) // learner B, later, same browser
-    b.store.noteMilestones([firstStep(1)])
+    b.store.noteMilestones([firstStep(1)], 'learner-b')
     expect([pushedEvents(a.win).length, pushedEvents(b.win).length]).toEqual([1, 1])
   })
 
-  it('seen first on an untracked page: never reported later', () => {
+  it('seen on a page where GTM is not running: not sent and not marked handled, so the next tracked page load can still send it', () => {
     const storage = memoryStorage()
     const a = running('/', storage)
-    a.store.enterPath('/admin/dashboard')
-    a.store.noteMilestones([firstStep(1)])
+    a.store.enterPath('/admin/dashboard') // GTM loaded, page untracked (reload pending)
+    a.store.noteMilestones([firstStep(1)], 'learner-a')
+    expect(storage.dump()['amplify.gtmReported']).toBeUndefined()
     const b = running('/dashboard', storage)
-    b.store.noteMilestones([firstStep(1)])
-    expect([pushedEvents(a.win).length, pushedEvents(b.win).length]).toEqual([0, 0])
+    b.store.noteMilestones([firstStep(1)], 'learner-a')
+    expect([pushedEvents(a.win).length, pushedEvents(b.win).length]).toEqual([0, 1])
+  })
+
+  it('running: true only while GTM is actually loaded in this document on a tracked page', () => {
+    const r = running('/dashboard')
+    expect(r.store.getState()).toMatchObject({ tracked: true, running: true })
+    r.store.enterPath('/admin/dashboard') // reload pending: tags must not fire here
+    expect(r.store.getState()).toMatchObject({ tracked: false, running: false })
+
+    const off = fakeWindow('/dashboard')
+    const s = createConsentStore({ storage: memoryStorage(), win: off.win, now, navigate: off.navigate })
+    s.configure(null)
+    s.enterPath('/dashboard')
+    expect(s.getState().running).toBe(false)
+  })
+
+  it('a tainted document (sign-up?code=, then client-side to /dashboard) never burns the first-lesson milestone', () => {
+    const storage = memoryStorage()
+    const f = fakeWindow('/sign-up?code=AMPLIFY-IGXVWW')
+    const store = createConsentStore({ storage, win: f.win, now, navigate: f.navigate })
+    store.configure('GTM-TEST1234')
+    store.enterPath('/sign-up?code=AMPLIFY-IGXVWW')
+    // goTo('/dashboard') after sign-up: a client-side move (GTM isn't running).
+    f.win.history.pushState(null, '', '/dashboard')
+    store.enterPath('/dashboard')
+    // Tracked page, but GTM never started in this document.
+    expect(store.getState()).toMatchObject({ tracked: true, running: false })
+    expect(f.appended).toHaveLength(0)
+    store.noteMilestones([firstStep(1)], 'learner-a')
+    expect(f.win.dataLayer).toBeUndefined()
+    expect(storage.dump()['amplify.gtmReported']).toBeUndefined() // not burned
+    // The next full page load on a tracked URL starts GTM and sends it once.
+    const next = running('/dashboard/learning', storage)
+    next.store.noteMilestones([firstStep(1)], 'learner-a')
+    next.store.noteMilestones([firstStep(1)], 'learner-a')
+    expect(pushedEvents(next.win)).toEqual([{ event: 'first_lesson_completed' }])
+  })
+
+  it('a different learner in the same tab: their earlier milestones never fire as new', () => {
+    const { win, store } = running()
+    store.noteMilestones([firstStep(60 * 24 * 30)], 'learner-a') // A: an old badge, not new
+    // A signs out and B signs in without a full page load; B's first fetch.
+    const oldB = [
+      { key: 'badge:first_step', earnedAt: ago(60 * 24 * 400), ageSeconds: 60 * 60 * 24 * 400 },
+      cert('bbbb-1111', 60 * 24 * 400),
+    ]
+    store.noteMilestones(oldB, 'learner-b')
+    expect(pushedEvents(win)).toEqual([])
+    // B then earns a certificate: reported once.
+    const issued = cert('bbbb-2222', 0)
+    store.noteMilestones([...oldB, issued], 'learner-b')
+    store.noteMilestones([...oldB, { ...issued, ageSeconds: 60 }], 'learner-b') // the next poll: same row
+    store.noteMilestones([...oldB, { ...issued, ageSeconds: 60 }], 'learner-a') // a switch resets the seen set; the handled list still stops a repeat
+    expect(pushedEvents(win)).toEqual([{ event: 'course_certificate' }])
+  })
+
+  it('switching learner resets the first-fetch baseline: a recent milestone of the new learner is still reported', () => {
+    const { win, store } = running()
+    store.noteMilestones([], 'learner-a')
+    store.noteMilestones([firstStep(3)], 'learner-b')
+    expect(pushedEvents(win)).toEqual([{ event: 'first_lesson_completed' }])
+  })
+
+  it('an old milestone never fires, even when it first shows up in a later fetch', () => {
+    const { win, store } = running()
+    store.noteMilestones([], 'learner-a')
+    store.noteMilestones([cert('cccc-1', 60 * 24 * 400)], 'learner-a')
+    store.noteMilestones([firstStep(60)], 'learner-a')
+    expect(pushedEvents(win)).toEqual([])
   })
 
   it('wiring: the form, Anna and the learner milestone watcher report these events', () => {
@@ -741,9 +815,18 @@ describe('marketing events (Maya spec)', () => {
     const watcher = src('components/consent/MilestoneWatcher.tsx')
     expect(watcher).toContain("'/api/me/milestones'")
     expect(watcher).toContain('consentStore.noteMilestones(')
-    // Polls only while GTM runs on a tracked page: no extra requests otherwise.
-    expect(watcher).toMatch(/enabled:\s*!!gtmId && tracked/)
-    // Mounted for learners only (the learner shell).
-    expect(src('components/shell/AppShell.tsx')).toMatch(/role === 'learner' && <MilestoneWatcher \/>/)
+    // Polls only while GTM actually runs on a tracked page (not merely a
+    // tracked page in a document where GTM never started).
+    expect(watcher).toMatch(/enabled:\s*running && !!userId/)
+    expect(watcher).not.toMatch(/enabled:\s*!!gtmId && tracked/)
+    // Cached per learner, and the store is told whose milestones they are.
+    expect(watcher).toMatch(/queryKey:\s*\['me', 'milestones', userId\]/)
+    expect(watcher).toMatch(/consentStore\.noteMilestones\(data, userId\)/)
+    // Mounted for learners only (the learner shell), with the signed-in user's id.
+    const shell = src('components/shell/AppShell.tsx')
+    expect(shell).toMatch(/role === 'learner' && user && <MilestoneWatcher userId=\{user\.id\} \/>/)
+    // Sign-out is a full page load: the next person starts with fresh consent/GTM state.
+    expect(shell).toMatch(/await signOut\(\)\s*\n\s*window\.location\.assign\('\/login'\)/)
+    expect(shell).not.toMatch(/router\.push\('\/login'\)/)
   })
 })

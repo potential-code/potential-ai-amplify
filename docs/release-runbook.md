@@ -178,8 +178,10 @@ emails), then redeploy.
 - **Pages GTM runs on: an allowlist** (`isTrackedUrl` in
   `client/lib/consent/gtm.ts`). Only `/`, `/login`, `/sign-up` and
   `/dashboard/**` (the learner area), minus payment pages
-  (`/dashboard/**/checkout`, `billing`, `payment(s)`, `invoice(s)`: the offers'
-  Stripe checkout), and only when every query parameter is known to be
+  (`/dashboard/**/checkout`, `billing`, `payment(s)`, `invoice(s)`: Stripe
+  checkout) and **the paid product: `/dashboard/offers` and everything under
+  it (the offers list, each offer's price and buy pages, the checkout, and
+  `?success=1` on return)**, and only when every query parameter is known to be
   harmless (`utm_*`, `gclid`, `gbraid`, `wbraid`, `expired`, `with`, `course`,
   `mentor`, `m`, `frame`, `success`, `v`; not `q`, which is free text). Google
   tags send the full address, so nothing that can carry a secret is tracked:
@@ -195,7 +197,10 @@ emails), then redeploy.
   move to `/login`), or the Navigation API lists one among this document's
   history entries, GTM does not start for the life of that document (no
   redirect, no reload). The next full page load on a tracked URL starts fresh.
-  So an invite-link sign-up sends no `sign_up` event.
+  So an invite-link sign-up sends no `sign_up` event. The store's `running`
+  flag (GTM actually loaded in this document and the page tracked) is what
+  gates events and the milestone poll, not `tracked` alone: a tracked page of
+  such a document has `tracked: true, running: false`.
 - **Referrer-Policy: `strict-origin`** on every page (next.config.ts), so a
   token or invite URL never shows up in `document.referrer` on a later page
   or in another site's logs. The API keeps helmet's `no-referrer`.
@@ -230,14 +235,21 @@ emails), then redeploy.
   `GET /api/me/milestones` (signed-in, own data: `badge:first_step` from
   `user_badges` and `certificate:<id>` from `course_certificates`, both written
   exactly once, each with `earnedAt` and `ageSeconds` from the database's own
-  clock). It polls every 60 s and on window focus, **only while GTM runs on a
-  tracked page** (no requests otherwise). A milestone counts as new if it
-  wasn't in this page's earlier fetches (or, on the first fetch, was stored in
-  the last 10 minutes); it is then kept in `localStorage["amplify.gtmReported"]`
-  (key + stored time) so other tabs and later pages don't report it again.
-  Seen first on an untracked page, it is never sent. Switching learner
-  notifications on later changes nothing here. In GTM, trigger Ads/GA4
-  conversions on these custom event names.
+  clock). It is learner-only on the server too (other roles get 403). It polls
+  every 60 s and on window focus, **only while GTM actually runs** (`running`;
+  no requests otherwise, including on a tracked page of a document where GTM
+  never started). A milestone is reported only if the server stored it in the
+  last 10 minutes (checked on **every** fetch, so an old one never fires) and
+  it wasn't in this learner's earlier fetches in this document. Only after GTM
+  has it is it kept in `localStorage["amplify.gtmReported"]` (key + stored
+  time), so other tabs and later pages don't report it again; one that
+  couldn't be sent is not marked and a later page load where GTM runs can
+  still send it (if still recent). The query key and the store's seen set are
+  per user id, and signing out is a full page load to `/login`, so a second
+  learner on the same tab never gets the first one's (or their own old)
+  milestones reported as new. Only `active` certificates are listed.
+  Switching learner notifications on later changes nothing here. In GTM,
+  trigger Ads/GA4 conversions on these custom event names.
 - **Container:** Potential.org's Main container `GTM-54W3N48W` (shared by
   SMEEP, Hadafi and AI Amplify). Never load the old per-site containers (SMEEP
   `GTM-NGQNTZJ`, Hadafi `GTM-5C9G6FPK`, AI Amplify `GTM-PCDGSJLR`):
@@ -260,7 +272,8 @@ emails), then redeploy.
   script. In Tag Assistant, sign in as an admin from `/login`: the move to
   `/admin/...` must be a new page load with no GTM, and the `/login` session
   must show no History Change or page_view carrying an `/admin` URL (same for
-  a learner opening an offer's checkout).
+  a learner opening `/dashboard/offers` or any offer page: a new page load
+  with no GTM).
 
 ## Rehearsed (4 Nov 2026, local)
 

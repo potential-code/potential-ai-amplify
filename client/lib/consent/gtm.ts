@@ -59,8 +59,15 @@ export function browserNavigate(win: GtmWindow): Navigate {
  * anything unknown are never tracked.
  */
 const TRACKED_PATHS = [/^\/$/, /^\/login$/, /^\/sign-up$/, /^\/dashboard(\/.*)?$/]
-/** Inside the tracked paths: payment pages (Stripe card form, billing details). */
-const EXCLUDED_PATHS = [/^\/dashboard\/(.*\/)?(checkout|billing|payments?|invoices?)(\/|$)/]
+/**
+ * Inside the tracked paths: payment pages (Stripe card form, billing details)
+ * and the paid product (/dashboard/offers: the offers list, each offer's
+ * price and buy pages), which campaigns don't measure.
+ */
+const EXCLUDED_PATHS = [
+  /^\/dashboard\/(.*\/)?(checkout|billing|payments?|invoices?)(\/|$)/,
+  /^\/dashboard\/offers(\/|$)/,
+]
 /**
  * Query parameters allowed on a tracked page. Anything else (token, code,
  * org, key, secret, Stripe's payment_intent_client_secret, free-text `q`
