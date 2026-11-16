@@ -224,6 +224,24 @@ describe('admin audit log', () => {
     }
   })
 
+  it('records a key refused on publishing an offer, with the status it tried', async () => {
+    const created = await call('POST', '/api/admin/offers', {
+      cookie: admin.token,
+      body: { title: 'Audit publish offer', category: 'AI', priceLabel: '$10', price: 1000, pointsCost: 5, status: 'draft' },
+    })
+    const offerId = (created.body as { data: { id: string } }).data.id
+    try {
+      const path = `/api/admin/offers/${offerId}`
+      expect((await call('PATCH', path, { key: KEY, body: { status: 'published' } })).status).toBe(403)
+      const [row] = await rowsFor(serviceUserId, path)
+      expect(row!.statusCode).toBe(403)
+      expect(row!.actorKind).toBe('operator_key')
+      expect(row!.requestSummary).toEqual({ body: { status: 'published' } })
+    } finally {
+      await call('DELETE', `/api/admin/offers/${offerId}`, { cookie: admin.token })
+    }
+  })
+
   it('stores only the body keys for account routes (never a password or its confirmation)', async () => {
     const path = '/api/account/set-password'
     await call('POST', path, { cookie: admin.token, body: { password: 'brand-new-pass-1', confirm: 'brand-new-pass-1' } })

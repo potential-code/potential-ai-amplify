@@ -573,28 +573,61 @@ describe("AI Amplify: a key never changes a price or a payment record", () => {
     await db.delete(offers).where(eq(offers.id, idOf(created)));
   });
 
-  it("lets a key edit an offer's title and status, but refuses every price field; an admin session changes the price", async () => {
+  it("lets a key edit an offer's title, but refuses every price field and publishing; an admin session changes the price", async () => {
     enableKeys();
     const created = await asAdmin("POST", "/api/admin/offers", offerBody);
     const id = idOf(created);
     try {
-      expect((await asKey("PATCH", `/api/admin/offers/${id}`, { title: "Renamed by Maya", status: "published" })).status).toBe(200);
+      expect((await asKey("PATCH", `/api/admin/offers/${id}`, { title: "Renamed by Maya", category: "Marketing" })).status).toBe(200);
       const logged = await quietly(async () => {
-        for (const change of [{ price: 0 }, { priceLabel: "Free" }, { priceBefore: "$50" }, { pointsCost: 0 }, { title: "Sneaky", price: 1 }, { PRICE: 1 }]) {
+        for (const change of [
+          { price: 0 },
+          { priceLabel: "Free" },
+          { priceBefore: "$50" },
+          { pointsCost: 0 },
+          { title: "Sneaky", price: 1 },
+          { PRICE: 1 },
+          // Publishing puts a paid offer on sale (Stripe checkout opens).
+          { title: "Renamed again", status: "published" },
+          { status: "published" },
+          { Status: "published" },
+          { STATUS: "published" },
+        ]) {
           const res = await asKey("PATCH", `/api/admin/offers/${id}`, change);
           expect([change, res.status]).toEqual([change, 403]);
           expect((res.body as { error: { code: string } }).error.code).toBe("FORBIDDEN");
         }
       });
       expect(logged).toContain("PATCH /api/admin/offers/:param");
+      expect(logged).toContain("status (status)");
       expect(logged).not.toContain(id);
       const [unchanged] = await db.select().from(offers).where(eq(offers.id, id));
-      expect(unchanged!).toMatchObject({ title: "Renamed by Maya", status: "published", price: 2500, priceLabel: "$25", pointsCost: 100 });
+      expect(unchanged!).toMatchObject({ title: "Renamed by Maya", category: "Marketing", status: "draft", price: 2500, priceLabel: "$25", pointsCost: 100 });
 
-      const viaCookie = await asAdmin("PATCH", `/api/admin/offers/${id}`, { price: 0, priceLabel: "Free", pointsCost: 0 });
+      const viaCookie = await asAdmin("PATCH", `/api/admin/offers/${id}`, { price: 0, priceLabel: "Free", pointsCost: 0, status: "published" });
       expect(viaCookie.status).toBe(200);
       const [changed] = await db.select().from(offers).where(eq(offers.id, id));
-      expect(changed!).toMatchObject({ price: 0, priceLabel: "Free", pointsCost: 0 });
+      expect(changed!).toMatchObject({ price: 0, priceLabel: "Free", pointsCost: 0, status: "published" });
+    } finally {
+      await db.delete(offers).where(eq(offers.id, id));
+    }
+  });
+
+  it("refuses unpublishing an offer with a key (it takes it off sale); an admin session unpublishes it", async () => {
+    enableKeys();
+    const created = await asAdmin("POST", "/api/admin/offers", { ...offerBody, status: "published" });
+    const id = idOf(created);
+    try {
+      await quietly(async () => {
+        const res = await asKey("PATCH", `/api/admin/offers/${id}`, { status: "draft" });
+        expect(res.status).toBe(403);
+        expect((res.body as { error: { message: string } }).error.message).toMatch(/publish/);
+      });
+      const [still] = await db.select().from(offers).where(eq(offers.id, id));
+      expect(still!.status).toBe("published");
+      expect((await asAdmin("PATCH", `/api/admin/offers/${id}`, { status: "draft" })).status).toBe(200);
+      const [after] = await db.select().from(offers).where(eq(offers.id, id));
+      expect(after!.status).toBe("draft");
     } finally {
       await db.delete(offers).where(eq(offers.id, id));
     }
@@ -637,12 +670,11 @@ describe("AI Amplify: a key writes no invite code or organisation (Maya asks her
     try {
       const listed = await asKey("GET", "/api/admin/invites");
       expect(listed.status).toBe(200);
-      expect(JSON.stringify(listed.body)).toContain(code);
+      expect((listed.body as { data: Array<{ status: string }> }).data.some((i) => i.status === "active")).toBe(true);
     } finally {
       await db.delete(inviteCodes).where(eq(inviteCodes.code, code));
     }
   });
-
   it("refuses every organisation write; an admin session makes each one; the key can still read", async () => {
     enableKeys();
     await quietly(async () => {
@@ -676,6 +708,104 @@ describe("AI Amplify: a key writes no invite code or organisation (Maya asks her
       expect((await asAdmin("DELETE", `/api/admin/organisations/${orgId}`)).status).toBe(200);
     } finally {
       await db.delete(organisations).where(inArray(organisations.id, [orgId]));
+    }
+  });
+});
+
+describe("AI Amplify: a key never sees a live invite or sign-up code (the code is the login)", () => {
+  it("lists invites without codes or links for a key, with status, dates and counts; an admin session sees the codes", async () => {
+    enableKeys();
+    const created = await asAdmin("POST", "/api/admin/invites", {});
+    expect(created.status).toBe(201);
+    const { id, code } = (created.body as { data: { id: string; code: string } }).data;
+    try {
+      const viaKey = await asKey("GET", "/api/admin/invites");
+      expect(viaKey.status).toBe(200);
+      const keyRows = (viaKey.body as { data: Array<Record<string, unknown>> }).data;
+      const mine = keyRows.find((i) => i["id"] === id);
+      expect(mine).toMatchObject({ id, status: "active", usedBy: null, codeHidden: true });
+      expect(mine!["createdAt"]).toBeTruthy();
+      for (const row of keyRows) {
+        expect(row).not.toHaveProperty("code");
+        expect(row).not.toHaveProperty("inviteLink");
+      }
+      expect(JSON.stringify(viaKey.body)).not.toContain(code);
+      expect(JSON.stringify(viaKey.body)).not.toMatch(/sign-up\?code=|AMPLIFY-[A-Z0-9]{6}/);
+
+      const viaCookie = await asAdmin("GET", "/api/admin/invites");
+      const adminRows = (viaCookie.body as { data: Array<{ id: string; code: string; inviteLink: string }> }).data;
+      expect(adminRows.length).toBe(keyRows.length);
+      expect(adminRows.find((i) => i.id === id)).toMatchObject({ code, inviteLink: expect.stringContaining(`code=${code}`) });
+    } finally {
+      await db.delete(inviteCodes).where(eq(inviteCodes.id, id));
+    }
+  });
+
+  it("gives a key the needs-attention panel with unused invites counted but their codes left out; an admin session sees the codes", async () => {
+    enableKeys();
+    const created = await asAdmin("POST", "/api/admin/invites", {});
+    const code = (created.body as { data: { code: string } }).data.code;
+    try {
+      type Panel = { data: { unusedInviteCodes: Array<Record<string, unknown>> } };
+      const viaKey = await asKey("GET", "/api/admin/needs-attention");
+      expect(viaKey.status).toBe(200);
+      const keyUnused = (viaKey.body as Panel).data.unusedInviteCodes;
+      expect(keyUnused.length).toBeGreaterThan(0);
+      for (const row of keyUnused) {
+        expect(row).not.toHaveProperty("code");
+        expect(row).toMatchObject({ codeHidden: true });
+        expect(row["createdAt"]).toBeTruthy();
+      }
+      expect(JSON.stringify(viaKey.body)).not.toMatch(/AMPLIFY-[A-Z0-9]{6}/);
+
+      const viaCookie = await asAdmin("GET", "/api/admin/needs-attention");
+      const adminUnused = (viaCookie.body as Panel).data.unusedInviteCodes;
+      expect(adminUnused.length).toBe(keyUnused.length);
+      for (const row of adminUnused) expect(typeof row["code"]).toBe("string");
+    } finally {
+      await db.delete(inviteCodes).where(eq(inviteCodes.code, code));
+    }
+  });
+
+  it("gives a key organisations and a dashboard without join codes or sign-up links; an admin session sees them", async () => {
+    enableKeys();
+    const created = await asAdmin("POST", "/api/admin/organisations", { name: "Operator Join Code Org", type: "other" });
+    expect(created.status).toBe(201);
+    const orgId = idOf(created);
+    try {
+      const [org] = await db.select().from(organisations).where(eq(organisations.id, orgId));
+      const joinCode = org!.joinCode;
+
+      const list = await asKey("GET", "/api/admin/organisations");
+      expect(list.status).toBe(200);
+      const rows = (list.body as { data: Array<Record<string, unknown>> }).data;
+      expect(rows.find((o) => o["id"] === orgId)).toMatchObject({ name: "Operator Join Code Org", joinEnabled: true, learners: 0, joinCodeHidden: true });
+      for (const row of rows) {
+        expect(row).not.toHaveProperty("joinCode");
+        expect(row).not.toHaveProperty("joinLink");
+      }
+      expect(JSON.stringify(list.body)).not.toContain(joinCode);
+      expect(JSON.stringify(list.body)).not.toMatch(/sign-up\?org=/);
+
+      const board = await asKey("GET", `/api/admin/organisations/${orgId}/dashboard`);
+      expect(board.status).toBe(200);
+      const organisation = (board.body as { data: { organisation: Record<string, unknown>; kpis: unknown } }).data.organisation;
+      expect(organisation).toMatchObject({ id: orgId, name: "Operator Join Code Org", joinEnabled: true, joinCodeHidden: true });
+      expect(organisation).not.toHaveProperty("joinCode");
+      expect(organisation).not.toHaveProperty("joinLink");
+      expect((board.body as { data: { kpis: unknown } }).data.kpis).toBeDefined();
+      expect(JSON.stringify(board.body)).not.toContain(joinCode);
+
+      // An admin in the browser still gets the code and link to share.
+      const adminList = await asAdmin("GET", "/api/admin/organisations");
+      expect((adminList.body as { data: Array<Record<string, unknown>> }).data.find((o) => o["id"] === orgId)).toMatchObject({
+        joinCode,
+        joinLink: expect.stringContaining(`org=${joinCode}`),
+      });
+      const adminBoard = await asAdmin("GET", `/api/admin/organisations/${orgId}/dashboard`);
+      expect((adminBoard.body as { data: { organisation: Record<string, unknown> } }).data.organisation).toMatchObject({ joinCode });
+    } finally {
+      await db.delete(organisations).where(eq(organisations.id, orgId));
     }
   });
 });

@@ -18,20 +18,27 @@ import type { Request, Response, NextFunction } from "express";
 //     live event create/edit/delete (a new event or replay goes to every
 //     learner's bell; a new time or a cancellation to everyone booked), adding
 //     learners to an organisation (tells them in the bell);
-//   - change prices or payment records: creating an offer (a price is
-//     required), deleting one (its redemptions, the order and payment records,
-//     go with it), or any price field on an offer edit (see
-//     refuseOperatorPriceFields below; the route stays for title, category,
-//     image and status);
+//   - change prices, what is on sale, or payment records: creating an offer (a
+//     price is required), deleting one (its redemptions, the order and payment
+//     records, go with it), or any price field or the status on an offer edit
+//     (publishing a paid offer puts it on sale through Stripe; see
+//     refuseOperatorOfferChanges below; the route stays for title, category
+//     and image);
 //   - create or change invite codes or organisations (join codes, sign-up
 //     links, partner invites, membership): Maya asks her Lead for these.
-//     Reading them stays.
+//   - see a live invite code or organisation sign-up code: on AI Amplify the
+//     invite code is the login. The invite list, the needs-attention panel,
+//     the organisations list and an organisation's dashboard still answer
+//     (counts, status, organisation, dates), with every code and sign-up link
+//     left out for a key (inviteWithoutCode, needsAttentionWithoutCodes in
+//     controllers/admin.controller.ts; withoutJoinCode in
+//     controllers/organisations.controller.ts).
 // And, as on SMEEP, a key can never hand out a login (partner invites, mentor
 // application approve/reject), and has no bulk exports, AI report download,
 // AI generation, uploads, Zoom host links, or learner, mentor, partner or
 // account routes.
 export const OPERATOR_ROUTES = [
-  // Offers (read; edit without price fields)
+  // Offers (read; edit title, category and image: no price fields, no status)
   "GET /api/admin/offers",
   "GET /api/offers/:id",
   "PATCH /api/admin/offers/:id",
@@ -91,13 +98,13 @@ export const OPERATOR_ROUTES = [
   "POST /api/lms/learning/setup/regenerate",
   "POST /api/lms/learning/admin/regenerate-all", // wipes every learner's path (MCP: approval tool)
 
-  // Organisations (read only)
+  // Organisations (read only; join codes and sign-up links left out for a key)
   "GET /api/admin/organisations",
   "GET /api/admin/organisations/:id/dashboard",
   "GET /api/admin/organisations/:id/learners/:userId",
   "GET /api/admin/organisations/:id/partners", // without partner setup links for a key
 
-  // People: invite codes and applications (read only)
+  // People: invites and applications (read only; invite codes and links left out for a key)
   "GET /api/admin/needs-attention",
   "GET /api/admin/invites",
   "GET /api/admin/mentor-applications",
@@ -202,6 +209,9 @@ export function operatorRouteAllowed(method: string, pathname: string): boolean 
   return COMPILED.some((route) => route.method === m && route.pattern.test(pathname));
 }
 
+/** True when the request came with an operator key (Maya), not an admin session. */
+export const viaOperatorKey = (req: Pick<Request, "user">): boolean => req.user?.via === "operator_key";
+
 /**
  * The path with anything but plain word segments replaced by ":param", for
  * logs: ids, emails and names in a path never reach the log line.
@@ -220,26 +230,45 @@ export function routeShape(pathname: string): string {
  */
 const PRICE_FIELD = /price|pointscost/i;
 
+/**
+ * The offer's status ("published" | "draft"): publishing a paid offer puts it
+ * on sale (learners can buy it through Stripe), unpublishing takes it off. Any
+ * field name containing "status", whatever its case, as for prices.
+ */
+const STATUS_FIELD = /status/i;
+
+const fieldsIn = (body: unknown, pattern: RegExp): string[] =>
+  !body || typeof body !== "object" || Array.isArray(body) ? [] : Object.keys(body).filter((k) => pattern.test(k));
+
 /** The price fields present in a request body (empty for none, or a body that isn't an object). */
 export function priceFieldsIn(body: unknown): string[] {
-  if (!body || typeof body !== "object" || Array.isArray(body)) return [];
-  return Object.keys(body).filter((k) => PRICE_FIELD.test(k));
+  return fieldsIn(body, PRICE_FIELD);
+}
+
+/** The status fields present in a request body (empty for none, or a body that isn't an object). */
+export function statusFieldsIn(body: unknown): string[] {
+  return fieldsIn(body, STATUS_FIELD);
 }
 
 /**
- * Refuses an offer create or edit that touches a price when it comes with an
- * operator key (Maya never changes prices); admin sessions pass straight
- * through. Must come after authenticate() and before validate().
+ * Refuses an offer create or edit that touches a price or the offer's status
+ * (publish / unpublish) when it comes with an operator key: Maya never changes
+ * what a learner pays or whether an offer is on sale. 403, nothing changes,
+ * and the audit log records the refusal with the fields tried. Admin sessions
+ * pass straight through. Must come after authenticate() and before validate().
  */
-export function refuseOperatorPriceFields(req: Request, res: Response, next: NextFunction): void {
+export function refuseOperatorOfferChanges(req: Request, res: Response, next: NextFunction): void {
   if (req.user?.via === "operator_key") {
-    const fields = priceFieldsIn(req.body);
-    if (fields.length) {
-      console.warn(`[operator-scope] refused ${req.method} ${routeShape((req.originalUrl || req.url || "").split("?")[0]!)} for operator key "${req.user.keyLabel ?? ""}": price fields (${fields.join(", ")})`);
-      res.status(403).json({
-        success: false,
-        error: { message: "The operator key may not change prices. Ask an admin to change the price.", code: "FORBIDDEN" },
-      });
+    const prices = priceFieldsIn(req.body);
+    const statuses = statusFieldsIn(req.body);
+    if (prices.length || statuses.length) {
+      const fields = [...prices, ...statuses];
+      const what = [prices.length ? "price fields" : "", statuses.length ? "status" : ""].filter(Boolean).join(" and ");
+      console.warn(`[operator-scope] refused ${req.method} ${routeShape((req.originalUrl || req.url || "").split("?")[0]!)} for operator key "${req.user.keyLabel ?? ""}": ${what} (${fields.join(", ")})`);
+      const message = prices.length
+        ? "The operator key may not change prices. Ask an admin to change the price."
+        : "The operator key may not publish or unpublish an offer. Ask an admin to change its status.";
+      res.status(403).json({ success: false, error: { message, code: "FORBIDDEN" } });
       return;
     }
   }

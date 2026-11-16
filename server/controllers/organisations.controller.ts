@@ -3,6 +3,7 @@ import * as svc from "../services/organisations.service";
 import { participantRecord, recordTurn } from "../services/participantRecord.service";
 import { learnerNotificationsEnabled } from "../services/notifications.service";
 import { buildExport, ORGANISATION_DATASETS, type ExportDataset } from "../services/admin.exports.service";
+import { viaOperatorKey } from "../auth/operatorScope";
 
 /** Organisations: the admin area, the partner dashboard, the public sign-up link and the learner's own. */
 
@@ -43,7 +44,21 @@ async function sendExport(req: Request<{ dataset: string }>, res: Response, orga
 
 // ── Admin ────────────────────────────────────────────────────────────────────
 
-export const list = wrap(() => svc.listOrganisations());
+// An organisation's join code (and the sign-up link built from it) puts
+// whoever signs up with it into that organisation, where its partners see
+// them. An admin in the browser gets it to pass on; an operator key (Maya)
+// never does, as with invite codes and partner setup links. The rest of the
+// row (name, type, whether the link is on, counts) stays.
+// `joinCodeHidden: true` says the code was left out on purpose.
+function withoutJoinCode<T extends { joinCode: string; joinLink: string }>(org: T): Omit<T, "joinCode" | "joinLink"> & { joinCodeHidden: true } {
+  const { joinCode: _joinCode, joinLink: _joinLink, ...rest } = org;
+  return { ...rest, joinCodeHidden: true };
+}
+
+export const list = wrap(async (req) => {
+  const rows = await svc.listOrganisations();
+  return viaOperatorKey(req) ? rows.map(withoutJoinCode) : rows;
+});
 export const create = wrap(async (req, res) => {
   res.status(201);
   return svc.createOrganisation(req.user!.userId, req.body as { name: string; type: svc.OrganisationType });
@@ -54,11 +69,15 @@ export const archive = wrap<{ id: string }>(async (req) => {
   await svc.archiveOrganisation(req.params.id);
   return { ok: true };
 });
-export const dashboard = wrap<{ id: string }>(async (req) => ({
-  ...(await svc.organisationDashboard(req.params.id)),
-  // Admin only: adding existing learners needs learner messages to tell them.
-  canAddLearners: learnerNotificationsEnabled(),
-}));
+export const dashboard = wrap<{ id: string }>(async (req) => {
+  const board = await svc.organisationDashboard(req.params.id);
+  return {
+    ...board,
+    organisation: viaOperatorKey(req) ? withoutJoinCode(board.organisation) : board.organisation,
+    // Admin only: adding existing learners needs learner messages to tell them.
+    canAddLearners: learnerNotificationsEnabled(),
+  };
+});
 export const addLearners = wrap<{ id: string }>((req) => svc.addLearnersByEmail(req.params.id, (req.body as { emails: string[] }).emails));
 export const removeLearner = wrap<{ id: string; userId: string }>(async (req) => {
   await svc.removeLearner(req.params.id, req.params.userId);
@@ -69,7 +88,7 @@ export const removeLearner = wrap<{ id: string; userId: string }>(async (req) =>
 // gets it to pass on by hand; an operator key (Maya) never does, so a key
 // can't be turned into a partner login. The invite email still carries it.
 const withoutSetupLinkForKeys = (req: Request<{ id: string }>, contact: svc.PartnerContact): svc.PartnerContact => {
-  if (req.user?.via !== "operator_key") return contact;
+  if (!viaOperatorKey(req)) return contact;
   const { setupLink: _setupLink, ...rest } = contact;
   return rest;
 };

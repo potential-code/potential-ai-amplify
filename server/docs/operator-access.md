@@ -10,8 +10,12 @@ to `admin_audit_log`. Every change made by a human admin is written there too.
 AI Amplify is a **paid, invite-only client programme**, and learner messages
 stay off until the client signs off (`LEARNER_NOTIFICATIONS_ENABLED=false`).
 So a key here can do less than on SMEEP: it **sends nothing to learners**,
-**never changes a price or a payment record**, and **writes no invite code or
-organisation** (Maya asks her Lead for those). Reading all of them stays open.
+**never changes a price, what is on sale or a payment record** (no price
+fields and no publish/unpublish on an offer edit), **writes no invite code or
+organisation** (Maya asks her Lead for those), and **never sees a live invite
+code or organisation sign-up code** (on AI Amplify the invite code is the
+login). Reading invites, organisations and offers stays open, with those codes
+left out for a key.
 See [Deliberately excluded routes](#deliberately-excluded-routes).
 
 Ported from SMEEP (`potential-smeep`, `server/docs/operator-access.md`),
@@ -25,7 +29,8 @@ are still audited.
 | Piece | Where |
 | --- | --- |
 | Key check, service-account lookup | `server/auth/operatorKeys.ts`, called from `server/middleware/authenticate.ts` |
-| What a key may call (allowlist, exclusions, price-field check) | `server/auth/operatorScope.ts` |
+| What a key may call (allowlist, exclusions, offer price/status check) | `server/auth/operatorScope.ts` |
+| Codes left out for a key | `server/controllers/admin.controller.ts` (invites, needs-attention), `server/controllers/organisations.controller.ts` (organisations, dashboard, partner setup links) |
 | Service-account sign-in refusal | `server/auth/index.ts` (Better Auth `before` hook) |
 | Audit log middleware | `server/middleware/audit-log.ts` (mounted on `/api` in `server/app.ts`) |
 | Audit table | `admin_audit_log`, migration `0041_admin_audit_log` |
@@ -56,13 +61,15 @@ Rules the server enforces:
   shape>`, with ids replaced by `:param`. Admin sessions are not affected.
   Request targets with dot segments, backslashes, `//` or encoded `.` `/` `\`
   are refused for keys, so the allowlist and Express always agree on the route.
-- **No price changes.** An offer edit with a key (`PATCH
-  /api/admin/offers/:id`) may change the title, category, image and status,
-  but any price field in the body (`price`, `priceLabel`, `priceBefore`,
-  `pointsCost`, matched by name whatever its case) answers **403** before
-  validation, and nothing is changed. Admin sessions are not affected. The same
-  check sits on `POST /api/admin/offers` as a second line, though that route
-  is out of a key's scope anyway.
+- **No price changes, no publishing.** An offer edit with a key (`PATCH
+  /api/admin/offers/:id`) may change the title, category and image only. Any
+  price field in the body (`price`, `priceLabel`, `priceBefore`, `pointsCost`)
+  or a `status` field (publishing a paid offer puts it on sale through Stripe
+  checkout; unpublishing takes it off), each matched by name whatever its
+  case, answers **403** before validation, and nothing is changed. The refusal
+  is in the audit log as a 403 row with the body it sent. Admin sessions are
+  not affected. The same check sits on `POST /api/admin/offers` as a second
+  line, though that route is out of a key's scope anyway.
 - **A key can't hand out a login** (SMEEP decision by the CEO, Nov 2026): the
   partner invite and mentor application approve/reject are out of scope,
   because the key would choose who gets the login. A person does these in the
@@ -70,6 +77,17 @@ Rules the server enforces:
 - Partner setup links (live sign-up tokens) are left out of the partner list
   response for a key, so a key can't pick up someone else's pending invite. An
   admin in the browser still sees them.
+- **A key never sees a live invite or sign-up code.** On AI Amplify sign-up
+  requires an invite code, so an unused code is a login. For a key,
+  `GET /api/admin/invites` leaves out every invite's `code` and `inviteLink`
+  (each row says `codeHidden: true`; id, status, dates and who redeemed it
+  stay), `GET /api/admin/needs-attention` leaves the `code` out of each
+  `unusedInviteCodes` entry (the list and its dates stay, so the count does),
+  and `GET /api/admin/organisations` and
+  `GET /api/admin/organisations/:id/dashboard` leave out the organisation's
+  `joinCode` and `joinLink` (`joinCodeHidden: true`; name, type,
+  `joinEnabled` and the counts stay). An admin in the browser still sees them
+  all. The `ai.*` analytics views carry no codes.
 - Keys are never accepted on Better Auth routes (`/api/auth/*`) or account
   routes (`/api/account/*`), also when the request line is in absolute form
   (`POST http://host/api/account/…`). This means a key can't be used to set a
@@ -102,7 +120,7 @@ the same change, or the tool gets a 403.**
 | --- | --- | --- |
 | `GET` | `/api/admin/offers` | All offers with redemption counts |
 | `GET` | `/api/offers/:id` | One offer |
-| `PATCH` | `/api/admin/offers/:id` | Title, category, image, status only; any price field is a 403 |
+| `PATCH` | `/api/admin/offers/:id` | Title, category, image only; any price field or `status` (publish/unpublish) is a 403 |
 | `GET` | `/api/admin/announcements` | Past announcements (read only) |
 | `GET` | `/api/admin/announcements/audience` | Who an announcement would reach (read only) |
 | `POST` | `/api/admin/announcements/:id/archive` | Takes a banner down; sends nothing |
@@ -150,12 +168,12 @@ the same change, or the tool gets a 403.**
 | `POST` | `/api/lms/both/admin/learners/:userId/reset` | |
 | `POST` | `/api/lms/learning/setup/regenerate` | |
 | `POST` | `/api/lms/learning/admin/regenerate-all` | Wipes every learner's path: the adapter should make this an approval tool |
-| `GET` | `/api/admin/organisations` | Read only |
-| `GET` | `/api/admin/organisations/:id/dashboard` | Read only |
+| `GET` | `/api/admin/organisations` | Read only, without join codes or sign-up links |
+| `GET` | `/api/admin/organisations/:id/dashboard` | Read only, without the join code or sign-up link |
 | `GET` | `/api/admin/organisations/:id/learners/:userId` | Read only |
 | `GET` | `/api/admin/organisations/:id/partners` | Read only, without partner setup links |
-| `GET` | `/api/admin/needs-attention` | Dashboard counts |
-| `GET` | `/api/admin/invites` | Invite codes (read only) |
+| `GET` | `/api/admin/needs-attention` | Dashboard counts; unused invites without their codes |
+| `GET` | `/api/admin/invites` | Invites (read only), without codes or invite links |
 | `GET` | `/api/admin/mentor-applications` | Read only |
 | `GET` | `/api/admin/stakeholder-applications` | Read only |
 | `GET` | `/api/media` | Media library |
@@ -206,8 +224,9 @@ the scope does not open when `LEARNER_NOTIFICATIONS_ENABLED` is switched on):
 | `DELETE` | `/api/live-events/:id` | A cancellation notifies everyone booked |
 | `POST` | `/api/admin/organisations/:id/learners` | Adding learners tells each of them in the bell |
 
-**Prices and payment records** (Maya never changes prices; see also the
-price-field check on `PATCH /api/admin/offers/:id` above):
+**Prices and payment records** (Maya never changes prices or puts an offer on
+or off sale; see also the price and status check on
+`PATCH /api/admin/offers/:id` above):
 
 | Method | Path | Why |
 | --- | --- | --- |
@@ -264,8 +283,8 @@ request:
 
 - Every `POST`/`PUT`/`PATCH`/`DELETE` to any `/api` route by an admin session
   or an operator key, including failed and refused ones (the status code is
-  kept, so a key's refused attempt on an excluded route or a price field shows
-  up as a 403 row with what it sent). If the caller hangs up before the
+  kept, so a key's refused attempt on an excluded route, a price field or an
+  offer's status shows up as a 403 row with what it sent). If the caller hangs up before the
   response, the row has status `499`; it is written as soon as the caller is
   identified, even if they hung up while that was still happening (the change
   may still go through). This holds for every request on the connection,
@@ -357,6 +376,10 @@ curl -s -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $AMPLIFY_OPER
 curl -s -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer wrong" https://<site>/api/admin/invites                          # 401
 curl -s -o /dev/null -w '%{http_code}\n' -X POST -H "Authorization: Bearer $AMPLIFY_OPERATOR_KEY" https://<site>/api/admin/invites  # 403
 ```
+
+To confirm the codes are hidden, `curl -s -H "Authorization: Bearer
+$AMPLIFY_OPERATOR_KEY" https://<site>/api/admin/invites | grep -c AMPLIFY-`
+should print `0` (the same list in the admin UI shows the codes).
 
 The first call returning 200 also proves that the site's `/api` proxy passes
 the `Authorization` header through. The third proves the scope is live (the

@@ -4,6 +4,7 @@ import {
   OPERATOR_EXCLUDED_ROUTES,
   operatorRouteAllowed,
   priceFieldsIn,
+  statusFieldsIn,
   routeShape,
 } from "../auth/operatorScope";
 
@@ -188,6 +189,20 @@ describe("price fields on offer edits", () => {
     expect(priceFieldsIn(null)).toEqual([]);
     expect(priceFieldsIn("price")).toEqual([]);
     expect(priceFieldsIn([{ price: 1 }])).toEqual([]);
+  });
+});
+
+describe("status on offer edits (publish / unpublish)", () => {
+  it("finds status, whatever its case", () => {
+    expect(statusFieldsIn({ title: "x", status: "published" })).toEqual(["status"]);
+    expect(statusFieldsIn({ Status: "draft", STATUS: "published" })).toEqual(["Status", "STATUS"]);
+  });
+
+  it("finds none in other fields or bodies that aren't objects", () => {
+    expect(statusFieldsIn({ title: "x", category: "AI", imageUrl: "/a.png", price: 1 })).toEqual([]);
+    expect(statusFieldsIn(null)).toEqual([]);
+    expect(statusFieldsIn("status")).toEqual([]);
+    expect(statusFieldsIn([{ status: "published" }])).toEqual([]);
   });
 });
 

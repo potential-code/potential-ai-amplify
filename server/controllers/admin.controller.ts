@@ -1,6 +1,24 @@
 import type { Request, Response, NextFunction } from "express";
 import * as adminService from "../services/admin.service";
 import * as needsAttentionService from "../services/admin.needsAttention.service";
+import { viaOperatorKey } from "../auth/operatorScope";
+
+// On AI Amplify an invite code is the login: whoever holds an unused one can
+// sign up. An admin in the browser sees the codes to hand out; an operator key
+// (Maya) never does, so a key can't decide who gets a login. She still sees
+// each invite's status, dates and who redeemed it, and the counts.
+// `codeHidden: true` says the code was left out on purpose.
+function inviteWithoutCode(invite: adminService.InviteWithUser) {
+  const { code: _code, inviteLink: _inviteLink, ...rest } = invite;
+  return { ...rest, codeHidden: true as const };
+}
+
+function needsAttentionWithoutCodes(panel: needsAttentionService.NeedsAttention) {
+  return {
+    ...panel,
+    unusedInviteCodes: panel.unusedInviteCodes.map(({ code: _code, ...rest }) => ({ ...rest, codeHidden: true as const })),
+  };
+}
 
 /**
  * POST /api/admin/invites
@@ -30,13 +48,13 @@ export async function createInvite(
  * redeemed each code (null when unredeemed).
  */
 export async function listInvites(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
     const invites = await adminService.listInvites();
-    res.status(200).json({ success: true, data: invites });
+    res.status(200).json({ success: true, data: viaOperatorKey(req) ? invites.map(inviteWithoutCode) : invites });
   } catch (err) {
     next(err);
   }
@@ -133,12 +151,13 @@ export async function listStakeholderApplications(
  * Returns { data: NeedsAttention }.
  */
 export async function getNeedsAttention(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    res.json({ data: await needsAttentionService.getNeedsAttention() });
+    const panel = await needsAttentionService.getNeedsAttention();
+    res.json({ data: viaOperatorKey(req) ? needsAttentionWithoutCodes(panel) : panel });
   } catch (err) {
     next(err);
   }

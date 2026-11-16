@@ -5,7 +5,7 @@ import { patchOf } from '../utils/zodPatch'
 import { authenticate } from "../middleware/authenticate";
 import { requireRole } from "../middleware/require-role";
 import { validate } from "../middleware/validate";
-import { refuseOperatorPriceFields } from "../auth/operatorScope";
+import { refuseOperatorOfferChanges } from "../auth/operatorScope";
 import * as adminController from "../controllers/admin.controller";
 import * as offersCtrl from "../controllers/offers.controller";
 import * as analyticsController from "../controllers/admin.analytics.controller";
@@ -130,16 +130,17 @@ router.get("/offers", offersCtrl.adminListOffers);
  * Creates a new offer. Slug is auto-generated from the title.
  */
 // With an operator key (Maya) creating an offer is out of scope (it sets a
-// price); the price check here is a second line should that ever change.
-router.post("/offers", refuseOperatorPriceFields, validate(createOfferDto), offersCtrl.adminCreateOffer);
+// price); the price and status check here is a second line should that ever change.
+router.post("/offers", refuseOperatorOfferChanges, validate(createOfferDto), offersCtrl.adminCreateOffer);
 
 /**
  * PATCH /api/admin/offers/:id
  * Partially updates an existing offer.
  */
 // An operator key may edit an offer but never its price fields (price,
-// priceLabel, priceBefore, pointsCost): 403. Admin sessions are unaffected.
-router.patch("/offers/:id", refuseOperatorPriceFields, validate(updateOfferDto), offersCtrl.adminUpdateOffer);
+// priceLabel, priceBefore, pointsCost) or its status (publishing a paid offer
+// puts it on sale): 403. Admin sessions are unaffected.
+router.patch("/offers/:id", refuseOperatorOfferChanges, validate(updateOfferDto), offersCtrl.adminUpdateOffer);
 
 /**
  * DELETE /api/admin/offers/:id
