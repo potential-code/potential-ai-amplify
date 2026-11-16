@@ -28,6 +28,8 @@ import { RegistrationConfirmCard } from "./RegistrationConfirmCard";
 import { OtpEntryCard } from "./OtpEntryCard";
 import { SIGN_UP_PROMPT as ASSISTANT_INSTRUCTIONS } from "../../../shared/anna/prompts";
 import { consentBody } from "@/lib/signUpConsent";
+import { createAccount } from "@/lib/createAccount";
+import { consentStore, goTo } from "@/lib/consent/store";
 
 // ---------------------------------------------------------------------------
 // Landing-specific assistant message wrapper
@@ -182,6 +184,7 @@ function LandingRegistrationChatInner({ autoStart }: { autoStart: boolean }) {
   );
 
   const handleRegisterClick = () => {
+    consentStore.trackSignUpStart("anna_chat"); // GTM sign_up_start, once per page (also the auto-start below)
     setShowSuggestion(false);
     // Small delay lets React flush the state before CopilotKit processes the send.
     setTimeout(() => copilotSendRef.current?.("I want to register"), 50);
@@ -421,10 +424,7 @@ function LandingRegistrationChatInner({ autoStart }: { autoStart: boolean }) {
       }
       try {
         // Creates the account and signs in (session cookie).
-        await apiFetch("/api/auth/amplify/sign-up", {
-          method: "POST",
-          body: JSON.stringify({ fullName, email, country, couponCode, verifiedToken, ...consent }),
-        });
+        await createAccount({ fullName, email, country, couponCode, verifiedToken, ...consent }, "anna_chat");
         await refreshUser();
         router.push("/dashboard");
         return { success: true };
@@ -467,7 +467,7 @@ function LandingRegistrationChatInner({ autoStart }: { autoStart: boolean }) {
           if (result.verified) {
             const user = await refreshUser();
             respond?.("Signed in");
-            router.push(user ? homeFor(user.role) : "/dashboard");
+            goTo(router, user ? homeFor(user.role) : "/dashboard");
             return;
           }
           respond?.("Sign-in cancelled");

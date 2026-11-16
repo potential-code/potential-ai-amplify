@@ -7,6 +7,7 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { Button, Card, EmptyState, PageHeader, btn, inputClass } from '@/components/kit'
 import { FAQS } from '@/lib/dashboardData'
 import { LEGAL_LINKS } from '@/lib/constants/navigation'
+import { CookieSettingsLink } from '@/components/consent/CookieSettingsLink'
 import { cn } from '@/lib/utils'
 
 const SUPPORT_EMAIL = 'info@potential.com'
@@ -147,6 +148,7 @@ export default function SupportPage() {
                 <ArrowUpRight className="h-4 w-4" aria-hidden />
               </a>
             ))}
+            <CookieSettingsLink className="py-1 text-sm text-ui-brand-text hover:text-ui-brand-text hover:underline" />
           </Card>
         </div>
       </div>

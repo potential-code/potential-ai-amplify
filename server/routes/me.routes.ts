@@ -7,6 +7,7 @@ import {
   getMyAchievements,
   getMyAnnouncements,
   getMyLeaderboard,
+  getMyMilestones,
   getMyNotifications,
   getMyStreak,
   readAllMyNotifications,
@@ -27,6 +28,7 @@ router.get("/announcements", authenticate, getMyAnnouncements);
 router.post("/notifications/read-all", authenticate, readAllMyNotifications);
 router.post("/notifications/:id/read", authenticate, readMyNotification);
 router.get("/achievements", authenticate, getMyAchievements);
+router.get("/milestones", authenticate, getMyMilestones);
 router.get("/leaderboard", authenticate, getMyLeaderboard);
 router.put("/leaderboard-visibility", authenticate, validate(z.object({ show: z.boolean() }).strict()), setMyLeaderboardVisibility);
 router.get("/organisation", authenticate, organisations.mine);

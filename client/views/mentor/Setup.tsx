@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { goTo } from '@/lib/consent/store'
 import { AlertCircle, CalendarDays, Check, CheckCircle2, Clock, Loader2, Lock, Mail, Users } from 'lucide-react'
 import { Avatar, btn } from '@/components/kit'
 import { AuthField, AuthAlert, PasswordToggle } from '@/components/auth/AuthField'
@@ -56,7 +57,7 @@ function SetupForm() {
         body: JSON.stringify({ token, password }),
       })
       await refreshUser()
-      router.push('/mentor/dashboard')
+      goTo(router, '/mentor/dashboard')
     } catch (err: unknown) {
       const body = err as { code?: string }
       if (body?.code === 'TOKEN_EXPIRED' || body?.code === 'TOKEN_NOT_FOUND') {

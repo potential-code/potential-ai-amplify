@@ -4,6 +4,7 @@ import { btn } from '@/components/kit'
 import { FOOTER } from '@/lib/constants/content'
 import { FOOTER_LINKS, LEGAL_LINKS } from '@/lib/constants/navigation'
 import { cn } from '@/lib/utils'
+import { CookieSettingsLink } from '@/components/consent/CookieSettingsLink'
 
 const SHARE_URL = 'https://aiamplify.potential.org'
 const SHARE_TEXT = 'Grow your business with AI training, mentors, and tools: AI Amplify by Potential'
@@ -124,6 +125,7 @@ export function LandingFooter() {
             <a href={LEGAL_LINKS.terms} target="_blank" rel="noopener noreferrer" className="text-[13px] text-ui-muted hover:text-ui-text">
               Terms of Use
             </a>
+            <CookieSettingsLink className="text-[13px] text-ui-muted" />
           </span>
         </div>
       </div>

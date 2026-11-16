@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { getStreak } from "../services/streak.service";
-import { getLeaderboard, listBadges, pointsEarned, setLeaderboardVisibility, type LeaderboardPeriod } from "../services/achievements.service";
+import { getLeaderboard, listBadges, listMilestones, pointsEarned, setLeaderboardVisibility, type LeaderboardPeriod } from "../services/achievements.service";
 import { learnerNotificationsEnabled, listNotifications, markAllRead, markRead } from "../services/notifications.service";
 import { activeBanners } from "../services/announcements.service";
 
@@ -58,6 +58,19 @@ export async function getMyAchievements(req: Request, res: Response, next: NextF
     const userId = req.user!.userId;
     const [points, badges] = await Promise.all([pointsEarned(userId), listBadges(userId)]);
     res.json({ data: { ...points, badges } });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/me/milestones — the first_step badge and certificates, keys and
+ * times only. The browser turns a newly earned one into a GTM event (only
+ * while the visitor's page runs GTM); see client/components/consent.
+ */
+export async function getMyMilestones(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    res.json({ data: { items: await listMilestones(req.user!.userId) } });
   } catch (err) {
     next(err);
   }

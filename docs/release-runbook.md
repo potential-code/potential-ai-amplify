@@ -19,6 +19,7 @@ Set these on the compose app first. Name only; never paste values into chat or t
 | `ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`, `ZOOM_HOST_USER_ID` | optional | Zoom meetings for live events. Without them the admin screen says Zoom isn't connected and offers "Other link" or "In person". |
 | `ZOOM_WEBHOOK_SECRET_TOKEN` | optional, with Zoom | Verifies Zoom's calls to `/api/webhooks/zoom`. |
 | `TRUSTED_PROXIES` | only if the proxy isn't on a private range | Finding the visitor IP for rate limits. |
+| `GTM_CONTAINER_ID` | leave unset (= off) until the AI Amplify client agrees to tracking; then `GTM-54W3N48W` (Main) | Google Tag Manager + cookie banner on the **client** service, read at run time (restart, no rebuild). See "Google Tag Manager and the cookie banner". |
 
 Unchanged and still needed: `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, `FROM_EMAIL`,
 SMTP/SES, Stripe, `COPILOT_SERVICE_JWT_SECRET`, `NEXT_PUBLIC_AI_BACKEND_URL`.
@@ -146,6 +147,120 @@ emails), then redeploy.
   prints pending / sent / failed counts (read-only). Each run that sends
   something logs "CRM sync run" with the same counts.
 - **Rollback:** the old build ignores the new columns and table; leave them.
+
+## Google Tag Manager and the cookie banner
+
+- **Off until configured.** `GTM_CONTAINER_ID` on the **client** service
+  (compose passes it through; default empty). Empty, unset or not a
+  `GTM-XXXX` id (`^GTM-[A-Z0-9]{4,10}$`) means no GTM script, no banner and no
+  "Cookie settings" link: the site is exactly as before. That is the kill switch.
+- **Run time, not build time.** The browser reads it from `GET /public-config`
+  (a Next route, `no-store`), so changing it in Dokploy needs a redeploy/restart
+  of the client container, not a code change. Potential.org's "Main" container
+  is `GTM-54W3N48W`; locally use a dummy such as `GTM-TEST1234`.
+- **Consent Mode v2, default denied.** Before the GTM script is added the page
+  sets `ad_storage`, `analytics_storage`, `ad_user_data` and
+  `ad_personalization` to denied (`wait_for_update: 500`) and
+  `ads_data_redaction`. A returning visitor's Accept is re-applied before GTM
+  loads. Accept grants all four; Reject keeps them denied.
+- **Cookieless pings ("advanced" Consent Mode).** With GTM loaded and consent
+  denied (before a choice, and after Reject), Google tags can still send
+  cookieless pings. For **zero** requests before Accept, set **"Require
+  additional consent for tag to fire"** (ad_storage / analytics_storage) on
+  every Google tag in the container; the site needs no change for that.
+- **Reject removes this site's cookies only:** `_ga*`, `_gid`, `_gat*`,
+  `_gcl_*`, host-only or set for `aiamplify.potential.org` exactly. Cookies set
+  on the parent `.potential.org` are left alone on purpose: other Potential.org
+  sites share them and keep their own consent. So Reject can delete them, set
+  `cookie_domain` to `aiamplify.potential.org` (not `auto`) in the Google tag /
+  GA4 configuration that fires on this host, and the same for the Conversion
+  Linker.
+- **Pages GTM runs on: an allowlist** (`isTrackedUrl` in
+  `client/lib/consent/gtm.ts`). Only `/`, `/login`, `/sign-up` and
+  `/dashboard/**` (the learner area), minus payment pages
+  (`/dashboard/**/checkout`, `billing`, `payment(s)`, `invoice(s)`: the offers'
+  Stripe checkout), and only when every query parameter is known to be
+  harmless (`utm_*`, `gclid`, `gbraid`, `wbraid`, `expired`, `with`, `course`,
+  `mentor`, `m`, `frame`, `success`, `v`; not `q`, which is free text). Google
+  tags send the full address, so nothing that can carry a secret is tracked:
+  `/mentor/setup`, `/partner/setup` and `/unsubscribe` (token links),
+  **`/sign-up?code=` and `?org=` (AI Amplify is invite-only: anyone arriving
+  through an invite or organisation link is not tracked on that visit; plain
+  `/sign-up` is)**, `?token=`/`?key=`/`?secret=`, fragments with values, staff
+  areas (`/admin`, `/mentor/dashboard`, `/partner`) and any page not on the
+  list. **When you add a page, it is untracked until you add it there; never
+  add a page whose URL can carry a token, code or key.**
+- **GTM starts only in a clean document.** If the current document has shown
+  an untracked URL at any point (e.g. `/sign-up?code=…` then a client-side
+  move to `/login`), or the Navigation API lists one among this document's
+  history entries, GTM does not start for the life of that document (no
+  redirect, no reload). The next full page load on a tracked URL starts fresh.
+  So an invite-link sign-up sends no `sign_up` event.
+- **Referrer-Policy: `strict-origin`** on every page (next.config.ts), so a
+  token or invite URL never shows up in `document.referrer` on a later page
+  or in another site's logs. The API keeps helmet's `no-referrer`.
+- **Leaving tracked pages.** GTM is loaded with a history guard: a client-side
+  push to an untracked URL becomes `location.assign`, a replace becomes
+  `location.replace` (no Back trap), and Back/Forward or a fragment change
+  onto an untracked URL reloads before GTM's listeners run. Redirects after
+  sign-in, mentor/partner setup and RequireAuth's role redirect use `goTo()`
+  (full load into staff areas while GTM runs; client-side while GTM is off).
+- **Banner and link.** No "free" anywhere (AI Amplify is paid). Choice in
+  `localStorage["amplify.cookieConsent"]` = `{ choice, version, date }`; asked
+  again after 12 months, or when `CONSENT_VERSION` in
+  `client/lib/consent/consentStorage.ts` goes up (bump it when the wording or
+  what is measured changes). "Cookie settings" (home footer, sign-in/sign-up
+  footer, learner sidebar, learner Support page) reopens it; focus returns to
+  the link after the choice. Neither shows on untracked pages. The banner sits
+  above the learner phone tab bar and below menus and dialogs; it uses
+  logical (start/end) placement, so it follows RTL.
+- **Events.** Pushed only while GTM runs on a tracked page. Only these exact
+  objects, never a name, email, phone, country, course name or id:
+  | Event | When | Where |
+  |---|---|---|
+  | `{ event: 'sign_up_start', method: 'web_form' }` | first focus/typing in the sign-up form, once per page | `client/views/SignUp.tsx` (`startWebForm`) |
+  | `{ event: 'sign_up_start', method: 'anna_chat' }` | Anna's "I want to register" (button or `/sign-up?with=sana`), once per page | `LandingRegistrationChat.tsx` (`handleRegisterClick`) |
+  | `{ event: 'sign_up', method: 'web_form' \| 'anna_chat' }` | account created | `client/lib/createAccount.ts` |
+  | `{ event: 'first_lesson_completed' }` | the learner's `first_step` badge is newly stored (first completed learning step) | `MilestoneWatcher` -> `consentStore.noteMilestones` |
+  | `{ event: 'course_certificate' }` | a certificate is newly issued | same |
+
+  **Why not the bell (as on SMEEP):** `LEARNER_NOTIFICATIONS_ENABLED=false`
+  suppresses learners' in-app notifications too (`notify()` drops learners,
+  no bell), so they can't be the signal. Instead the learner shell polls
+  `GET /api/me/milestones` (signed-in, own data: `badge:first_step` from
+  `user_badges` and `certificate:<id>` from `course_certificates`, both written
+  exactly once, each with `earnedAt` and `ageSeconds` from the database's own
+  clock). It polls every 60 s and on window focus, **only while GTM runs on a
+  tracked page** (no requests otherwise). A milestone counts as new if it
+  wasn't in this page's earlier fetches (or, on the first fetch, was stored in
+  the last 10 minutes); it is then kept in `localStorage["amplify.gtmReported"]`
+  (key + stored time) so other tabs and later pages don't report it again.
+  Seen first on an untracked page, it is never sent. Switching learner
+  notifications on later changes nothing here. In GTM, trigger Ads/GA4
+  conversions on these custom event names.
+- **Container:** Potential.org's Main container `GTM-54W3N48W` (shared by
+  SMEEP, Hadafi and AI Amplify). Never load the old per-site containers (SMEEP
+  `GTM-NGQNTZJ`, Hadafi `GTM-5C9G6FPK`, AI Amplify `GTM-PCDGSJLR`):
+  `validGtmId` refuses them (treated as unset). The GA4 property is chosen
+  inside GTM by hostname, and `cookie_domain` is set per host (here
+  `aiamplify.potential.org`).
+- **CSP:** the site's only Content-Security-Policy is `frame-ancestors 'self'`,
+  so nothing was changed. If a script/connect CSP is added later, allow
+  `www.googletagmanager.com`, `*.google-analytics.com`,
+  `*.analytics.google.com`, `googleads.g.doubleclick.net`, `www.google.com`
+  and `*.googlesyndication.com`.
+- **Deploy:** site and API together (the API adds `/api/me/milestones`; no
+  migration). Leave `GTM_CONTAINER_ID` unset: tracking stays OFF until the
+  AI Amplify client agrees to it (Mamoon, 16 Nov). Then set
+  `GTM_CONTAINER_ID=GTM-54W3N48W` and restart the client service.
+- **Check after setting it:** in a private window: banner shows; DevTools
+  `dataLayer[0]` is the consent default; Reject leaves no `_ga`/`_gcl` cookies
+  for this host; Accept adds a `consent update` with all four granted;
+  `/unsubscribe?token=x` and `/sign-up?code=X` have no `googletagmanager`
+  script. In Tag Assistant, sign in as an admin from `/login`: the move to
+  `/admin/...` must be a new page load with no GTM, and the `/login` session
+  must show no History Change or page_view carrying an `/admin` URL (same for
+  a learner opening an offer's checkout).
 
 ## Rehearsed (4 Nov 2026, local)
 

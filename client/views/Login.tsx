@@ -10,6 +10,7 @@ import { AuthSplit, AuthHeading, AsideChecklist, AsideSana, AsideStats, asideMut
 import { CodeForm, codeErrorMessage } from "@/components/auth/CodeForm";
 import { authClient } from "@/lib/authClient";
 import { clearAuth, getUser, homeFor, refreshUser } from "@/lib/auth";
+import { goTo } from "@/lib/consent/store";
 import { cn } from "@/lib/utils";
 
 // Sign in leads with an email code: enter your email, type the 6-digit code
@@ -74,7 +75,7 @@ export default function LoginPage() {
 
   async function finish() {
     const user = await refreshUser();
-    if (user) router.push(homeFor(user.role));
+    if (user) goTo(router, homeFor(user.role));
     else setError("Signed in, but the session didn't stick. Please try again.");
   }
 

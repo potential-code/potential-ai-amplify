@@ -6,6 +6,7 @@
  */
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { goTo } from '@/lib/consent/store'
 import { AlertCircle, Award, BarChart3, Building2, Loader2, Lock, Mail, Users } from 'lucide-react'
 import { Avatar, btn } from '@/components/kit'
 import { AuthField, AuthAlert, PasswordToggle } from '@/components/auth/AuthField'
@@ -53,7 +54,7 @@ function SetupForm() {
     try {
       await apiFetch('/api/auth/amplify/partner-setup', { method: 'POST', body: JSON.stringify({ token, password }) })
       await refreshUser()
-      router.push('/partner')
+      goTo(router, '/partner')
     } catch (err: unknown) {
       const body = err as { code?: string; status?: number }
       if (body?.code === 'INVITE_INVALID') setInvalid(true)

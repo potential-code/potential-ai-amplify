@@ -1,6 +1,6 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db";
-import { userBadges, users } from "../db/schema";
+import { courseCertificates, userBadges, users } from "../db/schema";
 import { getStreak } from "./streak.service";
 import { notify } from "./notifications.service";
 import { enqueueFirstActivation } from "./crmSync.service";
@@ -118,6 +118,47 @@ export async function checkBadges(userId: string): Promise<void> {
   } catch (err) {
     console.error("[achievements] could not check badges", err);
   }
+}
+
+export interface Milestone {
+  /** `badge:first_step` or `certificate:<certificate id>`. */
+  key: string;
+  earnedAt: string;
+  /**
+   * Seconds since it was stored, by the database's own clock: both times come
+   * from the same database, so neither its time zone nor the browser's clock
+   * can make a new milestone look old.
+   */
+  ageSeconds: number;
+}
+
+/**
+ * The learner's milestones for campaign measurement (the browser's GTM
+ * events first_lesson_completed and course_certificate): the first_step badge
+ * and each certificate, from rows written exactly once when earned. Keys and
+ * times only: no course, certificate number or anything about the person.
+ * (The bell can't be the signal: learner notifications are off.)
+ */
+export async function listMilestones(userId: string): Promise<Milestone[]> {
+  // Both columns are filled by the database (default now()), so localtimestamp
+  // minus the stored time is the true age whatever the session time zone.
+  const age = (col: typeof userBadges.earnedAt | typeof courseCertificates.issuedAt) =>
+    sql<number>`extract(epoch from (localtimestamp - ${col}))::float8`;
+  const [badges, certs] = await Promise.all([
+    db
+      .select({ earnedAt: userBadges.earnedAt, ageSeconds: age(userBadges.earnedAt) })
+      .from(userBadges)
+      .where(and(eq(userBadges.userId, userId), eq(userBadges.badge, "first_step"))),
+    db
+      .select({ id: courseCertificates.id, issuedAt: courseCertificates.issuedAt, ageSeconds: age(courseCertificates.issuedAt) })
+      .from(courseCertificates)
+      .where(eq(courseCertificates.userId, userId)),
+  ]);
+  const seconds = (v: unknown) => Math.round(Number(v));
+  return [
+    ...badges.map((b) => ({ key: "badge:first_step", earnedAt: b.earnedAt.toISOString(), ageSeconds: seconds(b.ageSeconds) })),
+    ...certs.map((c) => ({ key: `certificate:${c.id}`, earnedAt: c.issuedAt.toISOString(), ageSeconds: seconds(c.ageSeconds) })),
+  ];
 }
 
 /** Runs checkBadges without making the caller wait for it. */

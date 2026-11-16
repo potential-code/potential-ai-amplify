@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { checkSession, clearAuth, getUser, homeFor, type User } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
+import { goTo } from '@/lib/consent/store'
 
 type Role = User['role']
 
@@ -81,7 +82,8 @@ export function RequireAuth({ children, role }: Props) {
 
   const roleMismatch = !!user && !!role && user.role !== role
   useEffect(() => {
-    if (roleMismatch && user) router.replace(homeFor(user.role))
+    // Into a staff area while GTM runs: a full load (location.replace), so GTM is gone there.
+    if (roleMismatch && user) goTo(router, homeFor(user.role), { replace: true })
     else if (!user && confirmed) router.replace('/login')
   }, [roleMismatch, user, confirmed, router, pathname])
 

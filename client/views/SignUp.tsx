@@ -24,6 +24,8 @@ import { AuthSplit, AuthHeading, asideMuted } from '@/components/auth/AuthSplit'
 import { homeFor, refreshUser } from '@/lib/auth'
 import { CodeForm, codeErrorMessage } from '@/components/auth/CodeForm'
 import { apiFetch } from '@/lib/api'
+import { createAccount } from '@/lib/createAccount'
+import { consentStore, goTo } from '@/lib/consent/store'
 import { LEGAL_LINKS } from '@/lib/constants/navigation'
 import { MARKETING_CONSENT_TEXT, consentBody } from '@/lib/signUpConsent'
 import { cn } from '@/lib/utils'
@@ -145,6 +147,9 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.email, emailAvailable])
 
+  /** First touch of the form (focus or typing/autofill): GTM sign_up_start, once per page. */
+  const startWebForm = () => consentStore.trackSignUpStart('web_form')
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setTouched({ country: true })
@@ -192,9 +197,8 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
       return codeErrorMessage(err as ApiErr)
     }
     try {
-      await apiFetch('/api/auth/amplify/sign-up', {
-        method: 'POST',
-        body: JSON.stringify({
+      await createAccount(
+        {
           fullName: form.fullName,
           email: form.email,
           password: form.password,
@@ -203,8 +207,9 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
           ...(org ? { orgCode: org.code } : {}),
           ...consentBody({ termsAccepted: form.agreed, marketingOptIn: form.marketingOptIn }),
           verifiedToken,
-        }),
-      })
+        },
+        'web_form',
+      )
     } catch (err: unknown) {
       const e = err as ApiErr
       setStep('details')
@@ -219,7 +224,7 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
       return null
     }
     const user = await refreshUser()
-    router.push(user ? homeFor(user.role) : '/dashboard')
+    goTo(router, user ? homeFor(user.role) : '/dashboard')
     return null
   }
 
@@ -252,7 +257,7 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3.5" noValidate>
+    <form onSubmit={handleSubmit} onFocusCapture={startWebForm} onInputCapture={startWebForm} className="flex flex-col gap-3.5" noValidate>
       <AuthField
         id="su-name"
         label="Full name"

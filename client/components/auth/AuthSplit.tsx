@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Check } from 'lucide-react'
 import { LEGAL_LINKS } from '@/lib/constants/navigation'
 import { cn } from '@/lib/utils'
+import { CookieSettingsLink } from '@/components/consent/CookieSettingsLink'
 
 /**
  * Public auth screens (sign in, sign up, mentor setup): a white form pane on
@@ -54,6 +55,7 @@ export function AuthSplit({
           <a href={LEGAL_LINKS.terms} target="_blank" rel="noopener noreferrer" className="hover:text-ui-text">
             Terms of Use
           </a>
+          <CookieSettingsLink />
         </div>
       </div>
 
