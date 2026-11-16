@@ -36,6 +36,8 @@ COPY --from=builder /app/server/db/aiViews/001_ai_schema.sql ./db/aiViews/001_ai
 COPY --from=builder /app/server/db/migrations ./db/migrations
 # Migration runner script
 COPY --from=builder /app/server/scripts/migrate.mjs ./scripts/migrate.mjs
+# CRM outbox health, read-only: node scripts/crm-outbox-status.mjs
+COPY --from=builder /app/server/scripts/crm-outbox-status.mjs ./scripts/crm-outbox-status.mjs
 # Entrypoint: runs migrations then starts server
 COPY server/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh && mkdir -p ./uploads/certificates ./uploads/media

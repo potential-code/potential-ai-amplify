@@ -10,6 +10,7 @@ import { eq, and, desc, notLike, or, isNull } from 'drizzle-orm'
 import { AppError } from '../../utils/app-error'
 import { notify } from '../notifications.service'
 import { checkBadgesSoon } from '../achievements.service'
+import { enqueueCourseCompleted } from '../crmSync.service'
 import type { CourseCertificate } from '../../db/schema'
 import { logger } from '../../config/logger'
 import { uploadsPath } from '../../config/uploads'
@@ -203,10 +204,16 @@ export async function issueCertificate(userId: string, courseId: string): Promis
 
   const certificateNumber = `CERT-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
 
-  // Insert the row first so we have the UUID to use as the filename
-  const [cert] = await db.insert(courseCertificates)
-    .values({ userId, courseId, certificateNumber })
-    .returning()
+  // Insert the row first so we have the UUID to use as the filename. The CRM's
+  // course_completed event is queued in the same transaction (in a savepoint:
+  // a failure to queue it never stops the certificate).
+  const cert = await db.transaction(async (tx) => {
+    const [row] = await tx.insert(courseCertificates)
+      .values({ userId, courseId, certificateNumber })
+      .returning()
+    if (user.role === 'sme') await enqueueCourseCompleted(tx, userId, { id: course.id, title: course.title }, row.issuedAt)
+    return row
+  })
 
   // Generate the PNG and write to disk
   const { relativeUrl, absoluteFilePath } = await renderCertificatePng(

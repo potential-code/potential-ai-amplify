@@ -2,6 +2,7 @@ import { app } from "./app";
 import { logger } from "./config/logger";
 import { refreshOutdatedCertificates } from "./services/lms/certificate.service";
 import { startReminders } from "./services/reminders.service";
+import { startCrmSync } from "./services/crmSync.service";
 import { applyAiSchemaIfChanged } from "./services/ai-sql/apply-on-boot";
 
 const rawPort = process.env["PORT"];
@@ -45,3 +46,8 @@ void applyAiSchemaIfChanged();
 // with REMINDER_EMAILS_ENABLED=true; learners only with
 // LEARNER_NOTIFICATIONS_ENABLED=true).
 startReminders();
+
+// Learner events to the Potential CRM, every 30 seconds (sends only with
+// CRM_SYNC_ENABLED=true; events queue in crm_outbox either way). CRM events
+// only: no email, and independent of the learner-email switches above.
+startCrmSync();

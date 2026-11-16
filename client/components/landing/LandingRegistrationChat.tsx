@@ -27,6 +27,7 @@ import { CountryPickerCard } from "./CountryPickerCard";
 import { RegistrationConfirmCard } from "./RegistrationConfirmCard";
 import { OtpEntryCard } from "./OtpEntryCard";
 import { SIGN_UP_PROMPT as ASSISTANT_INSTRUCTIONS } from "../../../shared/anna/prompts";
+import { consentBody } from "@/lib/signUpConsent";
 
 // ---------------------------------------------------------------------------
 // Landing-specific assistant message wrapper
@@ -72,6 +73,9 @@ interface RegistrationData {
   country?: string; // ISO code e.g. "NG"
   countryName?: string; // display name e.g. "Nigeria"
   couponCode?: string;
+  // Ticked by the learner in the confirm card; never set by (or sent to) the LLM.
+  termsAccepted?: boolean;
+  marketingOptIn?: boolean;
 }
 
 interface LoginData {
@@ -379,6 +383,8 @@ function LandingRegistrationChatInner({ autoStart }: { autoStart: boolean }) {
                 ? { type: "confirmed" }
                 : { type: "edit", field: result.field };
             if (result.action === "confirmed") {
+              registrationData.current.termsAccepted = result.termsAccepted;
+              registrationData.current.marketingOptIn = result.marketingOptIn;
               respond?.("User confirmed registration. Call submitRegistration now.");
             } else {
               respond?.(`User wants to edit field: ${result.field}`);
@@ -408,11 +414,16 @@ function LandingRegistrationChatInner({ autoStart }: { autoStart: boolean }) {
       // AI Amplify is invite-only; the server refuses a sign-up without a valid code too.
       if (!couponCode) return { error: true, code: "INVALID_COUPON", message: "An invite code is required" };
       if (!country || !verifiedToken) return { error: true, message: "Missing required fields" };
+      // Consent comes only from the boxes the learner ticked in the confirm card.
+      const consent = consentBody(registrationData.current);
+      if (!consent) {
+        return { error: true, code: "TERMS_REQUIRED", message: "The user has not accepted the Terms of Use and Privacy Policy yet" };
+      }
       try {
         // Creates the account and signs in (session cookie).
         await apiFetch("/api/auth/amplify/sign-up", {
           method: "POST",
-          body: JSON.stringify({ fullName, email, country, couponCode, verifiedToken }),
+          body: JSON.stringify({ fullName, email, country, couponCode, verifiedToken, ...consent }),
         });
         await refreshUser();
         router.push("/dashboard");

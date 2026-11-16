@@ -21,6 +21,14 @@ services:
       SMTP_PORT: ${SMTP_PORT:-1025}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
+      # CRM sync: learner events queue in crm_outbox; sent only when
+      # CRM_SYNC_ENABLED is "true" (needs the URL, key and program id).
+      # CRM events only: they never send an email.
+      CRM_SYNC_ENABLED: ${CRM_SYNC_ENABLED:-}
+      CRM_INTAKE_URL: ${CRM_INTAKE_URL:-}
+      POTENTIAL_CRM_INTAKE_KEY: ${POTENTIAL_CRM_INTAKE_KEY:-}
+      CRM_PROGRAM_ID: ${CRM_PROGRAM_ID:-}
+      CRM_COHORT_ID: ${CRM_COHORT_ID:-}
     volumes:
       - uploads_staging:/app/uploads
     restart: unless-stopped

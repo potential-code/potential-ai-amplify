@@ -88,6 +88,65 @@ Set `LEARNER_NOTIFICATIONS_ENABLED=true` (bell, banners, announcements, adding l
 organisation by email) and, separately, `REMINDER_EMAILS_ENABLED=true` (reminder and booking
 emails), then redeploy.
 
+## Consent and CRM sync
+
+- **Migration 0040** adds four nullable/defaulted columns to `users`
+  (`terms_accepted_at`, `marketing_opt_in` default false, `marketing_opt_in_at`,
+  `marketing_consent_text`) and creates `crm_outbox`. It only adds things;
+  existing learners keep `marketing_opt_in = false` and no terms date.
+- **Sign-up now requires the Terms tick** on both paths (form and Anna's chat):
+  the API answers 400 `TERMS_REQUIRED` without it. It is checked first, so a
+  missing tick spends neither the verified email nor the invite code. Sign-up
+  stays invite-only (invite code required; organisation links
+  `?code=INVITE&org=CODE` unchanged). The optional marketing box is unticked by
+  default; its wording is stored from the server's copy
+  (`shared/marketingConsent.ts`, "...from AI Amplify by Potential.org...").
+  Learners can change it later on their profile. Every event carries the
+  learner's consent when it was queued: an opt-in always with
+  `marketingConsentText` and `marketingConsentAt`; a withdrawal as
+  `marketingOptIn: false` with `marketingConsentAt` = when it was turned off. A
+  change also queues its own consent_changed event, so a withdrawal reaches the
+  CRM promptly.
+- **No email.** The CRM sync only queues and sends CRM events. It never sends an
+  email and does not read `LEARNER_NOTIFICATIONS_ENABLED` or
+  `REMINDER_EMAILS_ENABLED`; learner emails stay off until client sign-off.
+- **Events queue from day one** in `crm_outbox` (keys `amplify:reg:<userId>`,
+  `amplify:act1:<userId>`, `amplify:cert:<userId>:<courseId>`,
+  `amplify:consent:<userId>:<ms>`): registration, first activation and course
+  completed (once each), and consent_changed for each real change of the
+  marketing setting. Synced learners are those who signed up with the consent
+  step, plus existing learners who opt in on their profile (that queues their
+  registration, dated to their original sign-up). Existing learners who never
+  opt in are never sent; there is no backfill.
+- **Consent is fresh when sent:** the first send of any event refreshes its
+  consent fields from the learner's current row (an event can wait while sync
+  is off) and saves them, so retries send the same bytes.
+- **Sending is off** until `CRM_SYNC_ENABLED=true` with `CRM_INTAKE_URL`
+  (https), `POTENTIAL_CRM_INTAKE_KEY` and `CRM_PROGRAM_ID` set (`CRM_COHORT_ID`
+  optional; both must be UUIDs, or nothing is sent and one warning is logged).
+  The five are listed in `docker-compose.yml`, so setting them in Dokploy
+  reaches the server. Names and course names are cut to the CRM's 300
+  characters. The drain runs every 30 seconds, at most 25 events a run, with
+  retries (1 minute doubling to 6 hours, 20 tries). Rows queued before the
+  program id was set get it on their first send.
+- **Deploy the site and the API together.** A sign-up page loaded before this
+  release sends no Terms tick and gets `TERMS_REQUIRED`; the API's message tells
+  the person to refresh the page (the old form shows its generic error; the old
+  chat passes the message on). Anna's sign-up prompt changed too (a
+  `TERMS_REQUIRED` rule); its token fingerprint is computed from the same file,
+  so it only matches when both are deployed.
+- **Rate cap is per API process:** 25 events every 30 seconds each, so one
+  replica stays at 50 a minute against the CRM's 120.
+- **401/403/404 from the CRM** are treated as a wrong URL or key: nothing is
+  marked failed, the run stops, one warning is logged until the config changes.
+- **Logs and `last_error`** hold event keys, HTTP status and the CRM's error
+  code only, never names, emails or response text.
+- **Health:** `node scripts/crm-outbox-status.mjs` in the server container (or
+  `node --env-file=../.env scripts/crm-outbox-status.mjs` from `server/`)
+  prints pending / sent / failed counts (read-only). Each run that sends
+  something logs "CRM sync run" with the same counts.
+- **Rollback:** the old build ignores the new columns and table; leave them.
+
 ## Rehearsed (4 Nov 2026, local)
 
 A database built from `main` (bab7225: its 26 migrations, the seed, plus learners with old

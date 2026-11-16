@@ -62,7 +62,7 @@ const checkEmailDto = z.object({
  * POST /check-email {email}  — is this email free to sign up with (in the body,
  *                              so addresses stay out of URLs and logs)
  * GET  /check-coupon?code=   — is this invite code active (advisory)
- * GET/PUT /email-preferences — announcement emails on or off
+ * GET/PUT /email-preferences — announcement emails on or off; marketing consent (learners)
  * POST /unsubscribe {token}  — one-click unsubscribe from an announcement email
  *
  * Changing a password (with the current one) is Better Auth's own
@@ -77,7 +77,16 @@ router.get("/voice-token", authenticate, accountController.voiceToken);
 router.post("/check-email", lookupIp, validate(checkEmailDto), accountController.checkEmail);
 router.get("/check-coupon", lookupIp, accountController.checkCoupon);
 router.get("/email-preferences", authenticate, announcements.getEmailPreferences);
-router.put("/email-preferences", authenticate, validate(z.object({ announcements: z.boolean() })), announcements.setEmailPreferences);
+router.put(
+  "/email-preferences",
+  authenticate,
+  validate(
+    z
+      .object({ announcements: z.boolean().optional(), marketing: z.boolean().optional() })
+      .refine((b) => b.announcements !== undefined || b.marketing !== undefined, { message: "Nothing to change" }),
+  ),
+  announcements.setEmailPreferences,
+);
 router.post("/unsubscribe", lookupIp, validate(z.object({ token: z.string().min(10).max(300) })), announcements.unsubscribe);
 
 export default router;

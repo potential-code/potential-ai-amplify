@@ -25,6 +25,7 @@ import { homeFor, refreshUser } from '@/lib/auth'
 import { CodeForm, codeErrorMessage } from '@/components/auth/CodeForm'
 import { apiFetch } from '@/lib/api'
 import { LEGAL_LINKS } from '@/lib/constants/navigation'
+import { MARKETING_CONSENT_TEXT, consentBody } from '@/lib/signUpConsent'
 import { cn } from '@/lib/utils'
 
 // CopilotKit is heavy; only load Anna's chat when the visitor picks it.
@@ -67,6 +68,7 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
     country: '',
     couponCode: '',
     agreed: false,
+    marketingOptIn: false,
   })
   const [touched, setTouched] = useState({ country: false })
   const [showPassword, setShowPassword] = useState(false)
@@ -199,6 +201,7 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
           country: form.country,
           couponCode: form.couponCode.trim(),
           ...(org ? { orgCode: org.code } : {}),
+          ...consentBody({ termsAccepted: form.agreed, marketingOptIn: form.marketingOptIn }),
           verifiedToken,
         }),
       })
@@ -207,6 +210,7 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
       setStep('details')
       if (e?.code === 'EMAIL_EXISTS') setEmailError('An account with this email already exists')
       else if (e?.code === 'INVALID_COUPON') setCouponError('Invalid or already used invite code')
+      else if (e?.code === 'TERMS_REQUIRED') setFormError('Please tick the box to accept the Terms of Use and Privacy Policy.')
       else if (e?.code === 'INVALID_ORG_CODE') {
         onOrgGone()
         setFormError('That organisation link has stopped working. You can sign up without it, or ask the organisation for a new link.')
@@ -415,6 +419,18 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
             Privacy Policy
           </a>
           .
+        </span>
+      </label>
+
+      <label className="flex cursor-pointer items-start gap-2 text-[13px] leading-normal text-ui-muted">
+        <input
+          type="checkbox"
+          checked={form.marketingOptIn}
+          onChange={(e) => update('marketingOptIn', e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-ui-brand"
+        />
+        <span>
+          {MARKETING_CONSENT_TEXT} <span className="text-ui-muted">(optional)</span>
         </span>
       </label>
 

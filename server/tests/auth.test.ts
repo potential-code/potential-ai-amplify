@@ -40,7 +40,7 @@ const SESSION = "amplify.session_token=";
 describe("sign-up (email code first, invite-only)", () => {
   it("refuses to create an account without a proven email", async () => {
     const res = await api("POST", "/api/auth/amplify/sign-up", {
-      body: { fullName: "No Proof", email: newEmail(), country: "AE", couponCode: await createInviteCode(), verifiedToken: "forged" },
+      body: { fullName: "No Proof", email: newEmail(), country: "AE", couponCode: await createInviteCode(), verifiedToken: "forged", termsAccepted: true },
     });
     expect(res.status).toBe(400);
     expect(res.body.code).toBe("EMAIL_NOT_VERIFIED");
@@ -48,7 +48,7 @@ describe("sign-up (email code first, invite-only)", () => {
 
   it("refuses a proof made for a different email", async () => {
     const res = await api("POST", "/api/auth/amplify/sign-up", {
-      body: { fullName: "Wrong Proof", email: newEmail(), country: "AE", couponCode: await createInviteCode(), verifiedToken: await proveEmail(newEmail()) },
+      body: { fullName: "Wrong Proof", email: newEmail(), country: "AE", couponCode: await createInviteCode(), verifiedToken: await proveEmail(newEmail()), termsAccepted: true },
     });
     expect(res.status).toBe(400);
     expect(res.body.code).toBe("EMAIL_NOT_VERIFIED");
@@ -57,7 +57,7 @@ describe("sign-up (email code first, invite-only)", () => {
   it("refuses a sign-up without an invite code, even with proof", async () => {
     const email = newEmail();
     const res = await api("POST", "/api/auth/amplify/sign-up", {
-      body: { fullName: "No Invite", email, country: "AE", verifiedToken: await proveEmail(email) },
+      body: { fullName: "No Invite", email, country: "AE", verifiedToken: await proveEmail(email), termsAccepted: true },
     });
     expect(res.status).toBe(400);
     const [u] = await db.select().from(users).where(eq(users.email, email));
@@ -68,12 +68,12 @@ describe("sign-up (email code first, invite-only)", () => {
     const email = newEmail();
     const token = await proveEmail(email);
     const bad = await api("POST", "/api/auth/amplify/sign-up", {
-      body: { fullName: "Bad Invite", email, country: "AE", couponCode: "NOPE-NOT-REAL", verifiedToken: token },
+      body: { fullName: "Bad Invite", email, country: "AE", couponCode: "NOPE-NOT-REAL", verifiedToken: token, termsAccepted: true },
     });
     expect(bad.status).toBe(400);
     expect(bad.body.code).toBe("INVALID_COUPON");
     const retry = await api("POST", "/api/auth/amplify/sign-up", {
-      body: { fullName: "Bad Invite", email, country: "AE", couponCode: await createInviteCode(), verifiedToken: token },
+      body: { fullName: "Bad Invite", email, country: "AE", couponCode: await createInviteCode(), verifiedToken: token, termsAccepted: true },
     });
     expect(retry.status).toBe(200);
   });
@@ -83,7 +83,7 @@ describe("sign-up (email code first, invite-only)", () => {
     const code = await createInviteCode();
     const verifiedToken = await proveEmail(email);
     const res = await api("POST", "/api/auth/amplify/sign-up", {
-      body: { fullName: "Proven", email, country: "AE", couponCode: code, password: "a-long-password", verifiedToken },
+      body: { fullName: "Proven", email, country: "AE", couponCode: code, password: "a-long-password", verifiedToken, termsAccepted: true },
     });
     expect(res.status).toBe(200);
     expect(res.body.user).toMatchObject({ email, role: "sme", emailVerified: true });
@@ -95,13 +95,13 @@ describe("sign-up (email code first, invite-only)", () => {
     expect(invite!.status).toBe("used");
 
     const again = await api("POST", "/api/auth/amplify/sign-up", {
-      body: { fullName: "Again", email: newEmail(), country: "AE", couponCode: await createInviteCode(), verifiedToken },
+      body: { fullName: "Again", email: newEmail(), country: "AE", couponCode: await createInviteCode(), verifiedToken, termsAccepted: true },
     });
     expect(again.status).toBe(400);
 
     const other = newEmail();
     const reuse = await api("POST", "/api/auth/amplify/sign-up", {
-      body: { fullName: "Reuse", email: other, country: "AE", couponCode: code, verifiedToken: await proveEmail(other) },
+      body: { fullName: "Reuse", email: other, country: "AE", couponCode: code, verifiedToken: await proveEmail(other), termsAccepted: true },
     });
     expect(reuse.status).toBe(400);
     expect(reuse.body.code).toBe("INVALID_COUPON");
@@ -110,7 +110,7 @@ describe("sign-up (email code first, invite-only)", () => {
   it("creates an account without a password (Anna's chat sign-up)", async () => {
     const email = newEmail();
     const res = await api("POST", "/api/auth/amplify/sign-up", {
-      body: { fullName: "Chat", email, country: "AE", couponCode: await createInviteCode(), verifiedToken: await proveEmail(email) },
+      body: { fullName: "Chat", email, country: "AE", couponCode: await createInviteCode(), verifiedToken: await proveEmail(email), termsAccepted: true },
     });
     expect(res.status).toBe(200);
     const cookie = cookieHeader(res.setCookie);

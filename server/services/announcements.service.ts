@@ -5,6 +5,7 @@ import { announcements, users, type Announcement } from "../db/schema";
 import { sendMail } from "../mail/mailer";
 import { logger } from "../config/logger";
 import { learnerNotificationsEnabled, notify } from "./notifications.service";
+import { changeMarketingConsent } from "./crmSync.service";
 
 /**
  * Announcements from the AI Amplify team: a dashboard banner, a bell notification
@@ -73,6 +74,31 @@ export async function setAnnouncementEmails(userId: string, on: boolean): Promis
 export async function getAnnouncementEmails(userId: string): Promise<boolean> {
   const [u] = await db.select({ on: users.announcementEmails }).from(users).where(eq(users.id, userId));
   return u?.on ?? true;
+}
+
+export interface EmailPreferences {
+  announcements: boolean;
+  /** Marketing from AI Amplify by Potential.org (learners only; absent for other roles). */
+  marketing?: boolean;
+}
+
+export async function getEmailPreferences(userId: string): Promise<EmailPreferences> {
+  const [u] = await db
+    .select({ role: users.role, announcements: users.announcementEmails, marketing: users.marketingOptIn })
+    .from(users)
+    .where(eq(users.id, userId));
+  return { announcements: u?.announcements ?? true, ...(u?.role === "sme" ? { marketing: u.marketing } : {}) };
+}
+
+/**
+ * A learner turns marketing consent on or off from their profile. See
+ * changeMarketingConsent: a real change is timed and reaches the CRM as a
+ * consent_changed event; an existing learner who opts in enters the CRM.
+ * Sends no email (the CRM handles marketing). Returns false for anyone who
+ * isn't a learner.
+ */
+export function setMarketingOptIn(userId: string, on: boolean): Promise<boolean> {
+  return changeMarketingConsent(userId, on);
 }
 
 // ── Audience ─────────────────────────────────────────────────────────────────

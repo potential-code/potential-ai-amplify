@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, Pencil } from "lucide-react";
 import { LEGAL_LINKS } from "@/lib/constants/navigation";
+import { MARKETING_CONSENT_TEXT } from "@/lib/signUpConsent";
 
 const FIELD_LABELS: Record<string, string> = {
   fullName: "Full name",
@@ -32,7 +33,9 @@ interface RegistrationConfirmCardProps {
 
 type EditableField = "fullName" | "email" | "country" | "couponCode";
 
-type ConfirmResponse = { action: "confirmed" } | { action: "edit"; field: EditableField };
+type ConfirmResponse =
+  | { action: "confirmed"; termsAccepted: true; marketingOptIn: boolean }
+  | { action: "edit"; field: EditableField };
 
 // ---------------------------------------------------------------------------
 // Flag emoji helper — converts a 2-letter ISO 3166-1 alpha-2 code to a flag
@@ -88,6 +91,9 @@ export function RegistrationConfirmCard({
   completedAction,
 }: RegistrationConfirmCardProps) {
   const respondedRef = useRef(false);
+  // Terms must be ticked to register; marketing is optional and starts unticked.
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const isDisabled = status === "complete" || respondedRef.current;
   const showSpinner = respondedRef.current && status === "executing";
 
@@ -104,9 +110,9 @@ export function RegistrationConfirmCard({
   }
 
   function handleConfirm() {
-    if (isDisabled || respondedRef.current) return;
+    if (isDisabled || respondedRef.current || !termsAccepted) return;
     respondedRef.current = true;
-    respond({ action: "confirmed" });
+    respond({ action: "confirmed", termsAccepted: true, marketingOptIn });
   }
 
   // Build the country display string
@@ -193,20 +199,37 @@ export function RegistrationConfirmCard({
           )}
 
           </div>
-          <p className="text-xs leading-normal text-ui-muted">
-            By clicking Confirm and register you agree to our{" "}
-            <a href={LEGAL_LINKS.terms} target="_blank" rel="noopener noreferrer" className="font-semibold text-ui-brand-text hover:underline">
-              Terms of Use
-            </a>{" "}
-            and{" "}
-            <a href={LEGAL_LINKS.privacy} target="_blank" rel="noopener noreferrer" className="font-semibold text-ui-brand-text hover:underline">
-              Privacy Policy
-            </a>
-            .
-          </p>
+          <label className="flex cursor-pointer items-start gap-2 text-xs leading-normal text-ui-muted">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-ui-brand"
+            />
+            <span>
+              I agree to the{" "}
+              <a href={LEGAL_LINKS.terms} target="_blank" rel="noopener noreferrer" className="font-semibold text-ui-brand-text hover:underline">
+                Terms of Use
+              </a>{" "}
+              and{" "}
+              <a href={LEGAL_LINKS.privacy} target="_blank" rel="noopener noreferrer" className="font-semibold text-ui-brand-text hover:underline">
+                Privacy Policy
+              </a>
+              .
+            </span>
+          </label>
+          <label className="flex cursor-pointer items-start gap-2 text-xs leading-normal text-ui-muted">
+            <input
+              type="checkbox"
+              checked={marketingOptIn}
+              onChange={(e) => setMarketingOptIn(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-ui-brand"
+            />
+            <span>{MARKETING_CONSENT_TEXT} (optional)</span>
+          </label>
           <button
             type="button"
-            disabled={isDisabled}
+            disabled={isDisabled || !termsAccepted}
             onClick={handleConfirm}
             className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[10px] bg-ui-brand text-sm font-semibold text-white transition-colors hover:bg-ui-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
           >

@@ -40,6 +40,14 @@ services:
       LEARNER_NOTIFICATIONS_ENABLED: ${LEARNER_NOTIFICATIONS_ENABLED:-false}
       # Reminder and booking emails (sessions, events): off until sign-off.
       REMINDER_EMAILS_ENABLED: ${REMINDER_EMAILS_ENABLED:-false}
+      # CRM sync: learner events queue in crm_outbox; sent only when
+      # CRM_SYNC_ENABLED is "true" (needs the URL, key and program id).
+      # CRM events only: no email, independent of the two switches above.
+      CRM_SYNC_ENABLED: ${CRM_SYNC_ENABLED:-}
+      CRM_INTAKE_URL: ${CRM_INTAKE_URL:-}
+      POTENTIAL_CRM_INTAKE_KEY: ${POTENTIAL_CRM_INTAKE_KEY:-}
+      CRM_PROGRAM_ID: ${CRM_PROGRAM_ID:-}
+      CRM_COHORT_ID: ${CRM_COHORT_ID:-}
       # Zoom meetings for live events (Server-to-Server OAuth). Without them,
       # admins can still use another link or an in-person venue.
       ZOOM_ACCOUNT_ID: ${ZOOM_ACCOUNT_ID:-}

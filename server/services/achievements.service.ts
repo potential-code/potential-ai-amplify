@@ -3,6 +3,7 @@ import { db } from "../db";
 import { userBadges, users } from "../db/schema";
 import { getStreak } from "./streak.service";
 import { notify } from "./notifications.service";
+import { enqueueFirstActivation } from "./crmSync.service";
 
 /**
  * Badges and the leaderboard. Badges come from what learners already do
@@ -101,6 +102,9 @@ export async function checkBadges(userId: string): Promise<void> {
       .values(earned.map((b) => ({ userId, badge: b.key })))
       .onConflictDoNothing()
       .returning({ badge: userBadges.badge });
+    // first_step newly earned = the learner's first real activation. The
+    // event key keeps it to one CRM event even if the badge is earned again.
+    if (added.some((a) => a.badge === "first_step")) await enqueueFirstActivation(userId);
     for (const { badge } of added) {
       const def = BADGES.find((b) => b.key === badge)!;
       await notify(userId, {

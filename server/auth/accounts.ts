@@ -6,6 +6,7 @@ import { authAccounts, inviteCodes, mentorRegistrations, mentorSetupTokens, part
 import { findValidToken } from "../services/mentor.service";
 import { findJoinable, findValidInvite } from "../services/organisations.service";
 import { AppError } from "../utils/app-error";
+import { MARKETING_CONSENT_TEXT, enqueueRegistration } from "../services/crmSync.service";
 import { hashPassword } from "./password";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -62,6 +63,13 @@ export async function createLearnerAccount(data: {
   password?: string | undefined;
   /** An organisation's sign-up code: the learner joins that organisation. */
   orgCode?: string | undefined;
+  /**
+   * What the learner agreed to on the sign-up form or in Anna's chat. Given
+   * for every self-sign-up: records the Terms acceptance and marketing choice
+   * and queues the CRM registration event. Left out only by internal callers
+   * (test fixtures), whose accounts are not synced.
+   */
+  consent?: { termsAccepted: true; marketingOptIn: boolean } | undefined;
 }): Promise<string> {
   await assertEmailFree(data.email);
   const organisation = data.orgCode ? await findJoinable(data.orgCode) : null;
@@ -77,6 +85,8 @@ export async function createLearnerAccount(data: {
       throw new AppError("Invalid or already used coupon code", 400, "INVALID_COUPON");
     }
 
+    const now = new Date();
+    const optIn = data.consent?.marketingOptIn === true;
     const [user] = await tx
       .insert(users)
       .values({
@@ -87,8 +97,16 @@ export async function createLearnerAccount(data: {
         country: data.country,
         inviteCodeId: row.id,
         organisationId: organisation?.id ?? null,
+        ...(data.consent
+          ? {
+              termsAcceptedAt: now,
+              marketingOptIn: optIn,
+              // The wording is the server's constant, never text from the client.
+              ...(optIn ? { marketingOptInAt: now, marketingConsentText: MARKETING_CONSENT_TEXT } : {}),
+            }
+          : {}),
       })
-      .returning({ id: users.id });
+      .returning();
     if (!user) throw new AppError("Failed to create user", 500, "INSERT_FAILED");
 
     if (data.password) await insertCredentialAccount(tx, user.id, data.password);
@@ -97,6 +115,8 @@ export async function createLearnerAccount(data: {
       .update(inviteCodes)
       .set({ usedBy: user.id, usedAt: new Date(), status: "used" })
       .where(eq(inviteCodes.id, row.id));
+    // In a savepoint: a failure here is logged and does not undo the sign-up.
+    if (data.consent) await enqueueRegistration(tx, user, now);
     return user.id;
   });
 }

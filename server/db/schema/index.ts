@@ -37,3 +37,4 @@ export * from "./aiReports";
 export * from "./translationCache";
 export * from "./aiDashboards";
 export * from "./examinerAttempts";
+export * from "./crmOutbox";

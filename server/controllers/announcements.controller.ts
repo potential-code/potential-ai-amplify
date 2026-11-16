@@ -51,18 +51,23 @@ export async function archive(req: Request<{ id: string }>, res: Response, next:
 /** GET /api/account/email-preferences */
 export async function getEmailPreferences(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    res.json({ success: true, data: { announcements: await svc.getAnnouncementEmails(req.user!.userId) } });
+    res.json({ success: true, data: await svc.getEmailPreferences(req.user!.userId) });
   } catch (err) {
     next(err);
   }
 }
 
-/** PUT /api/account/email-preferences  { announcements: boolean } */
+/** PUT /api/account/email-preferences  { announcements?: boolean, marketing?: boolean } (marketing: learners only) */
 export async function setEmailPreferences(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const on = (req.body as { announcements: boolean }).announcements;
-    await svc.setAnnouncementEmails(req.user!.userId, on);
-    res.json({ success: true, data: { announcements: on } });
+    const userId = req.user!.userId;
+    const body = req.body as { announcements?: boolean; marketing?: boolean };
+    if (body.marketing !== undefined && !(await svc.setMarketingOptIn(userId, body.marketing))) {
+      res.status(400).json({ success: false, error: { message: "Only learners have this setting.", code: "NOT_A_LEARNER" } });
+      return;
+    }
+    if (body.announcements !== undefined) await svc.setAnnouncementEmails(userId, body.announcements);
+    res.json({ success: true, data: await svc.getEmailPreferences(userId) });
   } catch (err) {
     next(err);
   }
