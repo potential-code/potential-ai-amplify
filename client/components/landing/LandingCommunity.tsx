@@ -30,6 +30,8 @@ export function LandingCommunity() {
           <img
             src="/images/redesign/world-map.webp"
             alt=""
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#3b1c54] via-[#3b1c54]/60 to-[#3b1c54]/0" />

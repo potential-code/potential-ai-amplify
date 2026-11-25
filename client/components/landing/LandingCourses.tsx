@@ -79,7 +79,7 @@ export function LandingCourses() {
 function TrackBanner({ title, meta, art }: { title: string; meta: string; art: string }) {
   return (
     <div className="relative h-[168px] overflow-hidden bg-[#3b1c54]">
-      <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <img src={art} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#24103a] via-[#24103a]/60 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 flex items-end gap-3 p-[22px] text-[#e7d6f9]">
         <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.16] backdrop-blur-sm">

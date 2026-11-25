@@ -54,7 +54,7 @@ export function LandingFooter() {
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 pb-[22px] pt-8 min-[900px]:px-10">
         <div className="grid grid-cols-1 gap-8 min-[900px]:grid-cols-[minmax(0,4fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,3fr)]">
           <div className="flex flex-col gap-3.5">
-            <img src="/images/ai-amplify-logo.png" alt="AI Amplify" className="h-10 w-auto self-start" />
+            <img src="/images/ai-amplify-logo.png" alt="AI Amplify" loading="lazy" decoding="async" className="h-10 w-auto self-start" />
             <p className="max-w-[300px] text-sm leading-[1.55] text-ui-muted">
               AI Amplify by Potential: AI courses, {HUMAN_MENTORS_ENABLED ? 'AI and human mentors' : 'AI mentors'}, live events and AI tools for SMEs.
             </p>

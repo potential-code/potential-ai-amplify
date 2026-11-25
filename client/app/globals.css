@@ -118,9 +118,10 @@
   --sidebar-accent-foreground: oklch(0.13 0.028 350);
   --sidebar-border: oklch(0.91 0.007 350);
   --sidebar-ring: oklch(0.42 0.16 307);
-  --font-noto-sans: 'Noto Sans', system-ui, sans-serif;
+  /* The Noto families are self-hosted by next/font (app/layout.tsx sets these variables on <html>). */
+  --font-noto-sans: var(--font-noto), system-ui, sans-serif;
   /* Geist for Latin; Noto covers Arabic, Urdu and Hindi glyphs Geist lacks. */
-  --font-ui: var(--font-geist), 'Noto Sans', 'Noto Sans Arabic', 'Noto Sans Devanagari', system-ui, sans-serif;
+  --font-ui: var(--font-geist), var(--font-noto), var(--font-noto-arabic), var(--font-noto-devanagari), system-ui, sans-serif;
 
   --ui-bg: #F7F7F9;
   --ui-surface: #FFFFFF;
