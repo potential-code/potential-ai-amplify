@@ -143,10 +143,10 @@ export function ImpactSection({ impact, loading }: { impact?: Impact; loading: b
 
 const TONES: Record<string, string> = {
   brand: 'bg-ui-brand-soft text-ui-brand-text',
-  blue: 'bg-[#e8f0f8] text-[#1d4e89]',
-  green: 'bg-[#e3f1ec] text-[#1f6f5c]',
-  amber: 'bg-[#fcf0e2] text-[#8a4513]',
-  violet: 'bg-[#efe8f6] text-[#4c1d6e]',
+  blue: 'bg-[#e8f0f8] text-[#1d4e89] dark:bg-[#1b2836] dark:text-[#8fb8e6]',
+  green: 'bg-[#e3f1ec] text-[#1f6f5c] dark:bg-[#16302a] dark:text-[#7fd1b6]',
+  amber: 'bg-[#fcf0e2] text-[#8a4513] dark:bg-[#3a2a17] dark:text-[#f0b26b]',
+  violet: 'bg-[#efe8f6] text-[#4c1d6e] dark:bg-[#2c2140] dark:text-[#c8a8ee]',
 }
 
 function ImpactTile({ icon: Icon, label, value, hint, tone }: { icon: LucideIcon; label: string; value: string; hint: string; tone: string }) {
