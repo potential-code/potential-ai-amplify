@@ -1,5 +1,6 @@
+import { inflateRawSync } from "node:zlib";
 import mammoth from "mammoth";
-import { extractText, getDocumentProxy } from "unpdf";
+import { getDocumentProxy } from "unpdf";
 
 /**
  * Reads the text out of a document a learner shares with Ask Anna, so Anna can
@@ -11,6 +12,12 @@ import { extractText, getDocumentProxy } from "unpdf";
 export const DOCUMENT_MAX_BYTES = 15 * 1024 * 1024;
 /** What Anna reads of a document: enough for a business plan, not a book. */
 export const DOCUMENT_MAX_CHARS = 20_000;
+/** The most a Word file's XML may unpack to. Real documents are well under 2 MB. */
+export const DOCX_MAX_XML_BYTES = 10 * 1024 * 1024;
+/** PDF pages read at most; reading stops sooner once there's enough text. */
+export const PDF_MAX_PAGES = 200;
+/** How long reading one document may take before it is given up. */
+export const DOCUMENT_READ_TIMEOUT_MS = 20_000;
 
 export type DocumentKind = "pdf" | "docx" | "text";
 
@@ -45,6 +52,91 @@ export function documentKind(buffer: Buffer, filename: string): DocumentKind | n
   return null;
 }
 
+const tooBig = () => new DocumentReadError("This file is too large or complex for Anna to read. Try a shorter version.", "UNREADABLE");
+const tooSlow = () => new DocumentReadError("This file took too long to read. Try a shorter version.", "UNREADABLE");
+
+/**
+ * Checks what a .docx really unpacks to before mammoth opens it. A zip can
+ * claim small sizes and still inflate to gigabytes, so the XML parts (all that
+ * text extraction reads) are actually inflated here with a hard output cap;
+ * media is skipped. Throws if the archive is malformed or over the cap.
+ * (Ported from SMEEP.)
+ */
+export function assertDocxWithinLimits(buffer: Buffer): void {
+  // End of central directory: in the last 64 KB + 22 bytes.
+  const tail = Math.max(0, buffer.length - 65_557);
+  let eocd = -1;
+  for (let i = buffer.length - 22; i >= tail; i--) {
+    if (buffer.readUInt32LE(i) === 0x06054b50) {
+      eocd = i;
+      break;
+    }
+  }
+  if (eocd < 0) throw tooBig();
+  const entries = buffer.readUInt16LE(eocd + 10);
+  let at = buffer.readUInt32LE(eocd + 16);
+  if (entries > 2000 || at >= buffer.length) throw tooBig();
+
+  let budget = DOCX_MAX_XML_BYTES;
+  for (let n = 0; n < entries; n++) {
+    if (at + 46 > buffer.length || buffer.readUInt32LE(at) !== 0x02014b50) throw tooBig();
+    const method = buffer.readUInt16LE(at + 10);
+    const compressed = buffer.readUInt32LE(at + 20);
+    const nameLen = buffer.readUInt16LE(at + 28);
+    const extraLen = buffer.readUInt16LE(at + 30);
+    const commentLen = buffer.readUInt16LE(at + 32);
+    const local = buffer.readUInt32LE(at + 42);
+    const name = buffer.toString("utf8", at + 46, at + 46 + nameLen);
+    at += 46 + nameLen + extraLen + commentLen;
+
+    if (!/\.(xml|rels)$/i.test(name)) continue;
+    if (compressed === 0xffffffff || local + 30 > buffer.length || buffer.readUInt32LE(local) !== 0x04034b50) throw tooBig();
+    const start = local + 30 + buffer.readUInt16LE(local + 26) + buffer.readUInt16LE(local + 28);
+    const data = buffer.subarray(start, start + compressed);
+    let size: number;
+    if (method === 0) size = data.length;
+    else if (method === 8) {
+      try {
+        size = inflateRawSync(data, { maxOutputLength: budget }).length;
+      } catch {
+        throw tooBig();
+      }
+    } else throw tooBig();
+    budget -= size;
+    if (budget < 0) throw tooBig();
+  }
+}
+
+/** Text of a PDF, page by page, stopping at PDF_MAX_PAGES, once there's enough, or at the deadline. */
+async function readPdfText(buffer: Buffer, deadline: number): Promise<{ text: string; pages: number }> {
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  try {
+    const parts: string[] = [];
+    let length = 0;
+    const last = Math.min(pdf.numPages, PDF_MAX_PAGES);
+    for (let i = 1; i <= last && length <= DOCUMENT_MAX_CHARS; i++) {
+      if (Date.now() >= deadline) throw tooSlow();
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const text = content.items.map((item) => ("str" in item ? item.str : "")).join(" ");
+      parts.push(text);
+      length += text.length;
+    }
+    return { text: parts.join("\n"), pages: pdf.numPages };
+  } finally {
+    void pdf.loadingTask.destroy().catch(() => {});
+  }
+}
+
+/** Rejects with tooSlow() once the deadline passes (the work itself is left to finish or fail on its own). */
+function beforeDeadline<T>(work: Promise<T>, deadline: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(tooSlow()), Math.max(0, deadline - Date.now()));
+  });
+  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
+}
+
 function tidy(text: string): string {
   return text
     .replace(/\r\n?/g, "\n")
@@ -53,26 +145,32 @@ function tidy(text: string): string {
     .trim();
 }
 
-export async function readDocumentText(buffer: Buffer, filename: string): Promise<DocumentText> {
+export async function readDocumentText(
+  buffer: Buffer,
+  filename: string,
+  opts: { timeoutMs?: number } = {},
+): Promise<DocumentText> {
   const kind = documentKind(buffer, filename);
   if (!kind) {
     throw new DocumentReadError("Anna can read PDF, Word (.docx), text, Markdown and CSV files.", "UNSUPPORTED_TYPE");
   }
 
+  const deadline = Date.now() + (opts.timeoutMs ?? DOCUMENT_READ_TIMEOUT_MS);
   let raw: string;
   let pages: number | undefined;
   try {
     if (kind === "pdf") {
-      const pdf = await getDocumentProxy(new Uint8Array(buffer));
-      const result = await extractText(pdf, { mergePages: true });
+      const result = await beforeDeadline(readPdfText(buffer, deadline), deadline);
       raw = result.text;
-      pages = result.totalPages;
+      pages = result.pages;
     } else if (kind === "docx") {
-      raw = (await mammoth.extractRawText({ buffer })).value;
+      assertDocxWithinLimits(buffer);
+      raw = (await beforeDeadline(mammoth.extractRawText({ buffer }), deadline)).value;
     } else {
       raw = buffer.toString("utf8");
     }
-  } catch {
+  } catch (err) {
+    if (err instanceof DocumentReadError) throw err;
     throw new DocumentReadError("This file couldn't be read. It may be damaged or password-protected.", "UNREADABLE");
   }
 
