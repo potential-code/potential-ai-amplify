@@ -132,14 +132,11 @@ function sniffImage(buf: Buffer): { ext: "jpg" | "png" | "webp"; mime: string } 
  *
  * @param mentorUserId - The authenticated mentor.
  * @param file         - Multer in-memory file (field `photo`).
- * @param publicBase   - Absolute origin the API is served from, used to build
- *                       a URL the client can load directly.
  * @throws AppError(415, "UNSUPPORTED_IMAGE") — not a real JPEG/PNG/WebP
  */
 export async function saveMentorPhoto(
   mentorUserId: string,
   file: { buffer: Buffer; originalname: string; size: number },
-  publicBase: string,
 ): Promise<{ avatarUrl: string }> {
   const kind = sniffImage(file.buffer);
   if (!kind) throw new AppError("Photo must be a JPEG, PNG or WebP image", 415, "UNSUPPORTED_IMAGE");
@@ -157,7 +154,9 @@ export async function saveMentorPhoto(
     uploadedBy: mentorUserId,
   });
 
-  const avatarUrl = `${publicBase.replace(/\/$/, "")}/uploads/media/${filename}`;
+  // Site-relative: the site serves /uploads from the API, so no host is needed,
+  // and none is taken from the request (a forged Host would be stored here).
+  const avatarUrl = `/uploads/media/${filename}`;
   await db.update(users).set({ avatarUrl, updatedAt: new Date() }).where(eq(users.id, mentorUserId));
   return { avatarUrl };
 }

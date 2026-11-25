@@ -270,14 +270,14 @@ describe('mentor photo upload', () => {
     'base64',
   )
 
-  async function upload(token: string | undefined, body: Buffer, type: string, name = 'me.png') {
+  async function upload(token: string | undefined, body: Buffer, type: string, name = 'me.png', extraHeaders: Record<string, string> = {}) {
     const form = new FormData()
     form.append('photo', new Blob([new Uint8Array(body)], { type }), name)
     const res = await fetch(`${baseUrl}/api/mentor/profile/photo`, {
       method: 'POST',
       // Connection: close so a rejected (413) upload doesn't leave a
       // half-sent keep-alive socket that blocks stopTestServer().
-      headers: { Connection: 'close', Origin: ORIGIN, ...(token ? { Cookie: token } : {}) },
+      headers: { Connection: 'close', Origin: ORIGIN, ...(token ? { Cookie: token } : {}), ...extraHeaders },
       body: form,
     })
     return { status: res.status, body: (await res.json().catch(() => null)) as { data?: { avatarUrl: string } } | null }
@@ -297,6 +297,16 @@ describe('mentor photo upload', () => {
 
     const me = await api<{ data?: { avatarUrl: string }; avatarUrl?: string }>('GET', '/api/account/me', { token: mentorToken })
     expect(JSON.stringify(me.body)).toContain(url)
+  })
+
+  it('stores a site-relative path, whatever Host the request claims', async () => {
+    const res = await upload(mentorToken, PNG, 'image/png', 'me.png', { Host: 'evil.example', 'X-Forwarded-Host': 'evil.example', 'X-Forwarded-Proto': 'https' })
+    expect(res.status).toBe(201)
+    const url = res.body!.data!.avatarUrl
+    uploadedFiles.push(path.join(import.meta.dir, '..', 'uploads', 'media', url.split('/').pop()!))
+    expect(url).toMatch(/^\/uploads\/media\/avatar-[\w-]+\.png$/)
+    const [row] = await db.select({ avatarUrl: users.avatarUrl }).from(users).where(eq(users.id, mentor.id))
+    expect(row!.avatarUrl).toBe(url)
   })
 
   it('rejects non-images, oversize files and non-mentors', async () => {

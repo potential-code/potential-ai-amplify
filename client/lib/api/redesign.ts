@@ -71,7 +71,7 @@ export function saveMenteeNotes(menteeId: string, notes: string) {
 
 /**
  * Uploads a JPEG/PNG/WebP (max 5 MB) and returns the new public avatar URL
- * (absolute, served by the API). Errors: 413 FILE_TOO_LARGE, 415
+ * (site-relative, /uploads/media/...). Errors: 413 FILE_TOO_LARGE, 415
  * UNSUPPORTED_IMAGE, 400 INVALID_UPLOAD (no `photo` field).
  */
 export async function uploadMentorPhoto(file: File): Promise<{ avatarUrl: string }> {

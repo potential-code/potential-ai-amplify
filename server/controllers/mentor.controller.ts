@@ -268,7 +268,8 @@ export async function putMenteeNotesHandler(
  *
  * Multipart upload (field `photo`, JPEG/PNG/WebP, max 5 MB). Stores the image
  * under /uploads/media, sets users.avatar_url and returns
- * { data: { avatarUrl } } — an absolute URL the client can load directly.
+ * { data: { avatarUrl } }: a site-relative path (/uploads/media/...), which
+ * the site forwards to the API. Never built from the request's Host header.
  */
 export async function postProfilePhoto(
   req: Request,
@@ -279,8 +280,7 @@ export async function postProfilePhoto(
     if (!req.file) {
       throw new AppError('Send one image in the "photo" field', 400, "INVALID_UPLOAD");
     }
-    const publicBase = process.env["SERVER_PUBLIC_URL"] ?? `${req.protocol}://${req.get("host")}`;
-    const data = await saveMentorPhoto(req.user!.userId, req.file, publicBase);
+    const data = await saveMentorPhoto(req.user!.userId, req.file);
     res.status(201).json({ data });
   } catch (err) {
     next(err);
