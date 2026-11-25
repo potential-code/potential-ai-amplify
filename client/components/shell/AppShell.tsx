@@ -124,9 +124,13 @@ function useAvatarUrl(user: AuthUser | null) {
         })
         .catch(() => {})
     load()
+    // The mentor profile fires smeep:avatar-changed after a photo upload (as in
+    // SMEEP); Anna fires smeep:profile-updated after editing the profile.
+    window.addEventListener('smeep:avatar-changed', load)
     window.addEventListener('smeep:profile-updated', load)
     return () => {
       cancelled = true
+      window.removeEventListener('smeep:avatar-changed', load)
       window.removeEventListener('smeep:profile-updated', load)
     }
   }, [user?.id])
