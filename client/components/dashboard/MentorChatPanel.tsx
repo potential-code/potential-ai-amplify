@@ -472,7 +472,9 @@ export function MentorChatPanel({ botId, name, specialty, avatar }: Props) {
       })
 
       if (response.status === 429) {
-        setBot({ text: "You're sending messages quickly. Wait a moment and try again.", isStreaming: false })
+        // The per-minute or the daily limit: the server's message says which.
+        const limit = (await response.json().catch(() => null)) as { error?: { message?: string } } | null
+        setBot({ text: limit?.error?.message?.includes('today') ? limit.error.message : "You're sending messages quickly. Wait a moment and try again.", isStreaming: false })
         return
       }
       if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`)

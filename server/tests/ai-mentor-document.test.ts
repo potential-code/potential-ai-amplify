@@ -55,3 +55,40 @@ describe('POST /api/ai-mentors/:botId/chat', () => {
     expect((await api('POST', `/api/ai-mentors/${BOT}/chat`, { body: { message: 'Hi', sessionId: 's1' } })).status).toBe(401)
   })
 })
+
+describe('mentor chat limits', () => {
+  it('caps each learner at 20 messages a minute and 300 a day', async () => {
+    const { chatLimits } = await import('../routes/aiMentor.routes')
+    const [perMinute, perDay] = chatLimits
+    const user = await createTestUser('mentor-cap')
+    // An invalid body is counted by both limiters and then stops at validation,
+    // so nothing reaches the bot service.
+    const send = () => api('POST', `/api/ai-mentors/${BOT}/chat`, { token: user.token, body: { message: '', sessionId: 's1' } })
+    process.env['RATE_LIMITS'] = 'on'
+    try {
+      for (let i = 0; i < 20; i++) expect((await send()).status).toBe(422)
+      const minute = await send()
+      expect(minute.status).toBe(429)
+      expect(minute.body.error.code).toBe('RATE_LIMITED')
+
+      // Fast-forward through the day: clear the minute window every 20 messages.
+      // (The refused 21st never reached the daily counter.)
+      let sent = 20
+      while (sent < 300) {
+        await perMinute!.resetKey(`ai-mentor-chat:w:${user.id}`)
+        for (let i = 0; i < 20 && sent < 300; i++, sent++) expect((await send()).status).toBe(422)
+      }
+      await perMinute!.resetKey(`ai-mentor-chat:w:${user.id}`)
+      const day = await send()
+      expect(day.status).toBe(429)
+      expect(day.body.error.message).toContain("today's limit")
+
+      // Another learner is unaffected.
+      expect((await api('POST', `/api/ai-mentors/${BOT}/chat`, { token: learner.token, body: { message: '', sessionId: 's1' } })).status).toBe(422)
+    } finally {
+      delete process.env['RATE_LIMITS']
+      await perMinute!.resetKey(`ai-mentor-chat:w:${user.id}`)
+      await perDay!.resetKey(`ai-mentor-chat:d:${user.id}`)
+    }
+  })
+})

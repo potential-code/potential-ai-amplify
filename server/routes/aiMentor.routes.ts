@@ -4,7 +4,7 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import { z } from "zod";
 import { authenticate } from "../middleware/authenticate";
 import { validate } from "../middleware/validate";
-import { perUser, MINUTE } from "../middleware/limits";
+import { capped, MINUTE } from "../middleware/limits";
 
 /**
  * AI mentors run on Potential's bot service. The browser used to call it
@@ -34,8 +34,9 @@ function knownBot(req: Request, res: Response): string | null {
   return null;
 }
 
-// Per learner, so one busy office network doesn't share a limit.
-const chatLimiter = perUser("ai-mentor-chat", MINUTE, 20);
+// Per learner, so one busy office network doesn't share a limit: 20 messages a
+// minute and 300 a day (each one is a paid model call on Potential's bot service).
+export const chatLimits = capped("ai-mentor-chat", 20, MINUTE, 300);
 
 /**
  * GET /api/ai-mentors/:botId
@@ -95,7 +96,7 @@ export function withDocument(message: string, doc?: { name: string; text: string
  * POST /api/ai-mentors/:botId/chat  { message, sessionId, document? }
  * Streams the bot's server-sent events straight back to the learner.
  */
-router.post("/:botId/chat", authenticate, chatLimiter, validate(chatDto), async (req: Request, res: Response): Promise<void> => {
+router.post("/:botId/chat", authenticate, ...chatLimits, validate(chatDto), async (req: Request, res: Response): Promise<void> => {
   const botId = knownBot(req, res);
   if (!botId) return;
   const { message, sessionId, document } = req.body as z.infer<typeof chatDto>;
