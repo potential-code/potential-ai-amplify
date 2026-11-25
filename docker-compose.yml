@@ -86,11 +86,19 @@ services:
         NEXT_PUBLIC_AI_BACKEND_URL: ${NEXT_PUBLIC_AI_BACKEND_URL}
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
         NEXT_PUBLIC_HUMAN_MENTORS_ENABLED: ${HUMAN_MENTORS_ENABLED:-false}
-    # Host ports 3000 (Dokploy dashboard) and 3001 are already allocated on
-    # this host, so the client is published on 8090 to avoid the conflict.
+    # No host ports: Dokploy routes the domain to this service's port 3000.
     environment:
       NODE_ENV: production
       PORT: "3000"
+    healthcheck:
+      # The site's own port (127.0.0.1: Next listens on IPv4). Traefik only
+      # routes to a healthy container, so check every 5 s while it starts.
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      start_interval: 5s
     depends_on:
       server:
         condition: service_healthy
