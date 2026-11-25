@@ -53,5 +53,9 @@ COPY --from=builder /app/client/.next/standalone ./
 # alongside the nested server.js under client/.
 COPY --from=builder /app/client/.next/static ./client/.next/static
 COPY --from=builder /app/client/public ./client/public
+# Runs as the unprivileged "node" user (uid 1000). The code stays root-owned;
+# only Next's cache (image optimisation, ISR) is writable by it.
+RUN mkdir -p ./client/.next/cache && chown -R node:node ./client/.next/cache
+USER node
 EXPOSE 3000
 CMD ["node", "client/server.js"]

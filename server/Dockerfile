@@ -28,6 +28,9 @@ RUN node ./server/build.mjs
 FROM node:22-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+# su-exec: the entrypoint starts as root only to hand the uploads volume to the
+# unprivileged "node" user (uid 1000), then runs migrations and the server as it.
+RUN apk add --no-cache su-exec
 # Compiled server bundle
 COPY --from=builder /app/server/dist ./dist
 # Seed data files read at runtime by seed-course-content and seed-posttests.
@@ -50,8 +53,10 @@ COPY --from=builder /app/server/scripts/migrate.mjs ./scripts/migrate.mjs
 COPY --from=builder /app/server/scripts/create-operator-user.mjs ./scripts/create-operator-user.mjs
 # CRM outbox health, read-only: node scripts/crm-outbox-status.mjs
 COPY --from=builder /app/server/scripts/crm-outbox-status.mjs ./scripts/crm-outbox-status.mjs
-# Entrypoint: runs migrations then starts server
+# Entrypoint: gives the uploads volume to "node", drops to it, runs migrations
+# then starts the server. The app code stays root-owned (read-only to the app);
+# only /app/uploads is writable by it.
 COPY server/entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh && mkdir -p ./uploads/certificates ./uploads/media
+RUN chmod 0755 ./entrypoint.sh && mkdir -p ./uploads/certificates ./uploads/media && chown -R node:node ./uploads
 EXPOSE 5000
 ENTRYPOINT ["./entrypoint.sh"]
