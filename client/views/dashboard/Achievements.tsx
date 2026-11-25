@@ -264,7 +264,10 @@ export default function AchievementsPage() {
 
   return (
     <DashboardLayout>
-      <PageHeader title="Achievements" subtitle="Your points, your badges, and where you stand among AI Amplify learners." />
+      <PageHeader
+        title="Achievements"
+        subtitle={boardLive ? 'Your points, your badges, and where you stand among AI Amplify learners.' : 'Your points and badges.'}
+      />
 
       <div className={cn('mb-6 grid gap-4', rankLive ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
         <StatCard
