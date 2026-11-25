@@ -8,12 +8,12 @@ import { STAKEHOLDER, type StakeholderKind } from '@/lib/constants/content'
 import { StakeholderRegisterDialog } from '@/components/landing/StakeholderRegisterDialog'
 
 const ART: Record<StakeholderKind, string> = {
-  expert: '/images/redesign/stakeholder-1-experts.png',
-  vc: '/images/redesign/stakeholder-2-vc.png',
-  government: '/images/redesign/stakeholder-3-government.png',
-  corporate: '/images/redesign/stakeholder-4-corporate.png',
-  university: '/images/redesign/stakeholder-5-university.png',
-  incubator: '/images/redesign/stakeholder-6-incubator.png',
+  expert: '/images/redesign/stakeholder-1-experts.webp',
+  vc: '/images/redesign/stakeholder-2-vc.webp',
+  government: '/images/redesign/stakeholder-3-government.webp',
+  corporate: '/images/redesign/stakeholder-4-corporate.webp',
+  university: '/images/redesign/stakeholder-5-university.webp',
+  incubator: '/images/redesign/stakeholder-6-incubator.webp',
 }
 
 /** Strip the old exclamation marks and commas-before-or so the copy reads calmly. */

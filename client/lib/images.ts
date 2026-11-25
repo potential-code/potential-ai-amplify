@@ -1,9 +1,11 @@
+import { OPTIMIZED_IMAGES } from './optimizedImages.generated'
+
 /**
- * The optimised copy of a public image, when one exists. Amplify does not yet
- * generate compressed .webp copies (AI Amplify's scripts/optimize-images.mjs), so
- * this returns the path unchanged; components call it so that adding the
- * optimiser later needs no component changes.
+ * The compressed .webp copy of a public image when one exists (see
+ * scripts/optimize-images.mjs), otherwise the path unchanged. For paths that
+ * come from the database; static paths in code point at the .webp directly.
  */
 export function optimizedSrc<T extends string | null | undefined>(src: T): T {
-  return src
+  if (!src || !OPTIMIZED_IMAGES.has(src)) return src
+  return src.replace(/\.(png|jpe?g)$/i, '.webp') as T
 }

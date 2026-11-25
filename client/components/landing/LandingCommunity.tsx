@@ -28,7 +28,7 @@ export function LandingCommunity() {
 
         <div className="relative flex min-h-[300px] flex-col justify-end gap-4 overflow-hidden rounded-[14px] bg-[#1c1029] p-7 text-white">
           <img
-            src="/images/redesign/world-map.png"
+            src="/images/redesign/world-map.webp"
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
           />

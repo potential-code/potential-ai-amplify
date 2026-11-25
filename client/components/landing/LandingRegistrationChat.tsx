@@ -496,7 +496,7 @@ function LandingRegistrationChatInner({ autoStart }: { autoStart: boolean }) {
       {showSuggestion && !autoStart && (
         <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 overflow-y-auto px-6 py-6">
           <img
-            src="/images/redesign/anna-avatar-200.png"
+            src="/images/redesign/anna-avatar-200.webp"
             alt=""
             className="h-24 w-24 rounded-full object-cover object-top shadow-[0_0_0_4px_var(--ui-brand-soft)]"
           />

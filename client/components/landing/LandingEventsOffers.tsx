@@ -12,7 +12,7 @@ import { optimizedSrc } from '@/lib/images'
 const SHOW = 3
 
 /** Event rows without their own cover use the program's events art. */
-const EVENT_ART = '/images/redesign/journey-6-events.png'
+const EVENT_ART = '/images/redesign/journey-6-events.webp'
 
 function parseDate(d: string) {
   const [year = '', month = '', day = ''] = d.split('-')

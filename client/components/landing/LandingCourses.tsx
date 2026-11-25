@@ -104,7 +104,7 @@ function CoreTrackCard() {
       <TrackBanner
         title="Core AI courses"
         meta={`${JOURNEY_COURSES.courses.length} courses, final exams, certificates`}
-        art="/images/redesign/journey-1-training.png"
+        art="/images/redesign/journey-1-training.webp"
       />
       <ul className="flex flex-1 flex-col px-[22px] py-2">
         {JOURNEY_COURSES.courses.map((c, i) => {
@@ -173,7 +173,7 @@ function SkillsTrackCard() {
 function ResourcesCard() {
   return (
     <Card id="additional-resources" className="flex flex-col overflow-hidden shadow-ui" aria-labelledby="h-track">
-      <TrackBanner title="Additional resources" meta="Learning from Potential and its partners" art="/images/redesign/journey-3-tools.png" />
+      <TrackBanner title="Additional resources" meta="Learning from Potential and its partners" art="/images/redesign/journey-3-tools.webp" />
       <div className="flex flex-1 flex-col justify-center gap-4 px-[22px] py-5">
         <p className="text-sm leading-relaxed text-ui-muted">
           Members also get extra learning resources from Potential and its technology partners, alongside the core

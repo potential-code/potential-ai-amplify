@@ -39,17 +39,17 @@ export const JOURNEY = {
     {
       title: 'AI Training Courses',
       description: 'Build future-ready AI skills in short, practical lessons.',
-      image: '/images/redesign/journey-1-training.png',
+      image: '/images/redesign/journey-1-training.webp',
     },
     {
       title: 'AI Mentors',
       description: 'Get 24/7 AI guidance to automate your workflows.',
-      image: '/images/redesign/journey-2-mentors.png',
+      image: '/images/redesign/journey-2-mentors.webp',
     },
     {
       title: 'AI Tools',
       description: 'Generate plans, content, and proposals in minutes.',
-      image: '/images/redesign/journey-3-tools.png',
+      image: '/images/redesign/journey-3-tools.webp',
     },
     {
       title: 'Private Mentorship',
@@ -64,7 +64,7 @@ export const JOURNEY = {
     {
       title: 'Events',
       description: 'Learn live from AI and business experts, on demand or in person.',
-      image: '/images/redesign/journey-6-events.png',
+      image: '/images/redesign/journey-6-events.webp',
     },
   ],
   image: '/images/about-banner.png',
@@ -86,7 +86,7 @@ export const STAKEHOLDER = {
         'Share your expertise as a mentor, coach, or lecturer and help SMEs put AI into practice.',
       ctaLabel: 'Join as an Expert',
       ctaHref: '#',
-      image: '/images/redesign/stakeholder-1-experts.png',
+      image: '/images/redesign/stakeholder-1-experts.webp',
     },
     {
       kind: 'vc',
@@ -95,7 +95,7 @@ export const STAKEHOLDER = {
         'Join as a VC, PE firm, bank, or financing partner to discover AI-ready businesses to fund.',
       ctaLabel: 'Join as a VC',
       ctaHref: '#',
-      image: '/images/redesign/stakeholder-2-vc.png',
+      image: '/images/redesign/stakeholder-2-vc.webp',
     },
     {
       kind: 'government',
@@ -104,7 +104,7 @@ export const STAKEHOLDER = {
         'Bring AI Amplify to your community as a multilateral or government partner.',
       ctaLabel: 'Join as a Government',
       ctaHref: '#',
-      image: '/images/redesign/stakeholder-3-government.png',
+      image: '/images/redesign/stakeholder-3-government.webp',
     },
     {
       kind: 'corporate',
@@ -113,7 +113,7 @@ export const STAKEHOLDER = {
         'Sponsor the program or put your solutions in front of AI-ready businesses.',
       ctaLabel: 'Join as a Corporate',
       ctaHref: '#',
-      image: '/images/redesign/stakeholder-4-corporate.png',
+      image: '/images/redesign/stakeholder-4-corporate.webp',
     },
     {
       kind: 'university',
@@ -122,7 +122,7 @@ export const STAKEHOLDER = {
         'Join as a university or think tank to share faculty expertise and advance applied AI research.',
       ctaLabel: 'Join as a University',
       ctaHref: '#',
-      image: '/images/redesign/stakeholder-5-university.png',
+      image: '/images/redesign/stakeholder-5-university.webp',
     },
     {
       kind: 'incubator',
@@ -131,7 +131,7 @@ export const STAKEHOLDER = {
         'Extend AI Amplify to your members as a chamber, incubator, co-working space, or NGO.',
       ctaLabel: 'Join as an Incubator',
       ctaHref: '#',
-      image: '/images/redesign/stakeholder-6-incubator.png',
+      image: '/images/redesign/stakeholder-6-incubator.webp',
     },
   ],
   smeCtaLabel: 'Register as SME',
@@ -327,12 +327,12 @@ export const JOURNEY_COURSES = {
 // Landing "More courses" picks. Titles, unit counts and covers mirror AI
 // Amplify's published courses in the database.
 export const LANDING_COURSE_PICKS = [
-  { title: 'Financial Literacy', units: 6, cover: '/images/courses/financial-literacy.png' },
-  { title: 'Communication Skills', units: 10, cover: '/images/courses/communication-skills.png' },
-  { title: 'Leadership Essentials', units: 12, cover: '/images/courses/leadership-essentials.png' },
-  { title: 'Managing your Cash Flow', units: 5, cover: '/images/courses/managing-your-cash-flow.png' },
-  { title: 'Digital Marketing', units: 12, cover: '/images/courses/24minmarketing.png' },
-  { title: 'Negotiation Skills', units: 6, cover: '/images/courses/negotiation-skills.png' },
+  { title: 'Financial Literacy', units: 6, cover: '/images/courses/financial-literacy.webp' },
+  { title: 'Communication Skills', units: 10, cover: '/images/courses/communication-skills.webp' },
+  { title: 'Leadership Essentials', units: 12, cover: '/images/courses/leadership-essentials.webp' },
+  { title: 'Managing your Cash Flow', units: 5, cover: '/images/courses/managing-your-cash-flow.webp' },
+  { title: 'Digital Marketing', units: 12, cover: '/images/courses/24minmarketing.webp' },
+  { title: 'Negotiation Skills', units: 6, cover: '/images/courses/negotiation-skills.webp' },
 ] as const
 
 // AI Mentors — gif avatars from api.potential.com
@@ -614,28 +614,28 @@ export const CTA_FINAL = {
 
 // Centralized redesign asset paths + alt text
 export const REDESIGN_ASSETS = {
-  hero: { src: '/images/redesign/hero.png', alt: 'AI-empowered SME workspace' },
+  hero: { src: '/images/redesign/hero.webp', alt: 'AI-empowered SME workspace' },
   heroBg: {
-    src: '/images/redesign/hero-bg.png',
+    src: '/images/redesign/hero-bg.webp',
     alt: '',
   },
-  aboutPhoto: { src: '/images/redesign/about-photo.png', alt: 'SME owner working with AI tools' },
-  aboutGlobe: { src: '/images/redesign/about-globe.png', alt: 'Global SME network' },
+  aboutPhoto: { src: '/images/redesign/about-photo.webp', alt: 'SME owner working with AI tools' },
+  aboutGlobe: { src: '/images/redesign/about-globe.webp', alt: 'Global SME network' },
   journeyFlow: {
-    src: '/images/redesign/journey-flow-image.png',
+    src: '/images/redesign/journey-flow-image.webp',
     alt: 'AI-powered journey flow diagram',
   },
   additionalResources: {
-    src: '/images/redesign/additional-resources.png',
+    src: '/images/redesign/additional-resources.webp',
     alt: 'Additional resources from AWS, Cisco, Potential and Schneider Electric',
   },
-  worldMap: { src: '/images/redesign/world-map.png', alt: 'Global community map' },
-  chatbotOrb: { src: '/images/redesign/chatbot-orb.png', alt: 'AI assistant orb avatar' },
+  worldMap: { src: '/images/redesign/world-map.webp', alt: 'Global community map' },
+  chatbotOrb: { src: '/images/redesign/chatbot-orb.webp', alt: 'AI assistant orb avatar' },
   logo: { src: '/images/ai-amplify-logo.png', alt: 'AI Amplify' },
   annaAvatar96: { src: '/images/redesign/anna-avatar-96.png', alt: 'Anna, your AI Business Assistant' },
-  annaAvatar200: { src: '/images/redesign/anna-avatar-200.png', alt: 'Anna, your AI Business Assistant' },
-  ctaFinalBg: { src: '/images/redesign/cta-final-bg.png', alt: '' },
-  authVisual: { src: '/images/redesign/auth-visual.png', alt: '' },
+  annaAvatar200: { src: '/images/redesign/anna-avatar-200.webp', alt: 'Anna, your AI Business Assistant' },
+  ctaFinalBg: { src: '/images/redesign/cta-final-bg.webp', alt: '' },
+  authVisual: { src: '/images/redesign/auth-visual.webp', alt: '' },
 } as const
 
 // Testimonials

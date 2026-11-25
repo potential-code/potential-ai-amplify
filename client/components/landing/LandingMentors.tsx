@@ -105,9 +105,9 @@ export function LandingAiMentors() {
           className="flex scroll-mt-[84px] flex-col gap-4 overflow-hidden rounded-[14px] border border-ui-line bg-ui-bg p-[22px] pt-0"
         >
           <div className="relative -mx-[22px] mb-8 h-[180px] bg-[#0d0a14]">
-            <img src="/images/redesign/chatbot-orb.png" alt="" className="h-full w-full object-cover object-[center_45%] opacity-90" />
+            <img src="/images/redesign/chatbot-orb.webp" alt="" className="h-full w-full object-cover object-[center_45%] opacity-90" />
             <img
-              src="/images/redesign/anna-avatar-200.png"
+              src="/images/redesign/anna-avatar-200.webp"
               alt="Anna"
               className="absolute -bottom-8 left-[22px] h-[76px] w-[76px] rounded-full border-4 border-ui-bg object-cover object-top"
             />

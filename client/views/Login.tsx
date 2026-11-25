@@ -353,7 +353,7 @@ function SignInAside() {
         ]}
       />
       <img
-        src="/images/redesign/hero.png"
+        src="/images/redesign/hero.webp"
         alt=""
         className="block h-[200px] w-full rounded-[14px] object-cover object-[60%_40%] opacity-[0.92]"
       />
