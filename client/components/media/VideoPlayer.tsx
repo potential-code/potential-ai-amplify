@@ -211,8 +211,24 @@ export function VideoPlayer({
     const near = saved?.d ? segEnd(saved.d) - 8 : Infinity
     const startAt = saved && saved.t > segStart + 5 && saved.t < near ? Math.floor(saved.t) : null
     resumeRef.current = startAt
+    const host = hostRef.current
     const mount = document.createElement('div')
-    hostRef.current.appendChild(mount)
+    host.appendChild(mount)
+    // YouTube sizes its video once, when the player is created. If the box changes
+    // size afterwards (a dialog opening, the page scrollbar going away, a window
+    // resize), the picture stays at the old size in a corner of the frame. Tell the
+    // player its real size whenever the box changes.
+    const fitToBox = () => {
+      const p = playerRef.current
+      if (!p || !readyRef.current || !host.clientWidth) return
+      try {
+        p.setSize?.(host.clientWidth, host.clientHeight)
+      } catch {
+        /* player gone */
+      }
+    }
+    const sizeObserver = 'ResizeObserver' in window ? new ResizeObserver(fitToBox) : null
+    sizeObserver?.observe(host)
 
     const create = () =>
       loadYouTubeApi().then(() => {
@@ -240,6 +256,7 @@ export function VideoPlayer({
           events: {
             onReady: () => {
               readyRef.current = true
+              fitToBox()
               const p = playerRef.current
               // Captions stay off unless the learner turns them on.
               try {
@@ -309,6 +326,7 @@ export function VideoPlayer({
     return () => {
       cancelled = true
       observer?.disconnect()
+      sizeObserver?.disconnect()
       const p = playerRef.current
       if (p && readyRef.current) {
         try {
