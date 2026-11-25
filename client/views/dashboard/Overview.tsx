@@ -13,6 +13,7 @@ import { getMyAiMentors } from '@/lib/dashboardData'
 import { aiMentorPortrait } from '@/components/dashboard/aiMentorMeta'
 import { fetchLearnerCourses, fetchUserCertificates } from '@/lib/api/lms'
 import { cancelSmeSession, getSmeSessions, getMentors, type MentorUser, type SmeSession } from '@/lib/api/sme'
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 import { fetchOffers } from '@/lib/api/offers'
 import { fetchMyEvents, type LiveEvent } from '@/lib/api/liveEvents'
 import { eventPhaseAt, timeLabel, useNow } from '@/lib/events/eventTime'
@@ -63,7 +64,7 @@ export default function DashboardOverview() {
   const { data: offersData } = useQuery({ queryKey: ['offers'], queryFn: fetchOffers })
   const { data: liveEvents = [] } = useQuery({ queryKey: ['live-events', 'mine'], queryFn: fetchMyEvents })
   const now = useNow()
-  const { data: apiMentors = [], isLoading: mentorsLoading } = useQuery({ queryKey: ['mentors'], queryFn: getMentors })
+  const { data: apiMentors = [], isLoading: mentorsLoading } = useQuery({ queryKey: ['mentors'], queryFn: getMentors, enabled: HUMAN_MENTORS_ENABLED })
   const streakQuery = useQuery({ queryKey: ['me-streak'], queryFn: fetchStreak, retry: false })
 
   const inProgress = useMemo(() => courses.filter((c) => c.isEnrolled && c.progressPercentage < 100), [courses])
@@ -188,7 +189,7 @@ export default function DashboardOverview() {
             />
           </div>
           <div className="flex min-w-0 flex-col gap-5">
-            <MentorsCard loading={mentorsLoading} mentors={apiMentors.slice(0, 3)} />
+            {HUMAN_MENTORS_ENABLED && <MentorsCard loading={mentorsLoading} mentors={apiMentors.slice(0, 3)} />}
             <CertificateCard certificates={certificates} />
             <Card>
               <div className="flex items-center justify-between gap-3 px-5 pt-4">
@@ -499,7 +500,7 @@ function AskSanaBar() {
     } catch {
       /* storage blocked: Anna still opens */
     }
-    router.push('/dashboard/assistant')
+    router.push('/dashboard/anna')
   }
 
   return (
@@ -715,15 +716,18 @@ function ComingUpCard({
       )}
       {events.length === 0 && (
         <p className="text-[13px] text-ui-muted">
-          {sessions.length === 0 && !sessionsFailed ? 'No mentor sessions booked and no live events scheduled.' : 'No live events scheduled.'}{' '}
+          {HUMAN_MENTORS_ENABLED && sessions.length === 0 && !sessionsFailed ? 'No mentor sessions booked and no live events scheduled.' : 'No live events scheduled.'}{' '}
           <Link href="/dashboard/events" className="font-semibold text-ui-brand-text hover:underline">
             Browse past recordings
           </Link>
         </p>
       )}
       <div className="flex gap-2 sm:justify-end">
-        <Link href="/dashboard/human-mentors" className={cn(btn({ variant: 'secondary', size: 'sm' }), 'h-9 max-sm:flex-1')}>
-          Find a mentor
+        <Link
+          href={HUMAN_MENTORS_ENABLED ? '/dashboard/human-mentors' : '/dashboard/ai-mentors'}
+          className={cn(btn({ variant: 'secondary', size: 'sm' }), 'h-9 max-sm:flex-1')}
+        >
+          {HUMAN_MENTORS_ENABLED ? 'Find a mentor' : 'Ask an AI mentor'}
         </Link>
         <Link href="/dashboard/events" className={cn(btn({ variant: 'ghost', size: 'sm' }), 'h-9')}>
           All events

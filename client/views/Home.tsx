@@ -6,6 +6,7 @@ import { LandingEventsOffers } from '@/components/landing/LandingEventsOffers'
 import { LandingStakeholders } from '@/components/landing/LandingStakeholders'
 import { LandingCommunity } from '@/components/landing/LandingCommunity'
 import { LandingFooter } from '@/components/landing/LandingFooter'
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 
 /** Public homepage: About folded into the hero, events and AI tools side by side. */
 export default function Home() {
@@ -22,7 +23,7 @@ export default function Home() {
         <LandingHero />
         <LandingCourses />
         <LandingAiMentors />
-        <LandingHumanMentors />
+        {HUMAN_MENTORS_ENABLED && <LandingHumanMentors />}
         <LandingEventsOffers />
         <LandingStakeholders />
         <LandingCommunity />

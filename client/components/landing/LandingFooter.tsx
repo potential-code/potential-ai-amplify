@@ -4,6 +4,7 @@ import { btn } from '@/components/kit'
 import { FOOTER } from '@/lib/constants/content'
 import { FOOTER_LINKS, LEGAL_LINKS } from '@/lib/constants/navigation'
 import { cn } from '@/lib/utils'
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 
 const SHARE_URL = 'https://aiamplify.potential.org'
 const SHARE_TEXT = 'Grow your business with AI training, mentors, and tools: AI Amplify by Potential'
@@ -55,7 +56,7 @@ export function LandingFooter() {
           <div className="flex flex-col gap-3.5">
             <img src="/images/redesign/potential-logo.png" alt="AI Amplify" className="h-10 w-auto self-start" />
             <p className="max-w-[300px] text-sm leading-[1.55] text-ui-muted">
-              AI Amplify by Potential: AI courses, AI and human mentors, live events and AI tools for SMEs.
+              AI Amplify by Potential: AI courses, {HUMAN_MENTORS_ENABLED ? 'AI and human mentors' : 'AI mentors'}, live events and AI tools for SMEs.
             </p>
             <div className="flex flex-col gap-2">
               <span className="text-[13px] font-semibold text-ui-text">Share the program</span>

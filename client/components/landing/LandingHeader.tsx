@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 import { btn } from '@/components/kit'
 import { cn } from '@/lib/utils'
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 
 /** In-page anchors. `wide` items hide between 900px and 1100px to keep one row. */
 export const LANDING_NAV = [
@@ -18,7 +19,7 @@ export const LANDING_NAV = [
   { label: 'Community', href: '#community', wide: true },
 ] as const
 
-const MOBILE_EXTRA = [{ label: 'Human mentors', href: '#mentors' }]
+const MOBILE_EXTRA = HUMAN_MENTORS_ENABLED ? [{ label: 'Human mentors', href: '#mentors' }] : []
 
 export function LandingHeader() {
   const [open, setOpen] = useState(false)

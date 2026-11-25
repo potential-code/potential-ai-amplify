@@ -6,6 +6,7 @@
  * (copy and read aloud under each, follow-up chips under the latest), the
  * learner's in magenta bubbles, ice-breakers as chips over the composer, and
  * (on wide screens) a rail with the mentor's details, human mentors to book
+ * (only while HUMAN_MENTORS_ENABLED)
  * and the other AI mentors. The composer can dictate and share a document,
  * like Ask Anna. Bot config and the SSE stream come through the AI Amplify server
  * (/api/ai-mentors), behind the learner's session.
@@ -21,6 +22,7 @@ import { ArrowLeft, FileText, Loader2, Mic, Paperclip, Send, Square, X } from 'l
 import { cn } from '@/lib/utils'
 import { Avatar, btn, Chip, EmptyState } from '@/components/kit'
 import { getMentors } from '@/lib/api/sme'
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 import { aiMentorViewByBotId, aiMentorViews, type AiMentorView } from './aiMentorMeta'
 import { ASK_DOCUMENT_ACCEPT, readDocument } from './AskSanaMessages'
 import { SanaReplyButtons, type ReadAloud } from '@/components/learning-ui/SanaReplyActions'
@@ -245,7 +247,7 @@ function LearnerTurn({ message }: { message: Message }) {
 
 /** Wide screens: who this mentor is, people to book, other AI mentors. */
 function MentorRail({ view, name, specialty, description }: { view?: AiMentorView; name: string; specialty: string; description?: string }) {
-  const { data: humans } = useQuery({ queryKey: ['mentors'], queryFn: getMentors })
+  const { data: humans } = useQuery({ queryKey: ['mentors'], queryFn: getMentors, enabled: HUMAN_MENTORS_ENABLED })
   const others = aiMentorViews().filter((m) => m.slug !== view?.slug).slice(0, 3)
   const people = (() => {
     const list = humans ?? []
@@ -268,7 +270,7 @@ function MentorRail({ view, name, specialty, description }: { view?: AiMentorVie
           <Chip>Available 24/7</Chip>
         </div>
       </section>
-      {people.length > 0 && (
+      {HUMAN_MENTORS_ENABLED && people.length > 0 && (
         <section className="flex flex-col gap-2.5 border-b border-ui-line pb-5">
           <div>
             <h2 className="text-[15px] font-semibold text-ui-text">Prefer a person?</h2>

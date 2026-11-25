@@ -8,11 +8,12 @@ import { Avatar, btn, Card, Chip, PageHeader, SectionHeader } from '@/components
 import { aiMentorViews } from '@/components/dashboard/aiMentorMeta'
 import { getMentors } from '@/lib/api/sme'
 import { cn } from '@/lib/utils'
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 
 export default function AiMentorsPage() {
   const mentors = aiMentorViews()
   // Real human mentor count + faces for the "prefer a person" banner.
-  const { data: humans } = useQuery({ queryKey: ['mentors'], queryFn: getMentors })
+  const { data: humans } = useQuery({ queryKey: ['mentors'], queryFn: getMentors, enabled: HUMAN_MENTORS_ENABLED })
   const humanCount = humans?.length ?? 0
 
   return (
@@ -79,6 +80,7 @@ export default function AiMentorsPage() {
         </ul>
       </section>
 
+      {HUMAN_MENTORS_ENABLED && (
       <Card className="flex flex-wrap items-center gap-[18px] px-5 py-[18px]">
         {humans && humans.length > 0 && (
           <div aria-hidden className="flex flex-shrink-0">
@@ -105,6 +107,7 @@ export default function AiMentorsPage() {
           Browse human mentors
         </Link>
       </Card>
+      )}
     </DashboardLayout>
   )
 }

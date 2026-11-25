@@ -11,6 +11,7 @@ import { CodeForm, codeErrorMessage } from "@/components/auth/CodeForm";
 import { authClient } from "@/lib/authClient";
 import { clearAuth, getUser, homeFor, refreshUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 
 // Sign in leads with an email code: enter your email, type the 6-digit code
 // we send. A password works too for anyone who has set one, and a forgotten
@@ -340,7 +341,7 @@ function SignInAside() {
           Amplify your business with AI.
         </h2>
         <p className={cn("text-base leading-[1.6]", asideMuted)}>
-          Work smarter, grow faster. AI courses, AI and human mentors, live events and AI tools, by Potential.
+          Work smarter, grow faster. AI courses, {HUMAN_MENTORS_ENABLED ? 'AI and human mentors' : 'AI mentors'}, live events and AI tools, by Potential.
         </p>
       </div>
       <AsideChecklist
@@ -358,8 +359,8 @@ function SignInAside() {
       />
       <div className="mt-auto flex max-w-[460px] flex-col gap-3.5">
         <AsideSana>
-          Welcome back. Once you&apos;re in, I&apos;ll pick up where you left off: your next unit, your mentor
-          sessions and your points.
+          Welcome back. Once you&apos;re in, I&apos;ll pick up where you left off: your next unit,{' '}
+          {HUMAN_MENTORS_ENABLED ? 'your mentor sessions and your points.' : 'your AI mentors and your points.'}
         </AsideSana>
         <AsideStats />
       </div>

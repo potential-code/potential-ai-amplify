@@ -1,4 +1,5 @@
 // Hero section
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 export const HERO = {
   headline: 'Amplify your business with AI. Work smarter, grow faster.',
   subtext:
@@ -683,5 +684,7 @@ export const PROGRAM_FACTS = [
   { value: '6', label: 'core AI courses' },
   { value: '6', label: 'AI mentors' },
   { value: '24/7', label: 'with Anna, your AI concierge' },
-  { value: '1:1', label: 'sessions with human mentors' },
+  HUMAN_MENTORS_ENABLED
+    ? { value: '1:1', label: 'sessions with human mentors' }
+    : { value: '4', label: 'AI business tools' },
 ] as const

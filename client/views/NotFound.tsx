@@ -19,6 +19,7 @@ import { btn } from '@/components/kit'
 import { getUser, homeFor, type User } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 import { useNarrow } from '@/lib/useNarrow'
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 
 type Dest = { label: string; meta: string; href: string; icon: LucideIcon; keywords: string }
 
@@ -36,8 +37,8 @@ function destinationsFor(user: User | null): Dest[] {
     },
     {
       label: 'Mentors',
-      meta: 'AI and human',
-      href: learner ? '/dashboard/human-mentors' : '/#ai-mentors',
+      meta: HUMAN_MENTORS_ENABLED ? 'AI and human' : 'AI coaches, 24/7',
+      href: learner ? (HUMAN_MENTORS_ENABLED ? '/dashboard/human-mentors' : '/dashboard/ai-mentors') : '/#ai-mentors',
       icon: Users,
       keywords: 'mentor mentors coach ai human session book',
     },

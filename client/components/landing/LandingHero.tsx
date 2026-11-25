@@ -3,13 +3,14 @@ import { ArrowRight, Check } from 'lucide-react'
 import { btn } from '@/components/kit'
 import { HERO, PROGRAM_FACTS, REDESIGN_ASSETS } from '@/lib/constants/content'
 import { cn } from '@/lib/utils'
+import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 
 const STATS = PROGRAM_FACTS
 
 const INCLUDED = [
   'Six core AI courses with certificates',
   'AI mentors and Anna, 24/7',
-  'Private 1:1 human mentor sessions',
+  ...(HUMAN_MENTORS_ENABLED ? ['Private 1:1 human mentor sessions'] : ['AI tools for your business']),
   'Live events and recordings',
 ]
 
@@ -27,7 +28,8 @@ export function LandingHero() {
           </h1>
           <p className="max-w-[640px] text-[17px] leading-[1.55] text-ui-muted">
             AI Amplify is a program for small and medium businesses, by Potential. Learn the core AI skills, get
-            guidance from AI and human mentors, join live events, and put AI tools to work in your business.
+            guidance from {HUMAN_MENTORS_ENABLED ? 'AI and human mentors' : 'AI mentors'}, join live events, and put AI
+            tools to work in your business.
           </p>
           <ul className="grid grid-cols-1 gap-2 text-[15px] text-ui-text sm:grid-cols-2">
             {INCLUDED.map((t) => (

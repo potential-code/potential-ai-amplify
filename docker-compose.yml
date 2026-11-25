@@ -61,6 +61,9 @@ services:
       ZOOM_HOST_USER_ID: ${ZOOM_HOST_USER_ID:-}
       ZOOM_WEBHOOK_SECRET_TOKEN: ${ZOOM_WEBHOOK_SECRET_TOKEN:-}
       NEXT_PUBLIC_AI_BACKEND_URL: ${NEXT_PUBLIC_AI_BACKEND_URL}
+      # Human mentors and booking. Off until real mentors can sign in and set
+      # times; the same value is passed to the site build below.
+      HUMAN_MENTORS_ENABLED: ${HUMAN_MENTORS_ENABLED:-false}
     volumes:
       - uploads:/app/uploads
     restart: unless-stopped
@@ -82,6 +85,7 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
         NEXT_PUBLIC_AI_BACKEND_URL: ${NEXT_PUBLIC_AI_BACKEND_URL}
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+        NEXT_PUBLIC_HUMAN_MENTORS_ENABLED: ${HUMAN_MENTORS_ENABLED:-false}
     # Host ports 3000 (Dokploy dashboard) and 3001 are already allocated on
     # this host, so the client is published on 8090 to avoid the conflict.
     environment:
