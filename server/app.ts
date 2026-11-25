@@ -13,6 +13,7 @@ import { errorHandler } from "./middleware/error-handler";
 import { auditAdminActions } from "./middleware/audit-log";
 import zoomWebhookRouter from "./routes/zoomWebhook.routes";
 import { perIp, MINUTE } from "./middleware/limits";
+import { originCheck } from "./middleware/originCheck";
 
 // Fail fast without a signing secret: Better Auth signs session cookies with
 // BETTER_AUTH_SECRET, falling back to JWT_SECRET (auth/index.ts).
@@ -89,8 +90,13 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 // Zoom signs the raw body, so its webhook is mounted before the JSON parser.
 app.use("/api/webhooks/zoom", zoomWebhookRouter);
 
+// State-changing API calls must come from the site itself (Origin/Referer),
+// checked before the body is read. Better Auth and the Zoom webhook above are
+// exempt; so are operator-key (Bearer) requests. See middleware/originCheck.ts.
+app.use("/api", originCheck);
+
+// JSON only: nothing posts HTML forms (urlencoded) to the API.
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // A ceiling for every API route, per visitor, under the routes' own limits:
 // 20 requests a second is far above any real page, even for an office sharing
