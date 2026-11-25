@@ -35,7 +35,7 @@ type Record_ = {
   data: {
     profile: { email: string }
     courses: { courseId: string; units: { status: string }[]; exams: { answers: { isCorrect: boolean; chosen: number | null }[] }[]; responses: { kind: string; answer: string }[] }[]
-    conversations: { surfaceLabel: string; question: string | null; answer: string }[]
+    conversations: { source: string; surfaceLabel: string; question: string | null; answer: string }[]
     activity: { kind: string }[]
   }
 }
@@ -125,7 +125,9 @@ describe('participant record', () => {
     expect(answers[0]!.isCorrect).toBe(true)
     if (answers.length > 1) expect(answers[1]!.isCorrect).toBe(false)
     if (course.responses.length) expect(course.responses.find((x) => x.kind === 'action-plan')?.answer).toBe('Open a second branch in Sharjah')
-    expect(r.conversations[0]).toMatchObject({ surfaceLabel: 'Ask Anna', question: 'How do I price my cakes?' })
+    expect(r.conversations[0]).toMatchObject({ source: 'learner_reported', surfaceLabel: 'Ask Anna', question: 'How do I price my cakes?' })
+    // Every saved chat came from the learner's browser, and says so.
+    expect(r.conversations.every((c) => c.source === 'learner_reported')).toBe(true)
     expect(r.activity.some((a) => a.kind === 'unit')).toBe(true)
   })
 

@@ -49,7 +49,8 @@ export type ParticipantRecordData = {
   }[]
   events: { title: string; startsAt: string; endsAt: string; format: string; bookedAt: string; attendedMinutes: number | null }[]
   mentorSessions: { mentorName: string; startsAt: string; minutes: number; status: string; cancelledBy: string | null; bookedAt: string }[]
-  conversations: { surface: string; surfaceLabel: string; question: string | null; answer: string; createdAt: string }[]
+  /** Posted by the learner's own browser after each answer: unverified, shown as learner-reported. */
+  conversations: { source: 'learner_reported'; surface: string; surfaceLabel: string; question: string | null; answer: string; createdAt: string }[]
 }
 
 type Tab = 'overview' | 'courses' | 'examiner' | 'sessions' | 'chats'
@@ -453,7 +454,7 @@ function Chats({ r }: { r: ParticipantRecordData }) {
           <li key={i}>
             <Card className="flex flex-col gap-2 p-4">
               <p className="text-xs text-ui-muted">
-                {c.surfaceLabel} · {at(c.createdAt)}
+                {c.surfaceLabel} · {at(c.createdAt)} · <span className="font-semibold">Reported by the learner&rsquo;s app</span>
               </p>
               {c.question && <p className="self-end whitespace-pre-wrap rounded-[12px] bg-ui-brand-soft px-3 py-2 text-[13px] text-ui-text">{c.question}</p>}
               <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ui-text">{c.answer}</p>
@@ -461,7 +462,9 @@ function Chats({ r }: { r: ParticipantRecordData }) {
           </li>
         ))}
       </ol>
-      <p className="text-xs text-ui-muted">The latest 200 answers. Chats are saved only while the participant is in this organisation, and deleted if they leave.</p>
+      <p className="text-xs text-ui-muted">
+        The latest 200 answers. Each chat is sent by the participant&rsquo;s own browser after the answer, so it shows what their app reported; AI Amplify can&rsquo;t verify the text. Chats are saved only while the participant is in this organisation, and deleted if they leave.
+      </p>
     </div>
   )
 }

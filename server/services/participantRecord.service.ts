@@ -279,7 +279,11 @@ export async function participantRecord(organisationId: string, userId: string) 
       cancelledBy: s.cancelledBy,
       bookedAt: s.bookedAt.toISOString(),
     })),
+    // The learner's own browser posts these after each answer (POST
+    // /api/me/ai-turns): the server never saw the conversation, so it can't
+    // vouch for the text. Every one is labelled as learner-reported.
     conversations: turns.map((t) => ({
+      source: "learner_reported" as const,
       surface: t.surface,
       surfaceLabel: surfaceLabel(t.surface),
       question: t.question,
@@ -294,6 +298,10 @@ export type ParticipantRecord = Awaited<ReturnType<typeof participantRecord>>;
 /**
  * Saves one AI answer (and the question before it) for a learner, only if
  * they belong to an organisation. Returns whether it was saved.
+ *
+ * The text comes from the learner's browser, not from the AI service, so it
+ * is what the learner's app reported, unverified; the participant record
+ * labels it that way (source "learner_reported").
  */
 export async function recordTurn(
   userId: string,

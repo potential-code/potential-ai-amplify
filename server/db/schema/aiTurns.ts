@@ -7,6 +7,8 @@ import { users } from './users'
  * who belong to an organisation (their partner can read them; learners are
  * told at sign-up and on their profile). Covers Anna, the course helper, the
  * tutor, the journeys and the AI mentors. Nothing is saved for anyone else.
+ * Every row is learner-reported: the learner's browser posts it after the
+ * answer (POST /api/me/ai-turns), so partners and admins see it labelled so.
  */
 export const aiTurns = pgTable('ai_turns', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
