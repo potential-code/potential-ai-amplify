@@ -1,3 +1,5 @@
+import { apiErrorFrom } from './errors'
+
 // ── Learner-facing types ─────────────────────────────────────────────────────
 
 export type LearnerCourse = {
@@ -232,10 +234,7 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
       ...(init?.headers ?? {}),
     },
   })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Request failed' }))
-    throw new Error((err as { message?: string }).message ?? 'Request failed')
-  }
+  if (!res.ok) throw await apiErrorFrom(res)
   return ((await res.json()) as { data: T }).data
 }
 

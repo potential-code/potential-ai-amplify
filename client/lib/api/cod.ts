@@ -1,3 +1,5 @@
+import { apiErrorFrom, ApiError } from './errors'
+
 export interface CodDiscoveryProfile {
   goals: string
   topics: string[]
@@ -62,12 +64,9 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
       ...(init?.headers ?? {}),
     },
   })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Request failed' })) as { message?: string }
-    throw new Error(err.message ?? `Request failed: ${res.status}`)
-  }
+  if (!res.ok) throw await apiErrorFrom(res)
   const json = await res.json() as { success: boolean; data: T }
-  if (!json.success) throw new Error('Request unsuccessful')
+  if (!json.success) throw new ApiError('We couldn’t complete that request. Please try again.', res.status)
   return json.data
 }
 

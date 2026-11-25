@@ -1,3 +1,4 @@
+import { apiErrorFrom, ApiError, friendlyApiError } from './errors'
 const BASE = `/api/media`
 
 
@@ -10,10 +11,7 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
       ...init?.headers,
     },
   })
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}))
-    throw new Error(body.message ?? `HTTP ${res.status}`)
-  }
+  if (!res.ok) throw await apiErrorFrom(res)
   const data = await res.json()
   return data.data
 }
@@ -55,13 +53,18 @@ export function uploadMediaFile(
         const body = JSON.parse(xhr.responseText)
         resolve(body.data[0] as MediaFile)
       } else {
-        reject(new Error(`Upload failed: ${xhr.status}`))
+        let body: unknown = null
+        try {
+          body = JSON.parse(xhr.responseText)
+        } catch {
+          /* non-JSON error page */
+        }
+        reject(new ApiError(friendlyApiError(xhr.status, body), xhr.status))
       }
     }
 
-    xhr.onerror = () => reject(new Error('Network error during upload'))
-
-      xhr.open('POST', `${BASE}/upload`)
+    xhr.onerror = () => reject(new ApiError('The upload was interrupted. Check your connection and try again.', 0))
+    xhr.open('POST', `${BASE}/upload`)
     xhr.send(formData)
   })
 }
