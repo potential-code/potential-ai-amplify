@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { checkSession, clearAuth, getUser, homeFor, type User } from '@/lib/auth'
 import { apiFetch } from '@/lib/api'
+import { withNext } from '@/lib/returnPath'
 
 type Role = User['role']
 
@@ -53,7 +54,10 @@ export function RequireAuth({ children, role }: Props) {
       const current = result.user
       if (!current) {
         clearAuth()
-        router.replace('/login?expired=1')
+        // ?next= brings them back to this page after signing in again (no
+        // #fragment: it would otherwise reach the server's request logs).
+        const here = `${window.location.pathname}${window.location.search}`
+        router.replace(withNext('/login?expired=1', here))
         return
       }
       setUser(current)
@@ -82,6 +86,8 @@ export function RequireAuth({ children, role }: Props) {
   const roleMismatch = !!user && !!role && user.role !== role
   useEffect(() => {
     if (roleMismatch && user) router.replace(homeFor(user.role))
+    // Signed out (here or in another tab). No ?next=: signing out is
+    // deliberate, and whoever signs in next shouldn't land on this page.
     else if (!user && confirmed) router.replace('/login')
   }, [roleMismatch, user, confirmed, router, pathname])
 

@@ -13,7 +13,8 @@ import {
   clearLandingPageThreadId,
   useCopilotTokenReady,
 } from "../dashboard/copilotConfig";
-import { homeFor, refreshUser } from "@/lib/auth";
+import { afterSignIn, refreshUser } from "@/lib/auth";
+import { nextInLocation, withNext } from "@/lib/returnPath";
 import { authClient } from "@/lib/authClient";
 import "../dashboard/copilot.css";
 import { apiFetch } from "@/lib/api";
@@ -188,7 +189,7 @@ function LandingRegistrationChatInner({ autoStart }: { autoStart: boolean }) {
   };
 
   const handleLoginClick = () => {
-    router.push("/login");
+    router.push(withNext("/login", nextInLocation())); // keeps ?next= (an emailed course link)
   };
 
   // Auto-start: wait for CopilotKit's input to register its send function,
@@ -425,8 +426,9 @@ function LandingRegistrationChatInner({ autoStart }: { autoStart: boolean }) {
           method: "POST",
           body: JSON.stringify({ fullName, email, country, couponCode, verifiedToken, ...consent }),
         });
-        await refreshUser();
-        router.push("/dashboard");
+        const user = await refreshUser();
+        // ?next= (an emailed course link, carried from /login): there, if this role can use it.
+        router.push(afterSignIn(user, nextInLocation()));
         return { success: true };
       } catch (err: unknown) {
         const body = err as { code?: string; message?: string };
@@ -467,7 +469,7 @@ function LandingRegistrationChatInner({ autoStart }: { autoStart: boolean }) {
           if (result.verified) {
             const user = await refreshUser();
             respond?.("Signed in");
-            router.push(user ? homeFor(user.role) : "/dashboard");
+            router.push(afterSignIn(user, nextInLocation()));
             return;
           }
           respond?.("Sign-in cancelled");

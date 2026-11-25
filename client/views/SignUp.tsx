@@ -21,9 +21,10 @@ import { getCountryDataList } from 'countries-list'
 import { btn } from '@/components/kit'
 import { AuthField, AuthAlert, PasswordToggle, authInputClass } from '@/components/auth/AuthField'
 import { AuthSplit, AuthHeading, asideMuted } from '@/components/auth/AuthSplit'
-import { homeFor, refreshUser } from '@/lib/auth'
+import { afterSignIn, refreshUser } from '@/lib/auth'
 import { CodeForm, codeErrorMessage } from '@/components/auth/CodeForm'
 import { apiFetch } from '@/lib/api'
+import { nextInLocation, withNext } from '@/lib/returnPath'
 import { LEGAL_LINKS } from '@/lib/constants/navigation'
 import { MARKETING_CONSENT_TEXT, consentBody } from '@/lib/signUpConsent'
 import { cn } from '@/lib/utils'
@@ -53,10 +54,21 @@ type ApiErr = { code?: string; status?: number; message?: string; error?: { code
 
 type JoiningOrg = { name: string; code: string }
 
+/**
+ * /login, carrying this page's ?next= (if safe) so switching to sign-in keeps
+ * the return path. Read after mount, like the other URL parameters here.
+ */
+function useLoginHref(): string {
+  const [href, setHref] = useState('/login')
+  useEffect(() => setHref(withNext('/login', nextInLocation())), [])
+  return href
+}
+
 function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () => void }) {
   const [formError, setFormError] = useState<string | null>(null)
   const countryId = useId()
   const router = useRouter()
+  const loginHref = useLoginHref()
 
   const [prefillCode, setPrefillCode] = useState('')
   const hasInviteCode = prefillCode.length > 0
@@ -219,7 +231,8 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
       return null
     }
     const user = await refreshUser()
-    router.push(user ? homeFor(user.role) : '/dashboard')
+    // ?next= (an emailed course link, carried from /login): there, if this role can use it.
+    router.push(afterSignIn(user, nextInLocation()))
     return null
   }
 
@@ -285,7 +298,7 @@ function SignUpForm({ org, onOrgGone }: { org: JoiningOrg | null; onOrgGone: () 
           emailTaken ? (
             <>
               An account with this email already exists.{' '}
-              <Link href="/login" className="font-semibold underline">
+              <Link href={loginHref} className="font-semibold underline">
                 Sign in instead
               </Link>
             </>
@@ -458,6 +471,7 @@ export default function SignUpPage() {
   // code is still needed; links can carry both: ?code=INVITE&org=CODE).
   const [org, setOrg] = useState<JoiningOrg | null>(null)
   const [orgGone, setOrgGone] = useState(false)
+  const loginHref = useLoginHref()
 
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get('org')?.trim()
@@ -483,7 +497,7 @@ export default function SignUpPage() {
 
   return (
     <AuthSplit
-      topPrompt={{ text: 'Already a member?', ctaLabel: 'Sign in', ctaHref: '/login' }}
+      topPrompt={{ text: 'Already a member?', ctaLabel: 'Sign in', ctaHref: loginHref }}
       asideLabelledBy={org ? 'h-org-join' : 'h-sana-reg'}
       aside={org ? <OrgAside name={org.name} /> : <SanaAside onStart={startSana} active={mode === 'sana'} />}
       width={420}
@@ -560,7 +574,7 @@ export default function SignUpPage() {
 
       <p className="text-sm text-ui-muted">
         Already have an account?{' '}
-        <Link href="/login" className="font-semibold text-ui-brand-text hover:underline">
+        <Link href={loginHref} className="font-semibold text-ui-brand-text hover:underline">
           Sign in
         </Link>
       </p>

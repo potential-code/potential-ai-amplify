@@ -9,7 +9,8 @@ import { AuthField, AuthAlert, AuthNote, PasswordToggle } from "@/components/aut
 import { AuthSplit, AuthHeading, AsideChecklist, AsideSana, AsideStats, asideMuted } from "@/components/auth/AuthSplit";
 import { CodeForm, codeErrorMessage } from "@/components/auth/CodeForm";
 import { authClient } from "@/lib/authClient";
-import { clearAuth, getUser, homeFor, refreshUser } from "@/lib/auth";
+import { afterSignIn, clearAuth, getUser, refreshUser } from "@/lib/auth";
+import { withNext } from "@/lib/returnPath";
 import { cn } from "@/lib/utils";
 import { HUMAN_MENTORS_ENABLED } from '@/lib/features'
 
@@ -59,6 +60,10 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [expired, setExpired] = useState(searchParams.get("expired") === "1");
+  // ?next=: the page to return to after signing in (an emailed course link).
+  // Only used once returnPath has checked it; never rendered as text.
+  const returnTo = searchParams.get("next");
+  const signUpHref = withNext("/sign-up", returnTo);
 
   // Arriving here means no session. A cached user left behind means it ended
   // (expired, or signed out elsewhere): say so, and drop the stale copy.
@@ -75,7 +80,8 @@ export default function LoginPage() {
 
   async function finish() {
     const user = await refreshUser();
-    if (user) router.push(homeFor(user.role));
+    // Back to the page asked for, if this role can use it; else the role's home.
+    if (user) router.push(afterSignIn(user, returnTo));
     else setError("Signed in, but the session didn't stick. Please try again.");
   }
 
@@ -156,7 +162,7 @@ export default function LoginPage() {
 
   return (
     <AuthSplit
-      topPrompt={{ text: "Have an invite?", ctaLabel: "Create your account", ctaHref: "/sign-up" }}
+      topPrompt={{ text: "Have an invite?", ctaLabel: "Create your account", ctaHref: signUpHref }}
       asideLabel="About AI Amplify"
       aside={<SignInAside />}
       width={400}
@@ -188,7 +194,7 @@ export default function LoginPage() {
                 <>
                   If <strong className="font-semibold">{email}</strong> has an AI Amplify account, we sent it a 6-digit code.
                   No email after a minute? Check spam, or{" "}
-                  <Link href="/sign-up" className="font-semibold text-ui-brand-text hover:underline">
+                  <Link href={signUpHref} className="font-semibold text-ui-brand-text hover:underline">
                     sign up with your invite code
                   </Link>
                   .
@@ -324,7 +330,7 @@ export default function LoginPage() {
 
         <p className="text-sm text-ui-muted">
           Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="font-semibold text-ui-brand-text hover:underline">
+          <Link href={signUpHref} className="font-semibold text-ui-brand-text hover:underline">
             Sign up with your invite code
           </Link>
         </p>
