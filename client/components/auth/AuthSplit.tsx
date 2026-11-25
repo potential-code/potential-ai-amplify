@@ -29,7 +29,7 @@ export function AuthSplit({
       <div className="flex min-w-0 flex-col bg-ui-surface px-4 pb-8 pt-4 min-[900px]:px-12 min-[900px]:py-6">
         <div className="flex h-11 items-center gap-3">
           <Link href="/" aria-label="AI Amplify home" className="inline-flex rounded-md">
-            <img src="/images/redesign/potential-logo.png" alt="AI Amplify" className="h-9 w-auto" />
+            <img src="/images/ai-amplify-logo.png" alt="AI Amplify" className="h-9 w-auto" />
           </Link>
           <span className="flex-1" />
           <span className="text-right text-sm text-ui-muted">

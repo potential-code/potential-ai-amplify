@@ -17,12 +17,12 @@ const UPSTREAM = process.env["AI_MENTOR_API_URL"] || "https://api.potential.com"
 
 /** The six AI Amplify AI mentors (client/lib/constants/content.ts). No other bot can be reached. */
 const BOT_IDS = new Set([
-  "64b78f8ea3495eade7931f1f",
-  "64b7b59c2d7b52ec97f3a258",
-  "64b7a7682d7b52ec97f3a21d",
+  "6b06d2d73460887e1896aeb0",
+  "6b06d2e73460887e1896aebb",
+  "6b06d2ec3460887e1896aec6",
   "6540b46f64bed7823ecd4209",
   "64cb87a1293c2813e908395e",
-  "64b79d632d7b52ec97f3a204",
+  "6b06d2f03460887e1896aed1",
 ]);
 
 const unavailable = { success: false, error: { message: "This mentor is unavailable right now. Please try again in a moment.", code: "MENTOR_UNAVAILABLE" } };

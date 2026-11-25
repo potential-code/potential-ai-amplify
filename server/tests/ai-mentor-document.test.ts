@@ -9,7 +9,7 @@ import { withDocument } from '../routes/aiMentor.routes'
  */
 
 let learner: TestUser
-const BOT = '64b78f8ea3495eade7931f1f'
+const BOT = '6b06d2d73460887e1896aeb0'
 
 beforeAll(async () => {
   await startTestServer()

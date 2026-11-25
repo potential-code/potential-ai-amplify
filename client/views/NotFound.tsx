@@ -105,7 +105,7 @@ export default function NotFound() {
       <header className="border-b border-ui-line bg-ui-surface">
         <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center gap-2.5 px-4 min-[900px]:px-10">
           <Link href="/" aria-label="AI Amplify home" className="inline-flex rounded-md">
-            <img src="/images/redesign/potential-logo.png" alt="AI Amplify" className="h-9 w-auto" />
+            <img src="/images/ai-amplify-logo.png" alt="AI Amplify" className="h-9 w-auto" />
           </Link>
           <span className="flex-1" />
           {user ? (

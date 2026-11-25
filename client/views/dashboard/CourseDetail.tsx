@@ -53,6 +53,7 @@ import { cn } from '@/lib/utils'
 import { CourseSana } from '@/components/course-sana/CourseSana'
 import type { SanaStep } from '@/components/course-sana/courseContext'
 import { useMinWidth } from '@/lib/useNarrow'
+import { useDocumentTitle } from '@/lib/useDocumentTitle'
 
 // ─── Nav item types ────────────────────────────────────────────────────────────
 
@@ -115,6 +116,7 @@ export default function CourseDetailPage() {
     enabled: !!courseId,
     staleTime: 30_000,
   })
+  useDocumentTitle(course?.title)
 
   const enrollMutation = useMutation({
     mutationFn: () => apiEnrollInCourse(courseId),

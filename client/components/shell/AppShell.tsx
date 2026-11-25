@@ -21,7 +21,7 @@ import { SHELL_CONFIG, allItems, isActive, type ShellConfig, type ShellNavItem, 
 import { optimizedSrc } from '@/lib/images'
 import { NotificationBell } from './NotificationBell'
 
-const LOGO_SRC = '/images/redesign/potential-logo.png'
+const LOGO_SRC = '/images/ai-amplify-logo.png'
 
 const COLLAPSE_KEY = 'amplify.sidebarCollapsed'
 

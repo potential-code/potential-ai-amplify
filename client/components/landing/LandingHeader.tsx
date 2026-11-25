@@ -56,7 +56,7 @@ export function LandingHeader() {
     <header className="sticky top-0 z-40 border-b border-ui-line bg-ui-surface">
       <div className="mx-auto flex h-[68px] w-full max-w-[1200px] items-center gap-4 px-4 min-[900px]:px-10">
         <Link href="/" aria-label="AI Amplify home" className="inline-flex items-center rounded-md">
-          <img src="/images/redesign/potential-logo.png" alt="AI Amplify" className="h-10 w-auto" />
+          <img src="/images/ai-amplify-logo.png" alt="AI Amplify" className="h-10 w-auto" />
         </Link>
 
         <nav aria-label="Main" className="ml-5 hidden flex-1 items-center gap-0.5 min-[900px]:flex">

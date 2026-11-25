@@ -11,6 +11,8 @@ loadEnv({ path: path.resolve(__dirname, '../.env'), override: false })
 const API_INTERNAL_URL = (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000').replace(/\/$/, '')
 
 const config: NextConfig = {
+  // Don't advertise the framework in every response.
+  poweredByHeader: false,
   output: 'standalone',
   // Monorepo: `next` is hoisted to the workspace root node_modules. Trace from
   // the repo root so the standalone bundle includes it (otherwise the runtime
@@ -41,6 +43,11 @@ const config: NextConfig = {
   // revalidate in the background for a week rather than forever.
   async headers() {
     return [
+      // Signed-in areas and one-off links stay out of search results.
+      ...['/dashboard/:path*', '/dashboard', '/admin/:path*', '/admin', '/mentor/:path*', '/mentor', '/partner/:path*', '/partner', '/login', '/unsubscribe'].map((source) => ({
+        source,
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      })),
       {
         source: '/images/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }],
