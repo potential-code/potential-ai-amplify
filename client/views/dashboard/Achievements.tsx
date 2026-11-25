@@ -33,7 +33,24 @@ type Badge = { key: string; title: string; description: string; earnedAt: string
 type Achievements = { balance: number; earned: number; showOnLeaderboard: boolean; badges: Badge[] }
 type Period = 'week' | 'month' | 'all'
 type Entry = { rank: number; name: string; initials: string; avatarUrl: string | null; points: number; badges: number; isYou: boolean }
-type Board = { period: Period; entries: Entry[]; you: { rank: number; points: number } | null; hidden: boolean; total: number }
+type Board = {
+  period: Period
+  /** Closed until enough learners appear on it: no entries and no counts, so a small programme isn't exposed. */
+  open: boolean
+  minLearners: number
+  entries: Entry[]
+  /** Rank inside the top list; outside it a band ("top 10%"), never "of N learners". */
+  you: { rank: number | null; topPercent: number | null; points: number } | null
+  hidden: boolean
+}
+
+/** "#3", "Top 10%", or null when there's nothing to show yet. */
+function placeLabel(you: Board['you']): string | null {
+  if (!you) return null
+  if (you.rank) return `#${you.rank}`
+  if (you.topPercent) return `Top ${you.topPercent}%`
+  return null
+}
 
 const ICONS: Record<string, LucideIcon> = {
   first_step: Footprints,
@@ -175,6 +192,12 @@ function Leaderboard({ show }: { show: boolean | undefined }) {
             <Skeleton key={i} className="h-11" />
           ))}
         </div>
+      ) : !data.open ? (
+        <EmptyState
+          icon={Trophy}
+          title="The leaderboard opens soon"
+          body={`It opens once ${data.minLearners} learners have chosen to appear on it. Keep earning points, and switch on “Show me” below to take part.`}
+        />
       ) : data.entries.length === 0 ? (
         <EmptyState icon={Trophy} title={`No points ${emptyWhen}`} body="Finish a course unit to earn points and get on the board." />
       ) : (
@@ -188,9 +211,9 @@ function Leaderboard({ show }: { show: boolean | undefined }) {
                 ⋯
               </li>
               <li className="flex items-center gap-3 bg-ui-brand-soft px-4 py-2.5">
-                <RankMark rank={data.you.rank} />
                 <p className="flex-1 text-sm font-semibold text-ui-text">
-                  Your place {data.hidden && <span className="font-normal text-ui-muted">(hidden from others)</span>}
+                  {data.you.topPercent ? `You’re in the top ${data.you.topPercent}%` : 'Keep going to reach the top'}{' '}
+                  {data.hidden && <span className="font-normal text-ui-muted">(hidden from others)</span>}
                 </p>
                 <span className="text-sm font-semibold tabular-nums text-ui-text">
                   {nf.format(data.you.points)} <span className="font-normal text-ui-muted">pts</span>
@@ -207,7 +230,7 @@ function Leaderboard({ show }: { show: boolean | undefined }) {
         </label>
         <Switch
           id="lb-show"
-          checked={show ?? true}
+          checked={show ?? false}
           disabled={show === undefined || visibility.isPending}
           onCheckedChange={(v) => visibility.mutate(v)}
           className="data-[state=checked]:bg-ui-brand data-[state=unchecked]:bg-ui-line"
@@ -254,8 +277,16 @@ export default function AchievementsPage() {
         <StatCard
           label="Your rank"
           icon={Trophy}
-          value={month?.you ? `#${month.you.rank}` : '–'}
-          hint={month ? (month.you ? `of ${month.total} learners, last 30 days` : 'Earn points to get ranked') : undefined}
+          value={(month?.open && placeLabel(month.you)) || '–'}
+          hint={
+            month
+              ? !month.open
+                ? 'Ranks open as more learners join'
+                : month.you
+                  ? 'Last 30 days'
+                  : 'Earn points to get ranked'
+              : undefined
+          }
         />
       </div>
 

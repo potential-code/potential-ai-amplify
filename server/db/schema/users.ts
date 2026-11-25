@@ -66,8 +66,8 @@ export const users = pgTable("users", {
   // Null means the user has never been tracked (e.g. pre-existing rows).
   // Updated by auth middleware on every authenticated request.
   lastActiveAt: timestamp("last_active_at"),
-  /** Learners appear on the leaderboard (as first name + initial) unless they turn this off. */
-  showOnLeaderboard: boolean("show_on_leaderboard").notNull().default(true),
+  /** Learners appear on the leaderboard (as first name + initial) only if they turn this on. */
+  showOnLeaderboard: boolean("show_on_leaderboard").notNull().default(false),
 });
 
 export type User = typeof users.$inferSelect;
