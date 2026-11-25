@@ -37,8 +37,9 @@ import { bookSession, cancelSession, getSmeSessions } from "../services/mentor_s
 /**
  * GET /api/mentors
  *
- * Returns the list of all mentor users with public profile fields.
- * Any authenticated user may call this endpoint.
+ * Returns the list of all mentor users with their public profile fields
+ * (getMentorsList: no email, no meeting link). Any authenticated user may call
+ * this endpoint; booking goes through the availability and session endpoints.
  */
 export async function listMentors(
   _req: Request,

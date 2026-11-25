@@ -1,11 +1,10 @@
 import { apiFetch } from '@/lib/api'
 
+/** A mentor as GET /api/mentors lists them: no email or meeting link (those come with a booked session). */
 export interface MentorUser {
   id: string
   fullName: string
-  email: string
   bio: string | null
-  meetingLink: string | null
   timezone: string | null
   avatarUrl: string | null
   linkedinUrl: string | null

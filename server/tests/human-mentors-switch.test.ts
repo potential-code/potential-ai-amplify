@@ -1,4 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'bun:test'
+import { eq } from 'drizzle-orm'
+import { db } from '../db'
+import { users } from '../db/schema'
 import { startTestServer, stopTestServer, api, createTestUser, createUser, cleanupFixtureUsers, type TestUser } from './helpers'
 
 /**
@@ -63,5 +66,25 @@ describe('human mentors switched on', () => {
     expect(avail.status).toBe(200)
     const book = await api('POST', '/api/sessions', { token: learner.token, body: { slotId: SLOT } })
     expect(book.body?.error?.code).not.toBe('HUMAN_MENTORS_OFF')
+  })
+})
+
+describe('what learners see of a mentor', () => {
+  it('lists the same safe fields signed in as publicly: no email, no meeting link', async () => {
+    process.env['HUMAN_MENTORS_ENABLED'] = 'true'
+    await db.update(users).set({ meetingLink: 'https://zoom.example/j/private-room', bio: 'Retail coach' }).where(eq(users.id, mentor.id))
+    const signedIn = await api<Record<string, unknown>[]>('GET', '/api/mentors', { token: learner.token })
+    const pub = await api<Record<string, unknown>[]>('GET', '/api/mentors/public')
+    const mine = signedIn.body.find((m) => m['id'] === mentor.id)!
+    expect(mine['bio']).toBe('Retail coach')
+    expect(JSON.stringify(mine)).not.toContain(mentor.email)
+    expect(JSON.stringify(signedIn.body)).not.toContain('private-room')
+    for (const m of signedIn.body) {
+      expect(m).not.toHaveProperty('email')
+      expect(m).not.toHaveProperty('meetingLink')
+    }
+    // Public: the same fields minus the time zone.
+    const publicKeys = Object.keys(pub.body.find((m) => m['id'] === mentor.id)!).sort()
+    expect(Object.keys(mine).filter((k) => k !== 'timezone').sort()).toEqual(publicKeys)
   })
 })

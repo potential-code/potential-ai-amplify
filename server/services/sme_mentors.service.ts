@@ -7,6 +7,17 @@ import { mentorAvailabilitySlots, mentorRegistrations, users } from "../db/schem
 // getMentorsList
 // ---------------------------------------------------------------------------
 
+/** What learners (and visitors) may see of a mentor. Never the email address or the meeting link. */
+export interface MentorListing {
+  id: string;
+  fullName: string;
+  bio: string | null;
+  timezone: string | null;
+  avatarUrl: string | null;
+  linkedinUrl: string | null;
+  expertise: string[] | null;
+}
+
 /**
  * Returns all users with the 'mentor' role, joined with their registration
  * record to include LinkedIn URL and areas of expertise.
@@ -15,30 +26,15 @@ import { mentorAvailabilitySlots, mentorRegistrations, users } from "../db/schem
  * mentor_registrations row are still returned (linkedinUrl and expertise
  * will be null for those users).
  *
- * Only safe public fields are selected — no passwordHash or sensitive data.
- *
- * @returns Array of mentor user objects with optional registration fields
+ * Only the safe profile fields are selected: no email, no meeting link (a
+ * learner gets the link with a booked session), no password data.
  */
-export async function getMentorsList(): Promise<
-  {
-    id: string;
-    fullName: string;
-    email: string;
-    bio: string | null;
-    meetingLink: string | null;
-    timezone: string | null;
-    avatarUrl: string | null;
-    linkedinUrl: string | null;
-    expertise: string[] | null;
-  }[]
-> {
+export async function getMentorsList(): Promise<MentorListing[]> {
   return db
     .select({
       id: users.id,
       fullName: users.fullName,
-      email: users.email,
       bio: users.bio,
-      meetingLink: users.meetingLink,
       timezone: users.timezone,
       avatarUrl: users.avatarUrl,
       linkedinUrl: mentorRegistrations.linkedinUrl,
