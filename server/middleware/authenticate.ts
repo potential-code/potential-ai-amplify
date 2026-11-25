@@ -100,9 +100,10 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   } catch {
     session = null;
   }
-  // Partner logins can be removed by an admin at any moment; don't let the
-  // 5-minute cookie cache keep a removed partner in. Confirm with the database.
-  if (session?.user.role === "partner") {
+  // Partner logins can be removed, and admins demoted, at any moment; don't
+  // let the 5-minute cookie cache keep either in. For these roles, confirm the
+  // session and the user's current role with the database on every request.
+  if (session?.user.role === "partner" || session?.user.role === "admin") {
     try {
       session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers), query: { disableCookieCache: true } });
     } catch {

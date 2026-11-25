@@ -218,6 +218,16 @@ describe("session", () => {
     expect((await api("GET", "/api/account/me", { token: tokenOnly })).status).toBe(401);
   });
 
+  it("a demoted admin loses admin access on the next request, despite the cookie cache", async () => {
+    const admin = await createUser("admin");
+    // The full cookie set, cache cookie included (it still says "admin").
+    expect((await api("GET", "/api/admin/invites", { token: admin.token })).status).toBe(200);
+    await db.update(users).set({ role: "sme" }).where(eq(users.id, admin.id));
+    expect((await api("GET", "/api/admin/invites", { token: admin.token })).status).toBe(403);
+    const me = await api("GET", "/api/account/me", { token: admin.token });
+    expect(JSON.stringify(me.body)).not.toContain('"role":"admin"');
+  });
+
   it("refuses a signed-in request from another site (CSRF)", async () => {
     const cookie = await signIn(user.email, PASSWORD);
     const res = await api("POST", "/api/auth/sign-out", { token: cookie, headers: { Origin: "https://evil.example" }, body: {} });
