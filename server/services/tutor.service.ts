@@ -21,6 +21,7 @@ import { saveQuestionAnswer, updateBlockProgress } from './lms/progress.service'
 import { submitAttempt } from './lms/assessment.service'
 import { translateContent, type TranslationDomain } from './tutorTranslation.service'
 import { AppError } from '../utils/app-error'
+import { lessonAudio, stripAudio } from './lessonAudio'
 
 /**
  * The learner side of Anna as the Multi Learning tutor (potential-ai's
@@ -110,7 +111,9 @@ export function htmlToMarkdown(html: string | null | undefined): string {
   let text = html.replace(ZERO_WIDTH, '')
   if (!/[<>]/.test(text)) return clean(text)
 
-  text = text
+  // Imported narration (<audio>…fallback text…</audio>) is played from
+  // lessonAudio() on the card, never read out as text.
+  text = stripAudio(text)
     .replace(/<\s*(script|style)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, '')
     .replace(/<\s*br\s*\/?\s*>/gi, '\n')
     .replace(/<\s*h([1-6])[^>]*>/gi, (_m, level) => `\n\n${'#'.repeat(Math.min(Math.max(Number(level), 2), 4))} `)
@@ -736,16 +739,23 @@ export interface UnitIntroCard {
   description: string
   introduction: string
   outcomes: string[]
+  /** Narration files from the lesson's imported <audio> tags (https only). */
+  audio: string[]
 }
 
 export async function getUnitIntro(userId: string, unitId: string, lang: LearnerLanguage): Promise<UnitIntroCard> {
   await assertUnitAccess(userId, unitId)
   const { unit, blocks } = await unitWithBlocks(unitId)
   const leading: string[] = []
+  const audio: string[] = []
+  const addAudio = (html: string | null | undefined) => {
+    for (const src of lessonAudio(html)) if (!audio.includes(src)) audio.push(src)
+  }
   for (const b of blocks) {
     if (b.type !== 'text') break
     const text = htmlToMarkdown(b.body)
     if (text) leading.push(text)
+    addAudio(b.body)
   }
   // AI Amplify units are video-first, so almost none have opening text. The unit's
   // "Read" block — the lesson's outline — is the right preview: show it on the
@@ -755,6 +765,7 @@ export async function getUnitIntro(userId: string, unitId: string, lang: Learner
     const outline = blocks.find((b) => b.type === 'text' && textRoleOf(b.title) === 'outline')
     const text = htmlToMarkdown(outline?.body)
     if (text) leading.push(text)
+    addAudio(outline?.body)
   }
   // No description and no outline either (e.g. units with only a video and its
   // "Read More" transcript): open with the transcript's first sentences rather
@@ -787,6 +798,7 @@ export async function getUnitIntro(userId: string, unitId: string, lang: Learner
     description: description ? t(description) : '',
     introduction: intro ? t(intro) : '',
     outcomes: outcomes.map(t),
+    audio,
   }
 }
 

@@ -27,6 +27,8 @@ export interface TutorStrings {
   complete: string
   notStarted: string
   introductionKind: string
+  /** Label of the lesson's narration player. */
+  listen: string
   unitN: (n: number) => string
   letsBegin: string
   whatYoullLearn: string
@@ -105,6 +107,7 @@ const en: TutorStrings = {
   complete: 'Complete',
   notStarted: 'Not started',
   introductionKind: 'Introduction',
+  listen: 'Listen to this lesson',
   unitN: (n) => `Unit ${n}`,
   letsBegin: 'Let’s begin this unit. Anna will guide you through it.',
   whatYoullLearn: 'What you’ll learn',
@@ -180,6 +183,7 @@ const ar: TutorStrings = {
   complete: 'مكتملة',
   notStarted: 'لم تبدأ',
   introductionKind: 'مقدمة',
+  listen: 'استمع إلى هذا الدرس',
   unitN: (n) => `الوحدة ${n}`,
   letsBegin: 'لنبدأ هذه الوحدة، سترافقك آنا خطوة بخطوة.',
   whatYoullLearn: 'ماذا ستتعلم',
@@ -255,6 +259,7 @@ const hi: TutorStrings = {
   complete: 'पूर्ण',
   notStarted: 'शुरू नहीं हुआ',
   introductionKind: 'परिचय',
+  listen: 'यह पाठ सुनें',
   unitN: (n) => `इकाई ${n}`,
   letsBegin: 'चलिए यह इकाई शुरू करें, अन्ना आपका मार्गदर्शन करेंगी।',
   whatYoullLearn: 'आप क्या सीखेंगे',
@@ -330,6 +335,7 @@ const ur: TutorStrings = {
   complete: 'مکمل',
   notStarted: 'شروع نہیں ہوا',
   introductionKind: 'تعارف',
+  listen: 'یہ سبق سنیں',
   unitN: (n) => `یونٹ ${n}`,
   letsBegin: 'آئیے یہ یونٹ شروع کریں، انا قدم قدم پر آپ کی رہنمائی کریں گی۔',
   whatYoullLearn: 'آپ کیا سیکھیں گے',

@@ -88,6 +88,8 @@ export interface UnitIntro {
   description: string
   introduction: string
   outcomes: string[]
+  /** Narration files from the lesson (imported <audio>), played on the card. */
+  audio?: string[]
 }
 
 export interface VideoLesson {

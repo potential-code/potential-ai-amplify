@@ -13,7 +13,6 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { splitLessonAudio } from '@/lib/lessonAudio'
 import remarkGfm from 'remark-gfm'
 import { ArrowLeft, ArrowRight, Check, CircleCheck, Loader2, RotateCcw } from 'lucide-react'
 import { FolioInsert, NextAction, ResultBand, FolioSkeleton } from '@/components/learning-ui/FolioCard'
@@ -126,16 +125,10 @@ function Backward() {
 }
 
 function Markdown({ children }: { children: string }) {
-  // Narration from imported lessons arrives as an <audio> tag, which skipHtml
-  // would drop while leaving its fallback text; play it with a real player.
-  const { text, audio } = splitLessonAudio(children)
   return (
     <div className="text-[14px] leading-[1.7] text-ui-text space-y-2 [&_h2]:text-[15px] [&_h2]:font-semibold [&_h3]:text-[14px] [&_h3]:font-semibold [&_h4]:text-[14px] [&_h4]:font-semibold [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:ps-5 [&_ol]:list-decimal [&_ol]:ps-5">
-      {audio.map((src) => (
-        <audio key={src} controls preload="none" src={src} className="w-full" aria-label="Listen to this lesson" />
-      ))}
       <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml components={{ img: () => null }}>
-        {text}
+        {children}
       </ReactMarkdown>
     </div>
   )
@@ -242,6 +235,9 @@ export function UnitIntroCard({ unitId, latest }: { unitId: string; latest: bool
         </>
       }
     >
+      {data.audio?.map((src) => (
+        <audio key={src} controls preload="none" src={src} className="mb-3 w-full" aria-label={ui.listen} />
+      ))}
       {data.introduction ? (
         <Markdown>{data.introduction}</Markdown>
       ) : data.description ? (
