@@ -1,3 +1,5 @@
+import { HUMAN_MENTORS_ENABLED } from "../features";
+
 // Shared AI Amplify platform knowledge — imported by both chatbots.
 // Keep this file as the single source of truth for platform facts.
 // Sourced from: client/lib/constants/content.ts, landing page sections,
@@ -16,13 +18,12 @@ AI Amplify is a global initiative by the Potential.org Foundation. It gives smal
 ### Contact
 - info@potential.com
 
-### The Six Core Pillars
+### The ${HUMAN_MENTORS_ENABLED ? "Six" : "Five"} Core Pillars
 1. **AI Training Courses** — structured video-based modules with action plans and certificates upon completion
 2. **AI Mentors** — 6 AI coaches available 24/7, each specialised in a different business domain
 3. **AI Business Tools** — generate Business Plans, Marketing Plans, Business Ideas, and Product Proposals as branded PDFs delivered to your email
-4. **Human Mentors** — 15+ verified real-world experts bookable for private 1:1 sessions
-5. **Special SME Offers** — exclusive partner discounts redeemable with earned points
-6. **Live Events** — online webinars, workshops, and in-person events with AI and business experts
+${HUMAN_MENTORS_ENABLED ? "4. **Human Mentors** — 15+ verified real-world experts bookable for private 1:1 sessions\n" : ""}${HUMAN_MENTORS_ENABLED ? 5 : 4}. **Special SME Offers** — exclusive partner discounts redeemable with earned points
+${HUMAN_MENTORS_ENABLED ? 6 : 5}. **Live Events** — online webinars, workshops, and in-person events with AI and business experts
 
 ### How Courses Work
 Each course consists of video units with reflection/survey questions and action planning exercises. Completing a full course earns you points and an automatic certificate.
@@ -43,9 +44,11 @@ Beyond these six, members also get a large library of additional courses coverin
 ### How AI Business Tools Work
 Four tools — Business Idea Generator, Business Plan Generator, Marketing Plan Creator, and Product/Sales Proposal Tool. Each guides you through a step-by-step conversation, then generates a complete branded document delivered as a PDF to your email.
 
-### How Human Mentor Sessions Work
+${HUMAN_MENTORS_ENABLED ? `### How Human Mentor Sessions Work
 15+ verified experts across Strategy, Marketing, Finance, Legal, Leadership, and Operations. Browse the Human Mentors section, select an expert, and use the booking widget to reserve a 1:1 slot.
-
+` : `### Human Mentor Sessions
+Not available on AI Amplify right now. For expert guidance, the 6 AI mentors are available 24/7. Never offer, promise or book a human mentor session.
+`}
 ### Points & Offers
 - Earn points by completing courses.
 - Redeem points for exclusive partner discounts in the Offers section.
@@ -76,9 +79,9 @@ Redeem them for exclusive partner discounts and offers in the Offers section.
 **Q: How do I get a certificate?**
 Certificates are issued automatically when you complete a course. Find them in your Profile under Achievements.
 
-**Q: How do I book a human mentor session?**
+${HUMAN_MENTORS_ENABLED ? `**Q: How do I book a human mentor session?**
 Go to Human Mentors, browse the available experts, and use the booking widget to select an available slot.
-
+` : ""}
 **Q: How many AI mentors are there?**
 6 AI mentors, each specialised in a different domain: Security & Safety, Sales, Marketing, Legal, Sustainability, and Leadership. Available 24/7.
 
@@ -92,7 +95,7 @@ Email info@potential.com or use the Support page in the dashboard.
 Yes — through one of the six stakeholder programs (Experts, VC, Government, Corporate, University, Incubator). Contact info@potential.com.
 
 **Q: What results have others seen?**
-Real members have cut customer-support costs by 38% in 90 days, booked 20% more calls using AI agents, and described the free mentor sessions as "worth thousands."
+Real members have cut customer-support costs by 38% in 90 days, booked 20% more calls using AI agents${HUMAN_MENTORS_ENABLED ? ', and described the free mentor sessions as "worth thousands."' : "."}
 `
 
 // Landing-page-specific knowledge — only imported by LandingRegistrationChat.
@@ -109,7 +112,7 @@ No — it is a paid program, not a free platform. Never say or imply it is free,
 
 ### What Members Get Access To
 - All AI training courses — including the six flagship courses in "The Entrepreneur's Journey" (AI Fundamentals; AI Ethics and Data Privacy; Generative AI, LLMs and Diffusion Models; AI in Daily Workflows; Prompt Engineering and AI Troubleshooting; AI's Future and Continuous Learning) — plus a wider library of additional business-skills courses
-- AI mentors (24/7), AI business tools, human mentor bookings, partner offers, and live events
+- AI mentors (24/7), AI business tools, ${HUMAN_MENTORS_ENABLED ? "human mentor bookings, " : ""}partner offers, and live events
 - Points earned by completing course units, redeemable for exclusive partner discounts (AWS, Cisco, and more)
 
 NOTE: The AI Business Tools (Business Plan, Marketing Plan, etc.) run inside the member dashboard — they cannot be used here on the landing page. If a visitor asks to use one, describe the tool briefly; do not tell them to register or sign up — only existing members can log in to use it.
