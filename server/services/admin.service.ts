@@ -14,19 +14,20 @@ const FRONTEND_URL = process.env["FRONTEND_URL"] ?? "http://localhost:3000";
 // ---------------------------------------------------------------------------
 
 /**
- * Generates a random invite code string in the format "AMPLIFY-XXXXXXXX"
- * where X is an uppercase alphanumeric character.
- *
- * Uses 6 bytes of cryptographic randomness → 48 bits of entropy,
- * which makes collisions negligible at any realistic scale.
+ * Generates a random invite code, "AMPLIFY-" + 12 characters, e.g.
+ * "AMPLIFY-7KQ4M2XH9TRB". The alphabet leaves out look-alikes (0/O, 1/I/L)
+ * so codes survive being read aloud or retyped. Rejection sampling keeps
+ * every character equally likely: 31^12 ≈ 2^59 codes, far beyond guessing
+ * through the rate-limited coupon check.
  */
-function generateCode(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const bytes = randomBytes(6);
+export function generateCode(): string {
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   let suffix = "";
-  for (const byte of bytes) {
-    // Modulo bias is negligible: 256 / 36 ≈ 7.1, so bias per character is <1%.
-    suffix += chars[byte % chars.length];
+  while (suffix.length < 12) {
+    for (const byte of randomBytes(16)) {
+      // 248 = 8 × 31: bytes above it would favour the first characters.
+      if (byte < 248 && suffix.length < 12) suffix += chars[byte % chars.length];
+    }
   }
   return `AMPLIFY-${suffix}`;
 }

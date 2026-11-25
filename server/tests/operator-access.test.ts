@@ -730,7 +730,7 @@ describe("AI Amplify: a key never sees a live invite or sign-up code (the code i
         expect(row).not.toHaveProperty("inviteLink");
       }
       expect(JSON.stringify(viaKey.body)).not.toContain(code);
-      expect(JSON.stringify(viaKey.body)).not.toMatch(/sign-up\?code=|AMPLIFY-[A-Z0-9]{6}/);
+      expect(JSON.stringify(viaKey.body)).not.toMatch(/sign-up\?code=|AMPLIFY-[A-Z0-9]{6,}/);
 
       const viaCookie = await asAdmin("GET", "/api/admin/invites");
       const adminRows = (viaCookie.body as { data: Array<{ id: string; code: string; inviteLink: string }> }).data;
@@ -756,7 +756,7 @@ describe("AI Amplify: a key never sees a live invite or sign-up code (the code i
         expect(row).toMatchObject({ codeHidden: true });
         expect(row["createdAt"]).toBeTruthy();
       }
-      expect(JSON.stringify(viaKey.body)).not.toMatch(/AMPLIFY-[A-Z0-9]{6}/);
+      expect(JSON.stringify(viaKey.body)).not.toMatch(/AMPLIFY-[A-Z0-9]{6,}/);
 
       const viaCookie = await asAdmin("GET", "/api/admin/needs-attention");
       const adminUnused = (viaCookie.body as Panel).data.unusedInviteCodes;
