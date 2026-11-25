@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
 import { and, eq, gt } from 'drizzle-orm'
 import { db } from '../db'
-import { courses, modules, units, users, pointsEvents, notifications, userBadges } from '../db/schema'
+import { courses, modules, units, users, pointsEvents, notifications, userBadges, examinerAttempts } from '../db/schema'
 import { startTestServer, stopTestServer, api, createTestUser, createCourse, cleanupFixtureUsers, type TestUser } from './helpers'
 import { awardPointsForUnit } from '../services/lms/progress.service'
 import { recordLearningStep } from '../services/streak.service'
@@ -121,6 +121,35 @@ describe('badges', () => {
       .where(and(eq(notifications.userId, other.id), eq(notifications.dedupeKey, 'badge:first_step')))
     expect(bell.length).toBe(1)
     expect(bell[0]!.link).toBe('/dashboard/achievements')
+  })
+
+  it('earns "Real-world ready" (examined) for an AI Examiner score of 70 or more', async () => {
+    const learner = await createTestUser('lb-examined')
+    const attempt = (overallScore: number) =>
+      db.insert(examinerAttempts).values({
+        userId: learner.id,
+        courseId,
+        mode: 'text',
+        scenario: 'A client asks for a discount',
+        overallScore,
+        dimensions: {},
+        strengths: [],
+        improvements: [],
+        feedback: '',
+        transcript: [],
+      })
+    type Res = { data: { badges: { key: string; earnedAt: string | null; progress: { current: number; target: number } }[] } }
+    const examined = async () =>
+      (await api<Res>('GET', '/api/me/achievements', { token: learner.token })).body.data.badges.find((b) => b.key === 'examined')
+
+    expect(await examined()).toMatchObject({ earnedAt: null, progress: { current: 0, target: 70 } })
+    await attempt(69)
+    expect(await examined()).toMatchObject({ earnedAt: null, progress: { current: 69, target: 70 } })
+    await attempt(72)
+    const badge = await examined()
+    expect(badge?.earnedAt).not.toBeNull()
+    const stored = await db.select().from(userBadges).where(and(eq(userBadges.userId, learner.id), eq(userBadges.badge, 'examined')))
+    expect(stored.length).toBe(1)
   })
 
   it('gives mentors no badges', async () => {

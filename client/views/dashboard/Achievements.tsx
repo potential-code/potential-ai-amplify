@@ -16,6 +16,7 @@ import {
   Footprints,
   GraduationCap,
   Handshake,
+  ShieldCheck,
   Target,
   TrendingUp,
   Trophy,
@@ -41,6 +42,7 @@ const ICONS: Record<string, LucideIcon> = {
   top_marks: Target,
   big_leap: TrendingUp,
   mentored: Handshake,
+  examined: ShieldCheck,
   course_3: GraduationCap,
   streak_30: CalendarCheck,
 }
@@ -59,6 +61,7 @@ function progressText(b: Badge): string {
   const { current, target } = b.progress
   if (b.key === 'top_marks') return current ? `Best so far: ${current}%` : 'No scores yet'
   if (b.key === 'big_leap') return current > 0 ? `Best so far: +${current}` : 'Take a pre-test and final exam'
+  if (b.key === 'examined') return current ? `Best so far: ${current}` : 'Not tried yet'
   if (b.key.startsWith('streak_')) return `Longest streak: ${current} of ${target} days`
   return `${current} of ${target}`
 }
