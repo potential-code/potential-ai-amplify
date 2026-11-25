@@ -30,6 +30,7 @@ import { fetchOffers } from '@/lib/api/offers'
 import { cn } from '@/lib/utils'
 import { countryName } from '@/lib/countryName'
 import { EmailPreferences } from '@/components/shared/EmailPreferences'
+import { LeaderboardPreference } from '@/components/shared/LeaderboardPreference'
 import { OrganisationMembership } from '@/components/shared/OrganisationMembership'
 
 const COUNTRIES = getCountryDataList()
@@ -507,6 +508,7 @@ export default function ProfilePage() {
             {/* ── Security ─────────────────────────────────────────────── */}
             <OrganisationMembership />
             <EmailPreferences />
+            <LeaderboardPreference />
 
             <section aria-labelledby="p-sec" className="flex flex-col gap-4 rounded-[14px] border border-ui-line bg-ui-surface px-5 py-[18px]">
               <div className="flex items-center gap-3">

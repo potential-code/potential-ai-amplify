@@ -195,8 +195,8 @@ function Leaderboard({ show }: { show: boolean | undefined }) {
       ) : !data.open ? (
         <EmptyState
           icon={Trophy}
-          title="The leaderboard opens soon"
-          body={`It opens once ${data.minLearners} learners have chosen to appear on it. Keep earning points, and switch on “Show me” below to take part.`}
+          title="No ranking for this period yet"
+          body="Rankings for this period appear once more learners have earned points in it."
         />
       ) : data.entries.length === 0 ? (
         <EmptyState icon={Trophy} title={`No points ${emptyWhen}`} body="Finish a course unit to earn points and get on the board." />
@@ -250,6 +250,15 @@ export default function AchievementsPage() {
     queryFn: () => apiFetch<{ data: Board }>('/api/me/leaderboard?period=month').then((r) => r.data),
     enabled: !!data,
   })
+  // The leaderboard and rank stay off the page until enough learners take part
+  // (all-time has the most), so nothing here hints at how many learners there are.
+  const { data: allTime } = useQuery({
+    queryKey: ['me', 'leaderboard', 'all'],
+    queryFn: () => apiFetch<{ data: Board }>('/api/me/leaderboard?period=all').then((r) => r.data),
+    enabled: !!data,
+  })
+  const boardLive = !!allTime?.open
+  const rankLive = !!month?.open
   const earned = data?.badges.filter((b) => b.earnedAt) ?? []
   const next = data?.badges.filter((b) => !b.earnedAt) ?? []
 
@@ -257,7 +266,7 @@ export default function AchievementsPage() {
     <DashboardLayout>
       <PageHeader title="Achievements" subtitle="Your points, your badges, and where you stand among AI Amplify learners." />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <div className={cn('mb-6 grid gap-4', rankLive ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
         <StatCard
           label="Points earned"
           icon={Coins}
@@ -274,42 +283,36 @@ export default function AchievementsPage() {
           }
         />
         <StatCard label="Badges" icon={Award} value={data ? `${earned.length} of ${data.badges.length}` : '–'} hint={next[0] ? `Next: ${next[0].title}` : data ? 'Every badge earned' : undefined} />
-        <StatCard
-          label="Your rank"
-          icon={Trophy}
-          value={(month?.open && placeLabel(month.you)) || '–'}
-          hint={
-            month
-              ? !month.open
-                ? 'Ranks open as more learners join'
-                : month.you
-                  ? 'Last 30 days'
-                  : 'Earn points to get ranked'
-              : undefined
-          }
-        />
+        {rankLive && (
+          <StatCard
+            label="Your rank"
+            icon={Trophy}
+            value={placeLabel(month?.you ?? null) ?? '–'}
+            hint={month?.you ? 'Last 30 days' : 'Earn points to get ranked'}
+          />
+        )}
       </div>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
+      <div className={cn('grid items-start gap-5', boardLive && 'xl:grid-cols-[minmax(0,1fr)_400px]')}>
         <section aria-labelledby="ach-badges" className="flex flex-col gap-3">
           <h2 id="ach-badges" className="text-base font-semibold text-ui-text sm:text-lg">
             Badges
           </h2>
           {isLoading || !data ? (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className={cn('grid gap-3 sm:grid-cols-2', !boardLive && 'xl:grid-cols-3')}>
               {Array.from({ length: 6 }, (_, i) => (
                 <Skeleton key={i} className="h-[92px]" />
               ))}
             </div>
           ) : (
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul className={cn('grid gap-3 sm:grid-cols-2', !boardLive && 'xl:grid-cols-3')}>
               {[...earned, ...next].map((b) => (
                 <BadgeTile key={b.key} b={b} />
               ))}
             </ul>
           )}
         </section>
-        <Leaderboard show={data?.showOnLeaderboard} />
+        {boardLive && <Leaderboard show={data?.showOnLeaderboard} />}
       </div>
     </DashboardLayout>
   )
