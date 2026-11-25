@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import jwt from "jsonwebtoken";
 import {
   ASK_ANNA_PROMPT,
   BOTH_DELIVERY_PROMPT,
@@ -34,3 +35,28 @@ export const guestClaims = () => ({ scope: "guest" as const, prompts: SIGN_UP })
 
 /** AI Amplify's own server calling potential-ai's /api/* endpoints (path builders). */
 export const SERVER_CLAIMS = { scope: "server" as const };
+
+/** Who mints the tokens (`iss`, equal to platformId as potential-ai requires) and who they are for (`aud`). */
+export const SERVICE_TOKEN_ISSUER = "ai-amplify";
+export const SERVICE_TOKEN_AUDIENCE = "potential-ai";
+
+/**
+ * Signs a service token for potential-ai: HS256 with COPILOT_SERVICE_JWT_SECRET
+ * (the caller passes it), platformId "ai-amplify", `iss` "ai-amplify" and
+ * `aud` "potential-ai". potential-ai checks iss/aud whenever a token carries
+ * them (src/lib/serviceToken.ts), and can require them for ai-amplify with
+ * SERVICE_JWT_REQUIRE_AUD_PLATFORMS=ai-amplify. Every token AI Amplify mints
+ * goes through here.
+ */
+export function signServiceToken(
+  claims: { userId?: string; scope?: string; prompts?: string[] },
+  secret: string,
+  expiresInSeconds: number,
+): string {
+  return jwt.sign({ platformId: SERVICE_TOKEN_ISSUER, ...claims }, secret, {
+    algorithm: "HS256",
+    expiresIn: expiresInSeconds,
+    issuer: SERVICE_TOKEN_ISSUER,
+    audience: SERVICE_TOKEN_AUDIENCE,
+  });
+}

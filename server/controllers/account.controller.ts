@@ -1,12 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
-import jwt from "jsonwebtoken";
 import { fromNodeHeaders } from "better-auth/node";
 import { isAPIError } from "better-auth/api";
 
 import { auth } from "../auth";
 import * as accountService from "../services/account.service";
-import { browserClaims, guestClaims } from "../services/serviceTokenClaims";
+import { browserClaims, guestClaims, signServiceToken } from "../services/serviceTokenClaims";
 
 /** Zod schema used to validate the `code` query parameter on GET /check-coupon. */
 const checkCouponQuerySchema = z.object({
@@ -33,10 +32,7 @@ export async function copilotToken(req: Request, res: Response, next: NextFuncti
       return;
     }
     const expiresInSeconds = 60 * 60; // 1 hour; the client refreshes before expiry
-    const token = jwt.sign({ platformId: "ai-amplify", userId: req.user!.userId, ...browserClaims(req.user!.role) }, secret, {
-      algorithm: "HS256",
-      expiresIn: expiresInSeconds,
-    });
+    const token = signServiceToken({ userId: req.user!.userId, ...browserClaims(req.user!.role) }, secret, expiresInSeconds);
     res.status(200).json({
       success: true,
       data: { token, expiresAt: Date.now() + expiresInSeconds * 1000 },
@@ -69,10 +65,7 @@ export async function guestCopilotToken(
       return;
     }
     const expiresInSeconds = 30 * 60; // 30 minutes
-    const token = jwt.sign({ platformId: "ai-amplify", ...guestClaims() }, secret, {
-      algorithm: "HS256",
-      expiresIn: expiresInSeconds,
-    });
+    const token = signServiceToken(guestClaims(), secret, expiresInSeconds);
     res.status(200).json({
       success: true,
       data: { token, expiresAt: Date.now() + expiresInSeconds * 1000 },
@@ -200,11 +193,7 @@ export async function voiceToken(req: Request, res: Response, next: NextFunction
       });
       return;
     }
-    const token = jwt.sign(
-      { platformId: "ai-amplify", userId: req.user!.userId, scope: browserClaims(req.user!.role).scope },
-      secret,
-      { algorithm: "HS256", expiresIn: 60 },
-    );
+    const token = signServiceToken({ userId: req.user!.userId, scope: browserClaims(req.user!.role).scope }, secret, 60);
     res.status(200).json({ success: true, data: { token } });
   } catch (err) {
     next(err);

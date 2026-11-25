@@ -1,8 +1,7 @@
-import jwt from 'jsonwebtoken'
 import { and, eq, inArray } from 'drizzle-orm'
 import { db } from '../db'
 import { translationCache } from '../db/schema'
-import { SERVER_CLAIMS } from './serviceTokenClaims'
+import { SERVER_CLAIMS, signServiceToken } from './serviceTokenClaims'
 
 /**
  * Translation of AI Amplify content for the Multi Learning page (course names,
@@ -88,10 +87,7 @@ async function callPotentialAi(texts: string[], lang: ContentLanguage, domain: T
     console.warn('[translation] AI backend not configured; content stays in English')
     return null
   }
-  const token = jwt.sign({ platformId: 'ai-amplify', userId: 'tutor-translation', ...SERVER_CLAIMS }, secret, {
-    algorithm: 'HS256',
-    expiresIn: 300,
-  })
+  const token = signServiceToken({ userId: 'tutor-translation', ...SERVER_CLAIMS }, secret, 300)
   const res = await fetch(`${base}/api/learning/translate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },

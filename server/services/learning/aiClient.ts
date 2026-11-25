@@ -1,7 +1,6 @@
 import { Agent } from 'undici'
-import jwt from 'jsonwebtoken'
 import { AppError } from '../../utils/app-error'
-import { SERVER_CLAIMS } from '../serviceTokenClaims'
+import { SERVER_CLAIMS, signServiceToken } from '../serviceTokenClaims'
 
 // Setup (Graph A) over the full catalogue can take many minutes of gpt-5 work;
 // undici's default 300s headers/body timeout aborts the request mid-flight. Use a
@@ -105,17 +104,15 @@ export function getAiBaseUrl(): string {
  * Mints a short-lived (~5min) service JWT for the AI backend.
  *
  * @param userId - The learner the request is acting on behalf of.
- * @returns A signed HS256 token carrying `{ platformId: 'ai-amplify', userId }`.
+ * @returns A signed HS256 token carrying `{ platformId: 'ai-amplify', userId, scope: 'server' }` plus iss/aud.
  */
 export function mintServiceToken(userId: string): string {
   const secret = process.env['COPILOT_SERVICE_JWT_SECRET']
   if (!secret) {
     throw new AppError('AI backend is not configured', 503, 'AI_NOT_CONFIGURED')
   }
-  return jwt.sign({ platformId: 'ai-amplify', userId, ...SERVER_CLAIMS }, secret, {
-    algorithm: 'HS256',
-    expiresIn: 300, // 5 minutes — long enough for one request round-trip
-  })
+  // 5 minutes: long enough for one request round-trip.
+  return signServiceToken({ userId, ...SERVER_CLAIMS }, secret, 300)
 }
 
 /**
