@@ -1,6 +1,5 @@
 import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
 import { z } from "zod";
-import { sql } from "drizzle-orm";
 import { db } from "../db";
 import { newsletterSubscribers } from "../db/schema";
 import { validate } from "../middleware/validate";
@@ -17,8 +16,10 @@ const subscribeDto = z.object({
 
 /**
  * POST /api/newsletter/subscribe  { email }
- * Idempotent: an existing address stays subscribed, and a previously
- * unsubscribed one is re-activated.
+ * Idempotent: an existing address keeps its row as it is. An address that
+ * unsubscribed stays unsubscribed (anyone can type any address here, so this
+ * form must not undo someone's unsubscribe); the answer is the same either
+ * way, so it doesn't reveal whether an address is on the list.
  */
 router.post(
   "/subscribe",
@@ -30,10 +31,7 @@ router.post(
       await db
         .insert(newsletterSubscribers)
         .values({ email, source: "homepage" })
-        .onConflictDoUpdate({
-          target: newsletterSubscribers.email,
-          set: { unsubscribedAt: sql`NULL` },
-        });
+        .onConflictDoNothing({ target: newsletterSubscribers.email });
       res.status(201).json({ success: true, data: { subscribed: true } });
     } catch (e) {
       next(e);

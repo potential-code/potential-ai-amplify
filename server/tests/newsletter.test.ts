@@ -23,6 +23,19 @@ describe("newsletter sign-up", () => {
     expect(rows.length).toBe(1);
   });
 
+  it("keeps an unsubscribed address unsubscribed, answering the same way", async () => {
+    const email = newEmail();
+    emails.push(email);
+    const first = await api("POST", "/api/newsletter/subscribe", { body: { email } });
+    const unsubscribedAt = new Date("2026-01-02T03:04:05Z");
+    await db.update(newsletterSubscribers).set({ unsubscribedAt }).where(eq(newsletterSubscribers.email, email));
+    const again = await api("POST", "/api/newsletter/subscribe", { body: { email } });
+    expect(again.status).toBe(first.status);
+    expect(again.body).toEqual(first.body);
+    const [row] = await db.select().from(newsletterSubscribers).where(eq(newsletterSubscribers.email, email));
+    expect(row!.unsubscribedAt?.toISOString()).toBe(unsubscribedAt.toISOString());
+  });
+
   it("refuses something that isn't an email", async () => {
     const res = await api("POST", "/api/newsletter/subscribe", { body: { email: "not-an-email" } });
     expect(res.status).toBe(422);
