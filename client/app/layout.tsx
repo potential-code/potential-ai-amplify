@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Noto_Sans, Noto_Sans_Arabic, Noto_Sans_Devanagari } from 'next/font/google'
 import './globals.css'
+import { SITE_URL } from '@/lib/seo'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'swap' })
 
@@ -33,7 +34,7 @@ const fontVariables = [geist, notoSans, notoSansArabic, notoSansDevanagari].map(
 // apple-icon.png, opengraph-image.jpg, twitter-image.jpg); Next adds their
 // tags. metadataBase makes the image URLs absolute, which link previews need.
 export const metadata: Metadata = {
-  metadataBase: new URL('https://aiamplify.potential.org'),
+  metadataBase: new URL(SITE_URL),
   // Each page sets its own title, shown as "Courses | AI Amplify"; the homepage keeps the full name.
   title: { default: 'AI Amplify — Amplify Your Business with AI | Powered by Potential.org', template: '%s | AI Amplify' },
   description:
